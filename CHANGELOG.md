@@ -1,7 +1,7 @@
 # Changelog
 
 ## [0.0.3] - 2020-06-02
-- Fix bug affecting parsing of radionuclide names for inventories
+- Fix bugs affecting parsing of arguments
 
 ## [0.0.2] - 2020-06-02
 - Add PyPI support
