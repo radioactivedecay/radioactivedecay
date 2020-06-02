@@ -50,7 +50,7 @@ def check_dictionary(inv_dict, data):
         if not isinstance(act, (float, int)):
             raise ValueError(str(act) + " is not a valid radioactivity for " + str(nuc) + ".")
 
-    return True
+    return inv_dict
 
 def time_unit_conv(time, units, unitsto):
     '''Convert time to seconds.'''
@@ -71,7 +71,7 @@ class Inventory:
     def change(self, contents, check, data):
         '''Change contents of inventory to contents.'''
         if check is True:
-            check_dictionary(contents, data)
+            contents = check_dictionary(contents, data)
         self.contents = dict(sorted(contents.items(), key=lambda x: x[0]))
         self.radionuclides = list(self.contents)
         self.activities = list(self.contents.values())
