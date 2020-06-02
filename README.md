@@ -58,7 +58,7 @@ progeny via decay chains. The decay period is 20 hours.
 
 Tc-99 and Te-123 are long half life daughters of Tc-99m and I-123, respectively.
 
-radioactivedecay includes a `Radionuclide` class. It can be used to fetch the half-lives of
+radioactivedecay includes a `Radionuclide()` class. It can be used to fetch the half-lives of
 radionuclides:
 
 ```pycon
@@ -78,7 +78,7 @@ It calculates an analytical solution to the decay chain differential equations u
 M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)
 https://doi.org/10.1088/0952-4746/26/3/N02
 
-It is efficient as it uses NumPy and SciPy for matrix operations.
+It uses NumPy and SciPy for matrix operations.
 
 Limitations
 -----------
