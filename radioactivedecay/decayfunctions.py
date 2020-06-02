@@ -6,6 +6,7 @@ import numpy as np
 from scipy import sparse
 import radioactivedecay.decaydata as decaydata
 
+# Use ICRP-107 as default radioactive decay dataset
 DEFAULTDATA = decaydata. DecayData('icrp107')
 
 def parse_nuclide_name(nuclide_name, data):
@@ -118,5 +119,5 @@ class Radionuclide:
 
     def halflife(self, units=None):
         '''Return half life of radionuclide with user chosen units (default seconds).'''
-        conv = time_unit_conv(1.0, 's', units) if units else 1.0
+        conv = time_unit_conv(1.0, units='s', unitsto=units) if units else 1.0
         return self.half_life*conv
