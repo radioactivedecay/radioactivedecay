@@ -1,4 +1,5 @@
-# radioactivedecay
+radioactivedecay
+================
 
 radioactivedecay is a Python package for performing radioactive decay calculations. It supports
 1252 radionuclides, including full decay chains and branching.
@@ -8,15 +9,15 @@ Installation
 
 radioactivedecay requires Python 3.6+, NumPy and SciPy.
 
-radioactivedecay is currently in alpha. Install by cloning or downloading the repository, then
+Install by cloning/downloading the repository, then from the folder containing
+setup.py
 
 ```console
-$ cd radioactivedecay
 $ pip install -e .
 ```
 
 Usage
--------
+-----
 
 radioactivedecay is based around inventories of radionuclides, which are created as follows
 
@@ -29,8 +30,8 @@ radioactivedecay is based around inventories of radionuclides, which are created
 
 Here an inventory of 10 Bq of H-3 (tritium) was initialized by supplying a dictionary to
 `Inventory()`. Radionuclides can be specified in three equivalent ways:
-e.g. 'Rn-222', 'Rn222' or '222Rn'
-or 'Ir-192n', 'Ir192n' or '192nIr' (for second metastable state of Ir-192)
+* e.g. 'Rn-222', 'Rn222' or '222Rn',
+* or 'Ir-192n', 'Ir192n' or '192nIr' (for second metastable state of Ir-192).
 
 Calculate the radioactive decay of an inventory by
 
@@ -68,7 +69,7 @@ radionuclides:
 The half-life of Rn-222 is 3.8235 days.
 
 How it works
---------------
+------------
 
 radioactivedecay uses decay data from ICRP Publication 107 (2008).
 https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3
@@ -77,11 +78,10 @@ It calculates an analytical solution to the decay chain differential equations u
 M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)
 https://doi.org/10.1088/0952-4746/26/3/N02
 
-It is efficient as it uses NumPy and SciPy sparse functions for matrix multiplications.
-
+It is efficient as it uses NumPy and SciPy for matrix operations.
 
 Limitations
--------------
+-----------
 
 The following processes are not modelled by radioactivedecay:
 - ingrowth of progeny from spontaneous fission decays

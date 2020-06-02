@@ -1,6 +1,6 @@
 '''
 Defines class containing data for radionuclide decay chain calculations.
-Import data from dataset files contained in the package.
+Imports the decay data from files contained in the package.
 '''
 
 import numpy as np

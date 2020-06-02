@@ -1,5 +1,5 @@
 '''
-Functions to perform radioactive decay calculations.
+Functions and classes for radioactive decay calculations.
 '''
 
 import numpy as np
@@ -91,9 +91,8 @@ class Inventory:
             indices.update(self.data.matrix_c[:, i].nonzero()[0])
         vector_l = self.data.decay_consts if i in indices else 0.0
 
-        matrix_e = sparse.dia_matrix((np.exp(np.multiply(-1.0*decay_time, vector_l)),
-                                      np.array([0])), shape=(self.data.no_nuclides,
-                                                             self.data.no_nuclides))
+        matrix_e = sparse.dia_matrix((np.exp(np.multiply(-decay_time, vector_l)), np.array([0])),
+                                     shape=(self.data.no_nuclides, self.data.no_nuclides))
         vector_nt = ((self.data.matrix_c.dot(matrix_e)).dot(self.data.matrix_c_inv)).dot(vector_n0)
         vector_at = np.multiply(vector_nt, vector_l)
 
