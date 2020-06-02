@@ -58,7 +58,9 @@ def time_unit_conv(time, units, unitsto):
     conv = {'s':1.0, 'm':60.0, 'h':3600.0, 'd':86400.0, 'y':31556952.0}
 
     if units not in conv:
-        raise ValueError(str(units) + " is not a valid unit, e.g. s, m, h, d or y.")
+        raise ValueError(str(units) + " is not a valid unit, e.g. 's', 'm', 'h', 'd' or 'y'.")
+    if unitsto not in conv:
+        raise ValueError(str(unitsto) + " is not a valid unit, e.g. 's', 'm', 'h', 'd' or 'y'.")
 
     return time*conv[units]/conv[unitsto]
 
