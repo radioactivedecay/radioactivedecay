@@ -9,17 +9,17 @@ Installation
 
 radioactivedecay requires Python 3.6+, NumPy and SciPy.
 
-Install by cloning/downloading the repository, then from the folder containing
-setup.py
+The easiest way to install radioactivedecay is via the [Python Package index](https://pypi.org/) 
+using pip:
 
 ```console
-$ pip install -e .
+$ pip install radioactivedecay
 ```
 
 Usage
 -----
 
-radioactivedecay is based around inventories of radionuclides, which are created as follows
+radioactivedecay is based around inventories of radionuclides, which are created as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
@@ -33,7 +33,7 @@ Here an inventory of 10 Bq of H-3 (tritium) was initialized by supplying a dicti
 * e.g. 'Rn-222', 'Rn222' or '222Rn',
 * or 'Ir-192n', 'Ir192n' or '192nIr' (for second metastable state of Ir-192).
 
-Calculate the radioactive decay of an inventory by
+Calculate the radioactive decay of an inventory by:
 
 ```pycon
 >>> tritium_decayed = tritium_initial.decay(12.32, 'y')

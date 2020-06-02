@@ -37,20 +37,18 @@ def parse_nuclide_name(nuclide_name, data):
             break
 
     if nuclide_name not in data.nuclide_names:
-        raise ValueError(str(original_nuclide_name) + ' is not a valid radionuclide in decay '\
-                         'dataset.')
+        raise ValueError(str(original_nuclide_name) + ' is not a valid radionuclide in '\
+                         + data.dataset + ' dataset.')
 
     return nuclide_name
 
 def check_dictionary(inv_dict, data):
     '''Check validity of python dictionary listing radionuclides and associated acitivities.'''
 
-    for nuclide_name, activity in inv_dict.items():
-        parsed_nuclide_name = parse_nuclide_name(nuclide_name, data)
-        inv_dict[parsed_nuclide_name] = inv_dict.pop(nuclide_name)
-
-        if not isinstance(activity, (float, int)):
-            raise ValueError(str(activity) + " is not a valid radioactivity.")
+    inv_dict = {parse_nuclide_name(nuc, data): act for nuc, act in inv_dict.items()}
+    for nuc, act in inv_dict.items():
+        if not isinstance(act, (float, int)):
+            raise ValueError(str(act) + " is not a valid radioactivity for " + str(nuc) + ".")
 
     return True
 
