@@ -90,9 +90,9 @@ Limitations
 -----------
 
 The following processes are not modelled by radioactivedecay
-- external inputs of radioactivity to the system
 - ingrowth of progeny from spontaneous fission decays
 - neutronics, i.e. no modelling of induced radioactivity or fission
+- external sources inputting radioactivity into the system
 
 Care is needed when decaying backwards in time (i.e. supplying a negative time to the decay()
 function), as this can result in numerical instabilities and nonsense results.
