@@ -1,6 +1,7 @@
 radioactivedecay
 ================
 
+![PyPI](https://img.shields.io/pypi/v/radioactivedecay)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)
 
 radioactivedecay is a Python package for performing radioactive decay calculations. It supports
