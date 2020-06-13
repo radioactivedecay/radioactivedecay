@@ -53,20 +53,23 @@ progeny via decay chains. The decay period is 20 hours.
 {'I-123': 2.040459244534774,
  'Tc-99': 6.729939210983381e-09,
  'Tc-99m': 0.22950748010063513,
- 'Te-123': 9.485157551487966e-18}
+ 'Te-123': 9.4851587443927e-18,
+ 'Te-123m': 7.721174031572363e-07}
 ```
 
-Tc-99 and Te-123 are long half life daughters of Tc-99m and I-123, respectively.
+Tc-99 is the progeny of Tc-99m, and Te-123 and Te-123m are progeny of I-123.
 
-radioactivedecay includes a `Radionuclide()` class. It can be used to fetch the half-lives of
+radioactivedecay includes a `Radionuclide` class. It can be used to fetch the half-lives of
 radionuclides:
 
 ```pycon
->>> rd.Radionuclide('Rn222').halflife('d')
+>>> rd.Radionuclide('Rn-222').halflife('d')
 3.8235
+>>> rd.Radionuclide('C-14').halflife('y')
+5700.0
 ```
 
-The half-life of Rn-222 is 3.8235 days.
+The half-lives of Rn-222 and C-14 are 3.8235 days and 5700 years, respectively.
 
 How it works
 ------------
@@ -86,6 +89,14 @@ Limitations
 The following processes are not modelled by radioactivedecay:
 - ingrowth of progeny from spontaneous fission decays
 - neutronics, so no modelling of induced radioactivity or fission
+- external sources that input radioactivity over time 
 
 Care is needed when decaying backwards in time (i.e. supplying a negative time to the decay()
 function), as this can result in numerical instabilities and nonsense results.
+
+Acknowledgements
+----------------
+
+Thanks for assistance and input from
+* colleagues in the Center for Computational Science & e-Systems, Japan Atomic Energy Agency
+* Kenny McKee
