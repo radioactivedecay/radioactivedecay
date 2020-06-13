@@ -1,5 +1,4 @@
-radioactivedecay
-================
+# radioactivedecay
 
 ![PyPI](https://img.shields.io/pypi/v/radioactivedecay)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)
@@ -7,8 +6,7 @@ radioactivedecay
 radioactivedecay is a Python package for performing radioactive decay calculations. It supports
 1252 radionuclides, including full decay chains and branching.
 
-Installation
-------------
+## Installation
 
 radioactivedecay requires Python 3.6+, NumPy and SciPy.
 
@@ -19,9 +17,9 @@ using pip:
 $ pip install radioactivedecay
 ```
 
-Usage
------
+## Usage
 
+### Example 1
 radioactivedecay is based around inventories of radionuclides, which are created as follows:
 
 ```pycon
@@ -47,8 +45,10 @@ Calculate the radioactive decay of an inventory by:
 In this example the 10 Bq of H-3 was decayed for one half-life (12.32y), yielding 5 Bq of H-3. Note
 the `decay()` function takes two arguments: the decay time and its units ('s', 'm', 'h', 'd' or 'y').
 
-The next example is for a mixture of Tc-99m and I-123. It demonstrates the ingrowth of radioactive
-progeny via decay chains. The decay period is 20 hours.
+### Example 2
+Inventories can contain more than one radionuclide. In this example the inventory initially
+contains Tc-99m and I-123. Decaying it demonstrates the ingrowth of radioactive progeny via decay
+chains. The decay period is 20 hours.
 
 ```pycon
 >>> mix = rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8})
@@ -62,6 +62,7 @@ progeny via decay chains. The decay period is 20 hours.
 
 Tc-99 is the progeny of Tc-99m, and Te-123 and Te-123m are progeny of I-123.
 
+### Example 3
 radioactivedecay includes a `Radionuclide` class. It can be used to fetch the half-lives of
 radionuclides:
 
@@ -74,8 +75,7 @@ radionuclides:
 
 The half-lives of Rn-222 and C-14 are 3.8235 days and 5700 years, respectively.
 
-How it works
-------------
+## How it works
 
 radioactivedecay uses decay data from ICRP Publication 107 (2008).
 https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3
@@ -87,8 +87,7 @@ https://doi.org/10.1088/0952-4746/26/3/N02
 
 It uses NumPy and SciPy for matrix operations.
 
-Limitations
------------
+## Limitations
 
 The following processes are not modelled by radioactivedecay
 - ingrowth of progeny from spontaneous fission decays
@@ -98,9 +97,8 @@ The following processes are not modelled by radioactivedecay
 Care is needed when decaying backwards in time (i.e. supplying a negative time to the decay()
 function), as this can result in numerical instabilities and nonsense results.
 
-Acknowledgements
-----------------
+## Acknowledgements
 
-Thanks for assistance and input from
-* the Center for Computational Science & e-Systems, Japan Atomic Energy Agency
+Special thanks to assistance from 
+* Center for Computational Science & e-Systems, Japan Atomic Energy Agency
 * Kenny McKee
