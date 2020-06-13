@@ -1,6 +1,8 @@
 radioactivedecay
 ================
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)
+
 radioactivedecay is a Python package for performing radioactive decay calculations. It supports
 1252 radionuclides, including full decay chains and branching.
 
@@ -78,6 +80,7 @@ radioactivedecay uses decay data from ICRP Publication 107 (2008).
 https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3
 
 It calculates an analytical solution to the decay chain differential equations using matrix algebra.
+Refer to the following paper for more details on the method:
 M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)
 https://doi.org/10.1088/0952-4746/26/3/N02
 
@@ -86,10 +89,10 @@ It uses NumPy and SciPy for matrix operations.
 Limitations
 -----------
 
-The following processes are not modelled by radioactivedecay:
+The following processes are not modelled by radioactivedecay
+- external inputs of radioactivity to the system
 - ingrowth of progeny from spontaneous fission decays
-- neutronics, so no modelling of induced radioactivity or fission
-- external sources that input radioactivity over time 
+- neutronics, i.e. no modelling of induced radioactivity or fission
 
 Care is needed when decaying backwards in time (i.e. supplying a negative time to the decay()
 function), as this can result in numerical instabilities and nonsense results.
@@ -98,5 +101,5 @@ Acknowledgements
 ----------------
 
 Thanks for assistance and input from
-* colleagues in the Center for Computational Science & e-Systems, Japan Atomic Energy Agency
+* the Center for Computational Science & e-Systems, Japan Atomic Energy Agency
 * Kenny McKee

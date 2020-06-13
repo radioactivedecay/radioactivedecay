@@ -14,7 +14,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/alexmalins/radioactivedecay",
     classifiers=[
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
