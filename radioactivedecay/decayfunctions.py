@@ -54,9 +54,13 @@ def check_dictionary(inv_dict, data):
     return inv_dict
 
 def time_unit_conv(time, units, unitsto):
-    '''Convert time to seconds.'''
+    '''Convert between time units.'''
 
-    conv = {'s':1.0, 'm':60.0, 'h':3600.0, 'd':86400.0, 'y':31556952.0}
+    conv = {'us':1.0E-6, 'ms':1.0E-3, 's':1.0, 'm':60.0, 'h':3600.0, 'd':86400.0, 'y':31556952.0,
+            'sec':1, 'second':1, 'seconds':1, 'hr':3600.0, 'hour':3600.0, 'hours':3600.0,
+            'day':86400.0, 'days':86400.0, 'yr':31556952.0, 'year':31556952.0, 'years':31556952.0,
+            'ky':31556952.0E3, 'My':31556952.0E6, 'Gy':31556952.0E9, 'Ty':31556952.0E12,
+            'Py':31556952.0E15}
 
     if units not in conv:
         raise ValueError(str(units) + " is not a valid unit, e.g. 's', 'm', 'h', 'd' or 'y'.")
