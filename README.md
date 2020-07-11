@@ -102,17 +102,17 @@ as this can result in numerical instabilities and nonsensical results.
 
 There are some limitations associated with the ICRP 107 dataset:
 - ICRP 107 does not contain branching fraction data for radionuclides produced from spontaneous
-fission decay pathways. Thus decay calculations using this dataset do not contain the radioactivity
-produced by spontaneous fission.
-- Data in ICRP 107 is quoted with precision up to 5 significant figures. Round-off errors and their
-propagation through calculations means any results will not be more precise than this.
-- Uncertainties are not quoted for the radioactive decay data in ICRP 107. The uncertainties will
-vary substantially between radionuclides (typically depending on how well they have been studied
-to date) and will be more significant for decay calculation results than the above point in many
-cases.
-- There appear to be a few instances where minor decay pathways have not been included in ICRP 107.
-Examples include the decays At-219-> Rn-219 (beta ~3%), Es-250 -> Bk-246 (alpha ~1.5%), and U-228
--> Pa-228 (electron capture ~2.5%). For further details see the analysis of the ICRP 107 dataset in
+fission decays. Thus decayed inventories calculated using this dataset do not contain the radioactivity
+from spontaneous fission.
+- Data in ICRP 107 is quoted with up to 5 significant figures of precision. Round-off errors and
+their propagation through calculations means any results will not be more precise than this.
+- Uncertainties are not quoted for the radioactive decay data in ICRP 107. Uncertainties will vary
+substantially between radionuclides (typically depending on how well they have been studied to
+date) and will be more significant for decay calculation results than the above point on stated
+precision in many cases.
+- There appear to be a few instances where minor decay pathways have been missed in ICRP 107.
+Examples include the decays At-219-> Rn-219 (&beta; ~3%), Es-250 -> Bk-246 (&alpha; ~1.5%), and
+U-228 -> Pa-228 (&epsilon; ~2.5%). For further details see the analysis of the ICRP 107 dataset in
 the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) repository.
 
 ## Acknowledgements
