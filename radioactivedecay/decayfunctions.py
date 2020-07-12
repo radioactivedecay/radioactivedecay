@@ -103,9 +103,17 @@ class Inventory:
         if check is True:
             contents = check_dictionary(contents, data)
         self.contents = dict(sorted(contents.items(), key=lambda x: x[0]))
-        self.radionuclides = list(self.contents)
-        self.activities = list(self.contents.values())
         self.data = data
+
+    @property
+    def radionuclides(self):
+        '''Return list of radionuclides in Inventory.'''
+        return list(self.contents)
+
+    @property
+    def activities(self):
+        '''Return list of activities in Inventory.'''
+        return list(self.contents.values())
 
     def add(self, add_contents):
         '''Add a dictionary of radionuclides and associated activities to this inventory.'''
