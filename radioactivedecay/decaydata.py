@@ -39,3 +39,6 @@ class DecayData:
             self.nuclide_names.append(nuclide_name)
             self.decay_consts[i] = float(line[2])
         file_key.close()
+
+    def __repr__(self):
+        return 'Decay dataset: '+self.dataset
