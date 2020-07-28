@@ -12,6 +12,7 @@ except ImportError:
 
 class DecayData:
     '''Stores data for radioactive decay calculations'''
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, dataset='icrp107'):
         self.dataset = dataset
         self.load_data()
@@ -23,22 +24,18 @@ class DecayData:
 
     def load_data(self):
         '''Read from files containing nuclear data'''
+        data = np.load(self.get_path('radionuclides_decay_consts.npz'))
+        self.nuclide_names = data['nuclide_names']
+        self.decay_consts = data['decay_consts']
+
+        self.no_nuclides = self.nuclide_names.size
+        self.nuclide_dict = dict(zip(self.nuclide_names, list(range(0, self.no_nuclides))))
+        self.matrix_e = sparse.csc_matrix((np.zeros(self.no_nuclides),
+                                           (np.arange(self.no_nuclides),
+                                            np.arange(self.no_nuclides))))
+
         self.matrix_c = sparse.load_npz(self.get_path('c.npz'))
         self.matrix_c_inv = sparse.load_npz(self.get_path('cinverse.npz'))
-        self.no_nuclides = self.matrix_c.get_shape()[0]
-
-        self.nuclide_dict = {}
-        self.nuclide_names = []
-        self.decay_consts = np.zeros([self.no_nuclides], dtype=np.float64)
-
-        file_key = open(self.get_path('radionuclide_key.csv'), 'r')
-        for i in range(0, self.no_nuclides):
-            line = file_key.readline().split(',')
-            nuclide_name = line[1].rstrip()
-            self.nuclide_dict[nuclide_name] = int(line[0])
-            self.nuclide_names.append(nuclide_name)
-            self.decay_consts[i] = float(line[2])
-        file_key.close()
 
     def __repr__(self):
         return 'Decay dataset: '+self.dataset

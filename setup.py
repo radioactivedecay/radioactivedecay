@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.0.5",
+    version="0.0.6",
     author="Alex Malins",
     author_email="pypi@REMOVETHISalexmalins.com",
     license='MIT',
@@ -29,5 +29,5 @@ setuptools.setup(
     install_requires=["scipy", "numpy", "importlib_resources; python_version<'3.7'"],
     python_requires='>=3.6',
     packages=setuptools.find_packages(),
-    package_data={'': ['icrp107/*.csv', 'icrp107/*.npz']},
+    package_data={'': ['icrp107/*.npz']},
 )

@@ -4,7 +4,6 @@ Functions and classes for radioactive decay calculations.
 
 from functools import singledispatch, update_wrapper
 import numpy as np
-from scipy import sparse
 import radioactivedecay.decaydata as decaydata
 
 # Use ICRP-107 as default radioactive decay dataset
@@ -82,7 +81,7 @@ def add_dictionaries(dict1, dict2):
 
     return new_dict
 
-def methdispatch(func):
+def method_dispatch(func):
     '''Add singledispatch support for class methods.'''
 
     dispatcher = singledispatch(func)
@@ -148,7 +147,7 @@ class Inventory:
         new_contents = add_dictionaries(self.contents, sub_contents)
         return Inventory(new_contents, False, self.data)
 
-    @methdispatch
+    @method_dispatch
     def remove(self, delete):
         '''Remove radionuclide(s) from this inventory.'''
         raise NotImplementedError('remove() takes string or list of radionuclides.')
@@ -184,16 +183,14 @@ class Inventory:
             i = self.data.nuclide_dict[nuclide_name]
             vector_n0[i] = self.contents[nuclide_name]/self.data.decay_consts[i]
             indices.update(self.data.matrix_c[:, i].nonzero()[0])
-        vector_l = self.data.decay_consts if i in indices else 0.0
+        indices = list(indices)
 
-        matrix_e = sparse.dia_matrix((np.exp(np.multiply(-decay_time, vector_l)), np.array([0])),
-                                     shape=(self.data.no_nuclides, self.data.no_nuclides))
+        matrix_e = self.data.matrix_e.copy()
+        matrix_e.data[indices] = np.exp(np.multiply(-decay_time, self.data.decay_consts[indices]))
         vector_nt = ((self.data.matrix_c.dot(matrix_e)).dot(self.data.matrix_c_inv)).dot(vector_n0)
-        vector_at = np.multiply(vector_nt, vector_l)
+        vector_at = np.multiply(vector_nt, self.data.decay_consts)
 
-        new_contents = {}
-        for i in indices:
-            new_contents[self.data.nuclide_names[i]] = vector_at[i]
+        new_contents = dict(zip(self.data.nuclide_names[indices], vector_at[indices]))
         new_contents = dict(sorted(new_contents.items(), key=lambda x: x[0]))
         return Inventory(new_contents, False, self.data)
 
