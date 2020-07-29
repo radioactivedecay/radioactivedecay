@@ -120,4 +120,4 @@ the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) reposi
 Special thanks to
 * [Center for Computational Science & e-Systems](https://ccse.jaea.go.jp/index_eng.html),
 Japan Atomic Energy Agency
-* [Kenny McKee](https://github.com/Rolleroo]
+* [Kenny McKee](https://github.com/Rolleroo)
