@@ -77,13 +77,13 @@ The half-lives of Rn-222 and C-14 are 3.8235 days and 5700 years, respectively.
 
 ## How it works
 
-radioactivedecay uses decay data from ICRP Publication 107 (2008).
-https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3
+radioactivedecay uses decay data from
+[ICRP Publication 107 (2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
+
 
 It calculates an analytical solution to the decay chain differential equations using matrix algebra.
 Refer to the following paper for more details on the method:
-M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)
-https://doi.org/10.1088/0952-4746/26/3/N02
+[M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)](https://doi.org/10.1088/0952-4746/26/3/N02).
 
 It calls NumPy and SciPy for the matrix operations.
 
@@ -117,6 +117,7 @@ the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) reposi
 
 ## Acknowledgements
 
-Special thanks to assistance from 
-* Center for Computational Science & e-Systems, Japan Atomic Energy Agency
-* Kenny McKee
+Special thanks to
+* [Center for Computational Science & e-Systems](https://ccse.jaea.go.jp/index_eng.html),
+Japan Atomic Energy Agency
+* [Kenny McKee](https://github.com/Rolleroo]
