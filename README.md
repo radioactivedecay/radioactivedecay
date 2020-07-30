@@ -83,7 +83,7 @@ radioactivedecay uses decay data from
 
 It calculates an analytical solution to the decay chain differential equations using matrix algebra.
 Refer to the following paper for more details on the method:
-[M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)](https://doi.org/10.1088/0952-4746/26/3/N02).
+[M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)](https://doi.org/10.1016/j.cpc.2009.08.011).
 
 It calls NumPy and SciPy for the matrix operations.
 

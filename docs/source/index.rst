@@ -6,14 +6,9 @@
 Welcome to radioactivedecay's documentation!
 ============================================
 
-.. automodule:: radioactivedecay.__init__
-   :members:
-
-.. automodule:: radioactivedecay.decaydata
-   :members:
-
-.. automodule:: radioactivedecay.decayfunctions
-   :members:
+``radioactivedecay`` is a Python package for performing radioactive decay
+calculations. It supports 1252 radionuclides, including full decay chains and
+branching.
 
 .. toctree::
    :maxdepth: 2
@@ -21,6 +16,8 @@ Welcome to radioactivedecay's documentation!
    
    introduction
    installation
+   basic_usage
+   api
 
 ..
    Indices and tables

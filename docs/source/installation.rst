@@ -20,16 +20,24 @@ Index <https://pypi.org/>`_ using ``pip``:
 
 .. code-block:: bash
 
-    pip install radioactivedecay
+    $ pip install radioactivedecay
 
 This will also try to install NumPy and SciPy if they are not already present
-in the Python environment.
+in your Python environment.
 
-You can also clone or download the repository from `GitHub
+It is also possible to clone or download the repository from `GitHub
 <https://github.com/alexmalins/radioactivedecay>`_ and then from inside the
 ``radioactivedecay`` folder install via the command:
 
 .. code-block:: bash
 
-    pip install -e .
+    $ pip install -e .
     
+Uninstallation
+--------------
+
+You can uninstall ``radioactivedecay`` with this command:
+
+.. code-block:: bash
+
+    $ pip uninstall radioactivedecay

@@ -212,9 +212,9 @@ class Radionuclide:
         self.half_life = Radionuclide.ln2/self.decay_constant
         self.data = data
 
-    def halflife(self, units=None):
+    def halflife(self, units='s'):
         '''Return half life of radionuclide with user chosen units (default seconds).'''
-        conv = time_unit_conv(1.0, units='s', unitsto=units) if units else 1.0
+        conv = 1. if units == 's' else time_unit_conv(1.0, units='s', unitsto=units)
         return self.half_life*conv
 
     def __repr__(self):
