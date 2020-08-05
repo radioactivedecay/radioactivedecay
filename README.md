@@ -93,27 +93,27 @@ Jupyter Notebooks for creating the ICRP 107 radioactivedecay input files, code/v
 ## Limitations
 
 At present radioactivedecay has the following limitations:
-- It does not model neutronics, so it cannot calculate radioactivity from induced radioactivity or
-nuclear fission.
-- It cannot model external sources of radioactivity input to (or removal from) an inventory over
+- It does not model neutronics, so it does not calculate the radioactivity produced by
+neutron-nuclear reactions causing induced radioactivity or fission.
+- It cannot model external sources which input radioactivity into (or remove it from) a system over
 time.
-- Care is needed when decaying backwards in time, i.e. supplying a negative argument to decay(),
+- Care is needed when decaying backwards in time, i.e. supplying a negative argument to `decay()`,
 as this can result in numerical instabilities and nonsensical results.
 
-There are some limitations associated with the ICRP 107 dataset:
-- ICRP 107 does not contain branching fraction data for radionuclides produced from spontaneous
-fission decays. Thus decayed inventories calculated using this dataset do not contain the radioactivity
-from spontaneous fission.
-- Data in ICRP 107 is quoted with up to 5 significant figures of precision. Round-off errors and
-their propagation through calculations means any results will not be more precise than this.
+There are also limitations of the ICRP 107 dataset:
+- ICRP 107 does not contain branching fraction data for the radionuclides produced by spontaneous
+fission decays. Thus `decay()` calls do not calculate the spontaneous fission progeny.
+- Decay data is quoted in ICRP 107 with up to 5 significant figures of precision. Round-off errors
+and their propagation mean that decay calculation results will not be more precise than this.
 - Uncertainties are not quoted for the radioactive decay data in ICRP 107. Uncertainties will vary
-substantially between radionuclides (typically depending on how well they have been studied to
-date) and will be more significant for decay calculation results than the above point on stated
-precision in many cases.
+substantially between radionuclides, typically depending on how well they have been researched in
+the past. In many cases these uncertainties will be more significant for decay calculation results
+than the previous point about the quoted precision of the decay data.
 - There appear to be a few instances where minor decay pathways have been missed in ICRP 107.
 Examples include the decays At-219-> Rn-219 (&beta; ~3%), Es-250 -> Bk-246 (&alpha; ~1.5%), and
-U-228 -> Pa-228 (&epsilon; ~2.5%). For further details see the analysis of the ICRP 107 dataset in
-the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) repository.
+U-228 -> Pa-228 (&epsilon; ~2.5%). For further details see the [analysis of the ICRP 107 branching
+fractions](https://github.com/alexmalins/radioactivedecay-notebooks/blob/master/preprocess_icrp-107_dataset/analysis_of_icrp-107_branching_fractions.ipynb) 
+in the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) repository.
 
 ## Acknowledgements
 
