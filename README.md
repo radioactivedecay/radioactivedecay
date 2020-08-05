@@ -88,8 +88,8 @@ Refer to the following paper for more details on the method:
 It calls NumPy and SciPy for the matrix operations.
 
 There is a [GitHub repository](https://github.com/alexmalins/radioactivedecay-notebooks) with
-Jupyter Notebooks for creating the ICRP 107 radioactivedecay input files, code/validation tests
-etc.
+Jupyter Notebooks for creating the files containing the processed ICRP 107 data which are read in
+by radioactivedecay , and validation tests etc.
 
 ## Limitations
 
@@ -117,7 +117,7 @@ fractions](https://github.com/alexmalins/radioactivedecay-notebooks/blob/master/
 in the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) repository.
 
 For more details on the limitations of the ICRP 107 dataset, see the 
-[JAERI 1347](https://doi.org./10.11484/jaeri-1347) and
+[JAERI 1347](https://doi.org/10.11484/jaeri-1347) and
 [JAEA-Data/Code 2007-021](https://doi.org/10.11484/jaea-data-code-2007-021) reports which describe
 the creation process of the ICRP 107 dataset.
 
