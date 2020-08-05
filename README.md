@@ -88,7 +88,8 @@ Refer to the following paper for more details on the method:
 It calls NumPy and SciPy for the matrix operations.
 
 There is a [GitHub repository](https://github.com/alexmalins/radioactivedecay-notebooks) with
-Jupyter Notebooks for creating the ICRP 107 radioactivedecay input files, code/validation tests etc.
+Jupyter Notebooks for creating the ICRP 107 radioactivedecay input files, code/validation tests
+etc.
 
 ## Limitations
 
@@ -100,7 +101,7 @@ time.
 - Care is needed when decaying backwards in time, i.e. supplying a negative argument to `decay()`,
 as this can result in numerical instabilities and nonsensical results.
 
-There are also limitations of the ICRP 107 dataset:
+There are also some limitations with the ICRP 107 dataset:
 - ICRP 107 does not contain branching fraction data for the radionuclides produced by spontaneous
 fission decays. Thus `decay()` calls do not calculate the spontaneous fission progeny.
 - Decay data is quoted in ICRP 107 with up to 5 significant figures of precision. Round-off errors
@@ -109,11 +110,16 @@ and their propagation mean that decay calculation results will not be more preci
 substantially between radionuclides, typically depending on how well they have been researched in
 the past. In many cases these uncertainties will be more significant for decay calculation results
 than the previous point about the quoted precision of the decay data.
-- There appear to be a few instances where minor decay pathways have been missed in ICRP 107.
+- There are a few instances where minor decay pathways are not included in ICRP 107 .
 Examples include the decays At-219-> Rn-219 (&beta; ~3%), Es-250 -> Bk-246 (&alpha; ~1.5%), and
-U-228 -> Pa-228 (&epsilon; ~2.5%). For further details see the [analysis of the ICRP 107 branching
+U-228 -> Pa-228 (&epsilon; ~2.5%). For others see the [analysis of the ICRP 107 branching
 fractions](https://github.com/alexmalins/radioactivedecay-notebooks/blob/master/preprocess_icrp-107_dataset/analysis_of_icrp-107_branching_fractions.ipynb) 
 in the [notebooks](https://github.com/alexmalins/radioactivedecay-notebooks) repository.
+
+For more details on the limitations of the ICRP 107 dataset, see the 
+[JAERI 1347](https://doi.org./10.11484/jaeri-1347) and
+[JAEA-Data/Code 2007-021](https://doi.org/10.11484/jaea-data-code-2007-021) reports which describe
+the creation process of the ICRP 107 dataset.
 
 ## Acknowledgements
 
