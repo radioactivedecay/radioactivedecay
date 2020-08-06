@@ -27,6 +27,7 @@ class DecayData:
         data = np.load(self.get_path('radionuclides_decay_consts.npz'))
         self.nuclide_names = data['nuclide_names']
         self.decay_consts = data['decay_consts']
+        self.year_conv = data['year_conv']
 
         self.no_nuclides = self.nuclide_names.size
         self.nuclide_dict = dict(zip(self.nuclide_names, list(range(0, self.no_nuclides))))

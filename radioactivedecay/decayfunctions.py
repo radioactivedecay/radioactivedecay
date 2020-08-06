@@ -53,14 +53,16 @@ def check_dictionary(inv_dict, data):
 
     return inv_dict
 
-def time_unit_conv(time, units, unitsto):
+def time_unit_conv(time, units, unitsto, data):
     '''Convert between time units.'''
 
-    conv = {'us':1.0E-6, 'ms':1.0E-3, 's':1.0, 'm':60.0, 'h':3600.0, 'd':86400.0, 'y':31556952.0,
-            'sec':1, 'second':1, 'seconds':1, 'hr':3600.0, 'hour':3600.0, 'hours':3600.0,
-            'day':86400.0, 'days':86400.0, 'yr':31556952.0, 'year':31556952.0, 'years':31556952.0,
-            'ky':31556952.0E3, 'My':31556952.0E6, 'Gy':31556952.0E9, 'Ty':31556952.0E12,
-            'Py':31556952.0E15}
+    conv = {'us': 1.0E-6, 'ms': 1.0E-3, 's': 1.0, 'm': 60.0, 'h': 3600.0, 'd': 86400.0,
+            'y': 86400.0*data.year_conv, 'sec': 1, 'second': 1, 'seconds': 1, 'hr': 3600.0,
+            'hour': 3600.0, 'hours': 3600.0, 'day': 86400.0, 'days': 86400.0,
+            'yr':86400.0*data.year_conv, 'year': 86400.0*data.year_conv,
+            'years': 86400.0*data.year_conv, 'ky': 86400.0*data.year_conv*1.0E3,
+            'My': 86400.0*data.year_conv*1.0E6, 'Gy': 86400.0*data.year_conv*1.0E9,
+            'Ty': 86400.0*data.year_conv*1.0E12, 'Py': 86400.0*data.year_conv*1.0E15}
 
     if units not in conv:
         raise ValueError(str(units) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".')
@@ -175,7 +177,8 @@ class Inventory:
 
     def decay(self, decay_time, units=None):
         '''Perform decay calculation of the inventory for period decay_time.'''
-        decay_time = time_unit_conv(decay_time, units=units, unitsto='s') if units else decay_time
+        decay_time = time_unit_conv(decay_time, units=units, unitsto='s',
+                                    data=self.data) if units else decay_time
 
         vector_n0 = np.zeros([self.data.no_nuclides], dtype=np.float64)
         indices = set()
@@ -214,7 +217,8 @@ class Radionuclide:
 
     def halflife(self, units='s'):
         '''Return half life of radionuclide with user chosen units (default seconds).'''
-        conv = 1. if units == 's' else time_unit_conv(1.0, units='s', unitsto=units)
+        conv = 1. if units == 's' else time_unit_conv(1.0, units='s', unitsto=units,
+                                                      data=self.data)
         return self.half_life*conv
 
     def __repr__(self):
