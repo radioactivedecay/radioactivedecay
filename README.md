@@ -59,9 +59,9 @@ radioactive progeny via decay chains. For a decay period of 20 hours:
 >>> mix = rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8})
 >>> mix.decay(20.0, 'h').contents
 {'I-123': 2.040459244534774,
- 'Tc-99': 6.729939210983381e-09,
+ 'Tc-99': 6.729944738772211e-09,
  'Tc-99m': 0.22950748010063513,
- 'Te-123': 9.4851587443927e-18,
+ 'Te-123': 9.485166535243877e-18,
  'Te-123m': 7.721174031572363e-07}
 ```
 
@@ -116,7 +116,7 @@ decay calculation results than the previous point about the quoted precision of 
 - There are a few instances where minor decay pathways were not included in ICRP 107. Examples
 include the decays At-219-> Rn-219 (&beta; ~3%), Es-250 -> Bk-246 (&alpha; ~1.5%), and
 U-228 -> Pa-228 (&epsilon; ~2.5%). For more details see the following references on the creation of
-the ICRP 107 dataset: [JAERI 1347](https://doi.org/10.11484/jaeri-1347), 
+the ICRP 107 dataset: [JAERI 1347](https://doi.org/10.11484/jaeri-1347) &
 [JAEA-Data/Code 2007-021](https://doi.org/10.11484/jaea-data-code-2007-021).
 
 ## Acknowledgements
