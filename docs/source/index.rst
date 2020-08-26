@@ -16,7 +16,7 @@ branching.
    
    introduction
    installation
-   basic_usage
+   usage
    api
 
 ..

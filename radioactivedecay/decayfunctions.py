@@ -149,6 +149,21 @@ class Inventory:
         new_contents = add_dictionaries(self.contents, sub_contents)
         return Inventory(new_contents, False, self.data)
 
+    def __mul__(self, const):
+        '''Multiply all activities in an Inventory by a constant.'''
+        new_contents = self.contents.copy()
+        for nuclide, radioactivity in new_contents.items():
+            new_contents[nuclide] = radioactivity*const
+        return Inventory(new_contents, False, self.data)
+
+    def __rmul__(self, const):
+        '''Multiply all activities in an Inventory by a constant.'''
+        return self.__mul__(const)
+
+    def __truediv__(self, const):
+        '''Divide all activities in an Inventory by a constant.'''
+        return self.__mul__(1.0/const)
+
     @method_dispatch
     def remove(self, delete):
         '''Remove radionuclide(s) from this inventory.'''
@@ -212,14 +227,13 @@ class Radionuclide:
         '''Change the radionuclide, fetch its data.'''
         self.nuclide_name = parse_nuclide_name(nuclide_name, data)
         self.decay_constant = data.decay_consts[data.nuclide_dict[self.nuclide_name]]
-        self.half_life = Radionuclide.ln2/self.decay_constant
         self.data = data
 
-    def halflife(self, units='s'):
+    def half_life(self, units='s'):
         '''Return half life of radionuclide with user chosen units (default seconds).'''
         conv = 1. if units == 's' else time_unit_conv(1.0, units='s', unitsto=units,
                                                       data=self.data)
-        return self.half_life*conv
+        return conv*Radionuclide.ln2/self.decay_constant
 
     def __repr__(self):
         return 'Radionuclide: '+str(self.nuclide_name)+', Decay dataset: '+self.data.dataset
