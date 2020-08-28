@@ -2,9 +2,8 @@
 Unit tests for decaydata.py functions, classes and methods.
 '''
 
-import copy
 import unittest
-from radioactivedecay import decaydata as dd
+from radioactivedecay import decaydata
 
 class Test(unittest.TestCase):
     '''
@@ -16,7 +15,7 @@ class Test(unittest.TestCase):
         Test instantiation of DecayData objects.
         '''
 
-        data = dd.DecayData()
+        data = decaydata.DecayData('icrp107')
         self.assertEqual(data.dataset, 'icrp107')
         self.assertEqual(data.no_nuclides, 1252)
         self.assertEqual(data.year_conv, 365.2422)
@@ -32,7 +31,7 @@ class Test(unittest.TestCase):
         Test DecayData representations.
         '''
 
-        data = dd.DecayData()
+        data = decaydata.DecayData('icrp107')
         self.assertEqual(data.__repr__(), 'Decay dataset: icrp107')
 
 if __name__ == '__main__':

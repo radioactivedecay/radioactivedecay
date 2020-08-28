@@ -94,6 +94,8 @@ class Test(unittest.TestCase):
         '''
 
         self.assertEqual(rd.time_unit_conv(1.0, 's', 's', rd.DEFAULTDATA), 1.0E0)
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 's', 'ns', rd.DEFAULTDATA), 1.0E9,
+                               places=(15-9))
         self.assertEqual(rd.time_unit_conv(1.0, 's', 'us', rd.DEFAULTDATA), 1.0E6)
         self.assertEqual(rd.time_unit_conv(1.0, 's', 'ms', rd.DEFAULTDATA), 1.0E3)
         self.assertEqual(rd.time_unit_conv(1.0, 's', 'm', rd.DEFAULTDATA), 1.0/60.0)
@@ -101,7 +103,8 @@ class Test(unittest.TestCase):
         self.assertEqual(rd.time_unit_conv(1.0, 's', 'd', rd.DEFAULTDATA), 1.0/(60.0**2*24.0))
         self.assertEqual(rd.time_unit_conv(1.0, 's', 'y', rd.DEFAULTDATA),
                          1.0/(60.0**2*24.0*365.2422))
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 's', rd.DEFAULTDATA), 1.0E0)
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'ns', 's', rd.DEFAULTDATA), 1.0E-9,
+                               places=(9+15))
         self.assertEqual(rd.time_unit_conv(1.0, 'us', 's', rd.DEFAULTDATA), 1.0E-6)
         self.assertEqual(rd.time_unit_conv(1.0, 'ms', 's', rd.DEFAULTDATA), 1.0E-3)
         self.assertEqual(rd.time_unit_conv(1.0, 'm', 's', rd.DEFAULTDATA), 60.0)

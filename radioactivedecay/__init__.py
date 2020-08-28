@@ -1,5 +1,5 @@
 '''
-radioactivedecay is a Python package for performing radioactive decay
+``radioactivedecay`` is a Python package for performing radioactive decay
 calculations. It supports full decay chains and branching. By default it uses
 decay data from ICRP Publication 107. It solves the decay chain differential
 equations analytically using NumPy and SciPy linear algebra routines.

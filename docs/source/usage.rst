@@ -1,5 +1,5 @@
-Usage
-=====
+Using radioactivedecay
+======================
 
 Importing the package in Python
 -------------------------------
@@ -19,8 +19,8 @@ Create an inventory of radionuclides and associated activities as follows:
 
     >>> inv_t0 = rd.Inventory({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005})
 
-The following commands are available for returning the contents, radionuclides,
-actitivites and decay data set associated with an inventory:
+The following commands can be used to view the contents (radionuclides and
+their actitivites) and decay data set associated with an inventory:
 
 .. code-block:: python3
 
@@ -34,7 +34,7 @@ actitivites and decay data set associated with an inventory:
 Radioactive decay calculations
 ------------------------------
 
-Decay the above inventory by 1.5 years and see the result:
+Use ``decay()`` to decay the natural uranium inventory for a billion years:
 
 .. code-block:: python3
 
@@ -59,15 +59,15 @@ Decay the above inventory by 1.5 years and see the result:
      'U-234': 85.01287846492669, 'U-235': 0.2689881021544942,
      'U-238': 85.00820732184867}
     
-Time units can be entered as :code:`'s'`, :code:`'m'`, :code:`'h'`,
-:code:`'d'`, :code:`'y'` for seconds, minutes, hours, days and years,
-respectively.
+``decay()`` takes two arguments: the decay time period and its units. The units
+can be entered using :code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`,
+:code:`'y'` for seconds, minutes, hours, days and years, respectively.
 
 Radionuclide name formatting and metastable states
 --------------------------------------------------
 
-``radioactivedecay`` supports radionuclides specified in three ways, e.g. the
-following are all equivalent ways for radon-222:
+Radionuclides can be specified in three different ways. The following are all
+equivalent ways to specify radon-222:
 
 .. code-block:: python3
 
@@ -76,20 +76,20 @@ following are all equivalent ways for radon-222:
     >>> inv = rd.Inventory({'222Rn': 1.0})
 
 First and second metastable states of radionuclides can be inputted using
-\'m\' and \'n\' respectively, i.e.:
+\'m\' and \'n\', respectively, i.e.:
 
 .. code-block:: python3
 
     >>> inv1 = rd.Inventory({'Ir-192m': 1.0})
     >>> inv2 = rd.Inventory({'Ir-192n': 1.0})
 
-Equivalently these metastable states could have been specified using
+Equivalently you could have specified these metastable states using
 :code:`'Ir192m'`, :code:`'192mIr'`, :code:`'Ir192n'` or :code:`'192nIr'`.
 
-Adding radionuclides to inventories
------------------------------------
+Adding and removing radionuclides
+---------------------------------
 
-It is easy to add radionuclides to inventories:
+It is easy to add radionuclides to inventories using the ``add()`` method:
 
 .. code-block:: python3
 
@@ -100,10 +100,7 @@ It is easy to add radionuclides to inventories:
     >>> inv.contents
     {'Be-10': 2.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 4.0}
 
-Removing radionuclides from inventories
----------------------------------------
-
-To remove one or more radionuclides from an inventory:
+Likewise use ``remove()`` to erase one or more radionuclides from an inventory:
 
 .. code-block:: python3
 
@@ -117,8 +114,8 @@ To remove one or more radionuclides from an inventory:
 Inventory arithmetic
 --------------------
 
-You can add different inventories together to create a new inventory with all
-the contents:
+You can add the conents of different inventories together to create a new
+inventory:
 
 .. code-block:: python3
 
@@ -128,19 +125,19 @@ the contents:
     >>> inv.contents
     {'C-14': 1.0, 'H-3': 1.0}
 
-It is also possible to subtract one inventory from another:
+It is also possible to subtract the contents of one inventory from another:
 
 .. code-block:: python3
 
-    >>> inv = inv - inv2
+    >>> inv = inv - inv1
     >>> inv.contents
     {'C-14': 1.0, 'H-3': 0.0}
 
-Multiplication and division of all activites
---------------------------------------------
+Multiplication and division on inventories
+------------------------------------------
 
-You can add multipy or divide the activites of all radionuclides in an
-inventory as follows:
+You can multipy or divide the activites of all radionuclides in an inventory
+by a constant as follows:
 
 .. code-block:: python3
 
@@ -155,8 +152,8 @@ inventory as follows:
 Decay data for individual radionuclides
 ---------------------------------------
 
-There is a ``Radionuclide`` class for outputting decay data for individual
-radionuclides. Use this class to get half-lives:
+Use to ``Radionuclide`` class to obtain decay data for individual
+radionuclides. For example, to get the half-life of Rn-222:
 
 .. code-block:: python3
 
@@ -164,3 +161,5 @@ radionuclides. Use this class to get half-lives:
     >>> Rn222.half_life('d')
     3.8235
 
+The argument for the ``half_life()`` method is your desired time unit for the
+outputted half-life. The default if not specified is seconds.
