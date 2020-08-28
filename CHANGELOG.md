@@ -1,13 +1,13 @@
 # Changelog
 
 ## [0.0.6] - TBA
-- Create docs (****URL****).
-- Add unit tests.
-- Add option to read in own decay datafiles for DecayData class.
+- Create docs (****URL****) based on NumPy style test strings.
+- Add unit tests and code coverage.
+- Add option to read in own decay datafiles into a DecayData object.
 - Add day to year conversion factor as instance variable of DecayData objects.
-- Switch day to year conversion for ICRP 107 data to 365.2422 days per year to be consistent with
-references describing the creation of the ICRP 107 dataset.
-- Update ICRP 107 datafiles based on this change.
+- Switch day to year conversion for ICRP 107 data from 365.2425 to 365.2422 days per year to be
+consistent with references describing the creation of the ICRP 107 dataset. Update ICRP 107
+datafiles based on this change.
 - Add opetators for multpication and division of Inventory objects (acts on radionuclide
 activities).
 - Optimize Inventory decay() method for faster calculations.
