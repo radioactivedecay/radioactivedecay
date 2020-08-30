@@ -23,7 +23,7 @@ from radioactivedecay.decaydata import DecayData
 DEFAULTDATA = DecayData('icrp107')
 
 
-def parse_nuclide_name(nuclide_name, data):
+def parse_nuclide_name(nuclide_name, nuclide_names, dataset):
     '''
     Parses a radionuclide string and checks whether the radionuclide is contained in the decay
     dataset.
@@ -32,8 +32,10 @@ def parse_nuclide_name(nuclide_name, data):
     ----------
     nuclide_name : str
         Radionuclide string.
-    data : DecayData
-        Decay dataset.
+    nuclide_names : numpy.ndarray
+        NumPy array of all the radionuclides in the decay dataset.
+    dataset : str
+        Name of the decay dataset.
 
     Returns
     -------
@@ -47,9 +49,9 @@ def parse_nuclide_name(nuclide_name, data):
 
     Examples
     --------
-    >>> rd.parse_nuclide_name('222Rn', rd.DEFAULTDATA)
+    >>> rd.parse_nuclide_name('222Rn', rd.DEFAULTDATA.nuclide_names, rd.DEFAULTDATA.dataset)
     'Rn-222'
-    >>> rd.parse_nuclide_name('Ba137m', rd.DEFAULTDATA)
+    >>> rd.parse_nuclide_name('Ba137m', rd.DEFAULTDATA.nuclide_names, rd.DEFAULTDATA.dataset)
     'Ba-137m'
 
     '''
@@ -64,8 +66,8 @@ def parse_nuclide_name(nuclide_name, data):
             break
 
     if not (letter_flag and number_flag) or len(nuclide_name) < 2 or len(nuclide_name) > 7:
-        raise ValueError(str(nuclide_name) + ' is not a valid radionuclide in decay dataset'\
-                         + data.dataset + ' dataset.')
+        raise ValueError(str(nuclide_name) + ' is not a valid radionuclide in'\
+                         + dataset + ' dataset.')
 
     original_nuclide_name = nuclide_name
 
@@ -80,13 +82,13 @@ def parse_nuclide_name(nuclide_name, data):
                 nuclide_name = nuclide_name[:i]+'-'+nuclide_name[i:]
             break
 
-    if nuclide_name not in data.nuclide_names:
+    if nuclide_name not in nuclide_names:
         raise ValueError(str(original_nuclide_name) + ' is not a valid radionuclide in '\
-                         + data.dataset + ' dataset.')
+                         + dataset + ' dataset.')
 
     return nuclide_name
 
-def check_dictionary(inv_dict, data):
+def check_dictionary(inv_dict, nuclide_names, dataset):
     '''
     Checks validity of a dictionary of radionuclides and associated acitivities. Radionuclides
     must be in the decay dataset.
@@ -95,8 +97,10 @@ def check_dictionary(inv_dict, data):
     ----------
     inv_dict : dict
         Dictionary containing radionuclide strings as keys and activities as values.
-    data : DecayData
-        Decay dataset.
+    nuclide_names : list or numpy.ndarray
+        NumPy array of all the radionuclides in the decay dataset.
+    dataset : str
+        Name of the decay dataset.
 
     Returns
     -------
@@ -111,20 +115,21 @@ def check_dictionary(inv_dict, data):
 
     Examples
     --------
-    >>> rd.check_dictionary({'3H': 1.0}, rd.DEFAULTDATA)
+    >>> rd.check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.nuclide_names, rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
 
 
     '''
 
-    inv_dict = {parse_nuclide_name(nuc, data): act for nuc, act in inv_dict.items()}
+    inv_dict = {parse_nuclide_name(nuc, nuclide_names, dataset): act for nuc, act in
+                inv_dict.items()}
     for nuc, act in inv_dict.items():
         if not isinstance(act, (float, int)):
             raise ValueError(str(act) + ' is not a valid radioactivity for ' + str(nuc) + '.')
 
     return inv_dict
 
-def time_unit_conv(time, units_from, units_to, data):
+def time_unit_conv(time, units_from, units_to, year_conv):
     '''
     Converts a time from one set of units to another.
 
@@ -136,9 +141,8 @@ def time_unit_conv(time, units_from, units_to, data):
         Time unit before conversion
     units_to : str
         Time unit after conversion
-    data : DecayData
-        Decay dataset. Note this is needed as days to year conversion differs between decay
-        datasets.
+    yeav_conv : float or int
+        Conversion factor for number of days in a year.
 
     Returns
     -------
@@ -152,18 +156,18 @@ def time_unit_conv(time, units_from, units_to, data):
 
     Examples
     --------
-    >>> rd.time_unit_conv(1.0, 'd', 'h', rd.DEFAULTDATA)
+    >>> rd.time_unit_conv(1.0, 'd', 'h', rd.DEFAULTDATA.year_conv)
     24.0
 
     '''
 
     conv = {'ns': 1.0E-9, 'us': 1.0E-6, 'ms': 1.0E-3, 's': 1.0, 'm': 60.0, 'h': 3600.0,
-            'd': 86400.0, 'y': 86400.0*data.year_conv, 'sec': 1, 'second': 1, 'seconds': 1,
+            'd': 86400.0, 'y': 86400.0*year_conv, 'sec': 1, 'second': 1, 'seconds': 1,
             'hr': 3600.0, 'hour': 3600.0, 'hours': 3600.0, 'day': 86400.0, 'days': 86400.0,
-            'yr':86400.0*data.year_conv, 'year': 86400.0*data.year_conv,
-            'years': 86400.0*data.year_conv, 'ky': 86400.0*data.year_conv*1.0E3,
-            'My': 86400.0*data.year_conv*1.0E6, 'Gy': 86400.0*data.year_conv*1.0E9,
-            'Ty': 86400.0*data.year_conv*1.0E12, 'Py': 86400.0*data.year_conv*1.0E15}
+            'yr':86400.0*year_conv, 'year': 86400.0*year_conv,
+            'years': 86400.0*year_conv, 'ky': 86400.0*year_conv*1.0E3,
+            'My': 86400.0*year_conv*1.0E6, 'Gy': 86400.0*year_conv*1.0E9,
+            'Ty': 86400.0*year_conv*1.0E12, 'Py': 86400.0*year_conv*1.0E15}
 
     if units_from not in conv:
         raise ValueError(str(units_from) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".')
@@ -232,7 +236,7 @@ class Inventory:
         '''
 
         if check is True:
-            contents = check_dictionary(contents, data)
+            contents = check_dictionary(contents, data.nuclide_names, data.dataset)
         self.contents = dict(sorted(contents.items(), key=lambda x: x[0]))
         self.data = data
 
@@ -283,7 +287,7 @@ class Inventory:
 
         '''
 
-        add_contents = check_dictionary(add_contents, self.data)
+        add_contents = check_dictionary(add_contents, self.data.nuclide_names, self.data.dataset)
         new_contents = add_dictionaries(self.contents, add_contents)
         self.change(new_contents, False, self.data)
 
@@ -305,7 +309,7 @@ class Inventory:
         {'C-14': 2.0, 'H-3': 0.0}
 
         '''
-        sub_contents = check_dictionary(sub_contents, self.data)
+        sub_contents = check_dictionary(sub_contents, self.data.nuclide_names, self.data.dataset)
         sub_contents.update((nuclide, radioactivity*-1.0) for nuclide, radioactivity in
                             sub_contents.items())
         new_contents = add_dictionaries(self.contents, sub_contents)
@@ -389,7 +393,7 @@ class Inventory:
     @remove.register(str)
     def _(self, delete):
         '''Remove radionuclide string from this inventory.'''
-        delete = parse_nuclide_name(delete, self.data)
+        delete = parse_nuclide_name(delete, self.data.nuclide_names, self.data.dataset)
         new_contents = self.contents.copy()
         if delete not in new_contents:
             raise ValueError(delete + ' does not exist in this inventory.')
@@ -399,7 +403,8 @@ class Inventory:
     @remove.register(list)
     def _(self, delete):
         '''Remove list of radionuclide(s) from this inventory.'''
-        delete = [parse_nuclide_name(nuc, self.data) for nuc in delete]
+        delete = [parse_nuclide_name(nuc, self.data.nuclide_names, self.data.dataset) for nuc in
+                  delete]
         new_contents = self.contents.copy()
         for nuc in delete:
             if nuc not in new_contents:
@@ -436,7 +441,8 @@ class Inventory:
         '''
 
         decay_time = decay_time if units == 's' else time_unit_conv(decay_time, units_from=units,
-                                                                    units_to='s', data=self.data)
+                                                                    units_to='s',
+                                                                    year_conv=self.data.year_conv)
 
         vector_n0 = np.zeros([self.data.no_nuclides], dtype=np.float64)
         indices = set()
@@ -496,7 +502,7 @@ class Radionuclide:
         Radionuclide instance.
         '''
 
-        self.nuclide_name = parse_nuclide_name(nuclide_name, data)
+        self.nuclide_name = parse_nuclide_name(nuclide_name, data.nuclide_names, data.dataset)
         self.decay_constant = data.decay_consts[data.nuclide_dict[self.nuclide_name]]
         self.data = data
 
@@ -525,7 +531,7 @@ class Radionuclide:
         '''
 
         conv = 1.0 if units == 's' else time_unit_conv(1.0, units_from='s', units_to=units,
-                                                       data=self.data)
+                                                       year_conv=self.data.year_conv)
         return conv*Radionuclide.ln2/self.decay_constant
 
     def __repr__(self):

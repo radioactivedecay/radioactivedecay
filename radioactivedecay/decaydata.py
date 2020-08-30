@@ -11,6 +11,28 @@ try:
 except ImportError:
     import importlib_resources as pkg_resources
 
+def get_package_filepath(dataset, filename):
+    '''
+    Returns the path to a decay dataset file when the decay dataset is bundled as a sub-package
+    within the ``radioactivedecay`` package.
+
+    Parameters
+    ----------
+    dataset : str
+        Name of the decay dataset.
+    filename : str
+        Name of the file.
+
+    Returns
+    -------
+    str
+        Path of the decay dataset file.
+
+    '''
+
+    with pkg_resources.path(__package__+'.'+dataset, filename) as package_path:
+        return package_path
+
 class DecayData:
     '''
     Instances of DecayData store a radioactive decay dataset.
@@ -18,15 +40,15 @@ class DecayData:
     Parameters
     ----------
     dataset : str
-        Name of the radioactivedecay dataset.
-    path : str or None, optional
-        Path to folder containing the decay dataset files. Use None if the data are bundled as a
-        sub-package of ``radioactivedecay`` (default is None).
+        Name of the decay dataset.
+    dir_path : str or None, optional
+        Path to the directory containing the decay dataset files. Use None if the data are bundled
+        as a sub-package of ``radioactivedecay`` (default is None).
 
     Attributes
     ----------
     dataset : str
-        Name of the radioactivedecay dataset.
+        Name of the decay dataset.
     decay_consts : numpy.ndarray
         NumPy array of radionuclide decay constants.
     matrix_c : scipy.sparse.csc.csc_matrix
@@ -50,36 +72,27 @@ class DecayData:
 
     '''
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, dataset, path=None):
+    def __init__(self, dataset, dir_path=None):
         self.dataset = dataset
-        self.load_data(path)
+        self.load_data(dir_path)
 
-    def get_path(self, filename):
-        '''
-        Returns path of file to open if the dataset is bundled as as sub-package of
-        ``radioactivedecay``.
-        '''
-
-        with pkg_resources.path(__package__+'.'+self.dataset, filename) as package_path:
-            return package_path
-
-    def load_data(self, path):
+    def load_data(self, dir_path):
         '''
         Reads in radioactive decay dataset files and puts the data into DecayData instance
         attributes.
 
         Parameters
         ----------
-        path : str or None
-            Path to folder containing the decay dataset files, or None if the data are bundled as a
-            sub-package of ``radioactivedecay``.
+        dir_path : str or None
+            Path to the directory containing the decay dataset files, or None if the data are
+            bundled as a sub-package of ``radioactivedecay``.
 
         '''
 
-        if path is None:
-            data = np.load(self.get_path('radionuclides_decay_consts.npz'))
+        if dir_path is None:
+            data = np.load(get_package_filepath(self.dataset, 'radionuclides_decay_consts.npz'))
         else:
-            data = np.load(path+'/radionuclides_decay_consts.npz')
+            data = np.load(dir_path+'/radionuclides_decay_consts.npz')
         self.nuclide_names = data['nuclide_names']
         self.decay_consts = data['decay_consts']
         self.year_conv = data['year_conv']
@@ -90,12 +103,12 @@ class DecayData:
                                            (np.arange(self.no_nuclides),
                                             np.arange(self.no_nuclides))))
 
-        if path is None:
-            self.matrix_c = sparse.load_npz(self.get_path('c.npz'))
-            self.matrix_c_inv = sparse.load_npz(self.get_path('cinverse.npz'))
+        if dir_path is None:
+            self.matrix_c = sparse.load_npz(get_package_filepath(self.dataset, 'c.npz'))
+            self.matrix_c_inv = sparse.load_npz(get_package_filepath(self.dataset, 'cinverse.npz'))
         else:
-            self.matrix_c = sparse.load_npz(path+'/c.npz')
-            self.matrix_c_inv = sparse.load_npz(path+'/cinverse.npz')
+            self.matrix_c = sparse.load_npz(dir_path+'/c.npz')
+            self.matrix_c_inv = sparse.load_npz(dir_path+'/cinverse.npz')
 
     def __repr__(self):
         return 'Decay dataset: '+self.dataset

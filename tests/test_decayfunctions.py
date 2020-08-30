@@ -16,162 +16,165 @@ class Test(unittest.TestCase):
         Test the parsing of radionuclide strings.
         '''
 
+        nuclide_names = rd.DEFAULTDATA.nuclide_names
+        dataset = rd.DEFAULTDATA.dataset
+
         # Re-formatting of acceptable strings e.g. 100Pd -> Pd-100
-        self.assertEqual(rd.parse_nuclide_name('H-3', rd.DEFAULTDATA), 'H-3')
-        self.assertEqual(rd.parse_nuclide_name('H3', rd.DEFAULTDATA), 'H-3')
-        self.assertEqual(rd.parse_nuclide_name('3H', rd.DEFAULTDATA), 'H-3')
-        self.assertEqual(rd.parse_nuclide_name('Be-7', rd.DEFAULTDATA), 'Be-7')
-        self.assertEqual(rd.parse_nuclide_name('Be7', rd.DEFAULTDATA), 'Be-7')
-        self.assertEqual(rd.parse_nuclide_name('7Be', rd.DEFAULTDATA), 'Be-7')
-        self.assertEqual(rd.parse_nuclide_name('C-10', rd.DEFAULTDATA), 'C-10')
-        self.assertEqual(rd.parse_nuclide_name('C10', rd.DEFAULTDATA), 'C-10')
-        self.assertEqual(rd.parse_nuclide_name('10C', rd.DEFAULTDATA), 'C-10')
-        self.assertEqual(rd.parse_nuclide_name('Ne-19', rd.DEFAULTDATA), 'Ne-19')
-        self.assertEqual(rd.parse_nuclide_name('Ne19', rd.DEFAULTDATA), 'Ne-19')
-        self.assertEqual(rd.parse_nuclide_name('19Ne', rd.DEFAULTDATA), 'Ne-19')
-        self.assertEqual(rd.parse_nuclide_name('I-118', rd.DEFAULTDATA), 'I-118')
-        self.assertEqual(rd.parse_nuclide_name('I118', rd.DEFAULTDATA), 'I-118')
-        self.assertEqual(rd.parse_nuclide_name('118I', rd.DEFAULTDATA), 'I-118')
-        self.assertEqual(rd.parse_nuclide_name('Pd-100', rd.DEFAULTDATA), 'Pd-100')
-        self.assertEqual(rd.parse_nuclide_name('Pd100', rd.DEFAULTDATA), 'Pd-100')
-        self.assertEqual(rd.parse_nuclide_name('100Pd', rd.DEFAULTDATA), 'Pd-100')
-        self.assertEqual(rd.parse_nuclide_name('Cl-34m', rd.DEFAULTDATA), 'Cl-34m')
-        self.assertEqual(rd.parse_nuclide_name('Cl34m', rd.DEFAULTDATA), 'Cl-34m')
-        self.assertEqual(rd.parse_nuclide_name('34mCl', rd.DEFAULTDATA), 'Cl-34m')
-        self.assertEqual(rd.parse_nuclide_name('I-118m', rd.DEFAULTDATA), 'I-118m')
-        self.assertEqual(rd.parse_nuclide_name('I118m', rd.DEFAULTDATA), 'I-118m')
-        self.assertEqual(rd.parse_nuclide_name('118mI', rd.DEFAULTDATA), 'I-118m')
-        self.assertEqual(rd.parse_nuclide_name('Tb-156m', rd.DEFAULTDATA), 'Tb-156m')
-        self.assertEqual(rd.parse_nuclide_name('Tb156m', rd.DEFAULTDATA), 'Tb-156m')
-        self.assertEqual(rd.parse_nuclide_name('156mTb', rd.DEFAULTDATA), 'Tb-156m')
-        self.assertEqual(rd.parse_nuclide_name('Tb-156n', rd.DEFAULTDATA), 'Tb-156n')
-        self.assertEqual(rd.parse_nuclide_name('Tb156n', rd.DEFAULTDATA), 'Tb-156n')
-        self.assertEqual(rd.parse_nuclide_name('156nTb', rd.DEFAULTDATA), 'Tb-156n')
+        self.assertEqual(rd.parse_nuclide_name('H-3', nuclide_names, dataset), 'H-3')
+        self.assertEqual(rd.parse_nuclide_name('H3', nuclide_names, dataset), 'H-3')
+        self.assertEqual(rd.parse_nuclide_name('3H', nuclide_names, dataset), 'H-3')
+        self.assertEqual(rd.parse_nuclide_name('Be-7', nuclide_names, dataset), 'Be-7')
+        self.assertEqual(rd.parse_nuclide_name('Be7', nuclide_names, dataset), 'Be-7')
+        self.assertEqual(rd.parse_nuclide_name('7Be', nuclide_names, dataset), 'Be-7')
+        self.assertEqual(rd.parse_nuclide_name('C-10', nuclide_names, dataset), 'C-10')
+        self.assertEqual(rd.parse_nuclide_name('C10', nuclide_names, dataset), 'C-10')
+        self.assertEqual(rd.parse_nuclide_name('10C', nuclide_names, dataset), 'C-10')
+        self.assertEqual(rd.parse_nuclide_name('Ne-19', nuclide_names, dataset), 'Ne-19')
+        self.assertEqual(rd.parse_nuclide_name('Ne19', nuclide_names, dataset), 'Ne-19')
+        self.assertEqual(rd.parse_nuclide_name('19Ne', nuclide_names, dataset), 'Ne-19')
+        self.assertEqual(rd.parse_nuclide_name('I-118', nuclide_names, dataset), 'I-118')
+        self.assertEqual(rd.parse_nuclide_name('I118', nuclide_names, dataset), 'I-118')
+        self.assertEqual(rd.parse_nuclide_name('118I', nuclide_names, dataset), 'I-118')
+        self.assertEqual(rd.parse_nuclide_name('Pd-100', nuclide_names, dataset), 'Pd-100')
+        self.assertEqual(rd.parse_nuclide_name('Pd100', nuclide_names, dataset), 'Pd-100')
+        self.assertEqual(rd.parse_nuclide_name('100Pd', nuclide_names, dataset), 'Pd-100')
+        self.assertEqual(rd.parse_nuclide_name('Cl-34m', nuclide_names, dataset), 'Cl-34m')
+        self.assertEqual(rd.parse_nuclide_name('Cl34m', nuclide_names, dataset), 'Cl-34m')
+        self.assertEqual(rd.parse_nuclide_name('34mCl', nuclide_names, dataset), 'Cl-34m')
+        self.assertEqual(rd.parse_nuclide_name('I-118m', nuclide_names, dataset), 'I-118m')
+        self.assertEqual(rd.parse_nuclide_name('I118m', nuclide_names, dataset), 'I-118m')
+        self.assertEqual(rd.parse_nuclide_name('118mI', nuclide_names, dataset), 'I-118m')
+        self.assertEqual(rd.parse_nuclide_name('Tb-156m', nuclide_names, dataset), 'Tb-156m')
+        self.assertEqual(rd.parse_nuclide_name('Tb156m', nuclide_names, dataset), 'Tb-156m')
+        self.assertEqual(rd.parse_nuclide_name('156mTb', nuclide_names, dataset), 'Tb-156m')
+        self.assertEqual(rd.parse_nuclide_name('Tb-156n', nuclide_names, dataset), 'Tb-156n')
+        self.assertEqual(rd.parse_nuclide_name('Tb156n', nuclide_names, dataset), 'Tb-156n')
+        self.assertEqual(rd.parse_nuclide_name('156nTb', nuclide_names, dataset), 'Tb-156n')
 
        # Catch erroneous strings
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('H', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('H', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('A1', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('A1', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('1A', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('1A', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('H-4', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('H-4', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('H4', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('H4', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('4H', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('4H', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('Pb-198m', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('Pb-198m', nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.parse_nuclide_name('Pbo-198m', rd.DEFAULTDATA)
+            rd.parse_nuclide_name('Pbo-198m', nuclide_names, dataset)
 
     def test_check_dictionary(self):
         '''
         Test the checking of inventory dictionaries.
         '''
 
+        nuclide_names = rd.DEFAULTDATA.nuclide_names
+        dataset = rd.DEFAULTDATA.dataset
+
         # Dictionary parsing
-        self.assertEqual(rd.check_dictionary({'H-3': 1.0}, rd.DEFAULTDATA), {'H-3': 1.0})
-        self.assertEqual(rd.check_dictionary({'H3': 1.0}, rd.DEFAULTDATA), {'H-3': 1.0})
-        self.assertEqual(rd.check_dictionary({'3H': 1.0}, rd.DEFAULTDATA), {'H-3': 1.0})
-        self.assertEqual(rd.check_dictionary({'H-3': 1}, rd.DEFAULTDATA), {'H-3': 1})
-        self.assertEqual(rd.check_dictionary({'H-3': 1}, rd.DEFAULTDATA), {'H-3': 1.0})
-        self.assertEqual(rd.check_dictionary({'H-3': 1.0, 'C-14': 2.0}, rd.DEFAULTDATA),
+        self.assertEqual(rd.check_dictionary({'H-3': 1.0}, nuclide_names, dataset), {'H-3': 1.0})
+        self.assertEqual(rd.check_dictionary({'H3': 1.0}, nuclide_names, dataset), {'H-3': 1.0})
+        self.assertEqual(rd.check_dictionary({'3H': 1.0}, nuclide_names, dataset), {'H-3': 1.0})
+        self.assertEqual(rd.check_dictionary({'H-3': 1}, nuclide_names, dataset), {'H-3': 1})
+        self.assertEqual(rd.check_dictionary({'H-3': 1}, nuclide_names, dataset), {'H-3': 1.0})
+        self.assertEqual(rd.check_dictionary({'H-3': 1.0, 'C-14': 2.0}, nuclide_names, dataset),
                          {'H-3': 1.0, 'C-14': 2.0})
-        self.assertEqual(rd.check_dictionary({'H-3': 1.0, 'C-14': 2.0}, rd.DEFAULTDATA),
+        self.assertEqual(rd.check_dictionary({'H-3': 1.0, 'C-14': 2.0}, nuclide_names, dataset),
                          {'C-14': 2.0, 'H-3': 1.0})
 
         # Catch incorrect arguments
         with self.assertRaises(ValueError):
-            rd.check_dictionary({'H-3': '1.0'}, rd.DEFAULTDATA)
+            rd.check_dictionary({'H-3': '1.0'}, nuclide_names, dataset)
         with self.assertRaises(ValueError):
-            rd.check_dictionary({'1.0': 'H-3'}, rd.DEFAULTDATA)
+            rd.check_dictionary({'1.0': 'H-3'}, nuclide_names, dataset)
 
     def test_time_unit_conv_seconds(self):
         '''
         Test function which converts between seconds and different time units.
         '''
 
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 's', rd.DEFAULTDATA), 1.0E0)
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 's', 'ns', rd.DEFAULTDATA), 1.0E9,
-                               places=(15-9))
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'us', rd.DEFAULTDATA), 1.0E6)
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'ms', rd.DEFAULTDATA), 1.0E3)
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'm', rd.DEFAULTDATA), 1.0/60.0)
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'h', rd.DEFAULTDATA), 1.0/(60.0**2))
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'd', rd.DEFAULTDATA), 1.0/(60.0**2*24.0))
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'y', rd.DEFAULTDATA),
-                         1.0/(60.0**2*24.0*365.2422))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'ns', 's', rd.DEFAULTDATA), 1.0E-9,
-                               places=(9+15))
-        self.assertEqual(rd.time_unit_conv(1.0, 'us', 's', rd.DEFAULTDATA), 1.0E-6)
-        self.assertEqual(rd.time_unit_conv(1.0, 'ms', 's', rd.DEFAULTDATA), 1.0E-3)
-        self.assertEqual(rd.time_unit_conv(1.0, 'm', 's', rd.DEFAULTDATA), 60.0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'h', 's', rd.DEFAULTDATA), (60.0**2))
-        self.assertEqual(rd.time_unit_conv(1.0, 'd', 's', rd.DEFAULTDATA), (60.0**2*24.0))
-        self.assertEqual(rd.time_unit_conv(1.0, 'y', 's', rd.DEFAULTDATA), (60.0**2*24.0*365.2422))
+        year_conv = rd.DEFAULTDATA.year_conv
+
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 's', year_conv), 1.0E0)
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 's', 'ns', year_conv), 1.0E9, places=(15-9))
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'us', year_conv), 1.0E6)
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'ms', year_conv), 1.0E3)
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'm', year_conv), 1.0/60.0)
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'h', year_conv), 1.0/(60.0**2))
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'd', year_conv), 1.0/(60.0**2*24.0))
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'y', year_conv), 1.0/(60.0**2*24.0*365.2422))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'ns', 's', year_conv), 1.0E-9, places=(9+15))
+        self.assertEqual(rd.time_unit_conv(1.0, 'us', 's', year_conv), 1.0E-6)
+        self.assertEqual(rd.time_unit_conv(1.0, 'ms', 's', year_conv), 1.0E-3)
+        self.assertEqual(rd.time_unit_conv(1.0, 'm', 's', year_conv), 60.0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'h', 's', year_conv), (60.0**2))
+        self.assertEqual(rd.time_unit_conv(1.0, 'd', 's', year_conv), (60.0**2*24.0))
+        self.assertEqual(rd.time_unit_conv(1.0, 'y', 's', year_conv), (60.0**2*24.0*365.2422))
 
         # Catch some incorrect time units
         with self.assertRaises(ValueError):
-            rd.time_unit_conv(1.0, 'ty', 'y', rd.DEFAULTDATA)
+            rd.time_unit_conv(1.0, 'ty', 'y', year_conv)
         with self.assertRaises(ValueError):
-            rd.time_unit_conv(1.0, 'y', 'ty', rd.DEFAULTDATA)
+            rd.time_unit_conv(1.0, 'y', 'ty', year_conv)
         with self.assertRaises(ValueError):
-            rd.time_unit_conv(1.0, 'ty', 1.0, rd.DEFAULTDATA)
+            rd.time_unit_conv(1.0, 'ty', 1.0, year_conv)
 
     def test_time_unit_conv_spelling_variations(self):
         '''
         Test function which converts between spelling variations of different time units.
         '''
 
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'sec', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'second', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 's', 'seconds', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'h', 'hr', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'h', 'hour', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'h', 'hours', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'd', 'day', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'd', 'days', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'y', 'yr', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'y', 'year', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'y', 'years', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'sec', 's', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'second', 's', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'seconds', 's', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'hr', 'h', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'hour', 'h', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'hours', 'h', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'day', 'd', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'days', 'd', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'yr', 'y', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'year', 'y', rd.DEFAULTDATA), 1.0E0)
-        self.assertEqual(rd.time_unit_conv(1.0, 'years', 'y', rd.DEFAULTDATA), 1.0E0)
+        year_conv = rd.DEFAULTDATA.year_conv
+
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'sec', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'second', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 's', 'seconds', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'h', 'hr', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'h', 'hour', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'h', 'hours', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'd', 'day', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'd', 'days', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'y', 'yr', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'y', 'year', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'y', 'years', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'sec', 's', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'second', 's', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'seconds', 's', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'hr', 'h', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'hour', 'h', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'hours', 'h', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'day', 'd', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'days', 'd', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'yr', 'y', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'year', 'y', year_conv), 1.0E0)
+        self.assertEqual(rd.time_unit_conv(1.0, 'years', 'y', year_conv), 1.0E0)
 
     def test_time_unit_conv_year_prefixes(self):
         '''
         Test function which converts between different year prefixes.
         '''
 
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'ky', rd.DEFAULTDATA), 1.0E-3,
-                               places=(3+15))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'My', rd.DEFAULTDATA), 1.0E-6,
-                               places=(6+15))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'Gy', rd.DEFAULTDATA), 1.0E-9,
-                               places=(9+15))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'Ty', rd.DEFAULTDATA), 1.0E-12,
-                               places=(12+15))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'Py', rd.DEFAULTDATA), 1.0E-15,
-                               places=(15+15))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'ky', 'y', rd.DEFAULTDATA), 1.0E3,
-                               places=(15-3))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'My', 'y', rd.DEFAULTDATA), 1.0E6,
-                               places=(15-6))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'Gy', 'y', rd.DEFAULTDATA), 1.0E9,
-                               places=(15-9))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'Ty', 'y', rd.DEFAULTDATA), 1.0E12,
+        year_conv = rd.DEFAULTDATA.year_conv
+
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'ky', year_conv), 1.0E-3, places=(3+15))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'My', year_conv), 1.0E-6, places=(6+15))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'Gy', year_conv), 1.0E-9, places=(9+15))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'Ty', year_conv),
+                               1.0E-12, places=(12+15))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'y', 'Py', year_conv),
+                               1.0E-15, places=(15+15))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'ky', 'y', year_conv), 1.0E3, places=(15-3))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'My', 'y', year_conv), 1.0E6, places=(15-6))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'Gy', 'y', year_conv), 1.0E9, places=(15-9))
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'Ty', 'y', year_conv), 1.0E12,
                                places=(15-12))
-        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'Py', 'y', rd.DEFAULTDATA),
+        self.assertAlmostEqual(rd.time_unit_conv(1.0, 'Py', 'y', year_conv),
                                1.0E15, places=(15-15))
 
     def test_add_dictionaries(self):
