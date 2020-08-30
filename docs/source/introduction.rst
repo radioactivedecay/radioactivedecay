@@ -62,8 +62,8 @@ License
 It uses a pre-processed version of the ICRP 107 decay data :ref:`[1] <refs>`,
 which is Copyright |copy| 2008 A. Endo and K.F. Eckerman.
 
-Developer
-----------
+Contributors
+------------
 
 * `Alex Malins <https://alexmalins.com>`_
 

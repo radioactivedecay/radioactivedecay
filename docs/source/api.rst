@@ -1,5 +1,5 @@
-radioactivedecay API
-====================
+API
+===
 
 .. automodule:: radioactivedecay.__init__
    :members:

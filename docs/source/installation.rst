@@ -1,5 +1,5 @@
-Installing radioactivedecay
-===========================
+Installation
+============
 
 Prerequisites
 -------------

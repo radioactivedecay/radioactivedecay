@@ -1,5 +1,5 @@
-Using radioactivedecay
-======================
+Tutorial
+========
 
 Importing the package in Python
 -------------------------------

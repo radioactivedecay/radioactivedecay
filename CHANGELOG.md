@@ -1,7 +1,7 @@
 # Changelog
 
-## [0.0.6] - TBA
-- Create docs (****URL****).
+## [0.0.6] - 2020-08-30
+- Create docs ([https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)).
 - Add NumPy style docstrings to code.
 - Add unit tests and code coverage.
 - Add option to read in own decay datafiles into a `DecayData` object.
@@ -9,13 +9,14 @@
 - Switch day to year conversion used with ICRP 107 dataset to 365.2422 days per year to be
 consistent with how ICRP 107 was originally made (this also required updating the
 ICRP 107 datafiles created for radioactivedecay).
+- Add support for 'ns' (nanosecond) time unit.
 - Add opetators for multpication and division of `Inventory` objects (acts on radionuclide
 activities).
 - Optimize `decay()` method for faster calculations.
 - Refactor loading of packaged decay data files in decaydata.py.
-- Refactor functions in decayfunctions.py to only take needed data as arguments.
-- Add support for 'ns' (nanosecond) time unit.
-- Update and improve readme.
+- Refactor functions in decayfunctions.py to only take necessary data as arguments.
+- Remove Python 3.9 from setup.py as it is not officially released yet.
+- Update and improve the ReadMe.
 
 ## [0.0.5] - 2020-07-16
 - New support for `Inventory` object arithmetic (addition and subtract of `Inventory` objects).

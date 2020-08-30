@@ -2,17 +2,20 @@
 
 [![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
+[![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
+[![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 
-radioactivedecay is a Python package for modelling radioactive decay. It calculates decays of full
-decay chains of radionuclides, including those with branching or passing through metastable states.
-It supports 1252 radionuclides from ICRP 107 by default.
+radioactivedecay is a Python package for performing radioactive calculations. It supports full
+decay chains, including branching and metastable states. By default it uses the radioactive decay
+data from ICRP Publication 107, which includes 1252 radionuclides.
 
+- **Documentation**: [https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
 
 ## Installation
 
 radioactivedecay requires Python 3.6+, NumPy and SciPy.
 
-The easiest way to install radioactivedecay is via the [Python Package Index](https://pypi.org/) 
+The easiest way to install radioactivedecay is via the [Python Package Index](https://pypi.org/project/radioactivedecay/)
 using `pip`:
 
 ```console
