@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.0.7] - ###
+- Use Black for code formatting.
+
 ## [0.0.6] - 2020-08-30
 - Create docs ([https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)).
 - Add NumPy style docstrings to code.
