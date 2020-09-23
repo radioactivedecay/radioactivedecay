@@ -95,10 +95,13 @@ class DecayData:
 
         if dir_path is None:
             data = np.load(
-                get_package_filepath(self.dataset, "radionuclides_decay_consts.npz")
+                get_package_filepath(self.dataset, "radionuclides_decay_consts.npz"),
+                allow_pickle=True,
             )
         else:
-            data = np.load(dir_path + "/radionuclides_decay_consts.npz")
+            data = np.load(
+                dir_path + "/radionuclides_decay_consts.npz", allow_pickle=True
+            )
         self.nuclide_names = data["nuclide_names"]
         self.decay_consts = data["decay_consts"]
         self.year_conv = data["year_conv"]

@@ -1,10 +1,11 @@
 # Changelog
 
 ## [0.0.7] - ###
-- Restore notebooks folder
-- Add comparison to Radiological Tookbox v3.0.0
+- Restore notebooks folder.
+- Add comparison to Radiological Tookbox v3.0.0.
 - Use Black for code formatting.
 - ReadMe and Docs updates.
+- Fix bug in loading custom decay dataset files (allow_pickle=True in np.load()).
 
 ## [0.0.6] - 2020-08-30
 - Create docs ([https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)).
