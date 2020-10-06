@@ -63,9 +63,9 @@ the method described in ref. :ref:`[2] <refs>`. It calls NumPy
 The notebooks folder in the `GitHub repository 
 <https://github.com/alexmalins/radioactivedecay>`_ contains some Jupyter
 Notebooks for creating the `ICRP 107 decay dataset
-<https://github.com/alexmalins/radioactivedecay/notebooks/icrp107_dataset>`_
+<https://github.com/alexmalins/radioactivedecay/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
 for radioactivedecay, and cross-checks against `PyNE
-<https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/pyne>`_ 
+<https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
 :ref:`[5] <refs>` and `Radiological Toolbox 
 <https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/radiological_toolbox_compare.ipynb>`_
 :ref:`[6] <refs>`.

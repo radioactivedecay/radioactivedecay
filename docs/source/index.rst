@@ -18,6 +18,7 @@ which covers 1252 radionuclides.
    overview
    installation
    usage
+   theory
    api
 
 ..
