@@ -96,13 +96,13 @@ vector multiplications. It implements the method described in this paper:
 
 It calls NumPy and SciPy for the matrix operations.
 
-The notebooks folder in the [GitHub repository](https://github.com/alexmalins/radioactivedecay)
-contains some Jupyter Notebooks for creating the
-[ICRP 107 decay dataset](https://github.com/alexmalins/radioactivedecay/notebooks/icrp107_dataset)
+The [notebooks folder](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
+in the GitHub repository contains some Jupyter Notebooks for creating the
+[ICRP 107 decay dataset](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb)
 for radioactivedecay, and cross-checks against
-[PyNE](https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/pyne)
+[PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
 and
-[Radiological Toolbox](https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/radiological_toolbox_compare.ipynb).
+[Radiological Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
 
 ## Limitations
 

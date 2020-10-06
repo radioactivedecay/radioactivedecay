@@ -64,7 +64,7 @@ As matrices :math:`C` and :math:`C^{-1}` are independent of time, they can be
 pre-calculated and imported into ``radioactivedecay`` as part of a radioactive
 decay dataset. They are pre-calculated for the ICRP-107 dataset
 :ref:`[2] <refs>` in this
-`Jupter notebook <https://github.com/alexmalins/radioactivedecay/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
+`Jupter notebook <https://github.com/alexmalins/radioactivedecay/notebooks/tree/main/icrp107_dataset/icrp107_dataset.ipynb>`_
 held in the package GitHub repository.
 
 Note that :math:`C`, :math:`C^{-1}` and :math:`E` are sparse matrices. Storing

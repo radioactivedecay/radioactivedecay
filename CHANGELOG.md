@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.0.8] - ###
+- Fix broken links to notebooks.
+
 ## [0.0.7] - 2020-10-06
 - Restore notebooks folder.
 - Add comparison to Radiological Tookbox v3.0.0.
