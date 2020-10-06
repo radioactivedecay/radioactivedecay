@@ -5,9 +5,9 @@
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 
-radioactivedecay is a Python package for performing radioactive calculations. It supports full
-decay chains, including branching and metastable states. By default it uses the radioactive decay
-data from ICRP Publication 107, which includes 1252 radionuclides.
+radioactivedecay is a Python package for radioactive decay calculations. It supports full decay
+chains, including branching decays and metastable states. By default it uses the ICRP Publication
+107 radioactive decay data, which covers 1252 radionuclides.
 
 - **Documentation**: [https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
 
@@ -90,34 +90,47 @@ The half-lives of Rn-222 and C-14 are 3.8235 days and 5700 years, respectively.
 By default radioactivedecay uses decay data from
 [ICRP Publication 107 (2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
 
-It calculates an analytical solution to the decay chain differential equations using matrix algebra.
-It implements the method in this paper:
+It calculates an analytical solution to the decay chain differential equations using matrix and
+vector multiplications. It implements the method described in this paper:
 [M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)](https://doi.org/10.1016/j.cpc.2009.08.011).
 
 It calls NumPy and SciPy for the matrix operations.
 
-There is a separate GitHub [repository](https://github.com/alexmalins/radioactivedecay-notebooks)
-with some Jupyter Notebooks for creating decay data input file for radioactivedecay, and
-cross-checks against the decay function in [PyNE](https://pyne.io).
+The notebooks folder in the [GitHub repository](https://github.com/alexmalins/radioactivedecay)
+contains some Jupyter Notebooks for creating the
+[ICRP 107 decay dataset](https://github.com/alexmalins/radioactivedecay/notebooks/icrp107_dataset)
+for radioactivedecay, and cross-checks against
+[PyNE](https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/pyne)
+and
+[Radiological Toolbox](https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/radiological_toolbox_compare.ipynb).
 
 ## Limitations
 
 At present radioactivedecay has the following limitations:
 - It does not model neutronics, so cannot calculate radioactivity produced from neutron-nuclear
 reactions inducing radioactivity or fission.
-- It cannot model external sources radioactivity input or removal from an inventory over time.
+- It cannot model external sources of radioactivity input to or removal from an inventory over
+time.
+- radioactivedecay uses double precision floating point numbers for calculations. Numerical
+precision issues can arise for decay chains where the half-life of the parent is many orders of
+magnitude smaller than the half-life of one of the progeny. Similarly there can be precision issues
+when two radionuclides in a chain have very similar (or identical) half-lives. Note that this
+latter case does not appear to apply to radionuclides within ICRP 107 dataset, however. If you need
+greater numerical precision for your decay calculations, you could investigate using the
+[batemaneq](https://pypi.org/project/batemaneq/) package which supports
+[arbitrary precision calculations](https://bjodah.github.io/blog/posts/bateman-equation.html).
 - Care is needed when decaying backwards in time, i.e. supplying a negative argument to `decay()`,
-as this can result in numerical instabilities and nonsensical results.
+as this can also result in numerical instabilities and nonsensical results.
 
 There are also some limitations associated with the ICRP 107 decay dataset:
 - ICRP 107 does not contain data on branching fractions for radionuclides produced from spontaneous
 fission decays. Thus `decay()` calls do not calculate the spontaneous fission progeny.
-- Decay data is quoted in ICRP 107 with up to 5 significant figures of precision. Round-off errors
-and their propagation mean that decay calculation results will not be more precise than this.
+- Decay data is quoted in ICRP 107 with up to 5 significant figures of precision. The results of
+decay calculations will therefore not be more precise than this level of precision.
 - Uncertainties are not quoted for the radioactive decay data in ICRP 107. Uncertainties will vary
-substantially between radionuclides, typically depending on how well they have been researched in
-the past. In many cases these uncertainties will make a larger contribution to the uncertainty in
-decay calculation results than the previous point about the quoted precision of the decay data.
+substantially between radionuclides, e.g. depending on how well each radionuclide has been
+researched in the past. In many cases these uncertainties more significant for the results of
+decay calculations than the previous point about the quoted precision of the ICRP 107 decay data.
 - There are a few instances where minor decay pathways were not included in ICRP 107. Examples
 include the decays At-219-> Rn-219 (&beta; ~3%), Es-250 -> Bk-246 (&alpha; ~1.5%), and
 U-228 -> Pa-228 (&epsilon; ~2.5%). For more details see the following references on the creation of

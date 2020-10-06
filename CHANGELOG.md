@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.7] - 2020-10-06
+- Restore notebooks folder.
+- Add comparison to Radiological Tookbox v3.0.0.
+- Add comparison to PyNE v0.7.2.
+- Use Black for code formatting.
+- ReadMe and Docs updates.
+- Add theory section to docs.
+- Fix bug in loading custom decay dataset files (allow_pickle=True in np.load()).
+- Restore support for Python 3.9.
+
 ## [0.0.6] - 2020-08-30
 - Create docs ([https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)).
 - Add NumPy style docstrings to code.

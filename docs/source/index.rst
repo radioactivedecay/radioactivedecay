@@ -6,18 +6,19 @@
 Welcome to radioactivedecay's documentation!
 ============================================
 
-``radioactivedecay`` is a Python package for performing radioactive
-calculations. It supports full decay chains, including branching and metastable
-states. By default it uses the radioactive decay data from ICRP Publication
-107, which includes 1252 radionuclides.
+``radioactivedecay`` is a Python package for radioactive decay calculations.
+It supports full decay chains, including branching decays and metastable
+states. By default it uses the ICRP Publication 107 radioactive decay data,
+which covers 1252 radionuclides.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
    
-   introduction
+   overview
    installation
    usage
+   theory
    api
 
 ..
