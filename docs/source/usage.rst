@@ -86,8 +86,38 @@ First and second metastable states of radionuclides can be inputted using
 Equivalently you could have specified these metastable states using
 :code:`'Ir192m'`, :code:`'192mIr'`, :code:`'Ir192n'` or :code:`'192nIr'`.
 
-Adding and removing radionuclides
----------------------------------
+Decay data for individual radionuclides
+---------------------------------------
+
+Use to ``Radionuclide`` class to obtain decay data for individual
+radionuclides. For example, to get the half-life of :sup:`123`\ I:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Radionuclide('I123')
+    >>> nuc.half_life('d')
+    13.27
+
+The argument for the ``half_life()`` method is your desired time unit for the
+outputted half-life. The default  is seconds if no unit is specified.
+
+Use the ``progeny()``, ``branching_fractions()`` and ``decay_modes()`` methods
+to obtain the progeny, branching fractions and decay modes:
+
+.. code-block:: python3
+
+    >>> nuc.progeny()
+    ['Te-123', 'Te-123m']
+    >>> nuc.branching_fractions()
+    [0.99996, 4.442e-05]
+    >>> nuc.decay_modes()
+    ['EC', 'EC']
+    
+The methods return data for the direct progeny of the radionuclide. EC stands
+for an electron capture decay mode. 
+
+Adding and removing radionuclides from inventories
+--------------------------------------------------
 
 It is easy to add radionuclides to inventories using the ``add()`` method:
 
@@ -149,17 +179,3 @@ by a constant as follows:
     >>> inv.contents
     {'Sr-90': 1.0, 'Cs-137': 1.0} 
 
-Decay data for individual radionuclides
----------------------------------------
-
-Use to ``Radionuclide`` class to obtain decay data for individual
-radionuclides. For example, to get the half-life of Rn-222:
-
-.. code-block:: python3
-
-    >>> Rn222 = rd.Radionuclide('Rn-222')
-    >>> Rn222.half_life('d')
-    3.8235
-
-The argument for the ``half_life()`` method is your desired time unit for the
-outputted half-life. The default if not specified is seconds.

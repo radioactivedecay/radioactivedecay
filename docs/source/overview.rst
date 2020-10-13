@@ -60,14 +60,15 @@ differential equations using matrix and vector multiplications. It implements
 the method described in ref. :ref:`[2] <refs>`. It calls NumPy 
 :ref:`[3] <refs>` and SciPy :ref:`[4] <refs>` for the matrix operations.
 
-The notebooks folder in the `GitHub repository 
-<https://github.com/alexmalins/radioactivedecay>`_ contains some Jupyter
-Notebooks for creating the `ICRP 107 decay dataset
-<https://github.com/alexmalins/radioactivedecay/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
+The `notebooks folder 
+<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks>`_ 
+in the GitHub repository contains some Jupyter Notebooks for creating the 
+`ICRP 107 decay dataset
+<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
 for radioactivedecay, and cross-checks against `PyNE
-<https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
+<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
 :ref:`[5] <refs>` and `Radiological Toolbox 
-<https://github.com/alexmalins/radioactivedecay/notebooks/comparisons/radiological_toolbox_compare.ipynb>`_
+<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
 :ref:`[6] <refs>`.
 
 Limitations
@@ -123,10 +124,14 @@ License
 It uses a processed version of the ICRP 107 decay data :ref:`[1] <refs>`, which
 is originally Copyright |copy| 2008 A. Endo and K.F. Eckerman.
 
-Contributors
-------------
+Contributors & Contributing
+---------------------------
 
 * `Alex Malins <https://alexmalins.com>`_
+
+Users are welcome to fix bugs, add new features or make feature requests.
+Please open a pull request or a new issue on the
+`GitHub repository <https://github.com/alexmalins/radioactivedecay>`_.
 
 Acknowledgements
 ----------------

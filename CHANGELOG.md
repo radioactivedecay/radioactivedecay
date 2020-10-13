@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.8] - 2020-10-13
+- Add methods to `Radionuclide` class for fetching branching fractions and decay modes.
+- Add methods to `DecayData` class for fetching half-lives, branching fractions and decay modes.
+- Refactor utility functions into their own .py source file.
+- Fix broken links to notebooks.
+- ReadMe and Docs updates.
+- Add code of conduct and contributing guidelines.
+
 ## [0.0.7] - 2020-10-06
 - Restore notebooks folder.
 - Add comparison to Radiological Tookbox v3.0.0.
