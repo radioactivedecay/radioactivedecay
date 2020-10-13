@@ -124,10 +124,14 @@ License
 It uses a processed version of the ICRP 107 decay data :ref:`[1] <refs>`, which
 is originally Copyright |copy| 2008 A. Endo and K.F. Eckerman.
 
-Contributors
-------------
+Contributors & Contributing
+---------------------------
 
 * `Alex Malins <https://alexmalins.com>`_
+
+Users are welcome to fix bugs, add new features or make feature requests.
+Please open a pull request or a new issue on the
+`GitHub repository <https://github.com/alexmalins/radioactivedecay>`_.
 
 Acknowledgements
 ----------------

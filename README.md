@@ -5,137 +5,137 @@
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 
-radioactivedecay is a Python package for radioactive decay calculations. It supports full decay
-chains, including branching decays and metastable states. By default it uses the ICRP Publication
-107 radioactive decay data, which covers 1252 radionuclides.
+``radioactivedecay`` is a Python package for radioactive decay calculations.
+It fully supports radionuclide decay chains, including those with branching
+decays or chains passing through metastable states. By default
+``radioactivedecay`` uses the decay data from ICRP Publication 107, which
+covers 1252 radionuclides of 97 elements.
 
-- **Documentation**: [https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
+- **Full Documentation**: [https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
+
 
 ## Installation
 
-radioactivedecay requires Python 3.6+, NumPy and SciPy.
+``radioactivedecay`` requires Python 3.6+, NumPy and SciPy.
 
-The easiest way to install radioactivedecay is via the [Python Package Index](https://pypi.org/project/radioactivedecay/)
-using `pip`:
+The easiest way to install ``radioactivedecay`` is via the
+[Python Package Index](https://pypi.org/project/radioactivedecay/) using `pip`:
 
 ```console
 $ pip install radioactivedecay
 ```
 
+
 ## Usage
 
-### Example 1
-radioactivedecay is based around inventories of radionuclides. These are created as follows:
+### Decay calculations
+Create an inventory of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
->>> tritium_t0 = rd.Inventory({'H-3': 10.0})
->>> tritium_t0.contents
-{'H-3': 10.0}
+>>> inv = rd.Inventory({'I-123': 1.0, 'Tc-99m': 2.0})
+>>> inv.contents
+{'I-123': 1.0, 'Tc-99m': 2.0}
+>>> inv = inv.decay(20.0, 'h')
+>>> inv.contents
+{'I-123': 0.35180331802323694,
+ 'Tc-99': 5.852125859801924e-09,
+ 'Tc-99m': 0.19957172182663926,
+ 'Te-123': 1.6353735405592892e-18,
+ 'Te-123m': 1.3312369019952352e-07}
 ```
 
-Here we initialized an inventory of 10 Bq of H-3 (tritium) by supplying a Python dictionary to
-`Inventory()`. Radionuclides can be specified in three equivalent ways:
-* e.g. 'Rn-222', 'Rn222' or '222Rn',
-* or 'Ir-192n', 'Ir192n' or '192nIr' (for the second metastable state of Ir-192).
+Here we created an inventory of 1.0 Bq of <sup>123</sup>I and 2.0 Bq of
+<sup>99m</sup>Tc and decayed it for 20 hours. The decayed inventory contains
+<sup>99</sup>Tc, which is the progeny of <sup>99m</sup>Tc-99m, and 
+<sup>123</sup>Te and <sup>123m</sup>Te, which are progeny of <sup>123</sup>I.
 
-To perform a radioactive decay of an inventory:
+Note that ``radioactivedecay`` does not require you specify the activity units.
+This is because its calculations are agnostic of the activity units: units out
+are the same as units in. So this calculation could have also represented the
+decay of 1.0 Ci of <sup>123</sup>I, or 1.0 dpm, or 1.0 kBq, etc.
+
+However, you have to specify the units of the decay time. In the example we
+supplied 'h' as an argument to the `decay()` method to specify the decay time
+period (20.0) had units of hours. Accepted time units include 'ms', 's', 'm',
+'h', 'd', 'y' etc. Note seconds ('s') is the default if you do not supply a
+time unit to `decay()`
+
+Radionuclides can be specified in three equivalent ways in
+``radioactivedecay``. The strings
+* 'Rn-222', 'Rn222' or '222Rn',
+* 'Ir-192n', 'Ir192n' or '192nIr'
+are all equivalent ways of specifying <sup>222</sup>Rn and <sup>192n</sup>Ir to
+the program.
+
+
+### Fetching decay data
+``radioactivedecay`` includes a `Radionuclide` class which can be used to fetch
+decay information for individual radionuclides.
 
 ```pycon
->>> tritium_t1 = tritium_t0.decay(12.32, 'y')
->>> tritium_t1.contents
-{'H-3': 5.0}
+>>> nuc = rd.Radionuclide('I123')
+>>> nuc.half_life('d')
+13.27
+>>> nuc.progeny()
+['Te-123', 'Te-123m']
+>>> nuc.branching_fractions()
+[0.99996, 4.442e-05]
+>>> nuc.decay_modes()
+['EC', 'EC']
 ```
 
-The 10 Bq of H-3 was decayed for one half-life (12.32 years), yielding 5 Bq of H-3. Note the second
-argument to the `decay()` method is the decay time unit. Various units are supported, including 's',
-'m', 'h', 'd' and 'y'.
+The half-life for <sup>123</sup>I is thus 13.27 days. Its direct progeny
+are <sup>123</sup>Te and <sup>123m</sup>Te, with branching fractions 0.99996
+and 4.442e-05 respectively. Both of the decay modes occur via electron capture
+(EC).
 
-Note also that radioactivedecay does not require specifying activity units. Units out are the same
-as units in, so this calculation could have been 10 Ci of H-3 to 5 Ci, or 10 dpm to 5 dpm, 10 kBq
-to 5 kBq, etc.
 
-### Example 2
-Inventories can contain more than one radionuclide. In this example we start with an inventory that
-initially contains Tc-99m and I-123. Decaying this inventory demonstrates the ingrowth of
-radioactive progeny via decay chains. For a decay period of 20 hours:
+## How radioactivedecay works
 
-```pycon
->>> mix = rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8})
->>> mix.decay(20.0, 'h').contents
-{'I-123': 2.040459244534774,
- 'Tc-99': 6.729944738772211e-09,
- 'Tc-99m': 0.22950748010063513,
- 'Te-123': 9.485166535243877e-18,
- 'Te-123m': 7.721174031572363e-07}
-```
-
-Tc-99 is the progeny of Tc-99m, and Te-123 and Te-123m are progeny of I-123.
-
-### Example 3
-radioactivedecay includes a `Radionuclide` class. It can be used to fetch the half-lives of
-radionuclides:
-
-```pycon
->>> rd.Radionuclide('Rn-222').half_life('d')
-3.8235
->>> rd.Radionuclide('C-14').half_life('y')
-5700.0
-```
-
-The half-lives of Rn-222 and C-14 are 3.8235 days and 5700 years, respectively.
-
-## How it works
-
-By default radioactivedecay uses decay data from
-[ICRP Publication 107 (2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
-
-It calculates an analytical solution to the decay chain differential equations using matrix and
-vector multiplications. It implements the method described in this paper:
+``radioactivedecay`` calculates an analytical solution to the decay chain
+differential equations using matrix multiplications. It implements the
+method described in this paper:
 [M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010)](https://doi.org/10.1016/j.cpc.2009.08.011).
-
 It calls NumPy and SciPy for the matrix operations.
 
+By default ``radioactivedecay`` uses decay data from
+[ICRP Publication 107 (2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
+
 The [notebooks folder](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
-in the GitHub repository contains some Jupyter Notebooks for creating the
-[ICRP 107 decay dataset](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb)
-for radioactivedecay, and cross-checks against
+in the GitHub repository contains Jupyter Notebooks for creating the processed
+decay datasets that are read in by radioactive decay, e.g.
+[ICRP 107](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
+It also contains some comparisons of decay calculations against the
 [PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
 and
-[Radiological Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
+[Radiological Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb)
+codes.
 
-## Limitations
 
-At present radioactivedecay has the following limitations:
-- It does not model neutronics, so cannot calculate radioactivity produced from neutron-nuclear
-reactions inducing radioactivity or fission.
-- It cannot model external sources of radioactivity input to or removal from an inventory over
-time.
-- radioactivedecay uses double precision floating point numbers for calculations. Numerical
-precision issues can arise for decay chains where the half-life of the parent is many orders of
-magnitude smaller than the half-life of one of the progeny. Similarly there can be precision issues
-when two radionuclides in a chain have very similar (or identical) half-lives. Note that this
-latter case does not appear to apply to radionuclides within ICRP 107 dataset, however. If you need
-greater numerical precision for your decay calculations, you could investigate using the
-[batemaneq](https://pypi.org/project/batemaneq/) package which supports
-[arbitrary precision calculations](https://bjodah.github.io/blog/posts/bateman-equation.html).
-- Care is needed when decaying backwards in time, i.e. supplying a negative argument to `decay()`,
-as this can also result in numerical instabilities and nonsensical results.
+## Tests
 
-There are also some limitations associated with the ICRP 107 decay dataset:
-- ICRP 107 does not contain data on branching fractions for radionuclides produced from spontaneous
-fission decays. Thus `decay()` calls do not calculate the spontaneous fission progeny.
-- Decay data is quoted in ICRP 107 with up to 5 significant figures of precision. The results of
-decay calculations will therefore not be more precise than this level of precision.
-- Uncertainties are not quoted for the radioactive decay data in ICRP 107. Uncertainties will vary
-substantially between radionuclides, e.g. depending on how well each radionuclide has been
-researched in the past. In many cases these uncertainties more significant for the results of
-decay calculations than the previous point about the quoted precision of the ICRP 107 decay data.
-- There are a few instances where minor decay pathways were not included in ICRP 107. Examples
-include the decays At-219-> Rn-219 (&beta; ~3%), Es-250 -> Bk-246 (&alpha; ~1.5%), and
-U-228 -> Pa-228 (&epsilon; ~2.5%). For more details see the following references on the creation of
-the ICRP 107 dataset: [JAERI 1347](https://doi.org/10.11484/jaeri-1347) &
-[JAEA-Data/Code 2007-021](https://doi.org/10.11484/jaea-data-code-2007-021).
+From the base directory run:
+
+```console
+$ python -m unittest discover
+```
+
+
+## License
+
+``radioactivedecay`` is open source software released under the MIT License. The
+ICRP-107 decay data is copyright 2008 A. Endo and K.F. Eckerman. See
+[LICENSE](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE) for
+details. 
+
+
+## Contributing
+
+Contributors are welcome to fix bugs, add new features or make feature 
+requests. Please open a pull request or a new issue on the
+[GitHub repository](https://github.com/alexmalins/radioactivedecay).
+
 
 ## Acknowledgements
 
@@ -143,5 +143,4 @@ Special thanks to
 * [Center for Computational Science & e-Systems](https://ccse.jaea.go.jp/index_eng.html),
 Japan Atomic Energy Agency
 * [Kenny McKee](https://github.com/Rolleroo)
-
 for their help and support to this project.
