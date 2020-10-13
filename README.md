@@ -47,7 +47,7 @@ Create an inventory of radionuclides and decay it as follows:
 
 Here we created an inventory of 1.0 Bq of <sup>123</sup>I and 2.0 Bq of
 <sup>99m</sup>Tc and decayed it for 20 hours. The decayed inventory contains
-<sup>99</sup>Tc, which is the progeny of <sup>99m</sup>Tc-99m, and 
+<sup>99</sup>Tc, which is the progeny of <sup>99m</sup>Tc, and 
 <sup>123</sup>Te and <sup>123m</sup>Te, which are progeny of <sup>123</sup>I.
 
 Note that ``radioactivedecay`` does not require you specify the activity units.
