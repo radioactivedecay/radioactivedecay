@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.9] - XXX
+- Add support for calling `len()` on an inventory to find the number of radionuclides it contains.
+- In icrp107_dataset.ipynb, clarify that ICRP-107 does not contain data on spontaneous fission outcomes.
+- ReadMe and Docs updates (large update of the theory docpage).
+
 ## [0.0.8] - 2020-10-13
 - Add methods to `Radionuclide` class for fetching branching fractions and decay modes.
 - Add methods to `DecayData` class for fetching half-lives, branching fractions and decay modes.

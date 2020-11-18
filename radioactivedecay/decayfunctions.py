@@ -98,6 +98,13 @@ class Inventory:
 
         return list(self.contents.values())
 
+    def __len__(self):
+        """
+        Returns number of radionuclides in this inventory.
+        """
+
+        return len(self.contents)
+
     def add(self, add_contents):
         """
         Adds a dictionary of radionuclides and associated activities to this inventory.

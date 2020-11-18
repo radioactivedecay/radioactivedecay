@@ -37,8 +37,6 @@ Import the ``radioactivedecay`` package and decay a simple inventory using:
 
     >>> import radioactivedecay as rd
     >>> inv_t0 = rd.Inventory({'H-3': 10.0})
-    >>> inv_t0.contents
-    {'H-3': 10.0}
     >>> inv_t1 = inv_t0.decay(12.32, 'y')
     >>> inv_t1.contents
     {'H-3': 5.0}

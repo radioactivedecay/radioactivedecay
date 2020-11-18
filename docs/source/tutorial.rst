@@ -84,10 +84,11 @@ First and second metastable states of radionuclides can be inputted using
     >>> inv2 = rd.Inventory({'Ir-192n': 1.0})
 
 Equivalently you could have specified these metastable states using
-:code:`'Ir192m'`, :code:`'192mIr'`, :code:`'Ir192n'` or :code:`'192nIr'`.
+:code:`'Ir192m'` or :code:`'192mIr'` for the former, or :code:`'Ir192n'` or
+:code:`'192nIr'` for the latter.
 
-Decay data for individual radionuclides
----------------------------------------
+Fetching decay data
+-------------------
 
 Use to ``Radionuclide`` class to obtain decay data for individual
 radionuclides. For example, to get the half-life of :sup:`123`\ I:
@@ -114,7 +115,21 @@ to obtain the progeny, branching fractions and decay modes:
     ['EC', 'EC']
     
 The methods return data for the direct progeny of the radionuclide. EC stands
-for an electron capture decay mode. 
+for an electron capture decay mode.
+
+Decay data can be obtained directly from the decay datasets. To query the data
+in ICRP-107, which is the default dataset in ``radioactivedecay``, use:
+
+.. code-block:: python3
+
+    >>> rd.DEFAULTDATA.dataset
+    'icrp107'
+    >>> rd.DEFAULTDATA.half_life('Cs-137', 'y')
+    30.1671
+    >>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
+    0.94399
+    >>> rd.DEFAULTDATA.decay_mode('Cs-137', 'Ba-137m')
+    'É¿-'
 
 Adding and removing radionuclides from inventories
 --------------------------------------------------

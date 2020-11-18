@@ -53,6 +53,16 @@ class Test(unittest.TestCase):
         inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(inv.activities, [5.8, 2.3])
 
+    def test_inventory___len__(self):
+        """
+        Test len() on Inventory.
+        """
+
+        inv = rd.Inventory({"H-3": 1})
+        self.assertEqual(len(inv), 1)
+        inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(len(inv), 2)
+
     def test_inventory_add(self):
         """
         Test Inventory add() method to append to an inventory.
