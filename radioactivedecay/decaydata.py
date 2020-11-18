@@ -10,6 +10,10 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 
     >>> import radioactivedecay as rd
 
+Attributes
+----------
+DEFAULTDATA : DecayData
+    Default decay dataset used by ``radioactivedecay``. This is currently ICRP 107.
 """
 
 from pathlib import Path
