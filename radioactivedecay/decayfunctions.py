@@ -15,8 +15,9 @@ DEFAULTDATA : DecayData
     Default decay dataset used by ``radioactivedecay``. This is currently ICRP 107.
 """
 
+from typing import Callable, Dict, List, Union
 import numpy as np
-from radioactivedecay.decaydata import DecayData
+from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.utils import (
     parse_radionuclide,
     check_dictionary,
@@ -24,8 +25,6 @@ from radioactivedecay.utils import (
     add_dictionaries,
     method_dispatch,
 )
-
-DEFAULTDATA = DecayData("icrp107")
 
 
 class Inventory:
@@ -57,12 +56,20 @@ class Inventory:
 
     """
 
-    def __init__(self, contents, check=True, data=DEFAULTDATA):
-        self.change(contents, check, data)
+    def __init__(
+        self,
+        contents: Dict[str, float],
+        check: bool = True,
+        data: DecayData = DEFAULTDATA,
+    ) -> None:
+        if check is True:
+            contents = check_dictionary(contents, data.radionuclides, data.dataset)
+        self.contents = dict(sorted(contents.items(), key=lambda x: x[0]))
+        self.data = data
 
-    def change(self, contents, check, data):
+    def change(self, contents: Dict[str, float], check: bool, data) -> None:
         """
-        Changes or initializes the contents and data attritubes of this Inventory instance.
+        Changes the contents and data attritubes of this Inventory instance.
         """
 
         if check is True:
@@ -71,7 +78,7 @@ class Inventory:
         self.data = data
 
     @property
-    def radionuclides(self):
+    def radionuclides(self) -> List[str]:
         """
         Returns a list of the radionuclides in the Inventory.
 
@@ -85,7 +92,7 @@ class Inventory:
         return list(self.contents)
 
     @property
-    def activities(self):
+    def activities(self) -> List[float]:
         """
         Returns a list of the radionuclides in the Inventory.
 
@@ -98,14 +105,14 @@ class Inventory:
 
         return list(self.contents.values())
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns number of radionuclides in this inventory.
         """
 
         return len(self.contents)
 
-    def add(self, add_contents):
+    def add(self, add_contents: Dict[str, float]) -> None:
         """
         Adds a dictionary of radionuclides and associated activities to this inventory.
 
@@ -130,7 +137,7 @@ class Inventory:
         new_contents = add_dictionaries(self.contents, add_contents)
         self.change(new_contents, False, self.data)
 
-    def subtract(self, sub_contents):
+    def subtract(self, sub_contents: Dict[str, float]) -> None:
         """
         Subtracts a dictionary of radionuclides and associated activities from this inventory.
 
@@ -158,7 +165,7 @@ class Inventory:
         new_contents = add_dictionaries(self.contents, sub_contents)
         self.change(new_contents, False, self.data)
 
-    def __add__(self, other):
+    def __add__(self, other: "Inventory") -> "Inventory":
         """
         Defines + operator to add two Inventory objects together.
         """
@@ -173,7 +180,7 @@ class Inventory:
         new_contents = add_dictionaries(self.contents, other.contents)
         return Inventory(new_contents, False, self.data)
 
-    def __sub__(self, other):
+    def __sub__(self, other: "Inventory") -> "Inventory":
         """
         Defines - operator to subtract one Inventory object from another.
         """
@@ -193,7 +200,7 @@ class Inventory:
         new_contents = add_dictionaries(self.contents, sub_contents)
         return Inventory(new_contents, False, self.data)
 
-    def __mul__(self, const):
+    def __mul__(self, const: float) -> "Inventory":
         """
         Defines * operator to multiply all activities of radionuclides in an Inventory by a
         float or int.
@@ -204,7 +211,7 @@ class Inventory:
             new_contents[nuclide] = radioactivity * const
         return Inventory(new_contents, False, self.data)
 
-    def __rmul__(self, const):
+    def __rmul__(self, const: float) -> "Inventory":
         """
         Defines * operator to multiply all activities of radionuclides in an Inventory by a
         float or int.
@@ -212,7 +219,7 @@ class Inventory:
 
         return self.__mul__(const)
 
-    def __truediv__(self, const):
+    def __truediv__(self, const: float) -> "Inventory":
         """
         Defines / operator to divide all activities of radionuclides in an Inventory by a
         float or int.
@@ -221,7 +228,7 @@ class Inventory:
         return self.__mul__(1.0 / const)
 
     @method_dispatch
-    def remove(self, delete):
+    def remove(self, delete: Union[str, List[str]]) -> None:
         """
         Removes radionuclide(s) from this inventory.
 
@@ -244,7 +251,7 @@ class Inventory:
         raise NotImplementedError("remove() takes string or list of radionuclides.")
 
     @remove.register(str)
-    def _(self, delete):
+    def _(self, delete: str) -> Callable[[Dict[str, float], bool, DecayData], None]:
         """Remove radionuclide string from this inventory."""
         delete = parse_radionuclide(delete, self.data.radionuclides, self.data.dataset)
         new_contents = self.contents.copy()
@@ -254,7 +261,7 @@ class Inventory:
         self.change(new_contents, False, self.data)
 
     @remove.register(list)
-    def _(self, delete):
+    def _(self, delete: str) -> Callable[[Dict[str, float], bool, DecayData], None]:
         """Remove list of radionuclide(s) from this inventory."""
         delete = [
             parse_radionuclide(nuc, self.data.radionuclides, self.data.dataset)
@@ -267,7 +274,7 @@ class Inventory:
             new_contents.pop(nuc)
         self.change(new_contents, False, self.data)
 
-    def decay(self, decay_time, units="s"):
+    def decay(self, decay_time: float, units: str = "s") -> "Inventory":
         """
         Returns new Inventory resulting from radioactive decay of the current Inventory object for
         decay_time.
@@ -306,13 +313,13 @@ class Inventory:
             )
         )
 
-        vector_n0 = np.zeros([self.data.no_radionuclides], dtype=np.float64)
-        indices = set()
+        vector_n0 = np.zeros([self.data.num_radionuclides], dtype=np.float64)
+        indices_set = set()
         for radionuclide in self.contents:
             i = self.data.radionuclide_dict[radionuclide]
             vector_n0[i] = self.contents[radionuclide] / self.data.decay_consts[i]
-            indices.update(self.data.matrix_c[:, i].nonzero()[0])
-        indices = list(indices)
+            indices_set.update(self.data.matrix_c[:, i].nonzero()[0])
+        indices = list(indices_set)
 
         matrix_e = self.data.matrix_e.copy()
         matrix_e.data[indices] = np.exp(
@@ -327,7 +334,7 @@ class Inventory:
         new_contents = dict(sorted(new_contents.items(), key=lambda x: x[0]))
         return Inventory(new_contents, False, self.data)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             "Inventory: " + str(self.contents) + ", Decay dataset: " + self.data.dataset
         )
@@ -350,8 +357,9 @@ class Radionuclide:
         Radionuclide string.
     decay_constant : numpy.float64
         Decay constant of the radionuclide (s\\ :sup:`-1`).
-    prog_bf : dict
-        Dictionary containing first progeny as keys and branching fractions as values.
+    prog_bf_mode : dict
+        Dictionary containing direct progeny as keys, and a list containing the branching fraction
+        and the decay mode for that progeny as values.
     data : DecayData
         Decay dataset.
 
@@ -362,15 +370,7 @@ class Radionuclide:
 
     """
 
-    def __init__(self, radionuclide, data=DEFAULTDATA):
-        self.change(radionuclide, data)
-
-    def change(self, radionuclide, data):
-        """
-        Changes or initializes the radionuclide, decay_constant and data attritubes of this
-        Radionuclide instance.
-        """
-
+    def __init__(self, radionuclide: str, data: DecayData = DEFAULTDATA) -> None:
         self.radionuclide = parse_radionuclide(
             radionuclide, data.radionuclides, data.dataset
         )
@@ -382,7 +382,7 @@ class Radionuclide:
         ]
         self.data = data
 
-    def half_life(self, units="s"):
+    def half_life(self, units: str = "s") -> float:
         """
         Returns half-life of the radionuclide in chosen units.
 
@@ -415,14 +415,14 @@ class Radionuclide:
         )
         return conv * self.data.ln2 / self.decay_constant
 
-    def progeny(self):
+    def progeny(self) -> List[str]:
         """
-        Returns the first progeny of the radionuclide.
+        Returns the direct progeny of the radionuclide.
 
         Returns
         -------
         list
-            List of the first progeny of the radionuclide, ordered by decreasing branching
+            List of the direct progeny of the radionuclide, ordered by decreasing branching
             fraction.
 
         Examples
@@ -435,9 +435,9 @@ class Radionuclide:
 
         return list(self.prog_bf_mode.keys())
 
-    def branching_fractions(self):
+    def branching_fractions(self) -> List[float]:
         """
-        Returns the branching fractions for the first progeny of the radionuclide.
+        Returns the branching fractions for the direct progeny of the radionuclide.
 
         Returns
         -------
@@ -454,9 +454,11 @@ class Radionuclide:
 
         return [bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())]
 
-    def decay_modes(self):
+    def decay_modes(self) -> List[str]:
         """
-        Returns the decay modes creating the first progeny of the radionuclide.
+        Returns the decay modes for the radionuclide, as defined in the decay dataset. Note: the
+        decay mode does not necessarily list all the different radiation particles emitted by the
+        decay.
 
         Returns
         -------
@@ -473,7 +475,7 @@ class Radionuclide:
 
         return [bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             "Radionuclide: "
             + str(self.radionuclide)

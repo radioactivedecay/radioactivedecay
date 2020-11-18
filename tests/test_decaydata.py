@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
 
         data = decaydata.DecayData("icrp107")
         self.assertEqual(data.dataset, "icrp107")
-        self.assertEqual(data.no_radionuclides, 1252)
+        self.assertEqual(data.num_radionuclides, 1252)
         self.assertEqual(data.year_conv, 365.2422)
         self.assertEqual(data.radionuclides[0], "Fm-257")
         self.assertEqual(data.radionuclides[-1], "H-3")
@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
         # check instantiations with supplied dataset path
         data = decaydata.DecayData("icrp107_2", icrp107.__path__[0])
         self.assertEqual(data.dataset, "icrp107_2")
-        self.assertEqual(data.no_radionuclides, 1252)
+        self.assertEqual(data.num_radionuclides, 1252)
         self.assertEqual(data.year_conv, 365.2422)
         self.assertEqual(data.radionuclides[0], "Fm-257")
         self.assertEqual(data.radionuclides[-1], "H-3")

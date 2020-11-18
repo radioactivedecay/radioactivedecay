@@ -129,7 +129,7 @@ in ICRP-107, which is the default dataset in ``radioactivedecay``, use:
     >>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
     0.94399
     >>> rd.DEFAULTDATA.decay_mode('Cs-137', 'Ba-137m')
-    'É¿-'
+    'Œ≤-'
 
 Adding and removing radionuclides from inventories
 --------------------------------------------------

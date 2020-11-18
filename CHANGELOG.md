@@ -2,6 +2,7 @@
 
 ## [0.0.9] - XXX
 - Add support for calling `len()` on an inventory to find the number of radionuclides it contains.
+- Add type hinting.
 - In icrp107_dataset.ipynb, clarify that ICRP-107 does not contain data on spontaneous fission outcomes.
 - ReadMe and Docs updates (large update of the theory docpage).
 

@@ -99,7 +99,8 @@ queried directly as follows:
 >>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
 0.94399
 >>> rd.DEFAULTDATA.decay_mode('Cs-137', 'Ba-137m')
-'É¿-'
+'Œ≤-'
+```
 
 ## How radioactivedecay works
 

@@ -250,18 +250,10 @@ class Test(unittest.TestCase):
         Test instantiation of Radionuclide objects.
         """
 
-        nuc = rd.Radionuclide("H-3")
-        self.assertEqual(nuc.radionuclide, "H-3")
-
-    def test_radionuclide_change(self):
-        """
-        Test Radionuclide change() method.
-        """
-
-        nuc = rd.Radionuclide("H-3")
-        nuc.change("Rn-222", rd.DEFAULTDATA)
+        nuc = rd.Radionuclide("Rn-222")
         self.assertEqual(nuc.radionuclide, "Rn-222")
         self.assertEqual(nuc.decay_constant, 2.0982180755947176e-06)
+        self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
 
     def test_radionuclide_half_life(self):
         """
