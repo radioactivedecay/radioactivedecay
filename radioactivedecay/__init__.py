@@ -7,4 +7,6 @@ equations analytically using NumPy and SciPy linear algebra routines.
 
 __version__ = "0.0.9"
 
-from radioactivedecay.decayfunctions import *
+from radioactivedecay.decaydata import DecayData, DEFAULTDATA
+from radioactivedecay.radionuclide import Radionuclide
+from radioactivedecay.inventory import Inventory
