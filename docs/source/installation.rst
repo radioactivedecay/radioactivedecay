@@ -4,10 +4,10 @@ Installation
 Prerequisites
 -------------
 
-``radioactivedecay`` requires a Python 3.6+ installation and depends on the
-`NumPy <https://numpy.org/>`_ and `SciPy <https://www.scipy.org/index.html>`_
-packages. These can be installed from `python.org <https://www.python.org/>`_
-and `PyPI <https://pypi.org/>`_, or via a package manager such as `Anaconda
+``radioactivedecay`` requires Python 3.6+ and the `NumPy <https://numpy.org/>`_
+and `SciPy <https://www.scipy.org/index.html>`_ packages. These can be
+installed from `python.org <https://www.python.org/>`_ and `PyPI
+<https://pypi.org/>`_, or via a package manager such as `Anaconda
 <https://www.anaconda.com/>`_, `WinPython <https://winpython.github.io/>`_,
 `MacPorts <https://www.macports.org/>`_, `HomeBrew <https://brew.sh/>`_,
 `APT <https://en.wikipedia.org/wiki/APT_(software)>`_ etc.

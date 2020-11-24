@@ -9,6 +9,7 @@ API
    :caption: Modules:
    
    decaydata
-   decayfunctions
+   inventory
+   radionuclide
    utils
    

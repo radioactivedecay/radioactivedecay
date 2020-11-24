@@ -51,6 +51,18 @@ def get_package_filepath(dataset: str, filename: str) -> ContextManager[Path]:
         return package_path
 
 
+def csc_matrix_equal(matrix1, matrix2):
+    """
+    Checks whether two SciPy Compressed Sparse Column (CSC) matrices are equal.
+    """
+
+    return (
+        np.array_equal(matrix1.indptr, matrix2.indptr)
+        and np.array_equal(matrix1.indices, matrix2.indices)
+        and np.array_equal(matrix1.data, matrix2.data)
+    )
+
+
 class DecayData:
     """
     Instances of DecayData store a radioactive decay dataset.
@@ -219,14 +231,15 @@ class DecayData:
     def decay_mode(self, parent: str, progeny: str) -> str:
         """
         Returns the type of decay mode between parent and progeny (if one exists). Note: the decay
-        mode does not necessarily list all the different radiation particles emitted by the decay.
+        mode is not a list of all the different radiation types emitted when the parent
+        radionuclide decays.
 
         Parameters
         ----------
         parent : str
             Radionuclide string of parent.
         progeny : str
-            Nuclide string of progeny (can be stable or radioactive nuclide).
+            Type of decay of the parent yielding progeny.
 
         Returns
         -------
@@ -236,8 +249,8 @@ class DecayData:
 
         Examples
         --------
-        >>> rd.DEFAULTDATA.branching_fraction('K-40', 'Ca-40')
-        0.8914
+        >>> rd.DEFAULTDATA.decay_mode('K-40', 'Ca-40')
+        ''\u03b2-'
 
         """
 
@@ -251,6 +264,32 @@ class DecayData:
     def __repr__(self) -> str:
 
         return "Decay dataset: " + self.dataset
+
+    def __eq__(self, other) -> bool:
+        """
+        Check whether two ``DecayData`` instances are equal with ``==`` operator.
+        """
+
+        return (
+            self.dataset == other.dataset
+            and (self.decay_consts == other.decay_consts).all()
+            and self.ln2 == other.ln2
+            and csc_matrix_equal(self.matrix_c, other.matrix_c)
+            and csc_matrix_equal(self.matrix_c_inv, other.matrix_c_inv)
+            and csc_matrix_equal(self.matrix_e, other.matrix_e)
+            and self.num_radionuclides == other.num_radionuclides
+            and (self.radionuclides == other.radionuclides).all()
+            and self.radionuclide_dict == other.radionuclide_dict
+            and (self.prog_bfs_modes == other.prog_bfs_modes).all()
+            and self.year_conv == other.year_conv
+        )
+
+    def __ne__(self, other) -> bool:
+        """
+        Check whether two ``DecayData`` instances are not equal with ``!=`` operator.
+        """
+
+        return not self.__eq__(other)
 
 
 DEFAULTDATA = DecayData("icrp107")

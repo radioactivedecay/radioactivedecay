@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
         data = decaydata.DecayData("icrp107")
         self.assertEqual(data.half_life("H-3", "y"), 12.32)
 
-    def test_radionuclide_branching_fraction(self):
+    def test_decaydata_branching_fraction(self):
         """
         Test DecayData branching_fraction() method.
         """
@@ -74,7 +74,7 @@ class Test(unittest.TestCase):
         self.assertEqual(data.branching_fraction("K-40", "Ca-40"), 0.8914)
         self.assertEqual(data.branching_fraction("K-40", "H-3"), 0.0)
 
-    def test_radionuclide_decay_mode(self):
+    def test_decaydata_decay_mode(self):
         """
         Test DecayData decay_mode() method.
         """
@@ -90,6 +90,25 @@ class Test(unittest.TestCase):
 
         data = decaydata.DecayData("icrp107")
         self.assertEqual(data.__repr__(), "Decay dataset: icrp107")
+
+    def test_decaydata___eq__(self):
+        """
+        Test DecayData equality.
+        """
+
+        data1 = decaydata.DecayData("icrp107")
+        data2 = decaydata.DecayData("icrp107")
+        self.assertEqual(data1, data2)
+
+    def test_decaydata___ne__(self):
+        """
+        Test DecayData not equality.
+        """
+
+        data1 = decaydata.DecayData("icrp107")
+        data2 = decaydata.DecayData("icrp107")
+        data2.dataset = "icrp07"
+        self.assertNotEqual(data1, data2)
 
 
 if __name__ == "__main__":

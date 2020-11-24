@@ -1,11 +1,21 @@
 # Changelog
 
-## [0.0.9] - XXX
-- Add support for calling `len()` on an inventory to find the number of radionuclides it contains.
+## [0.0.9] - 2020-11-24
+- Add support for using `Radionuclide` objects in place of radionuclide strings for `Inventory`
+constructor, `add()` and `remove()` methods.
+- Add `Radionuclide` `__hash__()` method (needed for above change).
+- Add `half_lives()`, `progeny()`, `branching_fractions()` and `decay_modes()` methods to
+`Inventory`.
 - Add type hinting.
-- Code refactoring.
-- In icrp107_dataset.ipynb, clarify that ICRP-107 does not contain data on spontaneous fission outcomes.
-- ReadMe and Docs updates (large update of the theory docpage).
+- Add support for calling `len()` on an `Inventory` to find the number of radionuclides it
+contains.
+- Add support for `==` and `!=` operators with `DecayData`, `Radionuclide` and `Inventory`
+instances.
+- Add support for `'ps'` (picoseconds) time unit.
+- Code refactoring. `Radionuclide` and `Inventory` classes moved into separate files.
+- In icrp107_dataset.ipynb, clarify that ICRP-107 does not contain data on spontaneous fission
+outcomes.
+- ReadMe and Docs updates (mainly updates of the theory and tutorial docpages).
 
 ## [0.0.8] - 2020-10-13
 - Add methods to `Radionuclide` class for fetching branching fractions and decay modes.

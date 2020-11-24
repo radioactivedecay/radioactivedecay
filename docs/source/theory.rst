@@ -4,8 +4,9 @@ Theory
 Solution to the decay chain differential equations
 --------------------------------------------------
 
-``radioactivedecay`` implements an analytical solution to the decay chain
-differential equations outlined by Amaku et al. :ref:`[1] <refs>`.
+``radioactivedecay`` calculates an analytical solution to the decay chain
+differential equations using the method outlined by Amaku et al. :ref:`[1]
+<refs>`.
 
 Consider a system of :math:`n` radionuclides, where the vector
 :math:`\mathbf{N}(t)` has elements :math:`N_{i}(t)` representing the number
@@ -30,7 +31,7 @@ where :math:`\lambda_{j}` is the decay constant of radionuclide :math:`j`,
 and :math:`b_{ji}` is the branching fraction from radionuclide :math:`j` to 
 :math:`i`.
 
-:math:`\varLambda` is a diagonizable matrix so its eigendecomposition can be
+:math:`\varLambda` is a diagonalizable matrix so its eigendecomposition can be
 used to rewrite the matrix differential equation as
 
 .. math::
@@ -70,15 +71,15 @@ condition :math:`\mathbf{N}(t=0)=\mathbf{N}(0)` is
 .. math::
     \mathbf{N}(t) = C e^{\varLambda_{d} t} C^{-1} \mathbf{N}(0).
 
-This is the equation that is calculated by ``radioactivedecay`` in each call to
-``decay()``. :math:`e^{\varLambda_{d} t}` is the matrix exponential of
+This is the equation that is calculated by ``radioactivedecay`` upon each call
+to ``decay()``. :math:`e^{\varLambda_{d} t}` is the matrix exponential of
 :math:`\varLambda_{d} t`. It is a diagonal matrix with elements
 :math:`e^{\varLambda_{d} t}_{ii} = e^{-\lambda_i t}`. 
 
 The final equation that is needed is the conversion between the activity
 (:math:`\mathbf{A}`) and number of atoms (:math:`\mathbf{N}`) vectors.
-:math:`\mathbf{A}` is just an element-wise multiplication of the decay constant
-and number of atom vectors:
+:math:`\mathbf{A}` is just an element-wise multiplication of the decay constants
+and the number of atoms:
 
 .. math::
     A_i = \lambda_i N_i.

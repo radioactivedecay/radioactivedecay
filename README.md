@@ -115,7 +115,7 @@ By default ``radioactivedecay`` uses decay data from
 
 The [notebooks folder](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
 in the GitHub repository contains Jupyter Notebooks for creating the processed
-decay datasets that are read in by radioactive decay, e.g.
+decay datasets that are read in by ``radioactivedecay``, e.g.
 [ICRP 107](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
 It also contains some comparisons of decay calculations against the
 [PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)

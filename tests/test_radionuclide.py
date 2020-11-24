@@ -3,7 +3,7 @@ Unit tests for radionuclide.py functions, classes and methods.
 """
 
 import unittest
-import radioactivedecay as rd
+from radioactivedecay import Radionuclide, DecayData
 
 
 class Test(unittest.TestCase):
@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
         Test instantiation of Radionuclide objects.
         """
 
-        nuc = rd.Radionuclide("Rn-222")
+        nuc = Radionuclide("Rn-222")
         self.assertEqual(nuc.radionuclide, "Rn-222")
         self.assertEqual(nuc.decay_constant, 2.0982180755947176e-06)
         self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
@@ -26,7 +26,7 @@ class Test(unittest.TestCase):
         Test Radionuclide half_life() method.
         """
 
-        nuc = rd.Radionuclide("H-3")
+        nuc = Radionuclide("H-3")
         self.assertEqual(nuc.half_life("y"), 12.32)
 
     def test_radionuclide_progeny(self):
@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         Test Radionuclide half_life() method.
         """
 
-        nuc = rd.Radionuclide("K-40")
+        nuc = Radionuclide("K-40")
         self.assertEqual(nuc.progeny()[0], "Ca-40")
         self.assertEqual(nuc.progeny()[1], "Ar-40")
 
@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
         Test Radionuclide branching_fractions() method.
         """
 
-        nuc = rd.Radionuclide("K-40")
+        nuc = Radionuclide("K-40")
         self.assertEqual(nuc.branching_fractions()[0], 0.8914)
         self.assertEqual(nuc.branching_fractions()[1], 0.1086)
 
@@ -52,7 +52,7 @@ class Test(unittest.TestCase):
         Test Radionuclide decay_modes() method.
         """
 
-        nuc = rd.Radionuclide("K-40")
+        nuc = Radionuclide("K-40")
         self.assertEqual(nuc.decay_modes()[0], "\u03b2-")
         self.assertEqual(nuc.decay_modes()[1], "\u03b2+ & EC")
 
@@ -61,8 +61,39 @@ class Test(unittest.TestCase):
         Test Radionuclide representations.
         """
 
-        nuc = rd.Radionuclide("H-3")
-        self.assertEqual(nuc.__repr__(), "Radionuclide: H-3, Decay dataset: icrp107")
+        nuc = Radionuclide("H-3")
+        self.assertEqual(nuc.__repr__(), "Radionuclide: H-3, decay dataset: icrp107")
+
+    def test_radionuclide___eq__(self):
+        """
+        Test Radionuclide equality.
+        """
+
+        nuc1 = Radionuclide("K-40")
+        nuc2 = Radionuclide("40K")
+        self.assertEqual(nuc1, nuc2)
+
+        data = DecayData("icrp107")
+        nuc2 = Radionuclide("K-40", data)
+        self.assertEqual(nuc1, nuc2)
+
+    def test_radionuclide___ne__(self):
+        """
+        Test Radionuclide not equality.
+        """
+
+        nuc1 = Radionuclide("K-40")
+        nuc2 = Radionuclide("H-3")
+        self.assertNotEqual(nuc1, nuc2)
+
+    def test_radionuclide___hash__(self):
+        """
+        Test Radionuclide hash function.
+        """
+
+        nuc = Radionuclide("K-40")
+        data = DecayData("icrp107")
+        self.assertEqual(hash(nuc), hash(("K-40", data.dataset)))
 
 
 if __name__ == "__main__":

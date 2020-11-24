@@ -114,54 +114,6 @@ def parse_radionuclide(
     return radionuclide
 
 
-def check_dictionary(
-    inv_dict: Dict[str, float], radionuclides: List[str], dataset: str
-) -> Dict[str, float]:
-    """
-    Checks validity of a dictionary of radionuclides and associated acitivities. Radionuclides
-    must be in the decay dataset. Radionuclide strings are parsed to to Ab-XX format.
-
-    Parameters
-    ----------
-    inv_dict : dict
-        Dictionary containing radionuclide strings as keys and activities as values.
-    radionuclides : List[str]
-        List of all the radionuclides in the decay dataset.
-    dataset : str
-        Name of the decay dataset.
-
-    Returns
-    -------
-    dict
-        Dictionary where the contents have been validated and the radionuclide key strings have
-        been parsed into symbol - mass number format.
-
-    Raises
-    ------
-    ValueError
-        If an activity key is invalid.
-
-    Examples
-    --------
-    >>> rd.utils.check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
-    {'H-3': 1.0}
-
-
-    """
-
-    inv_dict = {
-        parse_radionuclide(nuc, radionuclides, dataset): act
-        for nuc, act in inv_dict.items()
-    }
-    for nuc, act in inv_dict.items():
-        if not isinstance(act, (float, int)):
-            raise ValueError(
-                str(act) + " is not a valid radioactivity for " + str(nuc) + "."
-            )
-
-    return inv_dict
-
-
 def time_unit_conv(
     time_period: float, units_from: str, units_to: str, year_conv: float
 ) -> float:
@@ -197,6 +149,7 @@ def time_unit_conv(
     """
 
     conv = {
+        "ps": 1.0e-12,
         "ns": 1.0e-9,
         "us": 1.0e-6,
         "ms": 1.0e-3,

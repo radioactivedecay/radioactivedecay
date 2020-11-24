@@ -4,7 +4,8 @@ Unit tests for inventory.py functions, classes and methods.
 
 import copy
 import unittest
-import radioactivedecay as rd
+from radioactivedecay.inventory import check_dictionary, Inventory
+from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
 
 
 class Test(unittest.TestCase):
@@ -12,14 +13,76 @@ class Test(unittest.TestCase):
     Unit tests for decayfunctions.py functions, classes and methods.
     """
 
+    def test_check_dictionary(self):
+        """
+        Test the checking of inventory dictionaries.
+        """
+
+        radionuclides = ["H-3", "C-14"]
+        H3 = Radionuclide("H3")
+        C14 = Radionuclide("C14")
+        dataset = "test"
+
+        # Dictionary parsing
+        self.assertEqual(
+            check_dictionary({"H-3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
+        )
+        self.assertEqual(
+            check_dictionary({"H3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
+        )
+        self.assertEqual(
+            check_dictionary({"3H": 1.0}, radionuclides, dataset), {"H-3": 1.0}
+        )
+        self.assertEqual(
+            check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1}
+        )
+        self.assertEqual(
+            check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1.0}
+        )
+        self.assertEqual(
+            check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
+            {"H-3": 1.0, "C-14": 2.0},
+        )
+        self.assertEqual(
+            check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
+            {"C-14": 2.0, "H-3": 1.0},
+        )
+        self.assertEqual(
+            check_dictionary({H3: 1.0, C14: 2.0}, radionuclides, dataset),
+            {"C-14": 2.0, "H-3": 1.0},
+        )
+        self.assertEqual(
+            check_dictionary({"H-3": 1.0, C14: 2.0}, radionuclides, dataset),
+            {"C-14": 2.0, "H-3": 1.0},
+        )
+        self.assertEqual(
+            check_dictionary({H3: 1.0, "C-14": 2.0}, radionuclides, dataset),
+            {"C-14": 2.0, "H-3": 1.0},
+        )
+
+        # Catch incorrect arguments
+        with self.assertRaises(ValueError):
+            check_dictionary({"H-3": "1.0"}, radionuclides, dataset)
+        with self.assertRaises(ValueError):
+            check_dictionary({"1.0": "H-3"}, radionuclides, dataset)
+
     def test_inventory_instantiation(self):
         """
         Test instantiation of Inventory objects.
         """
 
-        inv = rd.Inventory({"H-3": 1.0})
+        inv = Inventory({"H-3": 1.0})
         self.assertEqual(inv.contents, {"H-3": 1.0})
-        inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
+
+        Tc99m = Radionuclide("Tc-99m")
+        inv = Inventory({Tc99m: 2.3, "I-123": 5.8})
+        self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
+
+        I123 = Radionuclide("I-123")
+        inv = Inventory({"Tc-99m": 2.3, I123: 5.8})
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
     def test_inventory_change(self):
@@ -27,8 +90,13 @@ class Test(unittest.TestCase):
         Test Inventory change() method.
         """
 
-        inv = rd.Inventory({"H-3": 1.0})
-        inv.change({"Tc-99m": 2.3, "I-123": 5.8}, True, rd.DEFAULTDATA)
+        inv = Inventory({"H-3": 1.0})
+        inv.change({"Tc-99m": 2.3, "I-123": 5.8}, True, DEFAULTDATA)
+        self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
+
+        Tc99m = Radionuclide("Tc-99m")
+        inv = Inventory({"H-3": 1.0})
+        inv.change({Tc99m: 2.3, "I-123": 5.8}, True, DEFAULTDATA)
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
     def test_inventory_radionuclides(self):
@@ -36,9 +104,9 @@ class Test(unittest.TestCase):
         Test Inventory radionuclides property.
         """
 
-        inv = rd.Inventory({"H-3": 1.0})
+        inv = Inventory({"H-3": 1.0})
         self.assertEqual(inv.radionuclides, ["H-3"])
-        inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(inv.radionuclides, ["I-123", "Tc-99m"])
 
     def test_inventory_activities(self):
@@ -46,9 +114,9 @@ class Test(unittest.TestCase):
         Test Inventory activities property.
         """
 
-        inv = rd.Inventory({"H-3": 1})
+        inv = Inventory({"H-3": 1})
         self.assertEqual(inv.activities, [1.0])
-        inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(inv.activities, [5.8, 2.3])
 
     def test_inventory___len__(self):
@@ -56,9 +124,9 @@ class Test(unittest.TestCase):
         Test len() on Inventory.
         """
 
-        inv = rd.Inventory({"H-3": 1})
+        inv = Inventory({"H-3": 1})
         self.assertEqual(len(inv), 1)
-        inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(len(inv), 2)
 
     def test_inventory_add(self):
@@ -66,10 +134,16 @@ class Test(unittest.TestCase):
         Test Inventory add() method to append to an inventory.
         """
 
-        inv = rd.Inventory({"H-3": 1})
+        inv = Inventory({"H-3": 1})
         inv.add({"C-14": 3.0, "K-40": 4.0})
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 1.0, "K-40": 4.0})
         inv.add({"H-3": 3.0})
+        self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+
+        inv = Inventory({"H-3": 1})
+        inv.add({Radionuclide("C-14"): 3.0, "K-40": 4.0})
+        self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 1.0, "K-40": 4.0})
+        inv.add({Radionuclide("H-3"): 3.0})
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
 
     def test_inventory_subtract(self):
@@ -77,8 +151,12 @@ class Test(unittest.TestCase):
         Test Inventory subtract() method to take away a dictionary from an inventory.
         """
 
-        inv = rd.Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
         inv.subtract({"C-14": 3.0, "K-40": 4.0})
+        self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0})
+
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv.subtract({"C-14": 3.0, Radionuclide("K-40"): 4.0})
         self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0})
 
     def test_inventory___add__(self):
@@ -86,14 +164,14 @@ class Test(unittest.TestCase):
         Test operator to add two inventory objects together.
         """
 
-        inv1 = rd.Inventory({"H-3": 1.0})
-        inv2 = rd.Inventory({"C-14": 1.0, "H-3": 4.0})
+        inv1 = Inventory({"H-3": 1.0})
+        inv2 = Inventory({"C-14": 1.0, "H-3": 4.0})
         inv = inv1 + inv2
         self.assertEqual(inv.contents, {"C-14": 1.0, "H-3": 5.0})
 
-        temp_data = copy.deepcopy(rd.DEFAULTDATA)
+        temp_data = copy.deepcopy(DEFAULTDATA)
         temp_data.dataset = "icrp107_"
-        inv3 = rd.Inventory({"H-3": 2.0}, data=temp_data)
+        inv3 = Inventory({"H-3": 2.0}, data=temp_data)
         with self.assertRaises(ValueError):
             inv = inv1 + inv3
 
@@ -102,14 +180,14 @@ class Test(unittest.TestCase):
         Test operator to subtract one inventory object from another.
         """
 
-        inv1 = rd.Inventory({"H-3": 1.0})
-        inv2 = rd.Inventory({"C-14": 1.0, "H-3": 4.0})
+        inv1 = Inventory({"H-3": 1.0})
+        inv2 = Inventory({"C-14": 1.0, "H-3": 4.0})
         inv = inv2 - inv1
         self.assertEqual(inv.contents, {"C-14": 1.0, "H-3": 3.0})
 
-        temp_data = copy.deepcopy(rd.DEFAULTDATA)
+        temp_data = copy.deepcopy(DEFAULTDATA)
         temp_data.dataset = "icrp107_"
-        inv3 = rd.Inventory({"H-3": 2.0}, data=temp_data)
+        inv3 = Inventory({"H-3": 2.0}, data=temp_data)
         with self.assertRaises(ValueError):
             inv = inv1 - inv3
 
@@ -118,7 +196,7 @@ class Test(unittest.TestCase):
         Test operator to multiply activities in inventory by constant.
         """
 
-        inv = rd.Inventory({"Sr-90": 1.0, "Cs-137": 1.0})
+        inv = Inventory({"Sr-90": 1.0, "Cs-137": 1.0})
         inv = inv * 2
         self.assertEqual(inv.contents, {"Cs-137": 2.0, "Sr-90": 2.0})
 
@@ -127,7 +205,7 @@ class Test(unittest.TestCase):
         Test operator to right multiply constant by activities in inventory.
         """
 
-        inv = rd.Inventory({"Sr-90": 1.0, "Cs-137": 1.0})
+        inv = Inventory({"Sr-90": 1.0, "Cs-137": 1.0})
         inv = 2 * inv
         self.assertEqual(inv.contents, {"Cs-137": 2.0, "Sr-90": 2.0})
 
@@ -136,7 +214,7 @@ class Test(unittest.TestCase):
         Test operator to multiply activities in inventory by constant.
         """
 
-        inv = rd.Inventory({"Sr-90": 1.0, "Cs-137": 1.0})
+        inv = Inventory({"Sr-90": 1.0, "Cs-137": 1.0})
         inv = inv / 2
         self.assertEqual(inv.contents, {"Cs-137": 0.5, "Sr-90": 0.5})
 
@@ -145,42 +223,58 @@ class Test(unittest.TestCase):
         Test operator to remove radionuclides from an inventory.
         """
 
-        inv = rd.Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
         with self.assertRaises(NotImplementedError):
             inv.remove(1.0)
 
     def test_inventory_remove_string(self):
         """
-        Test operator to remove one radionuclide from an inventory.
+        Test operator to remove one radionuclide from an inventory using a radionuclide string.
         """
 
-        inv = rd.Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
         inv.remove("H-3")
         self.assertEqual(inv.contents, {"C-14": 3.0, "K-40": 4.0})
 
         with self.assertRaises(ValueError):
             inv.remove("Be-10")
 
+    def test_inventory_remove_radionuclide(self):
+        """
+        Test operator to remove one radionuclide from an inventory using a ``Radionuclide`` object.
+        """
+
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv.remove(Radionuclide("H-3"))
+        self.assertEqual(inv.contents, {"C-14": 3.0, "K-40": 4.0})
+
+        with self.assertRaises(ValueError):
+            inv.remove(Radionuclide("Be-10"))
+
     def test_inventory_remove_list(self):
         """
         Test operator to remove list of radionuclides from an inventory.
         """
 
-        inv = rd.Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
         inv.remove(["H-3", "C-14"])
         self.assertEqual(inv.contents, {"K-40": 4.0})
 
         with self.assertRaises(ValueError):
             inv.remove(["Be-10", "C-14"])
 
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
+        inv.remove(["H-3", Radionuclide("C-14")])
+        self.assertEqual(inv.contents, {"K-40": 4.0})
+
     def test_inventory_decay(self):
         """
         Test Inventory decay() calculations.
         """
 
-        inv = rd.Inventory({"H-3": 10.0})
+        inv = Inventory({"H-3": 10.0})
         self.assertEqual(inv.decay(12.32, "y").contents, {"H-3": 5.0})
-        inv = rd.Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(
             inv.decay(20.0, "h").contents,
             {
@@ -191,7 +285,7 @@ class Test(unittest.TestCase):
                 "Te-123m": 7.721174031572363e-07,
             },
         )
-        inv = rd.Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005})
+        inv = Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005})
         self.assertEqual(
             inv.decay(1e9, "y").contents,
             {
@@ -233,15 +327,78 @@ class Test(unittest.TestCase):
             },
         )
 
+    def test_inventory_half_lives(self):
+        """
+        Test method to fetch half-lives of radionuclides in the Inventory.
+        """
+
+        inv = Inventory({"C-14": 1.0, "H-3": 2.0})
+        self.assertEqual(inv.half_lives("y"), {"C-14": 5699.999999999999, "H-3": 12.32})
+
+    def test_inventory_progeny(self):
+        """
+        Test method to fetch progeny of radionuclides in the Inventory.
+        """
+
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0})
+        self.assertEqual(inv.progeny(), {"C-14": ["N-14"], "K-40": ["Ca-40", "Ar-40"]})
+
+    def test_inventory_branching_fractions(self):
+        """
+        Test method to fetch branching fractions of radionuclides in the Inventory.
+        """
+
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0})
+        self.assertEqual(
+            inv.branching_fractions(), {"C-14": [1.0], "K-40": [0.8914, 0.1086]}
+        )
+
+    def test_inventory_decay_modes(self):
+        """
+        Test method to fetch decay modes of radionuclides in the Inventory.
+        """
+
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0})
+        self.assertEqual(
+            inv.decay_modes(),
+            {"C-14": ["\u03b2-"], "K-40": ["\u03b2-", "\u03b2+ \u0026 EC"]},
+        )
+
     def test_inventory___repr__(self):
         """
         Test Inventory representations.
         """
 
-        inv = rd.Inventory({"H-3": 10.0})
+        inv = Inventory({"H-3": 10.0})
         self.assertEqual(
-            inv.__repr__(), "Inventory: {'H-3': 10.0}, Decay dataset: icrp107"
+            inv.__repr__(), "Inventory: {'H-3': 10.0}, decay dataset: icrp107"
         )
+
+    def test_inventory___eq__(self):
+        """
+        Test Inventory equality.
+        """
+
+        inv1 = Inventory({"H-3": 10.0})
+        inv2 = Inventory({"H3": 10.0})
+        self.assertEqual(inv1, inv2)
+
+        data = DecayData("icrp107")
+        inv2 = Inventory({"H-3": 10.0}, data)
+        self.assertEqual(inv1, inv2)
+
+    def test_inventory___ne__(self):
+        """
+        Test Inventory not equality.
+        """
+
+        inv1 = Inventory({"H-3": 10.0})
+        inv2 = Inventory({"Cs-137": 10.0})
+        self.assertNotEqual(inv1, inv2)
+
+        inv1 = Inventory({"H-3": 10.0})
+        inv2 = Inventory({"H-3": 5.0})
+        self.assertNotEqual(inv1, inv2)
 
 
 if __name__ == "__main__":

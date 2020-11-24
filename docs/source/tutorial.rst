@@ -19,8 +19,10 @@ Create an inventory of radionuclides and associated activities as follows:
 
     >>> inv_t0 = rd.Inventory({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005})
 
-The following commands can be used to view the contents (radionuclides and
-their actitivites) and decay data set associated with an inventory:
+This is an inventory of natural uranium.
+
+The following commands can be used to view the contents (the radionuclides and
+their activities) and decay data set associated with an inventory:
 
 .. code-block:: python3
 
@@ -30,11 +32,14 @@ their actitivites) and decay data set associated with an inventory:
     ['U-234', 'U-235', 'U-238']
     >>> inv_t0.activities
     [0.005, 0.72, 99.274]
+    >>> inv_t0
+    Inventory: {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}, decay dataset: icrp107
 
 Radioactive decay calculations
 ------------------------------
 
-Use ``decay()`` to decay the natural uranium inventory for a billion years:
+Use ``decay()`` to perform a radioactive decay calculation on the natural
+uranium inventory:
 
 .. code-block:: python3
 
@@ -59,15 +64,19 @@ Use ``decay()`` to decay the natural uranium inventory for a billion years:
      'U-234': 85.01287846492669, 'U-235': 0.2689881021544942,
      'U-238': 85.00820732184867}
     
-``decay()`` takes two arguments: the decay time period and its units. The units
-can be entered using :code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`,
-:code:`'y'` for seconds, minutes, hours, days and years, respectively.
+The ``decay()`` method takes two arguments: the decay time period and its
+units. Units can be entered using :code:`'ns'`, :code:`'us'`, :code:`'ms'`,
+:code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`, :code:`'y'`, :code:`'ky'`,
+:code:`'My'`, :code:`'Gy'`, :code:`'Ty'` and :code:`'Py'` for nanoseconds,
+microseconds, milliseconds, seconds, minutes, hours, days, years, kiloyears,
+megayears, gigayears, terayears and petayears, respectively. In the above case
+we decayed for one billion years.
 
 Radionuclide name formatting and metastable states
 --------------------------------------------------
 
-Radionuclides can be specified in three different ways. The following are all
-equivalent ways to specify radon-222:
+Radionuclides can be specified in three equivalent ways. These all give
+radon-222:
 
 .. code-block:: python3
 
@@ -75,23 +84,23 @@ equivalent ways to specify radon-222:
     >>> inv = rd.Inventory({'Rn222': 1.0})
     >>> inv = rd.Inventory({'222Rn': 1.0})
 
-First and second metastable states of radionuclides can be inputted using
-\'m\' and \'n\', respectively, i.e.:
+Metastable states of radionuclides can be inputted using \'m\', \'n\', etc. for
+first, second... metastable states, respectively:
 
 .. code-block:: python3
 
     >>> inv1 = rd.Inventory({'Ir-192m': 1.0})
     >>> inv2 = rd.Inventory({'Ir-192n': 1.0})
 
-Equivalently you could have specified these metastable states using
+Equivalently we could have specified these metastable states using
 :code:`'Ir192m'` or :code:`'192mIr'` for the former, or :code:`'Ir192n'` or
 :code:`'192nIr'` for the latter.
 
 Fetching decay data
 -------------------
 
-Use to ``Radionuclide`` class to obtain decay data for individual
-radionuclides. For example, to get the half-life of :sup:`123`\ I:
+The ``Radionuclide`` class can be used to obtain decay data for individual
+radionuclides. For example, to get the half-life of iodine-123:
 
 .. code-block:: python3
 
@@ -100,7 +109,7 @@ radionuclides. For example, to get the half-life of :sup:`123`\ I:
     13.27
 
 The argument for the ``half_life()`` method is your desired time unit for the
-outputted half-life. The default  is seconds if no unit is specified.
+output. The default is seconds if no unit is specified.
 
 Use the ``progeny()``, ``branching_fractions()`` and ``decay_modes()`` methods
 to obtain the progeny, branching fractions and decay modes:
@@ -114,11 +123,37 @@ to obtain the progeny, branching fractions and decay modes:
     >>> nuc.decay_modes()
     ['EC', 'EC']
     
-The methods return data for the direct progeny of the radionuclide. EC stands
-for an electron capture decay mode.
+The methods return data for the direct progeny of the radionuclide. \'EC\' is
+the abbreviation for the electron capture decay mode.
 
-Decay data can be obtained directly from the decay datasets. To query the data
-in ICRP-107, which is the default dataset in ``radioactivedecay``, use:
+The ``decay_modes()`` method reports the types of decay of the parent which
+result in each progeny. The decay modes in the ICRP-107 dataset are \'α\'
+(alpha decay), \'β-\' (beta minus decay), \'β+\' (positron emission), \'EC\'
+(electron capture), \'IT\' (isomeric transition) and \'SF\' (spontaneous
+fission). Note that a decay mode is not a comprehensive list of all the
+radiation types released by the radionuclide decay. Be aware that other
+radiation types, such as gamma rays, electrons and  x-rays, may be released
+from parent to progeny decay mode with only a single label (e.g. \'α\', \'β-\'
+or \'β+\').
+
+Decay data can be accessed for all radionuclides in an ``Inventory``
+by using the ``half_lives()``, ``progeny()``, ``branching_fractions()`` and
+``decay_modes()`` methods:
+
+.. code-block:: python3
+
+    >>> inv = rd.Inventory({'C-14': 1.0, 'K-40': 2.0})
+    >>> inv.half_lives('y')
+    {'C-14': 5700.0, 'K-40': 1251000000.0}
+    >>> inv.progeny()
+    {'C-14': ['N-14'], 'K-40': ['Ca-40', 'Ar-40']}
+    >>> inv.branching_fractions()
+    {'C-14': [1.0], 'K-40': [0.8914, 0.1086]}
+    >>> inv.decay_modes()
+    {'C-14': ['β-'], 'K-40': ['β-', 'β+ & EC']}
+
+Decay data can also be accessed directly from the decay datasets. To query the
+data in ICRP-107, which is the default dataset in ``radioactivedecay``, use:
 
 .. code-block:: python3
 
@@ -131,10 +166,11 @@ in ICRP-107, which is the default dataset in ``radioactivedecay``, use:
     >>> rd.DEFAULTDATA.decay_mode('Cs-137', 'Ba-137m')
     'β-'
 
+
 Adding and removing radionuclides from inventories
 --------------------------------------------------
 
-It is easy to add radionuclides to inventories using the ``add()`` method:
+It is easy to add radionuclides to an ``Inventory`` using the ``add()`` method:
 
 .. code-block:: python3
 
@@ -145,7 +181,8 @@ It is easy to add radionuclides to inventories using the ``add()`` method:
     >>> inv.contents
     {'Be-10': 2.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 4.0}
 
-Likewise use ``remove()`` to erase one or more radionuclides from an inventory:
+Likewise use ``remove()`` to erase one or more radionuclide from an
+``Inventory``:
 
 .. code-block:: python3
 
@@ -156,10 +193,31 @@ Likewise use ``remove()`` to erase one or more radionuclides from an inventory:
     >>> inv.contents
     {'C-14': 3.0}
 
+You can also supply ``Radionuclide`` objects instead of strings to the
+``Inventory`` constructor, and the ``add()`` and ``remove()`` methods:
+
+.. code-block:: python3
+
+    >>> H3 = rd.Radionuclide('H-3')
+    >>> inv = rd.Inventory({H3: 1.0})
+    >>> inv.contents
+    {'H-3': 1.0}
+    >>> Be10 = rd.Radionuclide('Be-10')
+    >>> inv.add({Be10: 2.0})
+    >>> inv.contents
+    {'Be-10': 2.0, 'H-3': 1.0}
+    >>> inv.remove(H3)
+    >>> inv.contents
+    {'Be-10': 2.0}
+
+Note if the decay dataset of the ``Radionuclide`` instance is different to that
+of the ``Inventory`` instance, the former will be ignored and the existing
+decay dataset of the ``Inventory`` will be used instead.
+
 Inventory arithmetic
 --------------------
 
-You can add the conents of different inventories together to create a new
+You can add the contents of different inventories together to create a new
 inventory:
 
 .. code-block:: python3
@@ -181,7 +239,7 @@ It is also possible to subtract the contents of one inventory from another:
 Multiplication and division on inventories
 ------------------------------------------
 
-You can multipy or divide the activites of all radionuclides in an inventory
+You can multiply or divide the activities of all radionuclides in an inventory
 by a constant as follows:
 
 .. code-block:: python3

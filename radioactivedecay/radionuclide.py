@@ -1,5 +1,8 @@
 """
-The radionuclide module defines the ``Radionuclide`` class.
+The radionuclide module defines the ``Radionuclide`` class. Each ``Radionuclide`` instance contains
+decay data for one radionuclide. The data can be accessed via the instance attributes and methods.
+The data comes from the ``DecayData`` dataset which is supplied to the ``Radionuclide`` class
+constructor (default is radioactivedecay.decaydata.DEFAULTDATA).
 
 The examples shown assume the ``radioactivedecay`` package has been imported as:
 
@@ -10,21 +13,22 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 
 """
 
-from typing import List
+from typing import Dict, List
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.utils import parse_radionuclide, time_unit_conv
 
 
 class Radionuclide:
     """
-    Radionuclide instances are used to fetch decay data on one radionuclide.
+    ``Radionuclide`` instances are used to fetch decay data on one radionuclide. The data comes
+    from the assoicated ``DecayData`` dataset.
 
     Parameters
     ----------
     radionuclide : str
         Radionuclide string.
     data : DecayData, optional
-        Decay dataset (default is the ICRP 107 dataset).
+        Decay dataset (default is the ICRP-107 dataset).
 
     Attributes
     ----------
@@ -40,22 +44,22 @@ class Radionuclide:
 
     Examples
     --------
-    >>> rd.Radionuclide('H-3')
-    Radionuclide: H-3, Decay dataset: icrp107
+    >>> rd.Radionuclide('K-40')
+    Radionuclide: K-40, decay dataset: icrp107
 
     """
 
     def __init__(self, radionuclide: str, data: DecayData = DEFAULTDATA) -> None:
-        self.radionuclide = parse_radionuclide(
+        self.radionuclide: str = parse_radionuclide(
             radionuclide, data.radionuclides, data.dataset
         )
-        self.decay_constant = data.decay_consts[
+        self.decay_constant: float = data.decay_consts[
             data.radionuclide_dict[self.radionuclide]
         ]
-        self.prog_bf_mode = data.prog_bfs_modes[
+        self.prog_bf_mode: Dict[str, List] = data.prog_bfs_modes[
             data.radionuclide_dict[self.radionuclide]
         ]
-        self.data = data
+        self.data: DecayData = data
 
     def half_life(self, units: str = "s") -> float:
         """
@@ -75,9 +79,9 @@ class Radionuclide:
 
         Examples
         --------
-        >>> Rn222 = rd.Radionuclide('Rn-222')
-        >>> Rn222.half_life('d')
-        3.8235
+        >>> K40 = rd.Radionuclide('K-40')
+        >>> K40.half_life('y')
+        1251000000.0
 
         """
 
@@ -112,7 +116,7 @@ class Radionuclide:
 
     def branching_fractions(self) -> List[float]:
         """
-        Returns the branching fractions for the direct progeny of the radionuclide.
+        Returns the branching fractions to the direct progeny of the radionuclide.
 
         Returns
         -------
@@ -132,8 +136,7 @@ class Radionuclide:
     def decay_modes(self) -> List[str]:
         """
         Returns the decay modes for the radionuclide, as defined in the decay dataset. Note: the
-        decay mode does not necessarily list all the different radiation particles emitted by the
-        decay.
+        decay mode is not a list of all the different radiation types emitted by the decay.
 
         Returns
         -------
@@ -154,6 +157,27 @@ class Radionuclide:
         return (
             "Radionuclide: "
             + str(self.radionuclide)
-            + ", Decay dataset: "
+            + ", decay dataset: "
             + self.data.dataset
         )
+
+    def __eq__(self, other) -> bool:
+        """
+        Check whether two ``Radionuclide`` instances are equal with ``==`` operator.
+        """
+
+        return self.radionuclide == other.radionuclide and self.data == other.data
+
+    def __ne__(self, other) -> bool:
+        """
+        Check whether two ``Radionuclide`` instances are not equal with ``!=`` operator.
+        """
+
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        """
+        Hash function for ``Radionuclide`` instances.
+        """
+
+        return hash((self.radionuclide, self.data.dataset))
