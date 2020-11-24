@@ -12,9 +12,10 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 """
 
 from functools import singledispatch, update_wrapper
+from typing import Dict, List
 
 
-def parse_nuclide(nuclide):
+def parse_nuclide(nuclide: str) -> str:
     """
     Parses a nuclide string from XXAb or AbXX format to Ab-XX format. Not this function works for
     both radioactive and stable nuclides.
@@ -64,7 +65,9 @@ def parse_nuclide(nuclide):
     return nuclide
 
 
-def parse_radionuclide(radionuclide, radionuclides, dataset):
+def parse_radionuclide(
+    radionuclide: str, radionuclides: List[str], dataset: str
+) -> str:
     """
     Parses a radionuclide string and checks whether the radionuclide is contained in the decay
     dataset.
@@ -73,8 +76,8 @@ def parse_radionuclide(radionuclide, radionuclides, dataset):
     ----------
     radionuclide : str
         Radionuclide string.
-    radionuclides : numpy.ndarray
-        NumPy array of all the radionuclides in the decay dataset.
+    radionuclides : List[str]
+        List of all the radionuclides in the decay dataset.
     dataset : str
         Name of the decay dataset.
 
@@ -111,71 +114,27 @@ def parse_radionuclide(radionuclide, radionuclides, dataset):
     return radionuclide
 
 
-def check_dictionary(inv_dict, radionuclides, dataset):
+def time_unit_conv(
+    time_period: float, units_from: str, units_to: str, year_conv: float
+) -> float:
     """
-    Checks validity of a dictionary of radionuclides and associated acitivities. Radionuclides
-    must be in the decay dataset.
+    Converts a time period from one time unit to another.
 
     Parameters
     ----------
-    inv_dict : dict
-        Dictionary containing radionuclide strings as keys and activities as values.
-    radionuclides : numpy.ndarray
-        NumPy array of all the radionuclides in the decay dataset.
-    dataset : str
-        Name of the decay dataset.
-
-    Returns
-    -------
-    dict
-        Dictionary where the contents have been validated and the radionuclide key strings have
-        been parsed into symbol - mass number format.
-
-    Raises
-    ------
-    ValueError
-        If an activity key is invalid.
-
-    Examples
-    --------
-    >>> rd.utils.check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
-    {'H-3': 1.0}
-
-
-    """
-
-    inv_dict = {
-        parse_radionuclide(nuc, radionuclides, dataset): act
-        for nuc, act in inv_dict.items()
-    }
-    for nuc, act in inv_dict.items():
-        if not isinstance(act, (float, int)):
-            raise ValueError(
-                str(act) + " is not a valid radioactivity for " + str(nuc) + "."
-            )
-
-    return inv_dict
-
-
-def time_unit_conv(time, units_from, units_to, year_conv):
-    """
-    Converts a time from one set of units to another.
-
-    Parameters
-    ----------
-    time : float
-        Time before conversion.
+    time_period : float
+        Time period before conversion.
     units_from : str
         Time unit before conversion
     units_to : str
         Time unit after conversion
-    yeav_conv : float or int
+    yeav_conv : float
         Conversion factor for number of days in a year.
 
     Returns
     -------
     float
-        Time in new units.
+        Time period in new units.
 
     Raises
     ------
@@ -190,6 +149,7 @@ def time_unit_conv(time, units_from, units_to, year_conv):
     """
 
     conv = {
+        "ps": 1.0e-12,
         "ns": 1.0e-9,
         "us": 1.0e-6,
         "ms": 1.0e-3,
@@ -225,10 +185,12 @@ def time_unit_conv(time, units_from, units_to, year_conv):
             str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
         )
 
-    return time * conv[units_from] / conv[units_to]
+    return time_period * conv[units_from] / conv[units_to]
 
 
-def add_dictionaries(dict1, dict2):
+def add_dictionaries(
+    dict1: Dict[str, float], dict2: Dict[str, float]
+) -> Dict[str, float]:
     """
     Adds together two dictionaries of radionuclies and associated acitivities.
 

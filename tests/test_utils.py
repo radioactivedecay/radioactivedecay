@@ -6,7 +6,6 @@ import unittest
 from radioactivedecay.utils import (
     parse_nuclide,
     parse_radionuclide,
-    check_dictionary,
     time_unit_conv,
     add_dictionaries,
 )
@@ -107,45 +106,6 @@ class Test(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_radionuclide("Pbo-198m", radionuclides, dataset)
 
-    def test_check_dictionary(self):
-        """
-        Test the checking of inventory dictionaries.
-        """
-
-        radionuclides = ["H-3", "C-14"]
-        dataset = "test"
-
-        # Dictionary parsing
-        self.assertEqual(
-            check_dictionary({"H-3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
-        )
-        self.assertEqual(
-            check_dictionary({"H3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
-        )
-        self.assertEqual(
-            check_dictionary({"3H": 1.0}, radionuclides, dataset), {"H-3": 1.0}
-        )
-        self.assertEqual(
-            check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1}
-        )
-        self.assertEqual(
-            check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1.0}
-        )
-        self.assertEqual(
-            check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
-            {"H-3": 1.0, "C-14": 2.0},
-        )
-        self.assertEqual(
-            check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
-            {"C-14": 2.0, "H-3": 1.0},
-        )
-
-        # Catch incorrect arguments
-        with self.assertRaises(ValueError):
-            check_dictionary({"H-3": "1.0"}, radionuclides, dataset)
-        with self.assertRaises(ValueError):
-            check_dictionary({"1.0": "H-3"}, radionuclides, dataset)
-
     def test_time_unit_conv_seconds(self):
         """
         Test function which converts between seconds and different time units.
@@ -154,6 +114,9 @@ class Test(unittest.TestCase):
         yconv = 365.2422
 
         self.assertEqual(time_unit_conv(1.0, "s", "s", yconv), 1.0e0)
+        self.assertAlmostEqual(
+            time_unit_conv(1.0, "s", "ps", yconv), 1.0e12, places=(15 - 12)
+        )
         self.assertAlmostEqual(
             time_unit_conv(1.0, "s", "ns", yconv), 1.0e9, places=(15 - 9)
         )
@@ -164,6 +127,9 @@ class Test(unittest.TestCase):
         self.assertEqual(time_unit_conv(1.0, "s", "d", yconv), 1.0 / (60.0 ** 2 * 24.0))
         self.assertEqual(
             time_unit_conv(1.0, "s", "y", yconv), 1.0 / (60.0 ** 2 * 24.0 * 365.2422),
+        )
+        self.assertAlmostEqual(
+            time_unit_conv(1.0, "ps", "s", yconv), 1.0e-12, places=(12 + 15)
         )
         self.assertAlmostEqual(
             time_unit_conv(1.0, "ns", "s", yconv), 1.0e-9, places=(9 + 15)

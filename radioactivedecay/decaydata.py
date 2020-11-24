@@ -10,8 +10,14 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 
     >>> import radioactivedecay as rd
 
+Attributes
+----------
+DEFAULTDATA : DecayData
+    Default decay dataset used by ``radioactivedecay``. This is currently ICRP 107.
 """
 
+from pathlib import Path
+from typing import ContextManager, Union
 import numpy as np
 from scipy import sparse
 from radioactivedecay.utils import parse_nuclide, parse_radionuclide, time_unit_conv
@@ -22,7 +28,7 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 
-def get_package_filepath(dataset, filename):
+def get_package_filepath(dataset: str, filename: str) -> ContextManager[Path]:
     """
     Returns the path to a decay dataset file when the decay dataset is bundled as a sub-package
     within the ``radioactivedecay`` package.
@@ -36,13 +42,25 @@ def get_package_filepath(dataset, filename):
 
     Returns
     -------
-    str
-        Path of the decay dataset file.
+    ContextManager[Path]
+        A context manager providing a file path object for the decay dataset file.
 
     """
 
     with pkg_resources.path(__package__ + "." + dataset, filename) as package_path:
         return package_path
+
+
+def csc_matrix_equal(matrix1, matrix2):
+    """
+    Checks whether two SciPy Compressed Sparse Column (CSC) matrices are equal.
+    """
+
+    return (
+        np.array_equal(matrix1.indptr, matrix2.indptr)
+        and np.array_equal(matrix1.indices, matrix2.indices)
+        and np.array_equal(matrix1.data, matrix2.data)
+    )
 
 
 class DecayData:
@@ -63,6 +81,8 @@ class DecayData:
         Name of the decay dataset.
     decay_consts : numpy.ndarray
         NumPy array of radionuclide decay constants.
+    ln2: numpy.float64
+        Constant natural logarithm of 2.
     matrix_c : scipy.sparse.csc.csc_matrix
         SciPy Compressed Sparse Column (CSC) matrix that is used in radioactive decay calculations.
         It is a lower traingular matrix with constant elements that are precalculated from decay
@@ -72,7 +92,7 @@ class DecayData:
     matrix_e : scipy.sparse.csc.csc_matrix
         SciPy Compressed Sparse Column (CSC) matrix that is used in radioactive decay calculations.
         It is a diagonal matrix that is pre-allocted here for performance reasons.
-    no_radionuclides : int
+    num_radionuclides : int
         Number of radionuclides in the dataset.
     radionuclides : numpy.ndarray
         NumPy array of all radionuclides in the dataset.
@@ -80,7 +100,7 @@ class DecayData:
         Dictionary containing radionuclide strings as keys and positions in the radionuclides array
         as values.
     prog_bfs_modes : numpy.ndarray
-        NumPy array of dictionaries with first progeny as keys and list with branching fraction and
+        NumPy array of dictionaries with direct progeny as keys and list with branching fraction and
         decay mode as values.
     year_conv : float
         Conversion factor for number of days in one year.
@@ -89,13 +109,13 @@ class DecayData:
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, dataset, dir_path=None):
+    def __init__(self, dataset: str, dir_path: Union[str, None] = None) -> None:
         self.dataset = dataset
         self.load_data(dir_path)
 
         self.ln2 = np.log(2)
 
-    def load_data(self, dir_path):
+    def load_data(self, dir_path: Union[str, None]) -> None:
         """
         Reads in radioactive decay dataset files and puts the data into DecayData instance
         attributes.
@@ -119,14 +139,14 @@ class DecayData:
         self.prog_bfs_modes = data["prog_bfs_modes"]
         self.year_conv = data["year_conv"]
 
-        self.no_radionuclides = self.radionuclides.size
+        self.num_radionuclides = self.radionuclides.size
         self.radionuclide_dict = dict(
-            zip(self.radionuclides, list(range(0, self.no_radionuclides)))
+            zip(self.radionuclides, list(range(0, self.num_radionuclides)))
         )
         self.matrix_e = sparse.csc_matrix(
             (
-                np.zeros(self.no_radionuclides),
-                (np.arange(self.no_radionuclides), np.arange(self.no_radionuclides)),
+                np.zeros(self.num_radionuclides),
+                (np.arange(self.num_radionuclides), np.arange(self.num_radionuclides)),
             )
         )
 
@@ -139,7 +159,7 @@ class DecayData:
             self.matrix_c = sparse.load_npz(dir_path + "/c.npz")
             self.matrix_c_inv = sparse.load_npz(dir_path + "/cinverse.npz")
 
-    def half_life(self, radionuclide, units="s"):
+    def half_life(self, radionuclide: str, units: str = "s") -> float:
         """
         Returns half-life of a radionuclide in chosen units.
 
@@ -177,7 +197,7 @@ class DecayData:
         )
         return conv * self.ln2 / self.decay_consts[self.radionuclide_dict[radionuclide]]
 
-    def branching_fraction(self, parent, progeny):
+    def branching_fraction(self, parent: str, progeny: str) -> float:
         """
         Returns branching fraction for a parent to progeny decay.
 
@@ -191,8 +211,8 @@ class DecayData:
         Returns
         -------
         float
-            Branching fraction (or zero if the progeny argument is not actually a direct progeny of
-            the parent).
+            Branching fraction (or zero if the progeny parameter is not actually a direct progeny
+            of the parent).
 
         Examples
         --------
@@ -208,27 +228,29 @@ class DecayData:
 
         return 0.0
 
-    def decay_mode(self, parent, progeny):
+    def decay_mode(self, parent: str, progeny: str) -> str:
         """
-        Returns type of decay mode for a parent to progeny decay.
+        Returns the type of decay mode between parent and progeny (if one exists). Note: the decay
+        mode is not a list of all the different radiation types emitted when the parent
+        radionuclide decays.
 
         Parameters
         ----------
         parent : str
             Radionuclide string of parent.
         progeny : str
-            Nuclide string of progeny (can be stable or radioactive nuclide).
+            Type of decay of the parent yielding progeny.
 
         Returns
         -------
         str
-            Decay mode type (or '' if the progeny argument is not actually a direct progeny of
-            the parent).
+            Decay mode (or '' if the progeny parameter is not actually a direct progeny of the
+            parent).
 
         Examples
         --------
-        >>> rd.DEFAULTDATA.branching_fraction('K-40', 'Ca-40')
-        0.8914
+        >>> rd.DEFAULTDATA.decay_mode('K-40', 'Ca-40')
+        ''\u03b2-'
 
         """
 
@@ -239,5 +261,35 @@ class DecayData:
 
         return ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+
         return "Decay dataset: " + self.dataset
+
+    def __eq__(self, other) -> bool:
+        """
+        Check whether two ``DecayData`` instances are equal with ``==`` operator.
+        """
+
+        return (
+            self.dataset == other.dataset
+            and (self.decay_consts == other.decay_consts).all()
+            and self.ln2 == other.ln2
+            and csc_matrix_equal(self.matrix_c, other.matrix_c)
+            and csc_matrix_equal(self.matrix_c_inv, other.matrix_c_inv)
+            and csc_matrix_equal(self.matrix_e, other.matrix_e)
+            and self.num_radionuclides == other.num_radionuclides
+            and (self.radionuclides == other.radionuclides).all()
+            and self.radionuclide_dict == other.radionuclide_dict
+            and (self.prog_bfs_modes == other.prog_bfs_modes).all()
+            and self.year_conv == other.year_conv
+        )
+
+    def __ne__(self, other) -> bool:
+        """
+        Check whether two ``DecayData`` instances are not equal with ``!=`` operator.
+        """
+
+        return not self.__eq__(other)
+
+
+DEFAULTDATA = DecayData("icrp107")

@@ -29,13 +29,11 @@ $ pip install radioactivedecay
 ## Usage
 
 ### Decay calculations
-Create an inventory of radionuclides and decay it as follows:
+Create an `Inventory` of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
 >>> inv = rd.Inventory({'I-123': 1.0, 'Tc-99m': 2.0})
->>> inv.contents
-{'I-123': 1.0, 'Tc-99m': 2.0}
 >>> inv = inv.decay(20.0, 'h')
 >>> inv.contents
 {'I-123': 0.35180331802323694,
@@ -74,7 +72,7 @@ the program.
 decay information for individual radionuclides.
 
 ```pycon
->>> nuc = rd.Radionuclide('I123')
+>>> nuc = rd.Radionuclide('I-123')
 >>> nuc.half_life('d')
 13.27
 >>> nuc.progeny()
@@ -90,6 +88,19 @@ are <sup>123</sup>Te and <sup>123m</sup>Te, with branching fractions 0.99996
 and 4.442e-05 respectively. Both of the decay modes occur via electron capture
 (EC).
 
+The default decay dataset in ``radioactivedecay``  is ICRP-107. Its data can be
+queried directly as follows:
+
+```pycon
+>>> rd.DEFAULTDATA.dataset
+'icrp107'
+>>> rd.DEFAULTDATA.half_life('Cs-137', 'y')
+30.1671
+>>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
+0.94399
+>>> rd.DEFAULTDATA.decay_mode('Cs-137', 'Ba-137m')
+'β-'
+```
 
 ## How radioactivedecay works
 
@@ -104,7 +115,7 @@ By default ``radioactivedecay`` uses decay data from
 
 The [notebooks folder](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
 in the GitHub repository contains Jupyter Notebooks for creating the processed
-decay datasets that are read in by radioactive decay, e.g.
+decay datasets that are read in by ``radioactivedecay``, e.g.
 [ICRP 107](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
 It also contains some comparisons of decay calculations against the
 [PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
@@ -143,4 +154,5 @@ Special thanks to
 * [Center for Computational Science & e-Systems](https://ccse.jaea.go.jp/index_eng.html),
 Japan Atomic Energy Agency
 * [Kenny McKee](https://github.com/Rolleroo)
+
 for their help and support to this project.

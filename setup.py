@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.0.8",
+    version="0.0.9",
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
     license="MIT",
@@ -19,6 +19,8 @@ setuptools.setup(
         "Source Code": "https://github.com/alexmalins/radioactivedecay",
     },
     classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

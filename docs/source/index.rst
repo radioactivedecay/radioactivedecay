@@ -18,7 +18,7 @@ covers 1252 radionuclides of 97 elements.
    
    overview
    installation
-   usage
+   tutorial
    theory
    api
 
