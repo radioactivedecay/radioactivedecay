@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0] - 2020-12-02
+- Adds `decay_high_precision()` method for high numerical precision decay
+calculations (adds a new dependency on the SymPy package).
+- Code refactoring. Decay dataset format overhauled.
+- ReadMe and Docs updates
+
 ## [0.0.9] - 2020-11-24
 - Add support for using `Radionuclide` objects in place of radionuclide strings for `Inventory`
 constructor, `add()` and `remove()` methods.

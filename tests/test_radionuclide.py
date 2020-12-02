@@ -18,7 +18,6 @@ class Test(unittest.TestCase):
 
         nuc = Radionuclide("Rn-222")
         self.assertEqual(nuc.radionuclide, "Rn-222")
-        self.assertEqual(nuc.decay_constant, 2.0982180755947176e-06)
         self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
 
     def test_radionuclide_half_life(self):
@@ -73,7 +72,7 @@ class Test(unittest.TestCase):
         nuc2 = Radionuclide("40K")
         self.assertEqual(nuc1, nuc2)
 
-        data = DecayData("icrp107")
+        data = DecayData("icrp107", load_sympy=True)
         nuc2 = Radionuclide("K-40", data)
         self.assertEqual(nuc1, nuc2)
 
@@ -92,7 +91,7 @@ class Test(unittest.TestCase):
         """
 
         nuc = Radionuclide("K-40")
-        data = DecayData("icrp107")
+        data = DecayData("icrp107", load_sympy=True)
         self.assertEqual(hash(nuc), hash(("K-40", data.dataset)))
 
 

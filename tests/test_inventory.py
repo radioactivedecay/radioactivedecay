@@ -4,7 +4,7 @@ Unit tests for inventory.py functions, classes and methods.
 
 import copy
 import unittest
-from radioactivedecay.inventory import check_dictionary, Inventory
+from radioactivedecay.inventory import _add_dictionaries, _check_dictionary, Inventory
 from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
 
 
@@ -13,7 +13,21 @@ class Test(unittest.TestCase):
     Unit tests for decayfunctions.py functions, classes and methods.
     """
 
-    def test_check_dictionary(self):
+    # pylint: disable=too-many-public-methods
+
+    def test__add_dictionaries(self):
+        """
+        Test function which adds two inventory dictionaries together.
+        """
+
+        dict1 = {"Pm-141": 1.0, "Rb-78": 2.0}
+        dict2 = {"Pm-141": 3.0, "Rb-90": 4.0}
+        self.assertEqual(
+            _add_dictionaries(dict1, dict2),
+            {"Pm-141": 4.0, "Rb-78": 2.0, "Rb-90": 4.0},
+        )
+
+    def test__check_dictionary(self):
         """
         Test the checking of inventory dictionaries.
         """
@@ -25,46 +39,46 @@ class Test(unittest.TestCase):
 
         # Dictionary parsing
         self.assertEqual(
-            check_dictionary({"H-3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
+            _check_dictionary({"H-3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
         )
         self.assertEqual(
-            check_dictionary({"H3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
+            _check_dictionary({"H3": 1.0}, radionuclides, dataset), {"H-3": 1.0}
         )
         self.assertEqual(
-            check_dictionary({"3H": 1.0}, radionuclides, dataset), {"H-3": 1.0}
+            _check_dictionary({"3H": 1.0}, radionuclides, dataset), {"H-3": 1.0}
         )
         self.assertEqual(
-            check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1}
+            _check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1}
         )
         self.assertEqual(
-            check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1.0}
+            _check_dictionary({"H-3": 1}, radionuclides, dataset), {"H-3": 1.0}
         )
         self.assertEqual(
-            check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
+            _check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
             {"H-3": 1.0, "C-14": 2.0},
         )
         self.assertEqual(
-            check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
+            _check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, dataset),
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
-            check_dictionary({H3: 1.0, C14: 2.0}, radionuclides, dataset),
+            _check_dictionary({H3: 1.0, C14: 2.0}, radionuclides, dataset),
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
-            check_dictionary({"H-3": 1.0, C14: 2.0}, radionuclides, dataset),
+            _check_dictionary({"H-3": 1.0, C14: 2.0}, radionuclides, dataset),
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
-            check_dictionary({H3: 1.0, "C-14": 2.0}, radionuclides, dataset),
+            _check_dictionary({H3: 1.0, "C-14": 2.0}, radionuclides, dataset),
             {"C-14": 2.0, "H-3": 1.0},
         )
 
         # Catch incorrect arguments
         with self.assertRaises(ValueError):
-            check_dictionary({"H-3": "1.0"}, radionuclides, dataset)
+            _check_dictionary({"H-3": "1.0"}, radionuclides, dataset)
         with self.assertRaises(ValueError):
-            check_dictionary({"1.0": "H-3"}, radionuclides, dataset)
+            _check_dictionary({"1.0": "H-3"}, radionuclides, dataset)
 
     def test_inventory_instantiation(self):
         """
@@ -85,18 +99,18 @@ class Test(unittest.TestCase):
         inv = Inventory({"Tc-99m": 2.3, I123: 5.8})
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
-    def test_inventory_change(self):
+    def test_inventory__change(self):
         """
-        Test Inventory change() method.
+        Test Inventory _change() method.
         """
 
         inv = Inventory({"H-3": 1.0})
-        inv.change({"Tc-99m": 2.3, "I-123": 5.8}, True, DEFAULTDATA)
+        inv._change({"Tc-99m": 2.3, "I-123": 5.8}, True, DEFAULTDATA)
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
         Tc99m = Radionuclide("Tc-99m")
         inv = Inventory({"H-3": 1.0})
-        inv.change({Tc99m: 2.3, "I-123": 5.8}, True, DEFAULTDATA)
+        inv._change({Tc99m: 2.3, "I-123": 5.8}, True, DEFAULTDATA)
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
     def test_inventory_radionuclides(self):
@@ -327,13 +341,67 @@ class Test(unittest.TestCase):
             },
         )
 
+        # Catch incorrect sig_fig or no SymPy data in decay dataset
+        with self.assertRaises(ValueError):
+            inv.decay(1e9, "y", sig_fig=0)
+        data = DecayData("icrp107", load_sympy=False)
+        inv = Inventory({"H-3": 10.0}, data=data)
+        with self.assertRaises(ValueError):
+            inv.decay(1e9, "y", sig_fig=320)
+
+    def test_inventory_decay_high_precision(self):
+        """
+        Test Inventory decay_high_precision() calculations.
+        """
+        inv = Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005})
+        self.assertEqual(
+            inv.decay_high_precision(1e9, "y").contents,
+            {
+                "Ac-227": 0.26900062817405557,
+                "At-218": 0.01700286863849718,
+                "At-219": 2.227325201281318e-07,
+                "Bi-210": 85.01434361515662,
+                "Bi-211": 0.2690008442558584,
+                "Bi-214": 85.01432618961894,
+                "Bi-215": 2.1605054452429227e-07,
+                "Fr-223": 0.003712208668802187,
+                "Hg-206": 1.6152725286830195e-06,
+                "Pa-231": 0.2690006198549054,
+                "Pa-234": 0.13601313171698984,
+                "Pa-234m": 85.00820732310412,
+                "Pb-210": 85.01434361489547,
+                "Pb-211": 0.26900084425585685,
+                "Pb-214": 84.99734032384836,
+                "Po-210": 85.01434362236536,
+                "Po-211": 0.0007424423301461693,
+                "Po-214": 84.99649018398776,
+                "Po-215": 0.26900084425583065,
+                "Po-218": 85.0143431924859,
+                "Ra-223": 0.2690006282052861,
+                "Ra-226": 85.0143431922866,
+                "Rn-218": 1.7002868638497178e-05,
+                "Rn-219": 0.26900062820528614,
+                "Rn-222": 85.01434319248578,
+                "Th-227": 0.26528841952452625,
+                "Th-230": 85.01431274847525,
+                "Th-231": 0.26898810215560653,
+                "Th-234": 85.00820732310407,
+                "Tl-206": 0.00011383420610068996,
+                "Tl-207": 0.2682584019257157,
+                "Tl-210": 0.017853008499819988,
+                "U-234": 85.01287846492669,
+                "U-235": 0.26898810215449415,
+                "U-238": 85.00820732184867,
+            },
+        )
+
     def test_inventory_half_lives(self):
         """
         Test method to fetch half-lives of radionuclides in the Inventory.
         """
 
         inv = Inventory({"C-14": 1.0, "H-3": 2.0})
-        self.assertEqual(inv.half_lives("y"), {"C-14": 5699.999999999999, "H-3": 12.32})
+        self.assertEqual(inv.half_lives("y"), {"C-14": 5700.0, "H-3": 12.32})
 
     def test_inventory_progeny(self):
         """

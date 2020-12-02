@@ -1,8 +1,8 @@
 """
-The utils module contains functions to parse nuclide strings, check the validity of inventory
-dictionaries, convert between time units, add two dictionaries together.
+The utils module contains functions to parse nuclide strings and convert between time units.
 
-The examples shown assume the ``radioactivedecay`` package has been imported as:
+The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
+as:
 
 .. highlight:: python
 .. code-block:: python
@@ -11,14 +11,14 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 
 """
 
-from functools import singledispatch, update_wrapper
-from typing import Dict, List
+from typing import List
+from sympy import Integer, Rational
 
 
 def parse_nuclide(nuclide: str) -> str:
     """
-    Parses a nuclide string from XXAb or AbXX format to Ab-XX format. Not this function works for
-    both radioactive and stable nuclides.
+    Parses a nuclide string from e.g. '241Pu' or 'Pu241' format to 'Pu-241' format. Not this
+    function works for both radioactive and stable nuclides.
 
     Parameters
     ----------
@@ -69,8 +69,8 @@ def parse_radionuclide(
     radionuclide: str, radionuclides: List[str], dataset: str
 ) -> str:
     """
-    Parses a radionuclide string and checks whether the radionuclide is contained in the decay
-    dataset.
+    Parses a radionuclide string into symbol - mass number format and checks whether the
+    radionuclide is contained in the decay dataset.
 
     Parameters
     ----------
@@ -89,7 +89,8 @@ def parse_radionuclide(
     Raises
     ------
     ValueError
-        If the radionuclide string is invalid or it is not contained in the decay dataset.
+        If the radionuclide string is invalid or the radionuclide is not contained in the decay
+        dataset.
 
     Examples
     --------
@@ -188,52 +189,70 @@ def time_unit_conv(
     return time_period * conv[units_from] / conv[units_to]
 
 
-def add_dictionaries(
-    dict1: Dict[str, float], dict2: Dict[str, float]
-) -> Dict[str, float]:
+def time_unit_conv_sympy(
+    time_period: Rational, units_from: str, units_to: str, year_conv: Rational
+) -> Rational:
     """
-    Adds together two dictionaries of radionuclies and associated acitivities.
+    Same functionality as time_unit_conv(), but uses SymPy arbitrary-precision arithmetic.
 
     Parameters
     ----------
-    dict1 : dict
-        First dictionary containing radionuclide strings as keys and activities as values.
-    dict2 : dict
-        Second dictionary containing radionuclide strings as keys and activities as values.
+    time_period : sympy.core.numbers.Rational
+        Time period before conversion.
+    units_from : str
+        Time unit before conversion
+    units_to : str
+        Time unit after conversion
+    yeav_conv : sympy.core.numbers.Rational
+        Conversion factor for number of days in a year.
 
     Returns
     -------
-    dict
-        Combined dictionary containing the radionuclides in both dict1 and dict2, where activities
-        have been added together when a radionuclide is present in both input dictionaries.
+    sympy.core.numbers.Rational
+        Time period in new units.
 
-    Examples
-    --------
-    >>> dict1 = {'Pm-141': 1.0, 'Rb-78': 2.0}
-    >>> dict2 = {'Pm-141': 3.0, 'Rb-90': 4.0}
-    >>> rd.utils.add_dictionaries(dict1, dict2)
-    {'Pm-141': 4.0, 'Rb-78': 2.0, 'Rb-90': 4.0}
+    Raises
+    ------
+    ValueError
+        If one of the time unit parameters is invalid.
 
     """
 
-    new_dict = dict1.copy()
-    for radionuclide, radioactivity in dict2.items():
-        if radionuclide in new_dict:
-            new_dict[radionuclide] = new_dict[radionuclide] + radioactivity
-        else:
-            new_dict[radionuclide] = radioactivity
+    conv = {
+        "ps": Integer(1) / 1000000000000,
+        "ns": Integer(1) / 1000000000,
+        "us": Integer(1) / 1000000,
+        "ms": Integer(1) / 1000,
+        "s": Integer(1),
+        "m": Integer(60),
+        "h": Integer(3600),
+        "d": Integer(86400),
+        "y": Integer(86400) * year_conv,
+        "sec": Integer(1),
+        "second": Integer(1),
+        "seconds": Integer(1),
+        "hr": Integer(3600),
+        "hour": Integer(3600),
+        "hours": Integer(3600),
+        "day": Integer(86400),
+        "days": Integer(86400),
+        "yr": Integer(86400) * year_conv,
+        "year": Integer(86400) * year_conv,
+        "years": Integer(86400) * year_conv,
+        "ky": Integer(86400) * year_conv * 1000,
+        "My": Integer(86400) * year_conv * 1000000,
+        "Gy": Integer(86400) * year_conv * 1000000000,
+        "Ty": Integer(86400) * year_conv * 1000000000000,
+        "Py": Integer(86400) * year_conv * 1000000000000000,
+    }
 
-    return new_dict
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
+        )
 
-
-def method_dispatch(func):
-    """Adds singledispatch support for class methods."""
-
-    dispatcher = singledispatch(func)
-
-    def wrapper(*args, **kw):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-
-    wrapper.register = dispatcher.register
-    update_wrapper(wrapper, func)
-    return wrapper
+    return time_period * conv[units_from] / conv[units_to]
