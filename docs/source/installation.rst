@@ -4,8 +4,9 @@ Installation
 Prerequisites
 -------------
 
-``radioactivedecay`` requires Python 3.6+ and the `NumPy <https://numpy.org/>`_
-and `SciPy <https://www.scipy.org/index.html>`_ packages. These can be
+``radioactivedecay`` requires Python 3.6+ and the `NumPy <https://numpy.org/>`_,
+`SciPy <https://www.scipy.org/index.html>`_  and 
+`SymPy <https://www.sympy.org>`_ packages. These can be
 installed from `python.org <https://www.python.org/>`_ and `PyPI
 <https://pypi.org/>`_, or via a package manager such as `Anaconda
 <https://www.anaconda.com/>`_, `WinPython <https://winpython.github.io/>`_,
@@ -22,8 +23,8 @@ Index <https://pypi.org/>`_ using ``pip``:
 
     $ pip install radioactivedecay
 
-This will also attempt to install NumPy and SciPy if they are missing from your
-Python environment.
+This will also attempt to install NumPy, SciPy and SymPy if they are missing
+from your Python environment.
 
 It is also possible to clone the GitHub `repository 
 <https://github.com/alexmalins/radioactivedecay>`_ and install from within the

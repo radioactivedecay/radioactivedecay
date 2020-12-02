@@ -65,12 +65,45 @@ uranium inventory:
      'U-238': 85.00820732184867}
     
 The ``decay()`` method takes two arguments: the decay time period and its
-units. Units can be entered using :code:`'ns'`, :code:`'us'`, :code:`'ms'`,
-:code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`, :code:`'y'`, :code:`'ky'`,
-:code:`'My'`, :code:`'Gy'`, :code:`'Ty'` and :code:`'Py'` for nanoseconds,
-microseconds, milliseconds, seconds, minutes, hours, days, years, kiloyears,
-megayears, gigayears, terayears and petayears, respectively. In the above case
-we decayed for one billion years.
+units. Units can be entered using :code:`'ps'`, :code:`'ns'`, :code:`'us'`,
+:code:`'ms'`, :code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`, :code:`'y'`,
+:code:`'ky'`, :code:`'My'`, :code:`'Gy'`, :code:`'Ty'` and :code:`'Py'` for
+picoseconds, nanoseconds, microseconds, milliseconds, seconds, minutes, hours,
+days, years, kiloyears, megayears, gigayears, terayears and petayears,
+respectively. In the above case we decayed for one billion years.
+
+High numerical precision radioactive decay calculations
+-------------------------------------------------------
+
+The ``decay_high_precision()`` method calculates radioactive decays with high
+numerical precision, based on SymPy arbitrary-precision routines. This method
+method can give more accurate results for decay chains containing radionuclides
+with both very long and very short half-lives, or when extremely long or short
+decay times are required. Note computation times can be slightly longer than
+with the ``decay()`` method.
+
+.. code-block:: python3
+
+    >>> inv_t1 = inv_t0.decay_high_precision(1E9, 'y')
+    >>> inv_t1.contents
+    {'Ac-227': 0.26900062817405557, 'At-218': 0.01700286863849718,
+    'At-219': 2.227325201281318e-07, 'Bi-210': 85.01434361515662,
+    'Bi-211': 0.2690008442558584, 'Bi-214': 85.01432618961894,
+    'Bi-215': 2.1605054452429227e-07, 'Fr-223': 0.003712208668802187,
+    'Hg-206': 1.6152725286830195e-06, 'Pa-231': 0.2690006198549054,
+    'Pa-234': 0.13601313171698984, 'Pa-234m': 85.00820732310412,
+    'Pb-210': 85.01434361489547, 'Pb-211': 0.26900084425585685,
+    'Pb-214': 84.99734032384836, 'Po-210': 85.01434362236536,
+    'Po-211': 0.0007424423301461693, 'Po-214': 84.99649018398776,
+    'Po-215': 0.26900084425583065, 'Po-218': 85.0143431924859,
+    'Ra-223': 0.2690006282052861, 'Ra-226': 85.0143431922866,
+    'Rn-218': 1.7002868638497178e-05, 'Rn-219': 0.26900062820528614,
+    'Rn-222': 85.01434319248578, 'Th-227': 0.26528841952452625,
+    'Th-230': 85.01431274847525, 'Th-231': 0.26898810215560653,
+    'Th-234': 85.00820732310407, 'Tl-206': 0.00011383420610068996,
+    'Tl-207': 0.2682584019257157, 'Tl-210': 0.017853008499819988,
+    'U-234': 85.01287846492669, 'U-235': 0.26898810215449415,
+    'U-238': 85.00820732184867}
 
 Radionuclide name formatting and metastable states
 --------------------------------------------------

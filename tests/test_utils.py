@@ -3,11 +3,12 @@ Unit tests for decayfunctions.py functions, classes and methods.
 """
 
 import unittest
+from sympy import Integer
 from radioactivedecay.utils import (
     parse_nuclide,
     parse_radionuclide,
     time_unit_conv,
-    add_dictionaries,
+    time_unit_conv_sympy,
 )
 
 
@@ -219,16 +220,94 @@ class Test(unittest.TestCase):
             time_unit_conv(1.0, "Py", "y", yconv), 1.0e15, places=(15 - 15)
         )
 
-    def test_add_dictionaries(self):
+    def test_time_unit_conv_sympy(self):
         """
-        Test function which adds two inventory dictionaries together.
+        Test of the variation of time_unit_conv() which uses SymPy objects.
         """
 
-        dict1 = {"Pm-141": 1.0, "Rb-78": 2.0}
-        dict2 = {"Pm-141": 3.0, "Rb-90": 4.0}
+        yconv = Integer(3652422) / 10000
+
         self.assertEqual(
-            add_dictionaries(dict1, dict2), {"Pm-141": 4.0, "Rb-78": 2.0, "Rb-90": 4.0},
+            time_unit_conv_sympy(Integer(1), "ps", "ns", yconv), 1 / Integer(1000)
         )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "ns", "us", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "us", "ms", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "ms", "s", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "s", "m", yconv), 1 / Integer(60)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "m", "h", yconv), 1 / Integer(60)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "h", "d", yconv), 1 / Integer(24)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "d", "y", yconv), 10000 / Integer(3652422)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "y", "ky", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "ky", "My", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "My", "Gy", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "Gy", "Ty", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "Ty", "Py", yconv), 1 / Integer(1000)
+        )
+
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "ns", "ps", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "us", "ns", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "ms", "us", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "s", "ms", yconv), Integer(1000)
+        )
+        self.assertEqual(time_unit_conv_sympy(Integer(1), "m", "s", yconv), Integer(60))
+        self.assertEqual(time_unit_conv_sympy(Integer(1), "h", "m", yconv), Integer(60))
+        self.assertEqual(time_unit_conv_sympy(Integer(1), "d", "h", yconv), Integer(24))
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "y", "d", yconv), Integer(3652422) / 10000
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "ky", "y", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "My", "ky", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "Gy", "My", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "Ty", "Gy", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "Py", "Ty", yconv), Integer(1000)
+        )
+
+        # Catch some incorrect time units
+        with self.assertRaises(ValueError):
+            time_unit_conv_sympy(1.0, "ty", "y", yconv)
+        with self.assertRaises(ValueError):
+            time_unit_conv_sympy(1.0, "y", "ty", yconv)
+        with self.assertRaises(ValueError):
+            time_unit_conv_sympy(1.0, "ty", 1.0, yconv)
 
 
 if __name__ == "__main__":

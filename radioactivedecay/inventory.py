@@ -1,10 +1,13 @@
 """
 The inventory module defines the ``Inventory`` class. Each ``Inventory`` instance contains one or
-more radionuclides, each with an assoicated activity. The decay of the radionuclide(s) in an
-``Inventory`` can be calculated by using the ``decay()`` method. A ``DecayData`` dataset is
-associated with each ``Inventory`` instance (default is DEFAULTDATA).
+multiple radionuclides, each with an associated activity. The decay of the radionuclide(s) in an
+``Inventory`` can be calculated by using the ``decay()`` method (normal double precision
+arithmetic). Use the ``decay_high_precision()`` method for a SymPy high numerical precision
+calculation. A ``DecayData`` dataset associated with each ``Inventory`` instance is the radioactive
+decay data source (default is rd.DEFAULTDATA).
 
-The examples shown assume the ``radioactivedecay`` package has been imported as:
+The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
+as:
 
 .. highlight:: python
 .. code-block:: python
@@ -13,25 +16,65 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 
 """
 
+from functools import singledispatch, update_wrapper
 from typing import Callable, Dict, List, Union
+from sympy import exp, nsimplify
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA, np
 from radioactivedecay.radionuclide import Radionuclide
 from radioactivedecay.utils import (
     parse_radionuclide,
     time_unit_conv,
-    add_dictionaries,
-    method_dispatch,
+    time_unit_conv_sympy,
 )
 
 
-def check_dictionary(
+def _add_dictionaries(
+    dict_a: Dict[str, float], dict_b: Dict[str, float]
+) -> Dict[str, float]:
+    """
+    Adds together two dictionaries of radionuclides and associated activities.
+
+    Parameters
+    ----------
+    dict_a : dict
+        First dictionary containing radionuclide strings as keys and activities as values.
+    dict_b : dict
+        Second dictionary containing radionuclide strings as keys and activities as values.
+
+    Returns
+    -------
+    dict
+        Combined dictionary containing the radionuclides in both dict_a and dict_b, where
+        activities have been added together when a radionuclide is present in both input
+        dictionaries.
+
+    Examples
+    --------
+    >>> dict_a = {'Pm-141': 1.0, 'Rb-78': 2.0}
+    >>> dict_b = {'Pm-141': 3.0, 'Rb-90': 4.0}
+    >>> rd.inventory._add_dictionaries(dict_a, dict_b)
+    {'Pm-141': 4.0, 'Rb-78': 2.0, 'Rb-90': 4.0}
+
+    """
+
+    new_dict = dict_a.copy()
+    for radionuclide, radioactivity in dict_b.items():
+        if radionuclide in new_dict:
+            new_dict[radionuclide] = new_dict[radionuclide] + radioactivity
+        else:
+            new_dict[radionuclide] = radioactivity
+
+    return new_dict
+
+
+def _check_dictionary(
     input_inv_dict: Dict[Union[str, Radionuclide], float],
     radionuclides: List[str],
     dataset: str,
 ) -> Dict[str, float]:
     """
-    Checks validity of a dictionary of radionuclides and associated acitivities. Radionuclides
-    must be in the decay dataset. Radionuclide strings are parsed to to Ab-XX format.
+    Checks validity of a dictionary of radionuclides and associated activities. Radionuclides must
+    be in the decay dataset. Radionuclide strings are parsed to to Ab-XX format.
 
     Parameters
     ----------
@@ -56,10 +99,10 @@ def check_dictionary(
 
     Examples
     --------
-    >>> rd.inventory.check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.inventory._check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
     >>> H3 = rd.Radionuclide('H-3')
-    >>> rd.inventory.check_dictionary({H3: 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.inventory._check_dictionary({H3: 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
 
     """
@@ -79,6 +122,19 @@ def check_dictionary(
             )
 
     return inv_dict
+
+
+def _method_dispatch(func):
+    """Adds singledispatch support for class methods."""
+
+    dispatcher = singledispatch(func)
+
+    def wrapper(*args, **kw):
+        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
+
+    wrapper.register = dispatcher.register
+    update_wrapper(wrapper, func)
+    return wrapper
 
 
 class Inventory:
@@ -120,29 +176,26 @@ class Inventory:
         check: bool = True,
         data: DecayData = DEFAULTDATA,
     ) -> None:
-        parsed_contents: Dict[str, float] = check_dictionary(
-            contents, data.radionuclides, data.dataset
-        ) if check is True else contents
-        self.contents: Dict[str, float] = dict(
-            sorted(parsed_contents.items(), key=lambda x: x[0])
-        )
-        self.data: DecayData = data
 
-    def change(
+        self._change(contents, check, data)
+
+    def _change(
         self,
         contents: Dict[Union[str, Radionuclide], float],
         check: bool,
         data: DecayData,
     ) -> None:
         """
-        Changes the contents and data attritubes of this Inventory instance.
+        Changes the contents and data attributes of this Inventory instance.
         """
 
-        parsed_contents: Dict[str, float] = check_dictionary(
+        parsed_contents: Dict[str, float] = _check_dictionary(
             contents, data.radionuclides, data.dataset
         ) if check is True else contents
-        self.contents = dict(sorted(parsed_contents.items(), key=lambda x: x[0]))
-        self.data = data
+        self.contents: Dict[str, float] = dict(
+            sorted(parsed_contents.items(), key=lambda x: x[0])
+        )
+        self.data: DecayData = data
 
     @property
     def radionuclides(self) -> List[str]:
@@ -174,20 +227,20 @@ class Inventory:
 
     def __len__(self) -> int:
         """
-        Returns number of radionuclides in this inventory.
+        Returns number of radionuclides in the inventory.
         """
 
         return len(self.contents)
 
     def add(self, add_contents: Dict[Union[str, Radionuclide], float]) -> None:
         """
-        Adds a dictionary of radionuclides and associated activities to this inventory.
+        Adds a dictionary of radionuclides and associated activities to the inventory.
 
         Parameters
         ----------
         add_contents : dict
             Dictionary containing radionuclide strings or Radionuclide objects as keys and
-            activities as values which are added to the Inventory object.
+            activities as values which are added to the Inventory.
 
         Examples
         --------
@@ -198,11 +251,11 @@ class Inventory:
 
         """
 
-        parsed_add_contents: Dict[str, float] = check_dictionary(
+        parsed_add_contents: Dict[str, float] = _check_dictionary(
             add_contents, self.data.radionuclides, self.data.dataset
         )
-        new_contents = add_dictionaries(self.contents, parsed_add_contents)
-        self.change(new_contents, False, self.data)
+        new_contents = _add_dictionaries(self.contents, parsed_add_contents)
+        self._change(new_contents, False, self.data)
 
     def subtract(self, sub_contents: Dict[Union[str, Radionuclide], float]) -> None:
         """
@@ -212,7 +265,7 @@ class Inventory:
         ----------
         sub_contents : dict
             Dictionary containing radionuclide strings or Radionuclide objects as keys and
-            activities as values which are subtracted from the Inventory object.
+            activities as values which are subtracted from the Inventory.
 
         Examples
         --------
@@ -222,15 +275,15 @@ class Inventory:
         {'C-14': 2.0, 'H-3': 0.0}
 
         """
-        parsed_sub_contents: Dict[str, float] = check_dictionary(
+        parsed_sub_contents: Dict[str, float] = _check_dictionary(
             sub_contents, self.data.radionuclides, self.data.dataset
         )
         parsed_sub_contents.update(
             (nuclide, radioactivity * -1.0)
             for nuclide, radioactivity in parsed_sub_contents.items()
         )
-        new_contents = add_dictionaries(self.contents, parsed_sub_contents)
-        self.change(new_contents, False, self.data)
+        new_contents = _add_dictionaries(self.contents, parsed_sub_contents)
+        self._change(new_contents, False, self.data)
 
     def __add__(self, other: "Inventory") -> "Inventory":
         """
@@ -244,7 +297,7 @@ class Inventory:
                 + " inv2: "
                 + other.data.dataset
             )
-        new_contents = add_dictionaries(self.contents, other.contents)
+        new_contents = _add_dictionaries(self.contents, other.contents)
         return Inventory(new_contents, False, self.data)
 
     def __sub__(self, other: "Inventory") -> "Inventory":
@@ -264,7 +317,7 @@ class Inventory:
             (nuclide, radioactivity * -1.0)
             for nuclide, radioactivity in sub_contents.items()
         )
-        new_contents = add_dictionaries(self.contents, sub_contents)
+        new_contents = _add_dictionaries(self.contents, sub_contents)
         return Inventory(new_contents, False, self.data)
 
     def __mul__(self, const: float) -> "Inventory":
@@ -294,7 +347,7 @@ class Inventory:
 
         return self.__mul__(1.0 / const)
 
-    @method_dispatch
+    @_method_dispatch
     def remove(
         self, delete: Union[str, Radionuclide, List[Union[str, Radionuclide]]]
     ) -> None:
@@ -305,7 +358,7 @@ class Inventory:
         ----------
         delete : str or Radionuclide or list
             Radionuclide string, Radionuclide object or list of radionuclide strings or
-            Radionuclide Objects to delete from the Inventory object.
+            Radionuclide objects to delete from the Inventory object.
 
         Examples
         --------
@@ -322,18 +375,20 @@ class Inventory:
     @remove.register(str)
     def _(self, delete: str) -> Callable[[Dict[str, float], bool, DecayData], None]:
         """Remove radionuclide string from this inventory."""
+
         delete = parse_radionuclide(delete, self.data.radionuclides, self.data.dataset)
         new_contents = self.contents.copy()
         if delete not in new_contents:
             raise ValueError(delete + " does not exist in this inventory.")
         new_contents.pop(delete)
-        self.change(new_contents, False, self.data)
+        self._change(new_contents, False, self.data)
 
     @remove.register(Radionuclide)
     def _(
         self, delete: Radionuclide
     ) -> Callable[[Dict[str, float], bool, DecayData], None]:
-        """Remove radionuclide string from this inventory."""
+        """Remove radionuclide object from this inventory."""
+
         delete = parse_radionuclide(
             delete.radionuclide, self.data.radionuclides, self.data.dataset
         )
@@ -341,13 +396,14 @@ class Inventory:
         if delete not in new_contents:
             raise ValueError(delete + " does not exist in this inventory.")
         new_contents.pop(delete)
-        self.change(new_contents, False, self.data)
+        self._change(new_contents, False, self.data)
 
     @remove.register(list)
     def _(
         self, delete: List[Union[str, Radionuclide]]
     ) -> Callable[[Dict[str, float], bool, DecayData], None]:
         """Remove list of radionuclide(s) from this inventory."""
+
         delete = [
             parse_radionuclide(
                 nuc.radionuclide, self.data.radionuclides, self.data.dataset
@@ -361,12 +417,105 @@ class Inventory:
             if nuc not in new_contents:
                 raise ValueError(nuc + " does not exist in this inventory.")
             new_contents.pop(nuc)
-        self.change(new_contents, False, self.data)
+        self._change(new_contents, False, self.data)
 
-    def decay(self, decay_time: float, units: str = "s") -> "Inventory":
+    def decay(
+        self, decay_time: float, units: str = "s", sig_fig: Union[None, int] = None
+    ) -> "Inventory":
         """
-        Returns new Inventory resulting from radioactive decay of the current Inventory object for
+        Returns a new Inventory calculated from the radioactive decay of the current Inventory for
         decay_time.
+
+        Parameters
+        ----------
+        decay_time : float
+            Decay time.
+        units : str, optional
+            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
+            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
+            these time units.
+        sig_fig: None or int, optional
+            Performs a decay calculation using arbitrary-precision arithmetic with SymPy for this
+            many significant figures. For high precision calculations, recommended is 320. sig_fig
+            must be greater than 0. Default is None, which i standard SciPy/NumPy double precision
+            calculations.
+
+        Returns
+        -------
+        Inventory
+            New Inventory after the radioactive decay.
+
+        Raises
+        ------
+        ValueError
+            If sig_fig is invalid or if the decay dataset associated with this Inventory
+            (self.data) does not contain SymPy versions of the decay data.
+
+        Examples
+        --------
+        >>> inv_t0 = rd.Inventory({'H-3': 1.0})
+        >>> inv_t1 = inv_t0.decay(12.32, 'y')
+        >>> inv_t1.contents
+        {'H-3': 0.5}
+
+        """
+
+        if sig_fig is not None:
+            if sig_fig < 1:
+                raise ValueError("sig_fig needs to be an integer greater than 0.")
+            if self.data.sympy_data is None:
+                raise ValueError("No SymPy data in decay dataset " + self.data.dataset)
+            return self._decay_sympy(decay_time, units, sig_fig)
+
+        decay_time = (
+            decay_time
+            if units == "s"
+            else time_unit_conv(
+                decay_time,
+                units_from=units,
+                units_to="s",
+                year_conv=self.data.scipy_data.year_conv,
+            )
+        )
+
+        vector_n0 = self.data.scipy_data.vector_n0.copy()
+        indices_set = set()
+        for radionuclide in self.contents:
+            i = self.data.radionuclide_dict[radionuclide]
+            vector_n0[i] = (
+                self.contents[radionuclide] / self.data.scipy_data.decay_consts[i]
+            )
+            indices_set.update(self.data.scipy_data.matrix_c[:, i].nonzero()[0])
+        indices = list(indices_set)
+
+        matrix_e = self.data.scipy_data.matrix_e.copy()
+        matrix_e.data[indices] = np.exp(
+            -decay_time * self.data.scipy_data.decay_consts[indices]
+        )
+
+        vector_nt = (
+            self.data.scipy_data.matrix_c
+            @ matrix_e
+            @ self.data.scipy_data.matrix_c_inv
+            @ vector_n0
+        )
+        vector_at = vector_nt[indices] * self.data.scipy_data.decay_consts[indices]
+
+        new_contents = dict(zip(self.data.radionuclides[indices], vector_at))
+        new_contents = dict(sorted(new_contents.items(), key=lambda x: x[0]))
+
+        return Inventory(new_contents, False, self.data)
+
+    def decay_high_precision(self, decay_time: float, units: str = "s") -> "Inventory":
+        """
+        Decay calculation with high numerical precision. This uses SymPy arbitrary-precision
+        arithmetic functions for the decay calculation. The results can be more accurate than
+        a normal double precision float calculation (i.e. using ``decay(..., sig_fig=None)``) when
+        the decay chains contain radionuclides with very similar half-lives or half-lives that
+        differ by many orders of magnitude.
+
+        This function requires that the decay dataset associated with the Inventory instance
+        contains a SymPy version of the decay data. It uses sig_fig=320 for the SymPy calculation.
 
         Parameters
         ----------
@@ -380,47 +529,74 @@ class Inventory:
         Returns
         -------
         Inventory
-            New Inventory after radioactive decay.
+            New Inventory after the radioactive decay.
 
         Examples
         --------
-        >>> inv_t0 = rd.Inventory({'H-3': 1.0})
-        >>> inv_t1 = inv_t0.decay(12.32, 'y')
+        >>> inv_t0 = rd.Inventory({'Fm-257': 1.0})
+        >>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
         >>> inv_t1.contents
-        {'H-3': 0.5}
+         {'Ac-225': 4.060286801476717e-51,
+         'Am-241': 9.985270042416324e-24,
+         'Am-245': 5.4061684195880344e-09,
+         ...
+         'Fm-257': 0.9333548028364793,
+         ...
+         }
 
         """
+
+        return self.decay(decay_time, units, sig_fig=320)
+
+    def _decay_sympy(self, decay_time: float, units: str, sig_fig: int) -> "Inventory":
+        """
+        Version of decay() using SymPy arbitrary-precision arithmetic.
+        """
+
+        decay_time = nsimplify(decay_time)
 
         decay_time = (
             decay_time
             if units == "s"
-            else time_unit_conv(
+            else time_unit_conv_sympy(
                 decay_time,
                 units_from=units,
                 units_to="s",
-                year_conv=self.data.year_conv,
+                year_conv=self.data.sympy_data.year_conv,
             )
         )
 
-        vector_n0 = np.zeros([self.data.num_radionuclides], dtype=np.float64)
+        vector_n0 = self.data.sympy_data.vector_n0.copy()
         indices_set = set()
         for radionuclide in self.contents:
             i = self.data.radionuclide_dict[radionuclide]
-            vector_n0[i] = self.contents[radionuclide] / self.data.decay_consts[i]
-            indices_set.update(self.data.matrix_c[:, i].nonzero()[0])
+            vector_n0[i, 0] = (
+                nsimplify(self.contents[radionuclide])
+                / self.data.sympy_data.decay_consts[i, 0]
+            )
+            indices_set.update(self.data.scipy_data.matrix_c[:, i].nonzero()[0])
         indices = list(indices_set)
 
-        matrix_e = self.data.matrix_e.copy()
-        matrix_e.data[indices] = np.exp(
-            np.multiply(-decay_time, self.data.decay_consts[indices])
-        )
-        vector_nt = (
-            (self.data.matrix_c.dot(matrix_e)).dot(self.data.matrix_c_inv)
-        ).dot(vector_n0)
-        vector_at = np.multiply(vector_nt, self.data.decay_consts)
+        matrix_e = self.data.sympy_data.matrix_e.copy()
+        for i in indices:
+            matrix_e[i, i] = exp(
+                (-decay_time * self.data.sympy_data.decay_consts[i, 0]).evalf(sig_fig)
+            )
 
-        new_contents = dict(zip(self.data.radionuclides[indices], vector_at[indices]))
+        vector_nt = (
+            self.data.sympy_data.matrix_c
+            @ matrix_e
+            @ self.data.sympy_data.matrix_c_inv
+            @ vector_n0
+        )
+
+        new_contents = {}
+        for i in indices:
+            new_contents[self.data.radionuclides[i]] = float(
+                vector_nt[i, 0] * self.data.sympy_data.decay_consts[i, 0]
+            )
         new_contents = dict(sorted(new_contents.items(), key=lambda x: x[0]))
+
         return Inventory(new_contents, False, self.data)
 
     def half_lives(self, units: str = "s") -> Dict[str, float]:
@@ -431,9 +607,9 @@ class Inventory:
         Parameters
         ----------
         units : str, optional
-            Units for half-life (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
-            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
-            these time units.
+            Units for half-lives (default is 's', i.e. seconds). Options are 'ps', 'ns', 'us',
+            'ms', 's', 'm', 'h', 'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common
+            spelling variations of these time units.
 
         Returns
         -------
@@ -497,8 +673,9 @@ class Inventory:
     def decay_modes(self) -> Dict[str, List[str]]:
         """
         Returns dictionary with the decay modes of the direct progeny of the radionuclides in the
-        Inventory. Note: the decay modes are not lists of all the different radiation types emitted
-        by the decay.
+        Inventory. Note: the decay mode strings returned are not lists of all the different
+        radiation types emitted during the parent to progeny decay processes. They are the labels
+        defined in the decay dataset to classify the decay type (e.g. '\u03b1', '\u03b2-' or 'IT').
 
         Returns
         -------

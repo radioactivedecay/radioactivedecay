@@ -1,10 +1,10 @@
 """
-The radionuclide module defines the ``Radionuclide`` class. Each ``Radionuclide`` instance contains
-decay data for one radionuclide. The data can be accessed via the instance attributes and methods.
-The data comes from the ``DecayData`` dataset which is supplied to the ``Radionuclide`` class
-constructor (default is radioactivedecay.decaydata.DEFAULTDATA).
+The radionuclide module defines the ``Radionuclide`` class. Each ``Radionuclide`` instance
+represents one radionuclide from the associated ``DecayData`` dataset. The methods provide an
+access point for the decay data (default decay dataset is rd.DEFAULTDATA).
 
-The examples shown assume the ``radioactivedecay`` package has been imported as:
+The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
+as:
 
 .. highlight:: python
 .. code-block:: python
@@ -15,13 +15,13 @@ The examples shown assume the ``radioactivedecay`` package has been imported as:
 
 from typing import Dict, List
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
-from radioactivedecay.utils import parse_radionuclide, time_unit_conv
+from radioactivedecay.utils import parse_radionuclide
 
 
 class Radionuclide:
     """
-    ``Radionuclide`` instances are used to fetch decay data on one radionuclide. The data comes
-    from the assoicated ``DecayData`` dataset.
+    ``Radionuclide`` instances represent one radionuclide from the assoicated ``DecayData``
+    dataset.
 
     Parameters
     ----------
@@ -34,8 +34,6 @@ class Radionuclide:
     ----------
     radionuclide : str
         Radionuclide string.
-    decay_constant : numpy.float64
-        Decay constant of the radionuclide (s\\ :sup:`-1`).
     prog_bf_mode : dict
         Dictionary containing direct progeny as keys, and a list containing the branching fraction
         and the decay mode for that progeny as values.
@@ -53,9 +51,6 @@ class Radionuclide:
         self.radionuclide: str = parse_radionuclide(
             radionuclide, data.radionuclides, data.dataset
         )
-        self.decay_constant: float = data.decay_consts[
-            data.radionuclide_dict[self.radionuclide]
-        ]
         self.prog_bf_mode: Dict[str, List] = data.prog_bfs_modes[
             data.radionuclide_dict[self.radionuclide]
         ]
@@ -63,14 +58,14 @@ class Radionuclide:
 
     def half_life(self, units: str = "s") -> float:
         """
-        Returns half-life of the radionuclide in chosen units.
+        Returns the half-life of the radionuclide in chosen units.
 
         Parameters
         ----------
         units : str, optional
-            Units for half-life (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
-            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
-            these time units.
+            Units for half-life (default is 's', i.e. seconds). Options are 'ps', 'ns', 'us', 'ms',
+            's', 'm', 'h', 'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling
+            variations of these time units.
 
         Returns
         -------
@@ -85,14 +80,7 @@ class Radionuclide:
 
         """
 
-        conv = (
-            1.0
-            if units == "s"
-            else time_unit_conv(
-                1.0, units_from="s", units_to=units, year_conv=self.data.year_conv
-            )
-        )
-        return conv * self.data.ln2 / self.decay_constant
+        return self.data.half_life(self.radionuclide, units)
 
     def progeny(self) -> List[str]:
         """
@@ -136,7 +124,9 @@ class Radionuclide:
     def decay_modes(self) -> List[str]:
         """
         Returns the decay modes for the radionuclide, as defined in the decay dataset. Note: the
-        decay mode is not a list of all the different radiation types emitted by the decay.
+        decay mode strings returned are not lists of all the different radiation types emitted
+        during the parent to progeny decay processes. They are the labels defined in the decay
+        dataset to classify the parent to progeny decay type (e.g. '\u03b1', '\u03b2-' or 'IT').
 
         Returns
         -------
