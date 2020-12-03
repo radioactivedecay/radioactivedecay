@@ -108,10 +108,10 @@ queried directly as follows:
 
 ### High numerical precision decay calculations
 
-``radioactivedecay`` includes a high numerical precision mode for decay
-calculations employing SymPy arbitrary-precision routines. This can give more
-accurate results for decay chains containing both radionuclides with very long
-and very short half-lives. Access it using the ``decay_high_precision()`` method:
+``radioactivedecay`` includes a high numerical precision mode employing SymPy
+arbitrary-precision routines. This can give more accurate results for decay
+calculations with chains containing both radionuclides with very long and very
+short half-lives. Access it using the ``decay_high_precision()`` method:
 
 ```pycon
 >>> inv = rd.Inventory({'U-238': 1.0})
