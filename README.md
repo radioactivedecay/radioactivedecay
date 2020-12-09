@@ -35,9 +35,9 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
->>> inv = rd.Inventory({'I-123': 1.0, 'Tc-99m': 2.0})
->>> inv = inv.decay(20.0, 'h')
->>> inv.contents
+>>> inv_t0 = rd.Inventory({'I-123': 1.0, 'Tc-99m': 2.0})
+>>> inv_t1 = inv_t0.decay(20.0, 'h')
+>>> inv_t1.contents
 {'I-123': 0.35180331802323694,
  'Tc-99': 5.852125859801924e-09,
  'Tc-99m': 0.19957172182663926,
@@ -92,6 +92,19 @@ are <sup>123</sup>Te and <sup>123m</sup>Te, with branching fractions 0.99996
 and 4.442e-05 respectively. Both of the decay modes occur via electron capture
 (EC).
 
+Corresponding routines also exist for inventories:
+
+```pycon
+>>> inv_t0.half_lives('h')
+{'I-123': 13.27, 'Tc-99m': 6.015}
+>>> inv_t0.progeny()
+{'I-123': ['Te-123', 'Te-123m'], 'Tc-99m': ['Tc-99', 'Ru-99']}
+>>> inv_t0.branching_fractions()
+{'I-123': [0.99996, 4.442e-05], 'Tc-99m': [0.99996, 3.7e-05]}
+>>> inv_t0.decay_modes()
+{'I-123': ['EC', 'EC'], 'Tc-99m': ['IT', 'β-']}
+```
+
 The default decay dataset in ``radioactivedecay``  is ICRP-107. Its data can be
 queried directly as follows:
 
@@ -108,15 +121,15 @@ queried directly as follows:
 
 ### High numerical precision decay calculations
 
-``radioactivedecay`` includes a high numerical precision mode employing SymPy
-arbitrary-precision routines. This can give more accurate results for decay
-calculations with chains containing both radionuclides with very long and very
-short half-lives. Access it using the ``decay_high_precision()`` method:
+``radioactivedecay`` includes a high numerical precision mode which is more
+accurate for decay chains containing very long and very short lived
+radionuclides. It employs SymPy arbitrary-precision numerical routines. Access
+it using the ``decay_high_precision()`` method:
 
 ```pycon
->>> inv = rd.Inventory({'U-238': 1.0})
->>> inv = inv.decay_high_precision(10.0, 'd')
->>> inv.contents
+>>> inv_t0 = rd.Inventory({'U-238': 1.0})
+>>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
+>>> inv_t1.contents
 {'At-218': 1.4511675857141352e-25,
 'Bi-210': 1.8093327888942224e-26,
 'Bi-214': 7.09819414496093e-22,
