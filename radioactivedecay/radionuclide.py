@@ -1,7 +1,8 @@
 """
 The radionuclide module defines the ``Radionuclide`` class. Each ``Radionuclide`` instance
 represents one radionuclide from the associated ``DecayData`` dataset. The methods provide an
-access point for the decay data (default decay dataset is rd.DEFAULTDATA).
+access point for the decay data. The default decay dataset used if none is supplied to the
+constructor is rd.DEFAULTDATA.
 
 The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
 as:

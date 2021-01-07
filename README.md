@@ -6,10 +6,14 @@
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
-It fully supports radionuclide decay chains, including those with branching
-decays or chains passing through metastable states. By default
-``radioactivedecay`` uses the decay data from ICRP Publication 107, which
-covers 1252 radionuclides of 97 elements.
+It supports decay chains of radionuclides, metastable states and branching
+decays. By default it uses the decay data from ICRP Publication 107, which
+contains 1252 radionuclides of 97 elements.
+
+It solves the radioactive decay differential equations analytically using NumPy
+and SciPy linear algebra routines. There is also a high numerical precision
+mode using SymPy routines which gives more accurate results for decay chains
+with orders of magnitude differences between radionuclide half-lives.
 
 - **Full Documentation**: 
 [https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
@@ -31,6 +35,7 @@ $ pip install radioactivedecay
 ## Usage
 
 ### Decay calculations
+
 Create an ``Inventory`` of radionuclides and decay it as follows:
 
 ```pycon
@@ -45,54 +50,35 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
  'Te-123m': 1.3312369019952352e-07}
 ```
 
-Here we created an inventory of 1.0 Bq of <sup>123</sup>I and 2.0 Bq of
-<sup>99m</sup>Tc and decayed it for 20 hours. The decayed inventory contains
-<sup>99</sup>Tc, which is the progeny of <sup>99m</sup>Tc, and 
-<sup>123</sup>Te and <sup>123m</sup>Te, which are progeny of <sup>123</sup>I.
+Here we created an inventory of 1.0 Bq of I-123 and 2.0 Bq of Tc-99m and
+decayed it for 20 hours. The decayed inventory contains Tc-99, which is the
+progeny of Tc-99m, and Te-123 and Te-123m, which are progeny of I-123.
 
-Note that ``radioactivedecay`` does not require that you specify the activity
-units. This is because its calculations are agnostic of the activity units:
-units out are the same as units in. So this calculation could have also
-represented the decay of 1.0 Ci of <sup>123</sup>I, or 1.0 dpm, or 1.0 kBq,
-etc.
+Note the ``Inventory`` constructor did not require specification of activity
+units. This is because in ``radioactivedecay``, units out are the same as units
+in, by default. So the above calculation could have represented the decay of 1.0
+ Ci of I-123, or 1.0 dpm, or 1.0 kBq, etc.
 
-In the example we supplied 'h' as an argument to the ``decay()`` method to
-specify the decay time period (20.0) had units of hours. Accepted time units
-include 'ms', 's', 'm', 'h', 'd', 'y' etc. Note seconds ('s') is the default if
-no time unit is supplied to ``decay()``.
+In the example we supplied ``'h'`` as an argument to the ``decay()`` method to
+specify the decay time period (20.0) had a time unit of hours. Acceptable time
+units for the program include ``'ms'``, ``'s'``, ``'m'``, ``'h'``, ``'d'``,
+``'y'`` etc. Note seconds (``'s'``) is the default if no time unit is supplied
+to ``decay()``.
 
 Radionuclides can be specified in three equivalent ways in
 ``radioactivedecay``. The strings
 
-* 'Rn-222', 'Rn222' or '222Rn',
-* 'Ir-192n', 'Ir192n' or '192nIr'
+* ``'Rn-222'``, ``'Rn222'`` or ``'222Rn'``,
+* ``'Ir-192n'``, ``'Ir192n'`` or ``'192nIr'``
 
 are all equivalent ways of specifying <sup>222</sup>Rn and <sup>192n</sup>Ir to
 the program.
 
 
 ### Fetching decay data
-``radioactivedecay`` includes a ``Radionuclide`` class which can be used to fetch
-decay information for individual radionuclides.
 
-```pycon
->>> nuc = rd.Radionuclide('I-123')
->>> nuc.half_life('d')
-13.27
->>> nuc.progeny()
-['Te-123', 'Te-123m']
->>> nuc.branching_fractions()
-[0.99996, 4.442e-05]
->>> nuc.decay_modes()
-['EC', 'EC']
-```
-
-The half-life for <sup>123</sup>I is thus 13.27 days. Its direct progeny
-are <sup>123</sup>Te and <sup>123m</sup>Te, with branching fractions 0.99996
-and 4.442e-05 respectively. Both of the decay modes occur via electron capture
-(EC).
-
-Corresponding routines also exist for inventories:
+``radioactivedecay`` includes methods to fetch decay data for the radionuclides
+in an inventory:
 
 ```pycon
 >>> inv_t0.half_lives('h')
@@ -105,26 +91,31 @@ Corresponding routines also exist for inventories:
 {'I-123': ['EC', 'EC'], 'Tc-99m': ['IT', 'β-']}
 ```
 
-The default decay dataset in ``radioactivedecay``  is ICRP-107. Its data can be
-queried directly as follows:
+The ``Radionuclide`` class can be used to fetch decay information for
+individual radionuclides, e.g. for Rn-222:
 
 ```pycon
->>> rd.DEFAULTDATA.dataset
-'icrp107'
->>> rd.DEFAULTDATA.half_life('Cs-137', 'y')
-30.1671
->>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
-0.94399
->>> rd.DEFAULTDATA.decay_mode('Cs-137', 'Ba-137m')
-'β-'
+>>> nuc = rd.Radionuclide('Ra-226')
+>>> nuc.half_life('d')
+3.8235
+>>> nuc.progeny()
+['Po-218']
+>>> nuc.branching_fractions()
+[1.0]
+>>> nuc.decay_modes()
+['α']
 ```
+
+The half-life for Rn-222 is 3.8235 days. Its direct progeny is Po-218, created
+from an α decay.
+
 
 ### High numerical precision decay calculations
 
-``radioactivedecay`` includes a high numerical precision mode which is more
-accurate for decay chains containing very long and very short lived
-radionuclides. It employs SymPy arbitrary-precision numerical routines. Access
-it using the ``decay_high_precision()`` method:
+``radioactivedecay`` includes a high numerical precision mode which gives more
+accurate results for decay chains containing long and short lived radionuclides
+together. It employs SymPy arbitrary-precision numerical routines. Access it
+with the ``decay_high_precision()`` method:
 
 ```pycon
 >>> inv_t0 = rd.Inventory({'U-238': 1.0})
@@ -154,13 +145,16 @@ it using the ``decay_high_precision()`` method:
 
 ## How radioactivedecay works
 
-``radioactivedecay`` calculates an analytical solution to the decay chain
-differential equations using linear alegbra. It implements the
+``radioactivedecay`` calculates an analytical solution to the radioactive decay
+differential equations using linear algebra operations. It implements the
 method described in this paper:
 [M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23
-(2010)](https://doi.org/10.1016/j.cpc.2009.08.011). It calls NumPy and SciPy
-for the standard double precision decay calculations, and SymPy for the high
-numerical precision decay calculations.
+(2010)](https://doi.org/10.1016/j.cpc.2009.08.011). See the
+[theory docpage](https://alexmalins.com/radioactivedecay/theory.html) for more
+details.
+
+It uses NumPy and SciPy routines for standard double-precision floating-point
+computations, and SymPy for high numerical precision calculations.
 
 By default ``radioactivedecay`` uses decay data from
 [ICRP Publication 107
@@ -172,12 +166,11 @@ in the GitHub repository contains Jupyter Notebooks for creating the decay
 datasets that are read in by ``radioactivedecay``, e.g.
 [ICRP
 107](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
-It also contains some comparisons of decay calculations against the
+It also contains some comparisons against decay calculations made with
 [PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
 and
 [Radiological
-Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb)
-codes.
+Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
 
 
 ## Tests

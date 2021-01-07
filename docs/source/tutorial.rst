@@ -108,8 +108,8 @@ with the ``decay()`` method.
 Radionuclide name formatting and metastable states
 --------------------------------------------------
 
-Radionuclides can be specified in three equivalent ways. These all give
-radon-222:
+Radionuclides can be specified in three equivalent ways. These are all
+equivalent ways of creating an inventory of radon-222:
 
 .. code-block:: python3
 
@@ -117,8 +117,8 @@ radon-222:
     >>> inv = rd.Inventory({'Rn222': 1.0})
     >>> inv = rd.Inventory({'222Rn': 1.0})
 
-Metastable states of radionuclides can be inputted using \'m\', \'n\', etc. for
-first, second... metastable states, respectively:
+Metastable states of radionuclides can be inputted by appending \'m\', \'n\',
+etc. for first, second... metastable states, respectively:
 
 .. code-block:: python3
 
@@ -185,8 +185,8 @@ by using the ``half_lives()``, ``progeny()``, ``branching_fractions()`` and
     >>> inv.decay_modes()
     {'C-14': ['β-'], 'K-40': ['β-', 'β+ & EC']}
 
-Decay data can also be accessed directly from the decay datasets. To query the
-data in ICRP-107, which is the default dataset in ``radioactivedecay``, use:
+Decay data can also be accessed directly from the decay datasets. Query the
+data in ICRP-107, which is the default dataset in ``radioactivedecay``, by:
 
 .. code-block:: python3
 
