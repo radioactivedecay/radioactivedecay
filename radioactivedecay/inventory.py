@@ -1,10 +1,10 @@
 """
 The inventory module defines the ``Inventory`` class. Each ``Inventory`` instance contains one or
-multiple radionuclides, each with an associated activity. The decay of the radionuclide(s) in an
-``Inventory`` can be calculated by using the ``decay()`` method (normal double precision
-arithmetic). Use the ``decay_high_precision()`` method for a SymPy high numerical precision
-calculation. A ``DecayData`` dataset associated with each ``Inventory`` instance is the radioactive
-decay data source (default is rd.DEFAULTDATA).
+more radionuclides, each with an associated activity. The decay of the radionuclide(s) in an
+``Inventory`` can be calculated by using the ``decay()`` method (normal double-precision
+floating-point operations). Use the ``decay_high_precision()`` method to perform a SymPy high
+numerical precision calculation. A ``DecayData`` dataset associated with each ``Inventory``
+instance is the radioactive decay data source (default is rd.DEFAULTDATA).
 
 The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
 as:

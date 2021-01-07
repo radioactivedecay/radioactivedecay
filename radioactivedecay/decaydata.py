@@ -1,8 +1,7 @@
 """
-The decaydata module defines the ``DecayData`` and ``DecayMatrices`` classes.
-Instances of ``DecayData`` initialize by reading in files containing radioactive decay data. The
-instances then store the decay data, and their methods can be used for basic querying of the decay
-data.
+The decaydata module defines the ``DecayData`` and ``DecayMatrices`` classes. Instances of
+``DecayData`` initialize by reading in files containing radioactive decay data. The instances then
+store the decay data, and their methods can be used for basic querying of the decay data.
 
 The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
 as:

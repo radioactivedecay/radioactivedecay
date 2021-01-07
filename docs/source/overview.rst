@@ -8,12 +8,12 @@ Introduction
 It contains functions to define inventories of radionuclides, perform
 decay calculations, and output decay data for radionuclides and decay chains.
 
-The original goal was to create a simple and light weight Python package for
-radioactive decay calculations, with full support for branching decays and
-multi-step decay chains, including those which pass through metastable states.
-``radioactivedecay`` uses the decay data from ICRP Publication 107
-:ref:`[1] <refs>` by default. It solves the decay chain differential equations
-analytically using basic linear algebra operations :ref:`[2] <refs>`.
+The original goal was to create a light-weight Python package for radioactive
+decay calculations, with full support for branching decays, multi-step decay
+chains, and metastable states. ``radioactivedecay`` uses the decay data from
+ICRP Publication 107 :ref:`[1] <refs>` by default. It solves the radioactive
+decay differential equations analytically using basic linear algebra operations
+:ref:`[2] <refs>`.
 
 In order to use ``radioactivedecay``, you will need Python 3.6+ with the NumPy,
 SciPy, and SymPy packages installed. The code is platform independent and has
@@ -55,10 +55,11 @@ How it works
 
 ``radioactivedecay`` calculates an analytical solution to the decay chain
 differential equations using matrix and vector multiplications. It implements
-the method described in ref. :ref:`[2] <refs>`. It calls NumPy 
-:ref:`[3] <refs>` and SciPy :ref:`[4] <refs>` for the matrix operations. There
-is also a high numerical precision decay calculation mode based on SymPy
-:ref:`[5] <refs>` routines.
+the method described in ref. :ref:`[2] <refs>`.  See the
+`theory docpage <https://alexmalins.com/radioactivedecay/theory.html>`_ for
+more details. It calls NumPy :ref:`[3] <refs>` and SciPy :ref:`[4] <refs>` for
+the matrix operations. There is also a high numerical precision decay
+calculation mode based on SymPy :ref:`[5] <refs>` routines.
 
 The `notebooks folder 
 <https://github.com/alexmalins/radioactivedecay/tree/main/notebooks>`_ 
@@ -78,17 +79,17 @@ At present ``radioactivedecay`` has the following limitations:
 
 * It does not model neutronics, so cannot calculate radioactivity produced
   from neutron-nuclear reactions inducing radioactivity or fission.
-* It cannot model external sources of radioactivity input to or removal from an
-  inventory over time.
+* It cannot model temporal sources of external radioactivity input or removal
+  from an inventory over time.
 * Care is needed when decaying backwards in time, i.e. supplying a negative
   argument to the ``decay()`` and ``decay_high_precision()`` methods, as this
-  can also result in numerical instabilities and nonsensical results.
+  can result in numerical instabilities and nonsensical results.
 
 There are also some limitations associated with the ICRP-107 decay dataset:
 
 * ICRP-107 does not contain data on branching fractions for radionuclides
   produced from spontaneous fission decays. Thus ``decay()`` and
-  ``decay_high_precision()`` do not calculate the activities of spontaneous
+  ``decay_high_precision()`` do not calculate activities for spontaneous
   fission progeny.
 * Decay data is quoted in ICRP-107 with up to 5 significant figures of
   precision. The results of decay calculations will therefore in theory never
@@ -142,7 +143,7 @@ Thanks also to:
 * `Anthony Scopatz <https://github.com/scopatz>`_ and the PyNE project
   :ref:`[6] <refs>`
 
-for their work on radioactive decay calculation software.
+for their work on open source radioactive decay calculation software.
 
 .. _refs:
 
