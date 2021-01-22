@@ -1,9 +1,9 @@
-﻿# radioactivedecay
-
-[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
+﻿[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
+
+<img src="https://alexmalins.com/radioactivedecay/_images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching
@@ -40,24 +40,22 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
->>> inv_t0 = rd.Inventory({'I-123': 1.0, 'Tc-99m': 2.0})
+>>> inv_t0 = rd.Inventory({'Mo-99': 2.0})
 >>> inv_t1 = inv_t0.decay(20.0, 'h')
 >>> inv_t1.contents
-{'I-123': 0.35180331802323694,
- 'Tc-99': 5.852125859801924e-09,
- 'Tc-99m': 0.19957172182663926,
- 'Te-123': 1.6353735405592892e-18,
- 'Te-123m': 1.3312369019952352e-07}
+{'Mo-99': 1.6207863893776937,
+'Tc-99': 9.05304236308454e-09,
+'Tc-99m': 1.3719829376710406}
 ```
 
-Here we created an inventory of 1.0 Bq of I-123 and 2.0 Bq of Tc-99m and
-decayed it for 20 hours. The decayed inventory contains Tc-99, which is the
-progeny of Tc-99m, and Te-123 and Te-123m, which are progeny of I-123.
+Here we created an inventory of 2.0 Bq of Mo-99 and decayed it for 20 hours.
+The decayed inventory contains Tc-99m and Tc-99, which are the progeny of
+Mo-99.
 
 Note the ``Inventory`` constructor did not require specification of activity
 units. This is because in ``radioactivedecay``, units out are the same as units
-in, by default. So the above calculation could have represented the decay of 1.0
- Ci of I-123, or 1.0 dpm, or 1.0 kBq, etc.
+in, by default. So the above calculation could have represented the decay of 2.0
+ Ci of Mo-99, or 2.0 dpm, or 2.0 kBq, etc.
 
 In the example we supplied ``'h'`` as an argument to the ``decay()`` method to
 specify the decay time period (20.0) had a time unit of hours. Acceptable time
@@ -75,20 +73,34 @@ are all equivalent ways of specifying <sup>222</sup>Rn and <sup>192n</sup>Ir to
 the program.
 
 
+### Plotting decay graphs
+
+Use the ``plot()`` method to create graphs of the radioactive decay of an
+Inventory over time:
+
+```pycon
+>>> inv_t0.plot(20, 'd')
+
+<img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
+
+This shows the decay of Mo-99 over 20 days, resulting in the ingrowth of Tc-99m
+and a trace amount of Tc-99.
+
+
 ### Fetching decay data
 
 ``radioactivedecay`` includes methods to fetch decay data for the radionuclides
 in an inventory:
 
 ```pycon
->>> inv_t0.half_lives('h')
-{'I-123': 13.27, 'Tc-99m': 6.015}
->>> inv_t0.progeny()
-{'I-123': ['Te-123', 'Te-123m'], 'Tc-99m': ['Tc-99', 'Ru-99']}
->>> inv_t0.branching_fractions()
-{'I-123': [0.99996, 4.442e-05], 'Tc-99m': [0.99996, 3.7e-05]}
->>> inv_t0.decay_modes()
-{'I-123': ['EC', 'EC'], 'Tc-99m': ['IT', 'β-']}
+>>> inv_t1.half_lives('d')
+{'Mo-99': 2.7475, 'Tc-99': 77102628.42, 'Tc-99m': 0.250625}
+>>> inv_t1.progeny()
+{'Mo-99': ['Tc-99m', 'Tc-99'], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
+>>> inv_t1.branching_fractions()
+{'Mo-99': [0.8773, 0.1227], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
+>>> inv_t1.decay_modes()
+{'Mo-99': ['β-', 'β-'], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
 ```
 
 The ``Radionuclide`` class can be used to fetch decay information for
@@ -105,9 +117,6 @@ individual radionuclides, e.g. for Rn-222:
 >>> nuc.decay_modes()
 ['α']
 ```
-
-The half-life for Rn-222 is 3.8235 days. Its direct progeny is Po-218, created
-from an α decay.
 
 
 ### High numerical precision decay calculations

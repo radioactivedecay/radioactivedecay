@@ -17,15 +17,19 @@ as:
 """
 
 from functools import singledispatch, update_wrapper
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Tuple, Union
 from sympy import exp, nsimplify
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA, np
+from radioactivedecay.plots import _decay_graph, matplotlib
 from radioactivedecay.radionuclide import Radionuclide
 from radioactivedecay.utils import (
     parse_radionuclide,
     time_unit_conv,
     time_unit_conv_sympy,
 )
+
+
+# pylint: disable=too-many-arguments, too-many-locals
 
 
 def _add_dictionaries(
@@ -694,6 +698,123 @@ class Inventory:
         return {
             nuc: Radionuclide(nuc, self.data).decay_modes() for nuc in self.contents
         }
+
+    def plot(
+        self,
+        xmax: float,
+        xunits: str = "s",
+        xmin: float = 0.0,
+        xscale: str = "linear",
+        yscale: str = "linear",
+        ymin: float = 0.0,
+        ymax: Union[None, float] = None,
+        yunits: Union[None, str] = None,
+        sig_fig: Union[None, int] = None,
+        display: Union[str, List[str]] = "all",
+        npoints: int = 501,
+        fig: Union[None, matplotlib.figure.Figure] = None,
+        ax: Union[None, matplotlib.axes.Axes] = None,
+        **kwargs,
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """
+        Plots a decay graph showing the change in activity of the inventory over time. Creates
+        matplotlib fig, ax objects if they are not supplied. Returns fig, ax tuple.
+
+        Parameters
+        ----------
+        xmax : float
+            Maximum decay time on x-axis.
+        xunits : str, optional
+            Units for decay times (default is 's', i.e. seconds). Options are 'ps', 'ns', 'us',
+            'ms', 's', 'm', 'h', 'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common
+            spelling variations of these time units.
+        xmin : float, optional
+            Minimum decay time on x-axis (default is 0.0 for linear x-axis, 0.1 for log x-axis).
+        xscale : str, optional
+            The time axis scale type to apply ('linear' or 'log', default is 'linear').
+        yscale : str, optional
+            The activities axis scale type to apply ('linear' or 'log', default is 'linear').
+        ymin : float, optional
+            Minimum activity for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
+        ymax : None or float, optional
+            Maximum activity for the y-axis. Default is None, which sets the limit to 1.05x the
+            maximum radioactivity that occurs over the decay period.
+        yunits : None or str, optional
+            Acivity unit for the y-axis label (default is to show no unit).
+        sig_fig : None or int, optional
+            None: use normal double precision decay calculations (default), int: perform Sympy high
+            precision decay calculations with this many significant figures.
+        display : string or list, optional
+            Only display the radionuclides within this list on the graph. Use this parameter when
+            you want to choose specific radionuclide decay curves shown on the graph, either by
+            supplying a string (to show one radionuclide) or a list of strings (to show multiple).
+            Default is 'all', which displays all radionuclides present upon decay of the inventory.
+        npoints : int, optional
+            Number of time points used to plot graph (default is 501 for normal precision decay
+            calculations, or 51 for high precision decay calculations (sig_fig > 0)).
+        fig : None or matplotlib.figure.Figure, optional
+            matplotlib figure object to use, or None makes ``radioactivedecay`` create one (default
+            is None).
+        ax : None or matplotlib.axes.Axes, optional
+            matplotlib axes object to use, or None makes ``radioactivedecay`` create one (default
+            is None).
+        **kwargs
+            All additional keyword arguments to supply to matplotlib plot() function.
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            matplotlib figure object used to plot decay chain.
+        ax : matplotlib.axes.Axes
+            matplotlib axes object used to plot decay chain.
+
+        """
+
+        if sig_fig:
+            npoints = 51
+
+        if xscale == "linear":
+            time_points = np.linspace(xmin, xmax, num=npoints)
+        else:
+            if xmin == 0.0:
+                xmin = 0.1
+            time_points = np.logspace(np.log10(xmin), np.log10(xmax), num=npoints)
+
+        if display == "all":
+            display = self.decay(0).radionuclides
+        else:
+            if isinstance(display, str):
+                display = [display]
+            display = [
+                parse_radionuclide(rad, self.data.radionuclides, self.data.dataset)
+                for rad in display
+            ]
+
+        acts = np.zeros(shape=(npoints, len(display)))
+        for i in range(0, npoints):
+            decayed_contents = self.decay(time_points[i], xunits, sig_fig).contents
+            acts[i] = [decayed_contents[rad] for rad in display]
+
+        if yscale == "log" and ymin == 0.0:
+            ymin = 0.1
+        ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * acts.max()]
+
+        fig, ax = _decay_graph(
+            time_points,
+            acts.T,
+            display,
+            xunits,
+            yunits,
+            xscale,
+            yscale,
+            ylimits,
+            set(display),
+            fig,
+            ax,
+            **kwargs,
+        )
+
+        return fig, ax
 
     def __repr__(self) -> str:
         return (

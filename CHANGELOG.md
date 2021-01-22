@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.0] - 2021-01-22
+- Adds plot() method for creating inventory decay graphs using matplotlib.
+- New logo in readme and docs.
+
 ## [0.1.1] - 2021-01-07
 - Documentation improvements, including improved theory docpage on numerical
 computation methods.
