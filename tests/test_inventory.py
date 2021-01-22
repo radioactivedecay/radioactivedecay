@@ -4,6 +4,7 @@ Unit tests for inventory.py functions, classes and methods.
 
 import copy
 import unittest
+from unittest.mock import patch
 from radioactivedecay.inventory import _add_dictionaries, _check_dictionary, Inventory
 from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
 
@@ -431,6 +432,43 @@ class Test(unittest.TestCase):
             inv.decay_modes(),
             {"C-14": ["\u03b2-"], "K-40": ["\u03b2-", "\u03b2+ \u0026 EC"]},
         )
+
+    @patch("matplotlib.pyplot.show")
+    def test_inventory_plot(self, mock_show):
+        """
+        Test method to create decay plots.
+        """
+
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0})
+        _, ax = inv.plot(105, "ky")
+        self.assertEqual(ax.get_xscale(), "linear")
+        self.assertEqual(ax.get_yscale(), "linear")
+        self.assertEqual(ax.get_xlabel(), "Time (ky)")
+        self.assertEqual(ax.get_ylabel(), "Activity")
+        self.assertEqual(ax.get_xlim(), (-5.25, 110.25))
+        self.assertEqual(ax.get_ylim(), (0.0, 2.1))
+        self.assertEqual(ax.get_legend_handles_labels()[-1], ["C-14", "K-40"])
+
+        _, ax = inv.plot(
+            100,
+            xscale="log",
+            yscale="log",
+            yunits="Bq",
+            sig_fig=320,
+            display=["K40", "C14"],
+        )
+        self.assertEqual(ax.get_xscale(), "log")
+        self.assertEqual(ax.get_yscale(), "log")
+        self.assertEqual(ax.get_xlabel(), "Time (s)")
+        self.assertEqual(ax.get_ylabel(), "Activity (Bq)")
+        self.assertEqual(ax.get_xlim()[0], 0.0707945784384138)
+        self.assertEqual(ax.get_ylim(), (0.1, 2.1))
+        self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40", "C-14"])
+
+        _, ax = inv.plot(100, "ky", xmin=50, ymin=1.0, ymax=2.5, display="K40")
+        self.assertEqual(ax.get_xlim(), (47.5, 102.5))
+        self.assertEqual(ax.get_ylim(), (1.0, 2.5))
+        self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40"])
 
     def test_inventory___repr__(self):
         """

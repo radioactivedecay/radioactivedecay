@@ -50,6 +50,17 @@ same as the input units. The above example could therefore represent 10.0 Bq of
 tritium decaying to 5.0 Bq, or 10.0 Ci to 5.0 Ci, or whichever activity unit
 you prefer.
 
+Use the ``plot()`` method to show the decay of the inventory over time:
+
+.. code-block:: python3
+
+    >>> inv_t0.plot(100, 'y')
+
+.. image:: images/H-3_decay.png
+  :width: 450
+
+The graph shows the decay of H-3 over a 100 year period.
+
 How it works
 ------------
 

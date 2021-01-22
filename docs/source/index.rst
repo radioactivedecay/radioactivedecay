@@ -6,6 +6,9 @@
 Welcome to radioactivedecay's documentation!
 ============================================
 
+.. image:: images/radioactivedecay.png
+  :width: 500
+
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching
 decays. By default it uses the decay data from ICRP Publication 107, which
@@ -23,6 +26,7 @@ with orders of magnitude differences between radionuclide half-lives.
    overview
    installation
    tutorial
+   plotting
    theory
    api
 

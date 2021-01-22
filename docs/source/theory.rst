@@ -1,5 +1,5 @@
-Theory
-======
+Theory and Computation
+======================
 
 Solution to the decay chain differential equations
 --------------------------------------------------
@@ -185,11 +185,13 @@ cast to a double-precision float to return the decayed ``Inventory``.
 
 In practice using SymPy to exactly evaluate the exponential terms in the above
 analytical solution to the radionuclide decay equations can be very time
-consuming. Therefore the exponential terms are evaluated numerically to 320
-significant figures of precision mid-decay calculation. Empirically this was
-found to give results for a range of test decay calculations, i.e. using a
+consuming. Therefore by default the exponential terms are evaluated numerically
+to 320 significant figures of precision mid-decay calculation. Empirically this
+was found to give results for a range of test decay calculations, i.e. using a
 higher number of significant figures offered no improvement in the numerical
 accuracy of the results after the outputs are cast to double-precision floats.
+You can also select your own number of significant figures for the calculation
+by supplying ``sig_fig=...`` to the ``decay()`` method.
 
 References
 ----------
