@@ -80,6 +80,7 @@ Inventory over time:
 
 ```pycon
 >>> inv_t0.plot(20, 'd')
+```
 
 <img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
