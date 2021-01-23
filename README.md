@@ -108,7 +108,7 @@ The ``Radionuclide`` class can be used to fetch decay information for
 individual radionuclides, e.g. for Rn-222:
 
 ```pycon
->>> nuc = rd.Radionuclide('Ra-226')
+>>> nuc = rd.Radionuclide('Rn-222')
 >>> nuc.half_life('d')
 3.8235
 >>> nuc.progeny()
