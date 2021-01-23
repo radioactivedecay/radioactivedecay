@@ -48,9 +48,9 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 'Tc-99m': 1.3719829376710406}
 ```
 
-Here we created an inventory of 2.0 Bq of Mo-99 and decayed it for 20 hours.
-The decayed inventory contains Tc-99m and Tc-99, which are the progeny of
-Mo-99.
+Here we created an ``Inventory`` of 2.0 Bq of Mo-99 and decayed it for 20
+hours. The decayed ``Inventory`` contains Tc-99m and Tc-99, which are the
+progeny of Mo-99.
 
 Note the ``Inventory`` constructor did not require specification of activity
 units. This is because in ``radioactivedecay``, units out are the same as units
@@ -76,7 +76,7 @@ the program.
 ### Plotting decay graphs
 
 Use the ``plot()`` method to create graphs of the radioactive decay of an
-Inventory over time:
+``Inventory`` over time:
 
 ```pycon
 >>> inv_t0.plot(20, 'd')
@@ -91,7 +91,7 @@ and a trace amount of Tc-99.
 ### Fetching decay data
 
 ``radioactivedecay`` includes methods to fetch decay data for the radionuclides
-in an inventory:
+in an ``Inventory``:
 
 ```pycon
 >>> inv_t1.half_lives('d')
@@ -108,7 +108,7 @@ The ``Radionuclide`` class can be used to fetch decay information for
 individual radionuclides, e.g. for Rn-222:
 
 ```pycon
->>> nuc = rd.Radionuclide('Ra-226')
+>>> nuc = rd.Radionuclide('Rn-222')
 >>> nuc.half_life('d')
 3.8235
 >>> nuc.progeny()
