@@ -3,7 +3,7 @@
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 
-<img src="https://alexmalins.com/radioactivedecay/_images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
+<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching

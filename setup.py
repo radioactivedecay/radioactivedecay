@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.2.0",
+    version="0.2.1",
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
     license="MIT",
