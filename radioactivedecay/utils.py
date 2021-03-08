@@ -152,6 +152,7 @@ def time_unit_conv(
     conv = {
         "ps": 1.0e-12,
         "ns": 1.0e-9,
+        "μs": 1.0e-6,
         "us": 1.0e-6,
         "ms": 1.0e-3,
         "s": 1.0,
@@ -172,6 +173,7 @@ def time_unit_conv(
         "years": 86400.0 * year_conv,
         "ky": 86400.0 * year_conv * 1.0e3,
         "My": 86400.0 * year_conv * 1.0e6,
+        "By": 86400.0 * year_conv * 1.0e9,
         "Gy": 86400.0 * year_conv * 1.0e9,
         "Ty": 86400.0 * year_conv * 1.0e12,
         "Py": 86400.0 * year_conv * 1.0e15,
@@ -221,6 +223,7 @@ def time_unit_conv_sympy(
     conv = {
         "ps": Integer(1) / 1000000000000,
         "ns": Integer(1) / 1000000000,
+        "μs": Integer(1) / 1000000,
         "us": Integer(1) / 1000000,
         "ms": Integer(1) / 1000,
         "s": Integer(1),
@@ -241,6 +244,7 @@ def time_unit_conv_sympy(
         "years": Integer(86400) * year_conv,
         "ky": Integer(86400) * year_conv * 1000,
         "My": Integer(86400) * year_conv * 1000000,
+        "By": Integer(86400) * year_conv * 1000000000,
         "Gy": Integer(86400) * year_conv * 1000000000,
         "Ty": Integer(86400) * year_conv * 1000000000000,
         "Py": Integer(86400) * year_conv * 1000000000000000,

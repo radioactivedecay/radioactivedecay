@@ -138,14 +138,23 @@ radionuclides. For example, to get the half-life of iodine-123:
 .. code-block:: python3
 
     >>> nuc = rd.Radionuclide('I123')
-    >>> nuc.half_life('d')
-    13.27
+    >>> nuc.half_life()
+    47772.0
 
-The argument for the ``half_life()`` method is your desired time unit for the
-output. The default is seconds if no unit is specified.
+The default time unit is seconds if no time unit argument is supplied to
+``half_life()``. 
+
+If you do not know the natural time unit for expressing the radionuclide
+half-life, supply ``'readable'`` as the time argument. A human-readable string
+with the half-life and time unit is returned:
+
+.. code-block:: python3
+
+    >>> nuc.half_life('readable')
+    '13.27 h'
 
 Use the ``progeny()``, ``branching_fractions()`` and ``decay_modes()`` methods
-to obtain the progeny, branching fractions and decay modes:
+to obtain the progeny, branching fractions and decay modes of the radionuclide:
 
 .. code-block:: python3
 
@@ -156,18 +165,18 @@ to obtain the progeny, branching fractions and decay modes:
     >>> nuc.decay_modes()
     ['EC', 'EC']
     
-The methods return data for the direct progeny of the radionuclide. \'EC\' is
-the abbreviation for the electron capture decay mode.
+These methods return data for the direct progeny of the radionuclide. \'EC\' is
+an abbreviation for electron capture decay.
 
-The ``decay_modes()`` method reports the types of decay of the parent which
-result in each progeny. The decay modes in the ICRP-107 dataset are \'α\'
-(alpha decay), \'β-\' (beta minus decay), \'β+\' (positron emission), \'EC\'
-(electron capture), \'IT\' (isomeric transition) and \'SF\' (spontaneous
-fission). Note that a decay mode is not a comprehensive list of all the
-radiation types released by the radionuclide decay. Be aware that other
-radiation types, such as gamma rays, electrons and  x-rays, may be released
-from parent to progeny decay mode with only a single label (e.g. \'α\', \'β-\'
-or \'β+\').
+The ``decay_modes()`` method reports each decay mode of the parent radionuclide
+resulting in each progeny. The types of decay mode in the ICRP-107 dataset are
+α (alpha decay), β- (beta minus decay), β+ (positron emission), EC (electron
+capture), IT (isomeric transition) and SF (spontaneous fission). Note that the
+decay mode string is not a comprehensive list of all the radiation types
+released when the parent radionuclide decays. Other radiation types, such as
+gamma rays, x-rays, decay electrons and Auger electrons, may also be released
+due to various nuclear and atomic relaxation processes that follow α, β-, β+
+etc. decays.
 
 Decay data can be accessed for all radionuclides in an ``Inventory``
 by using the ``half_lives()``, ``progeny()``, ``branching_fractions()`` and

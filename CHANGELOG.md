@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.2] - 2021-03-08
+- Supply `'readable'` as time unit parameter to half-life methods to get strings with the
+half-lives in human-readable units.
+- Add support for unicode `'μs'` and for `'By'` (billion year) time units.
+- Changed the `Inventory.plot()` graphs so that the decay curves are ordered from highest to lowest
+radionuclides in the decay chains by default. Alphabetical ordering can be specified by supplying
+the new `order=='alphabetical'` parameter to the method.
+- `DecayData.half_life()` method docstring typo fix.
+
 ## [0.2.1] - 2021-01-26
 - Fixed version numbers.
 - Updated logo.

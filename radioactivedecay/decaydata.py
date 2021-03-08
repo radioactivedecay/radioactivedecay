@@ -321,28 +321,33 @@ class DecayData:
         else:
             self.sympy_data = None
 
-    def half_life(self, radionuclide: str, units: str = "s") -> float:
+    def half_life(self, radionuclide: str, units: str = "s") -> Union[float, str]:
         """
-        Returns the half-life of a radionuclide in chosen units.
+        Returns the half-life of the radionuclide as a float in your chosen units, or as
+        a human-readable string with appropriate units.
 
         Parameters
         ----------
         radionuclide : str
             Radionuclide string.
         units : str, optional
-            Units for half-life (default is 's', i.e. seconds). Options are 'ps', 'ns', 'us', 'ms',
-            's', 'm', 'h', 'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling
-            variations of these time units.
+            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
+            seconds. Use 'readable' to get a string of the half-life in human-readable units.
 
         Returns
         -------
-        float
+        float or str
             Radionuclide half-life.
 
         Examples
         --------
-        >>> rd.DEFAULTDATA.half_life('Rn-222')
+        >>> rd.DEFAULTDATA.half_life('Rn-222', 'd')
         3.8235
+        >>> rd.DEFAULTDATA.half_life('H-3')
+        388781329.30560005
+        >>> rd.DEFAULTDATA.half_life('H-3', 'readable')
+        '12.32 y'
 
         """
 
@@ -350,6 +355,10 @@ class DecayData:
             radionuclide, self.radionuclides, self.dataset
         )
         half_life, unit = self.hldata[self.radionuclide_dict[radionuclide]]
+
+        if units == "readable":
+            return str(half_life) + " " + unit
+
         return (
             half_life
             if unit == units

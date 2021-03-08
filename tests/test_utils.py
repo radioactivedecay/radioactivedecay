@@ -121,6 +121,7 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(
             time_unit_conv(1.0, "s", "ns", yconv), 1.0e9, places=(15 - 9)
         )
+        self.assertEqual(time_unit_conv(1.0, "s", "μs", yconv), 1.0e6)
         self.assertEqual(time_unit_conv(1.0, "s", "us", yconv), 1.0e6)
         self.assertEqual(time_unit_conv(1.0, "s", "ms", yconv), 1.0e3)
         self.assertEqual(time_unit_conv(1.0, "s", "m", yconv), 1.0 / 60.0)
@@ -135,6 +136,7 @@ class Test(unittest.TestCase):
         self.assertAlmostEqual(
             time_unit_conv(1.0, "ns", "s", yconv), 1.0e-9, places=(9 + 15)
         )
+        self.assertEqual(time_unit_conv(1.0, "μs", "s", yconv), 1.0e-6)
         self.assertEqual(time_unit_conv(1.0, "us", "s", yconv), 1.0e-6)
         self.assertEqual(time_unit_conv(1.0, "ms", "s", yconv), 1.0e-3)
         self.assertEqual(time_unit_conv(1.0, "m", "s", yconv), 60.0)
@@ -196,6 +198,9 @@ class Test(unittest.TestCase):
             time_unit_conv(1.0, "y", "My", yconv), 1.0e-6, places=(6 + 15)
         )
         self.assertAlmostEqual(
+            time_unit_conv(1.0, "y", "By", yconv), 1.0e-9, places=(9 + 15)
+        )
+        self.assertAlmostEqual(
             time_unit_conv(1.0, "y", "Gy", yconv), 1.0e-9, places=(9 + 15)
         )
         self.assertAlmostEqual(
@@ -234,6 +239,9 @@ class Test(unittest.TestCase):
             time_unit_conv_sympy(Integer(1), "ns", "us", yconv), 1 / Integer(1000)
         )
         self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "μs", "ms", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
             time_unit_conv_sympy(Integer(1), "us", "ms", yconv), 1 / Integer(1000)
         )
         self.assertEqual(
@@ -258,7 +266,13 @@ class Test(unittest.TestCase):
             time_unit_conv_sympy(Integer(1), "ky", "My", yconv), 1 / Integer(1000)
         )
         self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "My", "By", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
             time_unit_conv_sympy(Integer(1), "My", "Gy", yconv), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "By", "Ty", yconv), 1 / Integer(1000)
         )
         self.assertEqual(
             time_unit_conv_sympy(Integer(1), "Gy", "Ty", yconv), 1 / Integer(1000)
@@ -269,6 +283,9 @@ class Test(unittest.TestCase):
 
         self.assertEqual(
             time_unit_conv_sympy(Integer(1), "ns", "ps", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "μs", "ns", yconv), Integer(1000)
         )
         self.assertEqual(
             time_unit_conv_sympy(Integer(1), "us", "ns", yconv), Integer(1000)
@@ -292,7 +309,13 @@ class Test(unittest.TestCase):
             time_unit_conv_sympy(Integer(1), "My", "ky", yconv), Integer(1000)
         )
         self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "By", "My", yconv), Integer(1000)
+        )
+        self.assertEqual(
             time_unit_conv_sympy(Integer(1), "Gy", "My", yconv), Integer(1000)
+        )
+        self.assertEqual(
+            time_unit_conv_sympy(Integer(1), "Ty", "By", yconv), Integer(1000)
         )
         self.assertEqual(
             time_unit_conv_sympy(Integer(1), "Ty", "Gy", yconv), Integer(1000)
