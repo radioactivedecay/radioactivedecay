@@ -26,7 +26,9 @@ class Test(unittest.TestCase):
         """
 
         nuc = Radionuclide("H-3")
+        self.assertEqual(nuc.half_life(), 388781329.30560005)
         self.assertEqual(nuc.half_life("y"), 12.32)
+        self.assertEqual(nuc.half_life("readable"), "12.32 y")
 
     def test_radionuclide_progeny(self):
         """

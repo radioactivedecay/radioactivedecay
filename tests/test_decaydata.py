@@ -346,8 +346,16 @@ class Test(unittest.TestCase):
         """
 
         data = decaydata.DecayData("icrp107")
+        self.assertEqual(data.half_life("H-3"), 388781329.30560005)
         self.assertEqual(data.half_life("H-3", "y"), 12.32)
         self.assertEqual(data.half_life("Fm-257", "h"), 2412.0)
+        self.assertEqual(data.half_life("Rn-222", "d"), 3.8235)
+
+        self.assertEqual(data.half_life("H-3", "readable"), "12.32 y")
+        self.assertEqual(data.half_life("Po-213", "readable"), "4.2e-06 s")
+        self.assertEqual(data.half_life("Ra-219", "readable"), "10.0 ms")
+        self.assertEqual(data.half_life("Rn-215", "readable"), "2.3 us")
+        self.assertEqual(data.half_life("U-238", "readable"), "4468000000.0 y")
 
     def test_decaydata_branching_fraction(self):
         """

@@ -14,7 +14,7 @@ as:
 
 """
 
-from typing import Dict, List
+from typing import Dict, List, Union
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.utils import parse_radionuclide
 
@@ -57,20 +57,21 @@ class Radionuclide:
         ]
         self.data: DecayData = data
 
-    def half_life(self, units: str = "s") -> float:
+    def half_life(self, units: str = "s") -> Union[float, str]:
         """
-        Returns the half-life of the radionuclide in chosen units.
+        Returns the half-life of the radionuclide as a float in your chosen units, or as
+        a human-readable string with appropriate units.
 
         Parameters
         ----------
         units : str, optional
-            Units for half-life (default is 's', i.e. seconds). Options are 'ps', 'ns', 'us', 'ms',
-            's', 'm', 'h', 'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling
-            variations of these time units.
+            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
+            seconds. Use 'readable' to get a string of the half-life in human-readable units.
 
         Returns
         -------
-        float
+        float or str
             Radionuclide half-life.
 
         Examples

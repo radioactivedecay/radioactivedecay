@@ -71,6 +71,33 @@ def _add_dictionaries(
     return new_dict
 
 
+def _sort_dictionary_alphabetically(
+    input_inv_dict: Dict[str, float]
+) -> Dict[str, float]:
+    """
+    Sorts a dictionary alphabetically by its keys.
+
+    Parameters
+    ----------
+    input_inv_dict : dict
+        Dictionary containing radionuclide strings or Radionuclide objects as keys and activities
+        as values.
+
+    Returns
+    -------
+    dict
+        Inventory dictionary which has been sorted by the radionuclides alphabetically.
+
+    Examples
+    --------
+    >>> rd.inventory._sort_dictionary_alphabetically({'U-235': 1.2, 'Tc-99m': 2.3, 'Tc-99': 5.8})
+    {'Tc-99': 5.8, 'Tc-99m': 2.3, 'U-235': 1.2}
+
+    """
+
+    return dict(sorted(input_inv_dict.items(), key=lambda x: x[0]))
+
+
 def _check_dictionary(
     input_inv_dict: Dict[Union[str, Radionuclide], float],
     radionuclides: List[str],
@@ -126,6 +153,35 @@ def _check_dictionary(
             )
 
     return inv_dict
+
+
+def _sort_list_according_to_dataset(
+    input_list: List[str], key_dict: Dict[str, int]
+) -> List[str]:
+    """
+    Sorts a list of radionuclides based on their order of appearence in the decay dataset.
+
+    Parameters
+    ----------
+    input_list : list
+        List of radionuclide strings to be sorted.
+    key_dict : dict
+        Dictionary from the decay dataset with radionuclide strings as keys and their position
+        (integers) in the decay dataset.
+
+    Returns
+    -------
+    list
+        Sorted radionuclide list.
+
+    Examples
+    --------
+    >>> rd.inventory._sort_list_according_to_dataset(['Tc-99', 'Tc-99m'], rd.DEFAULTDATA.radionuclide_dict)
+    ['Tc-99m', 'Tc-99']
+
+    """
+
+    return sorted(input_list, key=lambda radionuclide: key_dict[radionuclide])
 
 
 def _method_dispatch(func):
@@ -196,8 +252,8 @@ class Inventory:
         parsed_contents: Dict[str, float] = _check_dictionary(
             contents, data.radionuclides, data.dataset
         ) if check is True else contents
-        self.contents: Dict[str, float] = dict(
-            sorted(parsed_contents.items(), key=lambda x: x[0])
+        self.contents: Dict[str, float] = _sort_dictionary_alphabetically(
+            parsed_contents
         )
         self.data: DecayData = data
 
@@ -505,8 +561,9 @@ class Inventory:
         )
         vector_at = vector_nt[indices] * self.data.scipy_data.decay_consts[indices]
 
-        new_contents = dict(zip(self.data.radionuclides[indices], vector_at))
-        new_contents = dict(sorted(new_contents.items(), key=lambda x: x[0]))
+        new_contents = _sort_dictionary_alphabetically(
+            dict(zip(self.data.radionuclides[indices], vector_at))
+        )
 
         return Inventory(new_contents, False, self.data)
 
@@ -599,26 +656,27 @@ class Inventory:
             new_contents[self.data.radionuclides[i]] = float(
                 vector_nt[i, 0] * self.data.sympy_data.decay_consts[i, 0]
             )
-        new_contents = dict(sorted(new_contents.items(), key=lambda x: x[0]))
+        new_contents = _sort_dictionary_alphabetically(new_contents)
 
         return Inventory(new_contents, False, self.data)
 
-    def half_lives(self, units: str = "s") -> Dict[str, float]:
+    def half_lives(self, units: str = "s") -> Dict[str, Union[float, str]]:
         """
-        Returns dictionary of half-lives of the radionuclides in the Inventory in chosen time
-        units.
+        Returns dictionary of half-lives of the radionuclides in the Inventory in your chosen time
+        units, or as a human-readable string with appropriate units.
 
         Parameters
         ----------
         units : str, optional
-            Units for half-lives (default is 's', i.e. seconds). Options are 'ps', 'ns', 'us',
-            'ms', 's', 'm', 'h', 'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common
-            spelling variations of these time units.
+            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
+            seconds. Use 'readable' to get strings of the half-lives in human-readable units.
 
         Returns
         -------
         dict
-            Dictionary with radionuclide strings as keys and half-life floats as values.
+            Dictionary with radionuclide strings as keys and half-life floats or human-readable
+            half-life strings as values.
 
         Examples
         --------
@@ -711,6 +769,7 @@ class Inventory:
         yunits: Union[None, str] = None,
         sig_fig: Union[None, int] = None,
         display: Union[str, List[str]] = "all",
+        order: str = "dataset",
         npoints: int = 501,
         fig: Union[None, matplotlib.figure.Figure] = None,
         ax: Union[None, matplotlib.axes.Axes] = None,
@@ -744,11 +803,16 @@ class Inventory:
         sig_fig : None or int, optional
             None: use normal double precision decay calculations (default), int: perform Sympy high
             precision decay calculations with this many significant figures.
-        display : string or list, optional
+        display : str or list, optional
             Only display the radionuclides within this list on the graph. Use this parameter when
             you want to choose specific radionuclide decay curves shown on the graph, either by
             supplying a string (to show one radionuclide) or a list of strings (to show multiple).
             Default is 'all', which displays all radionuclides present upon decay of the inventory.
+        order : str, optional
+            Order to display the radionuclide decay curves on the graph if you do not specify the
+            order via the display parameter. Default order is by "dataset", which follows the order
+            of the radionuclides in the decay dataset (highest to lowest radionuclides in the decay
+            chains). Use "alphabetical" if you want the radionuclides to be ordered alphabetically.
         npoints : int, optional
             Number of time points used to plot graph (default is 501 for normal precision decay
             calculations, or 51 for high precision decay calculations (sig_fig > 0)).
@@ -768,6 +832,11 @@ class Inventory:
         ax : matplotlib.axes.Axes
             matplotlib axes object used to plot decay chain.
 
+        Raises
+        ------
+        ValueError
+            If the order parameter is invalid.
+
         """
 
         if sig_fig:
@@ -781,7 +850,16 @@ class Inventory:
             time_points = np.logspace(np.log10(xmin), np.log10(xmax), num=npoints)
 
         if display == "all":
-            display = self.decay(0).radionuclides
+            if order == "dataset":
+                display = _sort_list_according_to_dataset(
+                    self.decay(0).radionuclides, self.data.radionuclide_dict
+                )
+            elif order == "alphabetical":
+                display = self.decay(0).radionuclides
+            else:
+                raise ValueError(
+                    str(order) + " is not a valid string for the order parameter."
+                )
         else:
             if isinstance(display, str):
                 display = [display]

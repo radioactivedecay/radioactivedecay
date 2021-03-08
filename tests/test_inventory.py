@@ -5,7 +5,13 @@ Unit tests for inventory.py functions, classes and methods.
 import copy
 import unittest
 from unittest.mock import patch
-from radioactivedecay.inventory import _add_dictionaries, _check_dictionary, Inventory
+from radioactivedecay.inventory import (
+    _add_dictionaries,
+    _sort_dictionary_alphabetically,
+    _check_dictionary,
+    _sort_list_according_to_dataset,
+    Inventory,
+)
 from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
 
 
@@ -26,6 +32,17 @@ class Test(unittest.TestCase):
         self.assertEqual(
             _add_dictionaries(dict1, dict2),
             {"Pm-141": 4.0, "Rb-78": 2.0, "Rb-90": 4.0},
+        )
+
+    def test__sort_dictionary_alphabetically(self):
+        """
+        Test the sorting of a dictionary by its keys alphabetically.
+        """
+
+        inv_dict = {"U-235": 1.2, "Tc-99m": 2.3, "Tc-99": 5.8}
+        self.assertEqual(
+            _sort_dictionary_alphabetically(inv_dict),
+            {"Tc-99": 5.8, "Tc-99m": 2.3, "U-235": 1.2},
         )
 
     def test__check_dictionary(self):
@@ -80,6 +97,19 @@ class Test(unittest.TestCase):
             _check_dictionary({"H-3": "1.0"}, radionuclides, dataset)
         with self.assertRaises(ValueError):
             _check_dictionary({"1.0": "H-3"}, radionuclides, dataset)
+
+    def test__sort_list_according_to_dataset(self):
+        """
+        Test the sorting of list of radionuclides according to their position in the decay dataset.
+        """
+
+        radionuclide_list = ["Tc-99", "Tc-99m"]
+        self.assertEqual(
+            _sort_list_according_to_dataset(
+                radionuclide_list, DEFAULTDATA.radionuclide_dict
+            ),
+            ["Tc-99m", "Tc-99"],
+        )
 
     def test_inventory_instantiation(self):
         """
@@ -403,6 +433,9 @@ class Test(unittest.TestCase):
 
         inv = Inventory({"C-14": 1.0, "H-3": 2.0})
         self.assertEqual(inv.half_lives("y"), {"C-14": 5700.0, "H-3": 12.32})
+        self.assertEqual(
+            inv.half_lives("readable"), {"C-14": "5700.0 y", "H-3": "12.32 y"}
+        )
 
     def test_inventory_progeny(self):
         """
@@ -447,7 +480,7 @@ class Test(unittest.TestCase):
         self.assertEqual(ax.get_ylabel(), "Activity")
         self.assertEqual(ax.get_xlim(), (-5.25, 110.25))
         self.assertEqual(ax.get_ylim(), (0.0, 2.1))
-        self.assertEqual(ax.get_legend_handles_labels()[-1], ["C-14", "K-40"])
+        self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40", "C-14"])
 
         _, ax = inv.plot(
             100,
@@ -469,6 +502,12 @@ class Test(unittest.TestCase):
         self.assertEqual(ax.get_xlim(), (47.5, 102.5))
         self.assertEqual(ax.get_ylim(), (1.0, 2.5))
         self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40"])
+
+        _, ax = inv.plot(100, "ky", order="alphabetical")
+        self.assertEqual(ax.get_legend_handles_labels()[-1], ["C-14", "K-40"])
+
+        with self.assertRaises(ValueError):
+            inv.plot(100, "ky", order="invalid")
 
     def test_inventory___repr__(self):
         """

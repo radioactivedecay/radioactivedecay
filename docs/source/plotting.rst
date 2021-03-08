@@ -31,13 +31,23 @@ own needs:
 Now we can see the long-lived Pb-210 radionuclide and its progeny, which form
 over a period of months. Large numbers of curves can make the graphs difficult
 to read. Use the ``display`` parameter to specify only the radionuclides you
-want to display:
+want to display. The curves follow the same order as the list you supply:
 
 .. code-block:: python3
 
     >>> fig, ax = inv.plot(1000, 'd', display=['Rn-222', 'Pb-210', 'Po-210'], xscale='log', yscale='log', xmin=1, ymin=1E-8)
 
 .. image:: images/Rn-222_decay_3.png
+  :width: 450
+
+If you wish to display all radionuclides in alphabetical order, use the
+``order`` parameter:
+
+.. code-block:: python3
+
+    >>> fig, ax = inv.plot(5, 'h', order='alphabetical')
+
+.. image:: images/Rn-222_decay_4.png
   :width: 450
   
 The ``plot()`` method returns the ``matplotlib`` figure and axes objects used
