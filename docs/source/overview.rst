@@ -15,9 +15,9 @@ ICRP Publication 107 :ref:`[1] <refs>` by default. It solves the radioactive
 decay differential equations analytically using basic linear algebra operations
 :ref:`[2] <refs>`.
 
-In order to use ``radioactivedecay``, you will need Python 3.6+ with the NumPy,
-SciPy, and SymPy packages installed. The code is platform independent and has
-been tested on Windows, MacOS and Linux systems.
+In order to use ``radioactivedecay``, you will need Python 3.6+ with the
+Matplotlib, NumPy, SciPy, and SymPy packages installed. The code is platform
+independent and has been tested on Windows, MacOS and Linux systems.
 
 Quick Start
 -----------
@@ -28,8 +28,8 @@ Install ``radioactivedecay`` via the command:
 
     $ pip install radioactivedecay
     
-This command will also attempt to install NumPy, SciPy and SymPy if they are
-not already present in your environment.
+This command will also attempt to install Matplotlib, NumPy, SciPy and SymPy
+if they are not already present in your environment.
 
 Import the ``radioactivedecay`` package and decay a simple inventory using:
 
@@ -153,6 +153,9 @@ Thanks also to:
   Python package :ref:`[10] <refs>`)
 * `Anthony Scopatz <https://github.com/scopatz>`_ and the PyNE project
   :ref:`[6] <refs>`
+* `Jonathan Morrell <https://github.com/jtmorrell>`_ (author of the `NPAT
+  <https://github.com/jtmorrell/npat>`_ and `Curie
+  <https://github.com/jtmorrell/npat>`_ packages)
 
 for their work on open source radioactive decay calculation software.
 

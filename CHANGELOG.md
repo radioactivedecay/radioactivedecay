@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.X.X] - 2021-XX-XX
+- Docs improvements: required packages and acknowledgements.
+- ReadMe: Matplotlib used for plotting.
+- Changelog typo fixes.
+
 ## [0.2.2] - 2021-03-08
 - Supply `'readable'` as time unit parameter to half-life methods to get strings with the
 half-lives in human-readable units.
@@ -55,7 +60,7 @@ outcomes.
 
 ## [0.0.7] - 2020-10-06
 - Restore notebooks folder.
-- Add comparison to Radiological Tookbox v3.0.0.
+- Add comparison to Radiological Toolbox v3.0.0.
 - Add comparison to PyNE v0.7.2.
 - Use Black for code formatting.
 - ReadMe and Docs updates.
@@ -73,7 +78,7 @@ outcomes.
 consistent with how ICRP 107 was originally made (this also required updating the
 ICRP 107 datafiles created for radioactivedecay).
 - Add support for 'ns' (nanosecond) time unit.
-- Add opetators for multpication and division of `Inventory` objects (acts on radionuclide
+- Add operators for multiplication and division of `Inventory` objects (acts on radionuclide
 activities).
 - Optimize `decay()` method for faster calculations.
 - Refactor loading of packaged decay data files in decaydata.py.

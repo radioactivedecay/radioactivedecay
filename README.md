@@ -85,7 +85,7 @@ Use the ``plot()`` method to create graphs of the radioactive decay of an
 <img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
 This shows the decay of Mo-99 over 20 days, resulting in the ingrowth of Tc-99m
-and a trace amount of Tc-99.
+and a trace amount of Tc-99. Plots are drawn using Matplotlib.
 
 
 ### Fetching decay data

@@ -50,13 +50,13 @@ If you wish to display all radionuclides in alphabetical order, use the
 .. image:: images/Rn-222_decay_4.png
   :width: 450
   
-The ``plot()`` method returns the ``matplotlib`` figure and axes objects used
-to create the graph. These can be used to save the figure to the file or to
-replot using your own ``matplotlib`` parameters:
+The ``plot()`` method returns the Matplotlib figure and axes objects used to
+create the graph. These can be used to save the figure to the file or to replot
+using your own Matplotlib parameters:
 
 .. code-block:: python3
 
     >>> fig.savefig('Rn-222.png', dpi=150)
 
 For more information on handling the figure and axes objects, see the
-`matplotlib documentation <https://matplotlib.org/contents.html>`_.
+`Matplotlib documentation <https://matplotlib.org/contents.html>`_.
