@@ -4,7 +4,8 @@ Installation
 Prerequisites
 -------------
 
-``radioactivedecay`` requires Python 3.6+ and the `NumPy <https://numpy.org/>`_,
+``radioactivedecay`` requires Python 3.6+ and the `Matplotlib
+<https://matplotlib.org/>`_, `NumPy <https://numpy.org/>`_,
 `SciPy <https://www.scipy.org/index.html>`_  and 
 `SymPy <https://www.sympy.org>`_ packages. These can be
 installed from `python.org <https://www.python.org/>`_ and `PyPI
