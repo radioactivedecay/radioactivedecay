@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.X.X] - 2021-XX-XX
+- ReadMe: use `'readable'` for inv_t1 half-lives example.
+
 ## [0.2.3] - 2021-03-15
 - Improve `'readable'` half-life strings for radionuclides with half-lives less than 1 s or
 greater than 1000 years.

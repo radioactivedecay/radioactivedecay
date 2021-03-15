@@ -94,8 +94,8 @@ and a trace amount of Tc-99. Plots are drawn using Matplotlib.
 in an ``Inventory``:
 
 ```pycon
->>> inv_t1.half_lives('d')
-{'Mo-99': 2.7475, 'Tc-99': 77102628.42, 'Tc-99m': 0.250625}
+>>> inv_t1.half_lives('readable')
+{'Mo-99': '65.94 h', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
 >>> inv_t1.progeny()
 {'Mo-99': ['Tc-99m', 'Tc-99'], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
 >>> inv_t1.branching_fractions()
