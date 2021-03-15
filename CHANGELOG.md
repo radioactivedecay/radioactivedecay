@@ -1,8 +1,11 @@
 # Changelog
 
-## [0.X.X] - 2021-XX-XX
+## [0.2.3] - 2021-03-15
+- Improve `'readable'` half-life strings for radionuclides with half-lives less than 1 s or
+greater than 1000 years.
+- Switch from reporting microseconds as `'us'` to `'μs'`.
 - Docs improvements: required packages and acknowledgements.
-- ReadMe: Matplotlib used for plotting.
+- ReadMe: Matplotlib dependency is used for plotting.
 - Changelog typo fixes.
 
 ## [0.2.2] - 2021-03-08

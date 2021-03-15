@@ -354,10 +354,12 @@ class DecayData:
         radionuclide = parse_radionuclide(
             radionuclide, self.radionuclides, self.dataset
         )
-        half_life, unit = self.hldata[self.radionuclide_dict[radionuclide]]
+        half_life, unit, readable_str = self.hldata[
+            self.radionuclide_dict[radionuclide]
+        ]
 
         if units == "readable":
-            return str(half_life) + " " + unit
+            return readable_str
 
         return (
             half_life
