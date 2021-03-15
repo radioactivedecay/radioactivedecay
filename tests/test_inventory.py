@@ -434,7 +434,7 @@ class Test(unittest.TestCase):
         inv = Inventory({"C-14": 1.0, "H-3": 2.0})
         self.assertEqual(inv.half_lives("y"), {"C-14": 5700.0, "H-3": 12.32})
         self.assertEqual(
-            inv.half_lives("readable"), {"C-14": "5700.0 y", "H-3": "12.32 y"}
+            inv.half_lives("readable"), {"C-14": "5.70 ky", "H-3": "12.32 y"}
         )
 
     def test_inventory_progeny(self):
