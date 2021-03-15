@@ -12,8 +12,8 @@ contains 1252 radionuclides of 97 elements.
 
 It solves the radioactive decay differential equations analytically using NumPy
 and SciPy linear algebra routines. There is also a high numerical precision
-mode using SymPy routines which gives more accurate results for decay chains
-with orders of magnitude differences between radionuclide half-lives.
+decay mode using SymPy routines, useful for when there are orders of magnitude
+differences between half-lives of radionuclides in the same decay chain.
 
 - **Full Documentation**: 
 [https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
@@ -21,15 +21,16 @@ with orders of magnitude differences between radionuclide half-lives.
 
 ## Installation
 
-``radioactivedecay`` requires Python 3.6+, NumPy and SciPy.
-
-The easiest way to install ``radioactivedecay`` is via the
-[Python Package Index](https://pypi.org/project/radioactivedecay/) using
+``radioactivedecay`` requires Python 3.6+. Install ``radioactivedecay`` from
+the [Python Package Index](https://pypi.org/project/radioactivedecay/) using
 ``pip``:
 
 ```console
 $ pip install radioactivedecay
 ```
+
+This command will also install the dependencies (Matplotlib, NumPy, SciPy &
+SymPy) if they are not already present.
 
 
 ## Usage
@@ -48,20 +49,18 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 'Tc-99m': 1.3719829376710406}
 ```
 
-Here we created an ``Inventory`` of 2.0 Bq of Mo-99 and decayed it for 20
-hours. The decayed ``Inventory`` contains Tc-99m and Tc-99, which are the
-progeny of Mo-99.
+An ``Inventory`` of 2.0 Bq of Mo-99 was decayed it for 20 hours, producing
+the radioactive progeny Tc-99m and Tc-99.
 
-Note the ``Inventory`` constructor did not require specification of activity
-units. This is because in ``radioactivedecay``, units out are the same as units
-in, by default. So the above calculation could have represented the decay of 2.0
- Ci of Mo-99, or 2.0 dpm, or 2.0 kBq, etc.
+Note we did not have to specify the units of the initial Mo-99 activity. This
+is because the output activity units are the same as the input units. So the
+above calculation could have represented the decay of 2.0 Ci of Mo-99, or of
+2.0 dpm, 2.0 kBq, etc.
 
-In the example we supplied ``'h'`` as an argument to the ``decay()`` method to
-specify the decay time period (20.0) had a time unit of hours. Acceptable time
-units for the program include ``'ms'``, ``'s'``, ``'m'``, ``'h'``, ``'d'``,
-``'y'`` etc. Note seconds (``'s'``) is the default if no time unit is supplied
-to ``decay()``.
+We supplied ``'h'`` as an argument to ``decay()`` to specify the decay time
+period had units of hours. Supported time units include ``'μs'``, ``'ms'``,
+``'s'``, ``'m'``, ``'h'``, ``'d'``, ``'y'`` etc. Note seconds (``'s'``) is the
+default if no unit is supplied to ``decay()``.
 
 Radionuclides can be specified in three equivalent ways in
 ``radioactivedecay``. The strings
@@ -69,14 +68,13 @@ Radionuclides can be specified in three equivalent ways in
 * ``'Rn-222'``, ``'Rn222'`` or ``'222Rn'``,
 * ``'Ir-192n'``, ``'Ir192n'`` or ``'192nIr'``
 
-are all equivalent ways of specifying <sup>222</sup>Rn and <sup>192n</sup>Ir to
-the program.
+are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
 
 
 ### Plotting decay graphs
 
-Use the ``plot()`` method to create graphs of the radioactive decay of an
-``Inventory`` over time:
+Use the ``plot()`` method to create a graph of the decay of an ``Inventory``
+over time:
 
 ```pycon
 >>> inv_t0.plot(20, 'd')
@@ -84,14 +82,13 @@ Use the ``plot()`` method to create graphs of the radioactive decay of an
 
 <img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
-This shows the decay of Mo-99 over 20 days, resulting in the ingrowth of Tc-99m
-and a trace amount of Tc-99. Plots are drawn using Matplotlib.
+This shows the decay of Mo-99 over 20 days, with in the ingrowth of Tc-99m and
+a trace quantity of Tc-99. Plots are drawn using Matplotlib.
 
 
 ### Fetching decay data
 
-``radioactivedecay`` includes methods to fetch decay data for the radionuclides
-in an ``Inventory``:
+``radioactivedecay`` includes methods to fetch decay data for radionuclides:
 
 ```pycon
 >>> inv_t1.half_lives('readable')
@@ -122,10 +119,9 @@ individual radionuclides, e.g. for Rn-222:
 
 ### High numerical precision decay calculations
 
-``radioactivedecay`` includes a high numerical precision mode which gives more
-accurate results for decay chains containing long and short lived radionuclides
-together. It employs SymPy arbitrary-precision numerical routines. Access it
-with the ``decay_high_precision()`` method:
+``radioactivedecay`` includes a high numerical precision decay mode. This can
+give more reliable results for decay chains containing both long- and
+short-lived radionuclides:
 
 ```pycon
 >>> inv_t0 = rd.Inventory({'U-238': 1.0})
@@ -163,8 +159,9 @@ method described in this paper:
 [theory docpage](https://alexmalins.com/radioactivedecay/theory.html) for more
 details.
 
-It uses NumPy and SciPy routines for standard double-precision floating-point
-computations, and SymPy for high numerical precision calculations.
+It uses NumPy and SciPy routines for standard decay calculations
+(double-precision floating-point operations), and SymPy for arbitrary numerical
+precision calculations.
 
 By default ``radioactivedecay`` uses decay data from
 [ICRP Publication 107
