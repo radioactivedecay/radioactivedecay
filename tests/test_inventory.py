@@ -437,6 +437,16 @@ class Test(unittest.TestCase):
             inv.half_lives("readable"), {"C-14": "5.70 ky", "H-3": "12.32 y"}
         )
 
+    def test_inventory_half_life(self):
+        """
+        Test spelling variation of half_lives() method.
+        """
+
+        inv = Inventory({"C-14": 1.0, "H-3": 2.0})
+        self.assertEqual(inv.half_life("s"), inv.half_lives("s"))
+        self.assertEqual(inv.half_life("y"), inv.half_lives("y"))
+        self.assertEqual(inv.half_life("readable"), inv.half_lives("readable"))
+
     def test_inventory_progeny(self):
         """
         Test method to fetch progeny of radionuclides in the Inventory.

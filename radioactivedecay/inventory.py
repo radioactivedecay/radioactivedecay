@@ -688,6 +688,13 @@ class Inventory:
 
         return {nuc: self.data.half_life(nuc, units) for nuc in self.contents}
 
+    def half_life(self, units: str = "s") -> Dict[str, Union[float, str]]:
+        """
+        Same behaviour as half_lives() method.
+        """
+
+        return self.half_lives(units)
+
     def progeny(self) -> Dict[str, List[str]]:
         """
         Returns dictionary with the direct progeny of the radionuclides in the Inventory.
