@@ -1,6 +1,7 @@
 # Changelog
 
-## [0.X.X] - 2021-XX-XX
+## [0.2.4] - 2021-03-20
+- Add `Inventory.half_life()` method as spelling variation of `Inventory.half_lives()`
 - ReadMe: simplify. Use `'readable'` for inv_t1 half-lives example.
 
 ## [0.2.3] - 2021-03-15
