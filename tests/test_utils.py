@@ -1,5 +1,5 @@
 """
-Unit tests for decayfunctions.py functions, classes and methods.
+Unit tests for utils.py functions.
 """
 
 import unittest
@@ -14,7 +14,7 @@ from radioactivedecay.utils import (
 
 class Test(unittest.TestCase):
     """
-    Unit tests for decayfunctions.py functions, classes and methods.
+    Unit tests for utils.py functions.
     """
 
     def test_parse_nuclide(self):

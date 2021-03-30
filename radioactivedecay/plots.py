@@ -1,14 +1,6 @@
 """
-The plots module defines the ``DecayData`` class. Instances of ``DecayData`` initalize by
-reading in dataset files containing radioactive decay data. The instances then store the decay
-data, and their methods can be used for basic querying of the decay data.
-
-The examples shown assume the ``radioactivedecay`` package has been imported as:
-
-.. highlight:: python
-.. code-block:: python
-
-    >>> import radioactivedecay.plots as rdplots
+The plots module defines functions used for creating decay chain diagrams via the Radionuclide
+class ``plot()`` method, and activity decay graphs via the Inventory class ``plot()`` method.
 
 """
 
@@ -19,6 +11,75 @@ import numpy as np
 
 
 # pylint: disable=too-many-arguments, too-many-locals
+
+
+def _parse_nuclide_label(nuclide: str) -> str:
+    """
+    Format a nuclide string to mass number, meta-stable state character in
+    superscript, then element symbol. Output is used on node labels in decay
+    chain plots.
+
+    Parameters
+    ----------
+    nuclide : str
+        Nuclide string in element-mass format.
+
+    Returns
+    -------
+    str
+        Parsed string for node label in ^{mass}element format.
+
+    """
+
+    if nuclide == "SF":
+        return "various"
+
+    nuclide_conversion = {
+        "0": "\N{SUPERSCRIPT ZERO}",
+        "1": "\N{SUPERSCRIPT ONE}",
+        "2": "\N{SUPERSCRIPT TWO}",
+        "3": "\N{SUPERSCRIPT THREE}",
+        "4": "\N{SUPERSCRIPT FOUR}",
+        "5": "\N{SUPERSCRIPT FIVE}",
+        "6": "\N{SUPERSCRIPT SIX}",
+        "7": "\N{SUPERSCRIPT SEVEN}",
+        "8": "\N{SUPERSCRIPT EIGHT}",
+        "9": "\N{SUPERSCRIPT NINE}",
+        "m": "\N{MODIFIER LETTER SMALL M}",
+        "n": "\N{SUPERSCRIPT LATIN SMALL LETTER N}",
+        "o": "\N{MODIFIER LETTER SMALL O}",
+    }
+
+    element, isotope = nuclide.split("-")
+    return "".join(map(lambda char: nuclide_conversion[char], list(isotope))) + element
+
+
+def _parse_decay_mode_label(mode: str) -> str:
+    """
+    Format a decay mode string for edge label on decay chain plot.
+
+    Parameters
+    ----------
+    mode : str
+        Decay mode string.
+
+    Returns
+    -------
+    str
+        Formatted decay mode string for use in an edge label.
+
+    """
+
+    mode_conversion = {
+        "α": "\N{GREEK SMALL LETTER ALPHA}",
+        "β": "\N{GREEK SMALL LETTER BETA}",
+        "+": "\N{SUPERSCRIPT PLUS SIGN}",
+        "-": "\N{SUPERSCRIPT MINUS}",
+    }
+
+    for unformatted, formatted in mode_conversion.items():
+        mode = mode.replace(unformatted, formatted)
+    return mode
 
 
 def _decay_graph(
@@ -88,6 +149,5 @@ def _decay_graph(
         xlabel=xlabel, ylabel=ylabel, xscale=xscale, yscale=yscale,
     )
     ax.set_ylim(ylimits)
-    plt.show()
 
     return fig, ax

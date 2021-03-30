@@ -14,9 +14,19 @@ as:
 
 """
 
-from typing import Dict, List, Union
+from collections import deque
+from typing import Any, Dict, List, Tuple, Union
+import networkx as nx
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
+from radioactivedecay.plots import (
+    _parse_nuclide_label,
+    _parse_decay_mode_label,
+    matplotlib,
+    plt,
+)
 from radioactivedecay.utils import parse_radionuclide
+
+# pylint: disable=too-many-arguments, too-many-locals
 
 
 class Radionuclide:
@@ -145,6 +155,98 @@ class Radionuclide:
 
         return [bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())]
 
+    def plot(
+        self,
+        label_pos: float = 0.5,
+        fig: Union[None, matplotlib.figure.Figure] = None,
+        ax: Union[None, matplotlib.axes.Axes] = None,
+        kwargs_draw: Union[None, Dict[str, Any]] = None,
+        kwargs_edge_labels: Union[None, Dict[str, Any]] = None,
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """
+        Plots a diagram of the decay chain of the radionuclide. The creates a NetworkX DiGraph and
+        creates a plot of it using NetworkX's Matplotlib-based plotting functionality.
+
+        Some of the NetworkX default plotting parameters are changed to produce nice decay chain
+        diagrams. However, users retain control over these parameters via kwargs_draw and
+        kwargs_edge_labels. For more information on the various NetworkX plotting parameters,
+        refer to its `documentation
+        <https://networkx.org/documentation/stable/reference/drawing.html>`_.
+
+        Parameters
+        ----------
+        label_pos : float, optional
+            Position of labels along edges. Default is 0.5. If you find that edge labels are
+            overlapping in the decay chain diagram, try increasing this parameter to e.g. 0.66.
+        fig : None or matplotlib.figure.Figure, optional
+            matplotlib figure object to use, or None makes ``radioactivedecay`` create one (default
+            is None).
+        ax : None or matplotlib.axes.Axes, optional
+            matplotlib axes object to use, or None makes ``radioactivedecay`` create one (default
+            is None).
+        **kwargs_draw, optional
+            Keyword arguments for networkx.draw().
+        **kwargs_edge_labels, optional
+            Keyword arguments for networkx.draw_networkx_edge_labels().
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            matplotlib figure object used to plot the decay chain.
+        ax : matplotlib.axes.Axes
+            matplotlib axes object used to plot the decay chain.
+
+        """
+
+        digraph, max_generation, max_xpos = _build_decay_digraph(self, nx.DiGraph())
+
+        positions = nx.get_node_attributes(digraph, "pos")
+        node_labels = nx.get_node_attributes(digraph, "label")
+        edge_labels = nx.get_edge_attributes(digraph, "label")
+
+        if fig is None and ax is None:
+            fig, ax = plt.subplots(
+                figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
+            )
+
+        if kwargs_draw is None:
+            kwargs_draw = {}
+        if "node_size" not in kwargs_draw:
+            kwargs_draw["node_size"] = 6000
+        if "node_color" not in kwargs_draw:
+            kwargs_draw["node_color"] = "#FFFFFF"
+        if "edgecolors" not in kwargs_draw:
+            kwargs_draw["edgecolors"] = "#000000"
+
+        nx.draw(
+            G=digraph, pos=positions, ax=ax, labels=node_labels, **kwargs_draw,
+        )
+
+        if kwargs_edge_labels is None:
+            kwargs_edge_labels = {}
+        if "font_size" not in kwargs_edge_labels:
+            kwargs_edge_labels["font_size"] = 12
+        if "bbox" not in kwargs_edge_labels:
+            kwargs_edge_labels["bbox"] = dict(
+                boxstyle=None, ec=(1.0, 1.0, 1.0), fc=(1.0, 1.0, 1.0)
+            )
+        if "rotate" not in kwargs_edge_labels:
+            kwargs_edge_labels["rotate"] = False
+
+        nx.draw_networkx_edge_labels(
+            G=digraph,
+            pos=positions,
+            edge_labels=edge_labels,
+            label_pos=label_pos,
+            ax=ax,
+            **kwargs_edge_labels,
+        )
+
+        ax.set_xlim(-0.3, max_xpos + 0.3)
+        ax.set_ylim(-max_generation - 0.3, 0.3)
+
+        return fig, ax
+
     def __repr__(self) -> str:
         return (
             "Radionuclide: "
@@ -173,3 +275,87 @@ class Radionuclide:
         """
 
         return hash((self.radionuclide, self.data.dataset))
+
+
+def _build_decay_digraph(
+    parent_rn: Radionuclide, digraph=nx.classes.digraph.DiGraph,
+) -> nx.classes.digraph.DiGraph:
+    """
+    Build a networkx DiGraph for the decay chain of this radionuclide.
+
+    Parameters
+    ----------
+    radionuclide : Radionuclide
+        Radionuclide instance of the parent radionuclide of the decay chain.
+    digraph : networkx.classes.digraph.DiGraph
+        DiGraph for the decay chain.
+
+    Returns
+    -------
+    digraph : networkx.classes.digraph.DiGraph
+        DiGraph of the decay chain.
+    max_generation : int
+        Number of generations of progeny in the decay chain.
+    max_xpos : int
+        Maximum number of progeny within any one generation of the decay chain.
+
+    """
+
+    max_generation = 0
+    max_xpos = 0
+
+    parent = parent_rn.radionuclide
+    dequeue = deque([parent])
+    generations = deque([0])
+    xpositions = deque([0])
+    node_label = _parse_nuclide_label(parent) + "\n" + parent_rn.half_life("readable")
+    digraph.add_node(parent, generation=0, xpos=0, label=node_label)
+    seen = {parent}
+
+    while len(dequeue) > 0:
+        parent = dequeue.popleft()
+        generation = generations.popleft() + 1
+        xpos = xpositions.popleft()
+        parent_rn = Radionuclide(parent, parent_rn.data)
+
+        progeny = parent_rn.progeny()
+        branching_fractions = parent_rn.branching_fractions()
+        decay_modes = parent_rn.decay_modes()
+
+        xcounter = 0
+        for i, prog in enumerate(progeny):
+            if prog not in seen:
+                node_label = _parse_nuclide_label(prog)
+                if prog in parent_rn.data.radionuclide_dict:
+                    node_label += "\n" + parent_rn.data.half_life(prog, "readable")
+                    dequeue.append(prog)
+                    generations.append(generation)
+                    xpositions.append(xpos + i)
+                if prog == "SF":
+                    prog = parent + "_SF"
+
+                digraph.add_node(
+                    prog, generation=generation, xpos=xpos + xcounter, label=node_label,
+                )
+                seen.add(prog)
+
+                if generation > max_generation:
+                    max_generation = generation
+                if xpos + xcounter > max_xpos:
+                    max_xpos = xpos + xcounter
+                xcounter += 1
+
+            edge_label = (
+                _parse_decay_mode_label(decay_modes[i])
+                + "\n"
+                + str(branching_fractions[i])
+            )
+            digraph.add_edge(parent, prog, label=edge_label)
+
+    for node in digraph:
+        digraph.nodes[node]["pos"] = (
+            digraph.nodes[node]["xpos"],
+            digraph.nodes[node]["generation"] * -1,
+        )
+
+    return digraph, max_generation, max_xpos

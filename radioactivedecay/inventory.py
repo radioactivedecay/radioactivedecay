@@ -777,7 +777,7 @@ class Inventory:
         sig_fig: Union[None, int] = None,
         display: Union[str, List[str]] = "all",
         order: str = "dataset",
-        npoints: int = 501,
+        npoints: Union[None, int] = None,
         fig: Union[None, matplotlib.figure.Figure] = None,
         ax: Union[None, matplotlib.axes.Axes] = None,
         **kwargs,
@@ -820,7 +820,7 @@ class Inventory:
             order via the display parameter. Default order is by "dataset", which follows the order
             of the radionuclides in the decay dataset (highest to lowest radionuclides in the decay
             chains). Use "alphabetical" if you want the radionuclides to be ordered alphabetically.
-        npoints : int, optional
+        npoints : None or int, optional
             Number of time points used to plot graph (default is 501 for normal precision decay
             calculations, or 51 for high precision decay calculations (sig_fig > 0)).
         fig : None or matplotlib.figure.Figure, optional
@@ -829,7 +829,7 @@ class Inventory:
         ax : None or matplotlib.axes.Axes, optional
             matplotlib axes object to use, or None makes ``radioactivedecay`` create one (default
             is None).
-        **kwargs
+        **kwargs, optional
             All additional keyword arguments to supply to matplotlib plot() function.
 
         Returns
@@ -846,8 +846,11 @@ class Inventory:
 
         """
 
-        if sig_fig:
-            npoints = 51
+        if npoints is None:
+            if sig_fig:
+                npoints = 51
+            else:
+                npoints = 501
 
         if xscale == "linear":
             time_points = np.linspace(xmin, xmax, num=npoints)
