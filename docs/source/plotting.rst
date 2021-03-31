@@ -16,6 +16,10 @@ decay chain originating from a radionuclide:
 .. image:: images/Mo-99_chain.png
   :width: 300
   
+The decay chain diagrams are drawn using NetworkX and Matplotlib. The
+``plot()`` method returns the Matplotlib figure and axes objects containing
+the decay chain diagram.
+  
 For more complicated decay chains, you can avoid decay mode and branching
 fraction labels overlapping by adjusting the label_pos parameter from the
 default value of 0.5:
@@ -34,7 +38,7 @@ Inventory decay graphs
 
 The Inventory ``plot()`` method is for creating graphs of the radioactive decay
 of the radionuclides in an inventory and their progeny over time. At its
-simplest, specify the decay timespan to the method:
+simplest, supply the decay timespan to the method:
 
 .. code-block:: python3
 
@@ -67,8 +71,9 @@ want to display. The curves follow the same order as the list you supply:
 .. image:: images/Rn-222_decay_3.png
   :width: 450
 
-If you wish to display all radionuclides in alphabetical order, use the
-``order`` parameter:
+By default radionuclides are plotted according to those highest in the decay
+chains downwards. If you wish to display radionuclides in alphabetical order,
+use the ``order`` parameter:
 
 .. code-block:: python3
 
@@ -77,9 +82,9 @@ If you wish to display all radionuclides in alphabetical order, use the
 .. image:: images/Rn-222_decay_4.png
   :width: 450
   
-The ``plot()`` method returns the Matplotlib figure and axes objects used to
-create the graph. These can be used to save the figure to the file or to replot
-using your own Matplotlib parameters:
+The ``plot()`` method returns the Matplotlib figure and axes objects containing
+the graph. These can be used to save the figure to the file or to replot it
+with your own Matplotlib parameters, e.g. to save a PNG image:
 
 .. code-block:: python3
 

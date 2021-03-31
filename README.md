@@ -29,8 +29,8 @@ the [Python Package Index](https://pypi.org/project/radioactivedecay/) using
 $ pip install radioactivedecay
 ```
 
-This command will also install the dependencies (Matplotlib, NumPy, SciPy &
-SymPy) if they are not already present.
+This command will also install the dependencies (Matplotlib, NetworkX, NumPy,
+SciPy & SymPy) if they are not already present.
 
 
 ## Usage
@@ -73,8 +73,7 @@ are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
 
 ### Plotting decay graphs
 
-Use the ``plot()`` method to create a graph of the decay of an ``Inventory``
-over time:
+Use the ``plot()`` method to graph of the decay of an ``Inventory`` over time:
 
 ```pycon
 >>> inv_t0.plot(20, 'd')
@@ -82,8 +81,8 @@ over time:
 
 <img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
-This shows the decay of Mo-99 over 20 days, with in the ingrowth of Tc-99m and
-a trace quantity of Tc-99. Plots are drawn using Matplotlib.
+The graph shows the decay of Mo-99 over 20 days, leading to the ingrowth of
+Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
 
 
 ### Fetching decay data
@@ -119,8 +118,8 @@ individual radionuclides, e.g. for Rn-222:
 
 ### Decay chain diagrams
 
-The ``Radionuclide`` class includes a `plot()` method for creating radioactive
-decay chain diagrams:
+The ``Radionuclide`` class includes a `plot()` method for drawing decay chain
+diagrams:
 
 ```pycon
 >>> nuc = rd.Radionuclide('Mo-99')
@@ -129,6 +128,7 @@ decay chain diagrams:
 
 <img src="https://alexmalins.com/radioactivedecay/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
 
+These diagrams are drawn using NetworkX and Matplotlib.
 
 ### High numerical precision decay calculations
 
