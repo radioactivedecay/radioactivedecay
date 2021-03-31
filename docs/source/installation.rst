@@ -5,7 +5,8 @@ Prerequisites
 -------------
 
 ``radioactivedecay`` requires Python 3.6+ and the `Matplotlib
-<https://matplotlib.org/>`_, `NumPy <https://numpy.org/>`_,
+<https://matplotlib.org/>`_, `NetworkX
+<https://networkx.org/>`_, `NumPy <https://numpy.org/>`_,
 `SciPy <https://www.scipy.org/index.html>`_  and 
 `SymPy <https://www.sympy.org>`_ packages. These can be
 installed from `python.org <https://www.python.org/>`_ and `PyPI
@@ -24,8 +25,8 @@ Index <https://pypi.org/>`_ using ``pip``:
 
     $ pip install radioactivedecay
 
-This will also attempt to install NumPy, SciPy and SymPy if they are missing
-from your Python environment.
+This command will also attempt to install Matplotlib, NetworkX, NumPy, SciPy
+and SymPy if they are missing from your Python environment.
 
 It is also possible to clone the GitHub `repository 
 <https://github.com/alexmalins/radioactivedecay>`_ and install from within the

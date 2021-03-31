@@ -1,10 +1,14 @@
 # Changelog
 
+## [0.3.1] -
+- Docs and ReadMe updates.
+- Changelog typo fixes.
+
 ## [0.3.0] - 2021-03-31
 - Add `plot()` method to `Radionuclide` class for creating decay chain diagrams. This adds a
 dependency on the NetworkX library.
-- Changes `plot()` method of `Inventory` class: fix for bug which ignored the user setting of
-npoints when using high precision decay mode, docstring fixes, no longer call plt.show() .
+- Changes to `plot()` method of `Inventory` class: fix for bug which ignored the user setting of
+`npoints` when using high precision decay mode, docstring fixes, no longer call `plt.show()`.
 - Mistakes in comments of unittest python files.
 
 ## [0.2.4] - 2021-03-20

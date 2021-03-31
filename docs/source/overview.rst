@@ -16,8 +16,8 @@ decay differential equations analytically using basic linear algebra operations
 :ref:`[2] <refs>`.
 
 In order to use ``radioactivedecay``, you will need Python 3.6+ with the
-Matplotlib, NumPy, SciPy, and SymPy packages installed. The code is platform
-independent and has been tested on Windows, MacOS and Linux systems.
+Matplotlib, NetworkX, NumPy, SciPy and SymPy packages installed. The code is
+platform independent and has been tested on Windows, MacOS and Linux systems.
 
 Quick Start
 -----------
@@ -28,8 +28,8 @@ Install ``radioactivedecay`` via the command:
 
     $ pip install radioactivedecay
     
-This command will also attempt to install Matplotlib, NumPy, SciPy and SymPy
-if they are not already present in your environment.
+This command will also attempt to install Matplotlib, NetworkX, NumPy, SciPy
+and SymPy if they are not already present in your environment.
 
 Import the ``radioactivedecay`` package and decay a simple inventory using:
 
