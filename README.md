@@ -117,6 +117,19 @@ individual radionuclides, e.g. for Rn-222:
 ```
 
 
+### Decay chain diagrams
+
+The ``Radionuclide`` class includes a `plot()` method for creating radioactive
+decay chain diagrams:
+
+```pycon
+>>> nuc = rd.Radionuclide('Mo-99')
+>>> nuc.plot()
+```
+
+<img src="https://alexmalins.com/radioactivedecay/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
+
+
 ### High numerical precision decay calculations
 
 ``radioactivedecay`` includes a high numerical precision decay mode. This can

@@ -17,7 +17,7 @@ from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
 
 class Test(unittest.TestCase):
     """
-    Unit tests for decayfunctions.py functions, classes and methods.
+    Unit tests for inventory.py functions, classes and methods.
     """
 
     # pylint: disable=too-many-public-methods

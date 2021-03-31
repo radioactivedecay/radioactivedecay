@@ -8,7 +8,7 @@ from radioactivedecay import Radionuclide, DecayData
 
 class Test(unittest.TestCase):
     """
-    Unit tests for decayfunctions.py functions, classes and methods.
+    Unit tests for radionuclide.py functions, classes and methods.
     """
 
     def test_radionuclide_instantiation(self):
@@ -56,6 +56,28 @@ class Test(unittest.TestCase):
         nuc = Radionuclide("K-40")
         self.assertEqual(nuc.decay_modes()[0], "\u03b2-")
         self.assertEqual(nuc.decay_modes()[1], "\u03b2+ & EC")
+
+    def test_radionuclide_plot(self):
+        """
+        Test Radionuclide plot() method.
+
+        Only testing auto-generation of limits so far.
+        """
+
+        nuc = Radionuclide("H-3")
+        _, ax = nuc.plot()
+        self.assertEqual(ax.get_xlim(), (-0.3, 0.3))
+        self.assertEqual(ax.get_ylim(), (-1.3, 0.3))
+
+        nuc = Radionuclide("Mo-99")
+        _, ax = nuc.plot()
+        self.assertEqual(ax.get_xlim(), (-0.3, 1.3))
+        self.assertEqual(ax.get_ylim(), (-2.3, 0.3))
+
+        nuc = Radionuclide("Es-256")
+        _, ax = nuc.plot()
+        self.assertEqual(ax.get_xlim(), (-0.3, 2.3))
+        self.assertEqual(ax.get_ylim(), (-19.3, 0.3))
 
     def test_radionuclide___repr__(self):
         """

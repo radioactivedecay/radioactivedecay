@@ -1,6 +1,34 @@
 Plotting
 ========
 
+Decay chain diagrams
+--------------------
+
+Use the ``Radionuclide`` class ``plot()`` method to create a diagram of the
+decay chain originating from a radionuclide:
+
+.. code-block:: python3
+
+    >>> import radioactivedecay as rd
+    >>> nuc = rd.Radionuclide('Mo-99')
+    >>> fig, ax = nuc.plot()
+
+.. image:: images/Mo-99_chain.png
+  :width: 300
+  
+For more complicated decay chains, you can avoid decay mode and branching
+fraction labels overlapping by adjusting the label_pos parameter from the
+default value of 0.5:
+
+.. code-block:: python3
+
+    >>> import radioactivedecay as rd
+    >>> nuc = rd.Radionuclide('Rn-22')
+    >>> fig, ax = nuc.plot(label_pos=0.66)
+
+.. image:: images/Rn-222_chain.png
+  :width: 300
+
 Inventory decay graphs
 ----------------------
 
@@ -10,7 +38,6 @@ simplest, specify the decay timespan to the method:
 
 .. code-block:: python3
 
-    >>> import radioactivedecay as rd
     >>> inv = rd.Inventory({'Rn-222': 10.0})
     >>> fig, ax = inv.plot(5, 'h')
 
