@@ -82,6 +82,48 @@ def _parse_decay_mode_label(mode: str) -> str:
     return mode
 
 
+def _check_fig_ax(
+    fig_in: Union[None, matplotlib.figure.Figure],
+    ax_in: Union[None, matplotlib.axes.Axes],
+    **kwargs,
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    """
+    Checks to see if user supplies Matplotlib Figure and/or Axes objects. Creates them where
+    necessary.
+
+    Parameters
+    ----------
+    fig_in : None or matplotlib.figure.Figure
+        matplotlib figure object to use, or None creates one.
+    ax_in : matplotlib.axes.Axes or None, optional
+        matplotlib axes object to use, or None creates one.
+    **kwargs
+        All additional keyword arguments to supply to plt.subplots().
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        matplotlib figure object used to plot decay chain.
+    ax : matplotlib.axes.Axes
+        matplotlib axes object used to plot decay chain.
+
+    """
+
+    if fig_in is None and ax_in is None:
+        fig, ax = plt.subplots(**kwargs)
+    elif fig_in is None:
+        ax = ax_in
+        fig = ax.get_figure()
+    elif ax_in is None:
+        fig = fig_in
+        ax = fig.gca()
+    else:
+        fig = fig_in
+        ax = ax_in
+
+    return fig, ax
+
+
 def _decay_graph(
     time_points: np.ndarray,
     activities: np.ndarray,
@@ -136,8 +178,7 @@ def _decay_graph(
 
     """
 
-    if fig_in is None and ax_in is None:
-        fig, ax = plt.subplots()
+    fig, ax = _check_fig_ax(fig_in, ax_in)
 
     for i, label in enumerate(radionuclides):
         if label in display:

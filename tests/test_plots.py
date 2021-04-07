@@ -3,9 +3,12 @@ Unit tests for plots.py functions.
 """
 
 import unittest
+import matplotlib
+import matplotlib.pyplot as plt
 from radioactivedecay.plots import (
     _parse_nuclide_label,
     _parse_decay_mode_label,
+    _check_fig_ax,
 )
 
 
@@ -43,6 +46,28 @@ class Test(unittest.TestCase):
         self.assertEqual(_parse_decay_mode_label("EC"), "EC")
         self.assertEqual(_parse_decay_mode_label("IT"), "IT")
         self.assertEqual(_parse_decay_mode_label("SF"), "SF")
+
+    def test__check_fig_ax(self):
+        """
+        Test the parsing of user-defined Matplotlib Figure and Axes objects.
+        """
+
+        fig_in, ax_in = plt.subplots()
+        fig, ax = _check_fig_ax(fig_in, ax_in)
+        self.assertIsInstance(fig, matplotlib.figure.Figure)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+        fig, ax = _check_fig_ax(fig_in, None)
+        self.assertIsInstance(fig, matplotlib.figure.Figure)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+        fig, ax = _check_fig_ax(None, ax_in)
+        self.assertIsInstance(fig, matplotlib.figure.Figure)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+        fig, ax = _check_fig_ax(None, None)
+        self.assertIsInstance(fig, matplotlib.figure.Figure)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
 
 
 if __name__ == "__main__":

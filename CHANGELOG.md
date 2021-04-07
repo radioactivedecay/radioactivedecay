@@ -1,6 +1,8 @@
 # Changelog
 
-## [0.3.1] -
+## [0.3.1] - 2021-04-07
+- Fix bugs upon supplying Matplotlib Figure or Axes objects to `Inventory` and `Radionuclide`
+`plot()` methods.
 - Docs and ReadMe updates.
 - Changelog typo fixes.
 

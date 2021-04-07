@@ -30,7 +30,7 @@ $ pip install radioactivedecay
 ```
 
 This command will also install the dependencies (Matplotlib, NetworkX, NumPy,
-SciPy & SymPy) if they are not already present.
+SciPy & SymPy) if they are not already present in the environment.
 
 
 ## Usage

@@ -888,17 +888,17 @@ class Inventory:
         ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * acts.max()]
 
         fig, ax = _decay_graph(
-            time_points,
-            acts.T,
-            display,
-            xunits,
-            yunits,
-            xscale,
-            yscale,
-            ylimits,
-            set(display),
-            fig,
-            ax,
+            time_points=time_points,
+            activities=acts.T,
+            radionuclides=display,
+            xunits=xunits,
+            yunits=yunits,
+            xscale=xscale,
+            yscale=yscale,
+            ylimits=ylimits,
+            display=set(display),
+            fig_in=fig,
+            ax_in=ax,
             **kwargs,
         )
 
