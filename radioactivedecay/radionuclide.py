@@ -21,8 +21,8 @@ from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.plots import (
     _parse_nuclide_label,
     _parse_decay_mode_label,
+    _check_fig_ax,
     matplotlib,
-    plt,
 )
 from radioactivedecay.utils import parse_radionuclide
 
@@ -204,10 +204,9 @@ class Radionuclide:
         node_labels = nx.get_node_attributes(digraph, "label")
         edge_labels = nx.get_edge_attributes(digraph, "label")
 
-        if fig is None and ax is None:
-            fig, ax = plt.subplots(
-                figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
-            )
+        fig, ax = _check_fig_ax(
+            fig, ax, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
+        )
 
         if kwargs_draw is None:
             kwargs_draw = {}
