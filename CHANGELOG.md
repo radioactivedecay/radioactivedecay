@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2] - 2021-04-14
+- Allow specification of `sig_fig` as a parameter to the `decay_high_precision()` method.
+- Improve code with respect to pylint and mypy checks.
+- Add discussion on the radioactive progeny that are not in the ICRP-107 data to the limitations
+section of the docs and to the Jupyter notebook analyzing the ICRP-107 data.
+- Update other Jupyter notebooks for this release.
+- Theory docpage typo fix.
+
 ## [0.3.1] - 2021-04-07
 - Fix bugs upon supplying Matplotlib Figure or Axes objects to `Inventory` and `Radionuclide`
 `plot()` methods.

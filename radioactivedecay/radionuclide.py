@@ -307,7 +307,9 @@ def _build_decay_digraph(
     dequeue = deque([parent])
     generations = deque([0])
     xpositions = deque([0])
-    node_label = _parse_nuclide_label(parent) + "\n" + parent_rn.half_life("readable")
+    node_label = (
+        _parse_nuclide_label(parent) + "\n" + str(parent_rn.half_life("readable"))
+    )
     digraph.add_node(parent, generation=0, xpos=0, label=node_label)
     seen = {parent}
 
@@ -326,7 +328,7 @@ def _build_decay_digraph(
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
                 if prog in parent_rn.data.radionuclide_dict:
-                    node_label += "\n" + parent_rn.data.half_life(prog, "readable")
+                    node_label += "\n" + str(parent_rn.data.half_life(prog, "readable"))
                     dequeue.append(prog)
                     generations.append(generation)
                     xpositions.append(xpos + i)

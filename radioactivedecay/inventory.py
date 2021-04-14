@@ -496,9 +496,9 @@ class Inventory:
             these time units.
         sig_fig: None or int, optional
             Performs a decay calculation using arbitrary-precision arithmetic with SymPy for this
-            many significant figures. For high precision calculations, recommended is 320. sig_fig
-            must be greater than 0. Default is None, which i standard SciPy/NumPy double precision
-            calculations.
+            many significant figures. For high precision calculations, recommended setting is 320.
+            sig_fig must be greater than 0. Default is None, which is standard SciPy/NumPy double
+            precision calculations.
 
         Returns
         -------
@@ -567,7 +567,9 @@ class Inventory:
 
         return Inventory(new_contents, False, self.data)
 
-    def decay_high_precision(self, decay_time: float, units: str = "s") -> "Inventory":
+    def decay_high_precision(
+        self, decay_time: float, units: str = "s", sig_fig: int = 320
+    ) -> "Inventory":
         """
         Decay calculation with high numerical precision. This uses SymPy arbitrary-precision
         arithmetic functions for the decay calculation. The results can be more accurate than
@@ -576,7 +578,8 @@ class Inventory:
         differ by many orders of magnitude.
 
         This function requires that the decay dataset associated with the Inventory instance
-        contains a SymPy version of the decay data. It uses sig_fig=320 for the SymPy calculation.
+        contains a SymPy version of the decay data. Default is sig_fig=320 for the SymPy
+        calculation.
 
         Parameters
         ----------
@@ -586,6 +589,8 @@ class Inventory:
             Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
             'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
             these time units.
+        sig_fig: int, optional
+            Number of significant figures for high precision decay calculation. Deafult is 320.
 
         Returns
         -------
@@ -607,7 +612,7 @@ class Inventory:
 
         """
 
-        return self.decay(decay_time, units, sig_fig=320)
+        return self.decay(decay_time, units, sig_fig)
 
     def _decay_sympy(self, decay_time: float, units: str, sig_fig: int) -> "Inventory":
         """

@@ -203,7 +203,10 @@ class DecayMatrices:
     def __repr__(self) -> str:
 
         if isinstance(self.matrix_c, sparse.csr.csr_matrix):
-            return "DecayMatrices: data stored in SciPy/NumPy objects for double precision calculations."
+            return (
+                "DecayMatrices: data stored in SciPy/NumPy objects for double precision "
+                "calculations."
+            )
 
         return "DecayMatrices: data stored in SymPy objects for arbitrary-precision calculations."
 
