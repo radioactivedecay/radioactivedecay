@@ -135,6 +135,11 @@ There are also some limitations associated with the ICRP-107 decay dataset:
   Bk-246 (|alpha| ~1.5%), and U-228 -> Pa-228 (|epsilon| ~2.5%). For more
   details see refs. :ref:`[8] <refs>` and :ref:`[9] <refs>` on the creation of
   the ICRP-107 dataset.
+* Radioactive progeny resulting from some decay pathways present in ICRP-107
+  are not themselves included in the publication. The missing radionuclides all
+  have extremely long half-lives and can be considered as practically stable,
+  e.g. Os-184, which results from the decay of Ir-184, has a half-life of over
+  56,000 billion years.
 
 License
 -------
@@ -168,11 +173,11 @@ for their support and assistance to this project.
 
 Thanks also to:
 
-* `Björn Dahlgren <https://github.com/bjodah>`_ (author of the batemaneq
+* `Björn Dahlgren <https://github.com/bjodah>`_ (creator of the batemaneq
   Python package :ref:`[10] <refs>`)
 * `Anthony Scopatz <https://github.com/scopatz>`_ and the PyNE project
   :ref:`[6] <refs>`
-* `Jonathan Morrell <https://github.com/jtmorrell>`_ (author of the `NPAT
+* `Jonathan Morrell <https://github.com/jtmorrell>`_ (creator of the `NPAT
   <https://github.com/jtmorrell/npat>`_ and `Curie
   <https://github.com/jtmorrell/npat>`_ packages)
 

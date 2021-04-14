@@ -24,7 +24,7 @@ chain differential equations can be expressed using matrix notation as
     \begin{cases}
     0 && \text{for }  i < j,\\
     -\lambda_{j} && \text{for }  i = j,\\
-    b_{ji}\lambda_{j} && \text{for }  i > j.
+    b_{ji}\lambda_{j} && \text{for }  i > j,
     \end{cases}
 
 where :math:`\lambda_{j}` is the decay constant of radionuclide :math:`j`,
