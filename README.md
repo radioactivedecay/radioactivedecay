@@ -49,8 +49,8 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 'Tc-99m': 1.3719829376710406}
 ```
 
-An ``Inventory`` of 2.0 Bq of Mo-99 was decayed it for 20 hours, producing
-the radioactive progeny Tc-99m and Tc-99.
+An ``Inventory`` of 2.0 Bq of Mo-99 was decayed for 20 hours, producing the
+radioactive progeny Tc-99m and Tc-99.
 
 Note we did not have to specify the units of the initial Mo-99 activity. This
 is because the output activity units are the same as the input units. So the
@@ -87,19 +87,6 @@ Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
 
 ### Fetching decay data
 
-``radioactivedecay`` includes methods to fetch decay data for radionuclides:
-
-```pycon
->>> inv_t1.half_lives('readable')
-{'Mo-99': '65.94 h', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
->>> inv_t1.progeny()
-{'Mo-99': ['Tc-99m', 'Tc-99'], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
->>> inv_t1.branching_fractions()
-{'Mo-99': [0.8773, 0.1227], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
->>> inv_t1.decay_modes()
-{'Mo-99': ['β-', 'β-'], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
-```
-
 The ``Radionuclide`` class can be used to fetch decay information for
 individual radionuclides, e.g. for Rn-222:
 
@@ -113,6 +100,19 @@ individual radionuclides, e.g. for Rn-222:
 [1.0]
 >>> nuc.decay_modes()
 ['α']
+```
+
+Likewise similar methods exist for ``Inventory`` instances:
+
+```pycon
+>>> inv_t1.half_lives('readable')
+{'Mo-99': '65.94 h', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
+>>> inv_t1.progeny()
+{'Mo-99': ['Tc-99m', 'Tc-99'], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
+>>> inv_t1.branching_fractions()
+{'Mo-99': [0.8773, 0.1227], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
+>>> inv_t1.decay_modes()
+{'Mo-99': ['β-', 'β-'], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
 ```
 
 
