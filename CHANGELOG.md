@@ -1,5 +1,8 @@
 # Changelog
 
+## [#.#.#] - ####-##-##
+- Improve readme and fix typo.
+
 ## [0.3.2] - 2021-04-14
 - Allow specification of `sig_fig` as a parameter to the `decay_high_precision()` method.
 - Improve code with respect to pylint and mypy checks.
