@@ -153,7 +153,7 @@ Once `radioactivedecay` has been imported, it is possible for users to load alte
 
 # Functionality
 
-![Examples of the plotting capabilities of `radioactivedecay`: (a) Decay chain diagram for molybdenum-99. (b) Graph showing the decay of 1 kBq of $^{99}\textrm{Mo}$ along with the ingrowth of $^{99m}\textrm{Tc}$ and a trace quantity of $^{99}\textrm{Tc}$.\label{fig:decay_diags}](Mo-99.svg)
+![Examples of the plotting capabilities of `radioactivedecay`: (a) Decay chain diagram for molybdenum-99. (b) Graph showing the decay of 1 kBq of $^{99}\textrm{Mo}$ along with the ingrowth of $^{99m}\textrm{Tc}$ and a trace quantity of $^{99}\textrm{Tc}$.\label{fig:decay_diags}](Mo-99.pdf)
 
 The main functionality of `radioactivedecay` is based around two classes: the `Radionuclide` class and the `Inventory` class.
 The `Radionuclide` class is used for fetching decay data about a single radionuclide, such as its half-life, the decay modes, the progeny and the branching fractions.
