@@ -10,7 +10,7 @@ mode using SymPy routines which gives more accurate results for decay chains
 with orders of magnitude differences between radionuclide half-lives.
 """
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.radionuclide import Radionuclide

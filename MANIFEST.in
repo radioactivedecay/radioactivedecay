@@ -1,0 +1,4 @@
+include LICENSE
+include CHANGELOG.md
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
