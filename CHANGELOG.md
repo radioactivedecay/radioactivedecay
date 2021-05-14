@@ -1,7 +1,9 @@
 # Changelog
 
-## [#.#.#] - ####-##-##
+## [0.3.3] - 2021-05-14
 - Improve readme and fix typo.
+- Add MANIFEST.in so LICENSE and markdown files get packaged.
+- Update year in LICENSE file.
 
 ## [0.3.2] - 2021-04-14
 - Allow specification of `sig_fig` as a parameter to the `decay_high_precision()` method.

@@ -5,11 +5,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.3.2",
+    version="0.3.3",
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
     license="MIT",
-    description="A Python package for radioactive decay calculations that supports 1252 radionuclides, decay chains, branching, and metastable states.",
+    description="A Python package for radioactive decay modelling that supports 1252 radionuclides, decay chains, branching, and metastable states.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/alexmalins/radioactivedecay",
