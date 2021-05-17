@@ -1,5 +1,8 @@
 # Changelog
 
+## [#.#.#] - ####-##-##
+- Document method for installing via conda.
+
 ## [0.3.3] - 2021-05-14
 - Improve readme and fix typo.
 - Add MANIFEST.in so LICENSE and markdown files get packaged.

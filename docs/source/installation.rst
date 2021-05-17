@@ -18,19 +18,25 @@ installed from `python.org <https://www.python.org/>`_ and `PyPI
 Installation
 ------------
 
-The easiest way to install ``radioactivedecay`` is via the `Python Package
-Index <https://pypi.org/>`_ using ``pip``:
+The easiest ways to install ``radioactivedecay`` are via the `Python Package
+Index <https://pypi.org/project/radioactivedecay/>`_ using ``pip``:
 
 .. code-block:: bash
 
     $ pip install radioactivedecay
 
-This command will also attempt to install Matplotlib, NetworkX, NumPy, SciPy
-and SymPy if they are missing from your Python environment.
+or via `conda-forge <https://anaconda.org/conda-forge/radioactivedecay>`_:
+
+.. code-block:: bash
+
+    $ conda install -c conda-forge radioactivedecay
+
+Either command will attempt to install the dependencies (Matplotlib, NetworkX,
+NumPy, SciPy & SymPy) if they are not already present in the environment.
 
 It is also possible to clone the GitHub `repository 
 <https://github.com/alexmalins/radioactivedecay>`_ and install from within the
-``radioactivedecay`` folder using:
+``radioactivedecay`` directory using:
 
 .. code-block:: bash
 
@@ -39,8 +45,14 @@ It is also possible to clone the GitHub `repository
 Uninstallation
 --------------
 
-You can uninstall ``radioactivedecay`` with this command:
+You can uninstall ``radioactivedecay`` by:
 
 .. code-block:: bash
 
     $ pip uninstall radioactivedecay
+
+or if installed originally via ``conda``:
+
+.. code-block:: bash
+
+    $ conda uninstall radioactivedecay
