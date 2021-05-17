@@ -32,7 +32,7 @@ $ pip install radioactivedecay
 or from [conda-forge](https://anaconda.org/conda-forge/radioactivedecay):
 
 ```console
-conda install -c conda-forge radioactivedecay
+$ conda install -c conda-forge radioactivedecay
 ```
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
