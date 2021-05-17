@@ -22,14 +22,20 @@ platform independent and has been tested on Windows, MacOS and Linux systems.
 Quick Start
 -----------
 
-Install ``radioactivedecay`` via the command:
+Install ``radioactivedecay`` using ``pip`` by:
 
 .. code-block:: bash
 
     $ pip install radioactivedecay
-    
-This command will also attempt to install Matplotlib, NetworkX, NumPy, SciPy
-and SymPy if they are not already present in your environment.
+
+or using ``conda`` by:
+
+.. code-block:: bash
+
+    $ conda install -c conda-forge radioactivedecay
+
+Either command will attempt to install the dependencies (Matplotlib, NetworkX,
+NumPy, SciPy & SymPy) if they are not already present in the environment.
 
 Import the ``radioactivedecay`` package and decay a simple inventory using:
 
@@ -91,7 +97,7 @@ more details. It calls NumPy :ref:`[3] <refs>` and SciPy :ref:`[4] <refs>` for
 the matrix operations. There is also a high numerical precision decay
 calculation mode based on SymPy :ref:`[5] <refs>` routines.
 
-The `notebooks folder 
+The `notebooks directory 
 <https://github.com/alexmalins/radioactivedecay/tree/main/notebooks>`_ 
 in the GitHub repository contains some Jupyter Notebooks for creating the 
 `ICRP-107 decay dataset

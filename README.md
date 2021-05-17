@@ -29,8 +29,14 @@ the [Python Package Index](https://pypi.org/project/radioactivedecay/) using
 $ pip install radioactivedecay
 ```
 
-This command will also install the dependencies (Matplotlib, NetworkX, NumPy,
-SciPy & SymPy) if they are not already present in the environment.
+or from [conda-forge](https://anaconda.org/conda-forge/radioactivedecay):
+
+```console
+conda install -c conda-forge radioactivedecay
+```
+
+Either command will attempt to install the dependencies (Matplotlib, NetworkX,
+NumPy, SciPy & SymPy) if they are not already present in the environment.
 
 
 ## Usage
@@ -181,7 +187,7 @@ By default ``radioactivedecay`` uses decay data from
 (2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
 
 The [notebooks
-folder](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
+directory](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
 in the GitHub repository contains Jupyter Notebooks for creating the decay
 datasets that are read in by ``radioactivedecay``, e.g.
 [ICRP
