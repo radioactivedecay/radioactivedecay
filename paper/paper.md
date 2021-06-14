@@ -33,7 +33,12 @@ There are visualization functions for drawing decay chain diagrams and plotting 
 Calculations for the decay of radioactivity and the ingrowth of progeny underpin the use of radioisotopes in a wide range of research and industrial fields, spanning from nuclear engineering, medical physics, radiation protection, environmental science and archaeology to non-destructive testing, mineral prospecting, food preservation, homeland security and defence.
 `radioactivedecay` is an open source, cross-platform package for decay calculations and visualization.
 It supports decay chains with branching decays and metastable nuclear isomers.
-It includes a high numerical precision decay calculation mode which resolves numerical issues when using double-precision floating-point numbers for decay calculations for chains containing radionuclides with disparate half-lives.
+It includes a high numerical precision decay calculation mode which resolves numerical issues when using double-precision floating-point numbers for decaying chains containing radionuclides with disparate half-lives [@Bakin2018].
+
+This set of features distinguishes `radioactivedecay` from other commonly-used decay packages, such as `Radiological Toolbox` and `PyNE`.
+`Radiological Toolbox` is a closed-source Windows application, so it is not easily scriptable and its use of double-precision arithmetic makes it susceptible to numerical round-off errors.
+`PyNE` uses approximations to help mitigate numerical issues, however these may potentially affect accuracy.
+Moreover as of `v0.7.3`, `PyNE` does not correctly model metastable nuclear isomers within decay chains, which means, for example, it cannot simulate the production of $^{99m}\textrm{Tc}$ from $^{99}\textrm{Mo}$ for medical imaging applications.
 
 
 # Theory and Implementation
@@ -124,6 +129,7 @@ The raw data was converted into dataset files suitable for `radioactivedecay` us
 Along with `SciPy` and `SymPy` versions of the sparse matrices $C$ and $C^{-1}$, the dataset files store radionuclide half-lives, decay constants, progeny, branching fractions and decay modes.
 Although ICRP Publication 107 is the default dataset, `radioactivedecay` allows users to import and use other decay datasets.
 
+
 # Main Functionality
 
 ![Examples of the plotting capabilities of `radioactivedecay`: (a) Decay chain diagram for molybdenum-99. (b) Graph showing the decay of 1 kBq of $^{99}\textrm{Mo}$ along with the ingrowth of $^{99m}\textrm{Tc}$ and a trace quantity of $^{99}\textrm{Tc}$.\label{fig:decay_diags}](Mo-99.pdf)
@@ -152,7 +158,7 @@ The decay of 1 Bq of every radionuclide was calculated for multiple decay times 
 The absolute difference between the decayed activities reported by each code was less than $10^{-13}$ Bq.
 Relative differences depended on the magnitude of the activity.
 Relative errors of greater than 0.1% only occurred when the calculated activity was less than $2.5\times10^{-11}$ Bq, i.e. 10 orders of magnitude smaller than the initial activity of the parent radionuclide.
-The discrepancies between the two codes were attributed to methodological differences for computing decay chains with radionuclides with large disparities between half-lives, and numerical issues arising from double-precision floating-point operations.  
+The discrepancies between the two codes were attributed to methodological differences for computing decay chains with radionuclides with large disparities between half-lives, and numerical issues arising from double-precision floating-point operations.
 
 
 # Limitations
