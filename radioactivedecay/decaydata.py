@@ -231,7 +231,8 @@ class DecayData:
     dataset : str
         Name of the decay dataset.
     hldata : numpy.ndarray
-        List of tuples containing half-life floats and time unit strings.
+        List of tuples containing half-life floats, time unit strings and readable format half-life
+        strings.
     num_radionuclides : int
         Number of radionuclides in the dataset.
     radionuclides : numpy.ndarray
