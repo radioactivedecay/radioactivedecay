@@ -18,9 +18,10 @@ as:
 
 from functools import singledispatch, update_wrapper
 from typing import Callable, Dict, List, Tuple, Union
+import matplotlib
 from sympy import exp, nsimplify
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA, np
-from radioactivedecay.plots import _decay_graph, matplotlib
+from radioactivedecay.plots import _decay_graph
 from radioactivedecay.radionuclide import Radionuclide
 from radioactivedecay.utils import (
     parse_radionuclide,

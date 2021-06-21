@@ -16,13 +16,13 @@ as:
 
 from collections import deque
 from typing import Any, Dict, List, Tuple, Union
+import matplotlib
 import networkx as nx
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.plots import (
     _parse_nuclide_label,
     _parse_decay_mode_label,
     _check_fig_ax,
-    matplotlib,
 )
 from radioactivedecay.utils import parse_radionuclide
 
@@ -300,8 +300,7 @@ def _build_decay_digraph(
 
     """
 
-    max_generation = 0
-    max_xpos = 0
+    generation_max_xpos = {0: 0}
 
     parent = parent_rn.radionuclide
     dequeue = deque([parent])
@@ -317,12 +316,16 @@ def _build_decay_digraph(
         parent = dequeue.popleft()
         generation = generations.popleft() + 1
         xpos = xpositions.popleft()
+        if generation not in generation_max_xpos:
+            generation_max_xpos[generation] = -1
         parent_rn = Radionuclide(parent, parent_rn.data)
 
         progeny = parent_rn.progeny()
         branching_fractions = parent_rn.branching_fractions()
         decay_modes = parent_rn.decay_modes()
 
+        if xpos < generation_max_xpos[generation] + 1:
+            xpos = generation_max_xpos[generation] + 1
         xcounter = 0
         for i, prog in enumerate(progeny):
             if prog not in seen:
@@ -331,7 +334,7 @@ def _build_decay_digraph(
                     node_label += "\n" + str(parent_rn.data.half_life(prog, "readable"))
                     dequeue.append(prog)
                     generations.append(generation)
-                    xpositions.append(xpos + i)
+                    xpositions.append(xpos + xcounter)
                 if prog == "SF":
                     prog = parent + "_SF"
 
@@ -340,10 +343,8 @@ def _build_decay_digraph(
                 )
                 seen.add(prog)
 
-                if generation > max_generation:
-                    max_generation = generation
-                if xpos + xcounter > max_xpos:
-                    max_xpos = xpos + xcounter
+                if xpos + xcounter > generation_max_xpos[generation]:
+                    generation_max_xpos[generation] = xpos + xcounter
                 xcounter += 1
 
             edge_label = (
@@ -359,4 +360,4 @@ def _build_decay_digraph(
             digraph.nodes[node]["generation"] * -1,
         )
 
-    return digraph, max_generation, max_xpos
+    return digraph, max(generation_max_xpos), max(generation_max_xpos.values())

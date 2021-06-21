@@ -1,7 +1,10 @@
 # Changelog
 
-## [#.#.#] - ####-##-##
+## [0.3.4] - 2021-06-21
+- Fix bug in decay chain plots which caused overlaps of some radionuclides in complicated chains.
 - Document method for installing via conda.
+- Improve clarity of matplotlib imports.
+- Correct a DecayData attribute docstring entry.
 
 ## [0.3.3] - 2021-05-14
 - Improve readme and fix typo.
