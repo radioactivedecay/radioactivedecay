@@ -1,6 +1,6 @@
 """
 The inventory module defines the ``Inventory`` class. Each ``Inventory`` instance contains one or
-more radionuclides, each with an associated activity. The decay of the radionuclide(s) in an
+more radionuclides, each with an associated number. The decay of the radionuclide(s) in an
 ``Inventory`` can be calculated by using the ``decay()`` method (normal double-precision
 floating-point operations). Use the ``decay_high_precision()`` method to perform a SymPy high
 numerical precision calculation. A ``DecayData`` dataset associated with each ``Inventory``
@@ -20,6 +20,7 @@ from functools import singledispatch, update_wrapper
 from typing import Callable, Dict, List, Tuple, Union
 import matplotlib
 from sympy import exp, nsimplify
+from scipy.constants import Avogadro
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA, np
 from radioactivedecay.plots import _decay_graph
 from radioactivedecay.radionuclide import Radionuclide
@@ -37,20 +38,20 @@ def _add_dictionaries(
     dict_a: Dict[str, float], dict_b: Dict[str, float]
 ) -> Dict[str, float]:
     """
-    Adds together two dictionaries of radionuclides and associated activities.
+    Adds together two dictionaries of radionuclides and associated numbers.
 
     Parameters
     ----------
     dict_a : dict
-        First dictionary containing radionuclide strings as keys and activities as values.
+        First dictionary containing radionuclide strings as keys and numbers as values.
     dict_b : dict
-        Second dictionary containing radionuclide strings as keys and activities as values.
+        Second dictionary containing radionuclide strings as keys and numbers as values.
 
     Returns
     -------
     dict
         Combined dictionary containing the radionuclides in both dict_a and dict_b, where
-        activities have been added together when a radionuclide is present in both input
+        numbers have been added together when a radionuclide is present in both input
         dictionaries.
 
     Examples
@@ -63,13 +64,225 @@ def _add_dictionaries(
     """
 
     new_dict = dict_a.copy()
-    for radionuclide, radioactivity in dict_b.items():
+    for radionuclide, number in dict_b.items():
         if radionuclide in new_dict:
-            new_dict[radionuclide] = new_dict[radionuclide] + radioactivity
+            new_dict[radionuclide] = new_dict[radionuclide] + number
         else:
-            new_dict[radionuclide] = radioactivity
+            new_dict[radionuclide] = number
 
     return new_dict
+
+
+def _activity_to_number(
+    radionuclide: str,
+    activity : float,
+    data: DecayData = DEFAULTDATA
+) -> float:
+    """
+    Converts activity to number of atoms.
+
+    Parameters
+    ----------
+    radionuclide : str
+        The name of the material to be converted.
+    activity : float
+        The activity of the material to be converted.
+    data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
+
+    Returns
+    -------
+    float
+        Number of atoms of material.
+
+    Example
+    --------
+    >>> rd.inventory._activity_to_number("C-14", 250)
+    64876004584874.73
+
+    """
+
+    try:
+        index = data.radionuclide_dict[radionuclide]
+    except:
+        raise ValueError(
+            radionuclide
+            + " is not a valid member of "
+            + data.dataset
+            )
+        
+    return (activity / data.scipy_data.decay_consts[index])
+
+
+def _mass_to_number(
+    radionuclide: str,
+    mass : float,
+    data: DecayData = DEFAULTDATA
+) -> float:
+    """
+    Converts a mass to number of atoms.
+
+    Parameters
+    ----------
+    radionuclide : str
+        The name of the material to be converted.
+    mass : float
+        The mass of the material to be converted in grams.
+    data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
+
+    Returns
+    -------
+    float
+        Number of atoms of material.
+
+    Example
+    --------
+    >>> rd.inventory._mass_to_number("Fe-56", 25)
+    2.6915829535623837e+23
+
+    """
+
+    try:
+        index = data.radionuclide_dict[radionuclide]
+    except:
+        raise ValueError(
+            radionuclide
+            + " is not a valid member of "
+            + data.dataset
+            )
+
+    return (mass / data.masses[index] * Avogadro)
+
+
+def _moles_to_number(moles : float) -> float:
+    """
+    Converts number of moles to number of atoms.
+
+    Parameters
+    ----------
+    moles : float
+        The moles of material to be converted.
+
+    Returns
+    -------
+    float
+        Number of atoms of material.
+
+    Example
+    --------
+    >>> rd.inventory._moles_to_number(.2)
+    1.204428152e+23
+
+    """
+
+    return moles * Avogadro
+
+
+def _number_to_activity(
+    radionuclide: str,
+    number : float,
+    data: DecayData = DEFAULTDATA
+) -> float:
+    """
+    Converts number of atoms to activity.
+
+    Parameters
+    ----------
+    radionuclide : str
+        The name of the material to be converted.
+    number : float
+        The number of atoms of material to be converted.
+    data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
+
+    Returns
+    -------
+    float
+        Activity of the material.
+
+    Examples
+    --------
+    >>> rd.inventory._number_to_activity("U-238", 3 * 10**23)
+    1474819.4578951003
+
+    """
+
+    try:
+        index = data.radionuclide_dict[radionuclide]
+    except:
+        raise ValueError(
+            radionuclide
+            + " is not a valid member of "
+            + data.dataset
+            )
+    
+    return (number * data.scipy_data.decay_consts[index])
+
+
+def _number_to_mass(
+    radionuclide: str,
+    number : float,
+    data: DecayData = DEFAULTDATA
+) -> float:
+    """
+    Converts number of atoms to mass in grams.
+
+    Parameters
+    ----------
+    radionuclide : str
+        The name of the material to be converted.
+    number : float
+        The number of atoms of the material to be converted.
+    data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
+
+    Returns
+    -------
+    float
+        Mass of material in grams.
+
+    Examples
+    --------
+    >>> rd.inventory._number_to_mass("Fe-56", 3 * 10**23)
+    27.86464370371177
+
+    """
+
+    try:
+        index = data.radionuclide_dict[radionuclide]
+    except:
+        raise ValueError(
+            radionuclide
+            + " is not a valid member of "
+            + data.dataset
+            )
+    
+    return (number / Avogadro * data.masses[index])
+
+
+def _number_to_moles(number: float) -> float:
+    """
+    Converts number of atoms to moles of material.
+
+    Parameters
+    ----------
+    number : float
+        The number of atoms of the material to be converted.
+
+    Returns
+    -------
+    float
+        Moles of material.
+
+    Examples
+    --------
+    >>> rd.inventory._number_to_moles(3 * 10**23)
+    0.49816172015215404
+
+    """
+    
+    return number / Avogadro
 
 
 def _sort_dictionary_alphabetically(
@@ -81,7 +294,7 @@ def _sort_dictionary_alphabetically(
     Parameters
     ----------
     input_inv_dict : dict
-        Dictionary containing radionuclide strings or Radionuclide objects as keys and activities
+        Dictionary containing radionuclide strings or Radionuclide objects as keys and numbers
         as values.
 
     Returns
@@ -99,24 +312,91 @@ def _sort_dictionary_alphabetically(
     return dict(sorted(input_inv_dict.items(), key=lambda x: x[0]))
 
 
+def _input_to_number(
+    input_inv_dict: Dict[str, float],
+    input_type : str,
+    data: DecayData = DEFAULTDATA
+) -> Dict[str, float]:
+    """
+    Converts mass, moles, or activity input inventory dictionary into number.
+
+    Parameters
+    ----------
+    input_inv_dict : dict
+        Dictionary containing radionuclide strings or Radionuclide objects as keys and mass,
+        numbers in moles, or activity as values.
+    input_type : str
+        Format of the input.
+    data : DecayData
+        Decay dataset (default is the ICRP-107 dataset).
+    
+
+    Returns
+    -------
+    dict
+        Inventory dictionary which has values converted to number of the nuclide.
+
+    Raises
+    ------
+    ValueError
+        If the input dictionary values or input type are invalid.
+
+    Examples
+    --------
+    >>> rd.inventory._input_to_number({'Ni-56': .3, 'Co-56': .7}, "activity")
+    {'Ni-56': 227172.53191853972, 'Co-56': 6738641.562715049}
+    >>> rd.inventory._input_to_number({'U-238': 21.1, 'Co-57': 7.2}, "mass")
+    {'U-238': 5.337817684684321e+22, 'Co-57': 7.61542657764305e+22}
+
+    """
+    
+    number_abundance_dict, number_dict = {}, {}
+    
+    if input_type == "mass":
+        for nuc, mass in input_inv_dict.items():
+            number = _mass_to_number(nuc, mass, data)
+            number_dict[nuc] = number
+        converted_dict = number_dict.copy()
+    elif input_type == "activity":
+        for nuc, act in input_inv_dict.items():
+            number = _activity_to_number(nuc, act, data)
+            number_dict[nuc] = number
+        converted_dict = number_dict.copy()
+    elif input_type == "moles":
+        for nuc, moles in input_inv_dict.items():
+            number = _moles_to_number(nuc, moles, data)
+            number_dict[nuc] = number
+        converted_dict = number_dict.copy()
+    else:
+        raise ValueError(
+            input_type
+            + " is not a valid value input type"
+        )
+
+    return converted_dict
+
+
 def _check_dictionary(
     input_inv_dict: Dict[Union[str, Radionuclide], float],
     radionuclides: List[str],
-    dataset: str,
+    input_type: str = "activity",
+    data: DecayData = DEFAULTDATA
 ) -> Dict[str, float]:
     """
-    Checks validity of a dictionary of radionuclides and associated activities. Radionuclides must
+    Checks validity of a dictionary of radionuclides and associated numbers. Radionuclides must
     be in the decay dataset. Radionuclide strings are parsed to to Ab-XX format.
 
     Parameters
     ----------
     input_inv_dict : dict
-        Dictionary containing radionuclide strings or Radionuclide objects as keys and activities
+        Dictionary containing radionuclide strings or Radionuclide objects as keys and numberss
         as values.
     radionuclides : List[str]
         List of all the radionuclides in the decay dataset.
-    dataset : str
-        Name of the decay dataset.
+    input_type : str, optional
+        Type of input (number, mass (abundance), or activity), default is activity.
+    data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
 
     Returns
     -------
@@ -131,27 +411,32 @@ def _check_dictionary(
 
     Examples
     --------
-    >>> rd.inventory._check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.inventory._check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, "number", rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
     >>> H3 = rd.Radionuclide('H-3')
-    >>> rd.inventory._check_dictionary({H3: 1.0}, rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.inventory._check_dictionary({H3: 1.0}, rd.DEFAULTDATA.radionuclides, "number", rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
 
     """
 
-    inv_dict: Dict[str, float] = {
+    parsed_inv_dict: Dict[str, float] = {
         (
-            parse_radionuclide(nuc.radionuclide, radionuclides, dataset)
+            parse_radionuclide(nuc.radionuclide, radionuclides, data.dataset)
             if isinstance(nuc, Radionuclide)
-            else parse_radionuclide(nuc, radionuclides, dataset)
-        ): act
-        for nuc, act in input_inv_dict.items()
+            else parse_radionuclide(nuc, radionuclides, data.dataset)
+        ): inp
+        for nuc, inp in input_inv_dict.items()
     }
-    for nuc, act in inv_dict.items():
-        if not isinstance(act, (float, int)):
+    for nuc, inp in parsed_inv_dict.items():
+        if not isinstance(inp, (float, int)):
             raise ValueError(
-                str(act) + " is not a valid radioactivity for " + str(nuc) + "."
+                str(inp) + " is not a valid input for " + str(nuc) + "."
             )
+
+    if input_type != "number":
+        inv_dict = _input_to_number(parsed_inv_dict, input_type, data).copy()
+    else:
+        inv_dict = parsed_inv_dict.copy()
 
     return inv_dict
 
@@ -200,14 +485,16 @@ def _method_dispatch(func):
 
 class Inventory:
     """
-    ``Inventory`` instances store a dictionary of radionuclides and associated activities, and a
+    ``Inventory`` instances store a dictionary of radionuclides and associated numbers, and a
     ``DecayData`` instance of radioactive decay data.
 
     Parameters
     ----------
     contents : dict
-        Dictionary containing radionuclide strings or Radionuclide objects as keys and activities
+        Dictionary containing radionuclide strings or Radionuclide objects as keys and numbers
         as values.
+    input_type : str, optional
+        Type of input (abundance, number, activity; activity is default)
     check : bool, optional
         Check for the validity of contents (default is True).
     data : DecayData, optional
@@ -215,8 +502,8 @@ class Inventory:
 
     Attributes
     ----------
-    contents : dict
-        Dictionary containing radionuclide strings as keys and activities as values. Radionuclides
+    numbers : dict
+        Dictionary containing radionuclide strings as keys and numbers as values. Radionuclides
         in contents are sorted alphabetically.
     data : DecayData
         Decay dataset.
@@ -224,40 +511,45 @@ class Inventory:
     Examples
     --------
     >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8})
-    Inventory: {'I-123': 5.8, 'Tc-99m': 2.3}, decay dataset: icrp107
+    Inventory: {'I-123': 399738.47946141585, 'Tc-99m': 71852.27235544211}, decay dataset: icrp107
     >>> H3 = rd.Radionuclide('H-3')
     >>> rd.Inventory({H3: 3.0})
-    Inventory: {'H-3': 3.0}, decay dataset: icrp107
+    Inventory: {'H-3': 1682678687.3382246}, decay dataset: icrp107
+    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, input_type="mass")
+    Inventory: {'Co-57': 7.61542657764305e+22, 'U-238': 5.337817684684321e+22}, decay dataset: icrp107
 
     """
 
     def __init__(
         self,
-        contents: Dict[Union[str, Radionuclide], float],
+        input: Dict[Union[str, Radionuclide], float],
+        input_type: str = "activity",
         check: bool = True,
-        data: DecayData = DEFAULTDATA,
+        data: DecayData = DEFAULTDATA
     ) -> None:
 
-        self._change(contents, check, data)
+        self._change(input, input_type, check, data)
 
     def _change(
         self,
         contents: Dict[Union[str, Radionuclide], float],
+        input_type: str,
         check: bool,
-        data: DecayData,
+        data: DecayData
     ) -> None:
         """
         Changes the contents and data attributes of this Inventory instance.
         """
 
         parsed_contents: Dict[str, float] = _check_dictionary(
-            contents, data.radionuclides, data.dataset
+            contents, data.radionuclides, input_type, data
         ) if check is True else contents
         self.contents: Dict[str, float] = _sort_dictionary_alphabetically(
             parsed_contents
         )
         self.data: DecayData = data
-
+        self.input_type = input_type
+        
     @property
     def radionuclides(self) -> List[str]:
         """
@@ -271,20 +563,92 @@ class Inventory:
         """
 
         return list(self.contents)
-
-    @property
-    def activities(self) -> List[float]:
+    
+    def numbers(self) -> Dict[str, float]:
         """
-        Returns a list of the activities of the radionuclides in the Inventory.
+        Returns a dictionary of radionuclides and associated numbers in the inventory.
 
         Examples
         --------
-        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).activities
-        [5.8, 2.3]
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).numbers()
+        {'I-123': 399738.47946141585, 'Tc-99m': 71852.27235544211}
 
         """
 
-        return list(self.contents.values())
+        return self.contents
+
+    def activities(self) -> Dict[str, float]:
+        """
+        Returns a dictionary of radionuclides and associated activities in the inventory.
+
+        Examples
+        --------
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).activities()
+        {'I-123': 5.8, 'Tc-99m': 2.3}
+
+        """
+
+        activities = {
+            nuc : _number_to_activity(nuc, num, self.data)
+            for nuc, num in self.contents.items()
+        }
+
+        return activities
+    
+    def masses(self) -> Dict[str, float]:
+        """
+        Returns a dictionary of radionuclides and associated masses in the inventory.
+
+        Examples
+        --------
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).masses()
+        {'I-123': 8.158243973887584e-17, 'Tc-99m': 1.1800869622748501e-17}
+
+        """
+
+        masses = {
+            nuc : _number_to_mass(nuc, num, self.data)
+            for nuc, num in self.contents.items()
+        }
+
+        return masses
+    
+    def moles(self) -> Dict[str, float]:
+        """
+        Returns a dictionary of radionuclides and associated moles of material in the inventory.
+
+        Examples
+        --------
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).moles()
+        {'I-123': 6.637813617983513e-19, 'Tc-99m': 1.1931350531142702e-19}
+
+        """
+
+        moles = {
+            nuc : _number_to_moles(num)
+            for nuc, num in self.contents.items()
+        }
+
+        return moles
+    
+    def mass_abundances(self) -> Dict[str, float]:
+        """
+        Returns a dictionary of radionuclides and associated mass abundances in the inventory.
+
+        Examples
+        --------
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).mass_abundances()
+        {'I-123': 0.8736297770616593, 'Tc-99m': 0.12637022293834066}
+
+        """
+
+        total_mass = sum(self.masses().values())
+        abundances = {
+            nuc : mass / total_mass
+            for nuc, mass in self.masses().items()
+        }
+        
+        return abundances
 
     def __len__(self) -> int:
         """
@@ -293,58 +657,68 @@ class Inventory:
 
         return len(self.contents)
 
-    def add(self, add_contents: Dict[Union[str, Radionuclide], float]) -> None:
+    def add(
+        self,
+        add_contents: Dict[Union[str, Radionuclide], float],
+        input_type: str = "activity"
+    ) -> None:
         """
-        Adds a dictionary of radionuclides and associated activities to the inventory.
+        Adds a dictionary of radionuclides and associated numbers to the inventory.
 
         Parameters
         ----------
         add_contents : dict
             Dictionary containing radionuclide strings or Radionuclide objects as keys and
             activities as values which are added to the Inventory.
+        input_type : str, optional
+            Type of input, default is activity.
 
         Examples
         --------
-        >>> inv = rd.Inventory({'H-3': 1.0})
-        >>> inv.add({'C-14': 2.0})
-        >>> inv.contents
+        >>> inv = rd.Inventory({'H-3': 1.0}, "number")
+        >>> inv.add({'C-14': 2.0}, "number")
+        >>> inv.contents()
         {'C-14': 2.0, 'H-3': 1.0}
 
         """
 
         parsed_add_contents: Dict[str, float] = _check_dictionary(
-            add_contents, self.data.radionuclides, self.data.dataset
+            add_contents, self.data.radionuclides, self.data.dataset, input_type
         )
         new_contents = _add_dictionaries(self.contents, parsed_add_contents)
-        self._change(new_contents, False, self.data)
+        self._change(new_contents, "number", False, self.data)
 
-    def subtract(self, sub_contents: Dict[Union[str, Radionuclide], float]) -> None:
+    def subtract(
+        self,
+        sub_contents: Dict[Union[str, Radionuclide], float],
+        input_type: str = "activity"
+    ) -> None:
         """
-        Subtracts a dictionary of radionuclides and associated activities from this inventory.
+        Subtracts a dictionary of radionuclides and associated numbers from this inventory.
 
         Parameters
         ----------
         sub_contents : dict
             Dictionary containing radionuclide strings or Radionuclide objects as keys and
-            activities as values which are subtracted from the Inventory.
+            numbers as values which are subtracted from the Inventory.
 
         Examples
         --------
-        >>> inv = rd.Inventory({'C-14': 2.0, 'H-3': 1.0})
-        >>> inv.subtract({'H-3': 1.0})
-        >>> inv.contents
+        >>> inv = rd.Inventory({'C-14': 2.0, 'H-3': 1.0}, "number")
+        >>> inv.subtract({'H-3': 1.0}, "number")
+        >>> inv.contents()
         {'C-14': 2.0, 'H-3': 0.0}
 
         """
         parsed_sub_contents: Dict[str, float] = _check_dictionary(
-            sub_contents, self.data.radionuclides, self.data.dataset
+            sub_contents, self.data.radionuclides, input_type, self.data.dataset
         )
         parsed_sub_contents.update(
-            (nuclide, radioactivity * -1.0)
-            for nuclide, radioactivity in parsed_sub_contents.items()
+            (nuclide, number * -1.0)
+            for nuclide, number in parsed_sub_contents.items()
         )
         new_contents = _add_dictionaries(self.contents, parsed_sub_contents)
-        self._change(new_contents, False, self.data)
+        self._change(new_contents, "number", False, self.data)
 
     def __add__(self, other: "Inventory") -> "Inventory":
         """
@@ -359,7 +733,7 @@ class Inventory:
                 + other.data.dataset
             )
         new_contents = _add_dictionaries(self.contents, other.contents)
-        return Inventory(new_contents, False, self.data)
+        return Inventory(new_contents, "number", False, self.data)
 
     def __sub__(self, other: "Inventory") -> "Inventory":
         """
@@ -375,11 +749,11 @@ class Inventory:
             )
         sub_contents = other.contents.copy()
         sub_contents.update(
-            (nuclide, radioactivity * -1.0)
-            for nuclide, radioactivity in sub_contents.items()
+            (nuclide, number * -1.0)
+            for nuclide, number in sub_contents.items()
         )
         new_contents = _add_dictionaries(self.contents, sub_contents)
-        return Inventory(new_contents, False, self.data)
+        return Inventory(new_contents, "number", False, self.data)
 
     def __mul__(self, const: float) -> "Inventory":
         """
@@ -388,9 +762,9 @@ class Inventory:
         """
 
         new_contents = self.contents.copy()
-        for nuclide, radioactivity in new_contents.items():
-            new_contents[nuclide] = radioactivity * const
-        return Inventory(new_contents, False, self.data)
+        for nuclide, number in new_contents.items():
+            new_contents[nuclide] = number * const
+        return Inventory(new_contents, "number", False, self.data)
 
     def __rmul__(self, const: float) -> "Inventory":
         """
@@ -425,9 +799,10 @@ class Inventory:
         --------
         >>> inv = rd.Inventory({'Be-10': 2.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 4.0})
         >>> inv.remove('H-3')
-        >>> inv.contents
+        >>> inv.activities()
         {'Be-10': 2.0, 'C-14': 3.0, 'K-40': 4.0}
         >>> inv.remove(['Be-10', 'K-40'])
+        >>> inv.activities()
         {'C-14': 3.0}
 
         """
@@ -442,7 +817,7 @@ class Inventory:
         if delete not in new_contents:
             raise ValueError(delete + " does not exist in this inventory.")
         new_contents.pop(delete)
-        self._change(new_contents, False, self.data)
+        self._change(new_contents, "number", False, self.data)
 
     @remove.register(Radionuclide)
     def _(
@@ -457,7 +832,7 @@ class Inventory:
         if delete not in new_contents:
             raise ValueError(delete + " does not exist in this inventory.")
         new_contents.pop(delete)
-        self._change(new_contents, False, self.data)
+        self._change(new_contents, "number", False, self.data)
 
     @remove.register(list)
     def _(
@@ -478,7 +853,7 @@ class Inventory:
             if nuc not in new_contents:
                 raise ValueError(nuc + " does not exist in this inventory.")
             new_contents.pop(nuc)
-        self._change(new_contents, False, self.data)
+        self._change(new_contents, "number", False, self.data)
 
     def decay(
         self, decay_time: float, units: str = "s", sig_fig: Union[None, int] = None
@@ -516,8 +891,8 @@ class Inventory:
         --------
         >>> inv_t0 = rd.Inventory({'H-3': 1.0})
         >>> inv_t1 = inv_t0.decay(12.32, 'y')
-        >>> inv_t1.contents
-        {'H-3': 0.5}
+        >>> inv_t1.activities()
+        {'H-3': 0.5, 'He-3': 0.0}
 
         """
 
@@ -543,9 +918,7 @@ class Inventory:
         indices_set = set()
         for radionuclide in self.contents:
             i = self.data.radionuclide_dict[radionuclide]
-            vector_n0[i] = (
-                self.contents[radionuclide] / self.data.scipy_data.decay_consts[i]
-            )
+            vector_n0[i] = (self.contents[radionuclide])
             indices_set.update(self.data.scipy_data.matrix_c[:, i].nonzero()[0])
         indices = list(indices_set)
 
@@ -560,13 +933,13 @@ class Inventory:
             @ self.data.scipy_data.matrix_c_inv
             @ vector_n0
         )
-        vector_at = vector_nt[indices] * self.data.scipy_data.decay_consts[indices]
+        vector_at = vector_nt[indices]
 
         new_contents = _sort_dictionary_alphabetically(
             dict(zip(self.data.radionuclides[indices], vector_at))
         )
 
-        return Inventory(new_contents, False, self.data)
+        return Inventory(new_contents, "number", False, self.data)
 
     def decay_high_precision(
         self, decay_time: float, units: str = "s", sig_fig: int = 320
@@ -597,20 +970,19 @@ class Inventory:
         -------
         Inventory
             New Inventory after the radioactive decay.
-
+        
         Examples
         --------
         >>> inv_t0 = rd.Inventory({'Fm-257': 1.0})
         >>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
-        >>> inv_t1.contents
-         {'Ac-225': 4.060286801476717e-51,
-         'Am-241': 9.985270042416324e-24,
-         'Am-245': 5.4061684195880344e-09,
-         ...
-         'Fm-257': 0.9333548028364793,
-         ...
-         }
-
+        >>> inv_t1.activities()
+        {'Ac-225': 4.080588235484085e-50,
+        'Am-241': 6.3571164015402466e-27,
+        'Am-245': 6.3608186478274594e-06,
+        ...
+        'Fm-257': 0.9333548028364756,
+        ...
+        }
         """
 
         return self.decay(decay_time, units, sig_fig)
@@ -637,10 +1009,7 @@ class Inventory:
         indices_set = set()
         for radionuclide in self.contents:
             i = self.data.radionuclide_dict[radionuclide]
-            vector_n0[i, 0] = (
-                nsimplify(self.contents[radionuclide])
-                / self.data.sympy_data.decay_consts[i, 0]
-            )
+            vector_n0[i, 0] = (nsimplify(self.contents[radionuclide]))
             indices_set.update(self.data.scipy_data.matrix_c[:, i].nonzero()[0])
         indices = list(indices_set)
 
@@ -659,12 +1028,10 @@ class Inventory:
 
         new_contents = {}
         for i in indices:
-            new_contents[self.data.radionuclides[i]] = float(
-                vector_nt[i, 0] * self.data.sympy_data.decay_consts[i, 0]
-            )
+            new_contents[self.data.radionuclides[i]] = float(vector_nt[i, 0])
         new_contents = _sort_dictionary_alphabetically(new_contents)
 
-        return Inventory(new_contents, False, self.data)
+        return Inventory(new_contents, "number", False, self.data)
 
     def half_lives(self, units: str = "s") -> Dict[str, Union[float, str]]:
         """
