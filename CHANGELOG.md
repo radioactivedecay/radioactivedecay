@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.5] - 2021-07-12
+- Added parsing of AME2020 and NuBase2020 atomic mass and isomer excitation energy data to ICRP-107 
+dataset Jupyter notebook.
+- Added stable nuclides to decaydata.npz file, C and C_inv matrix Scipy and Sympy files in ICRP-107
+notebook folder
+
 ## [0.3.4] - 2021-06-21
 - Fix bug in decay chain plots which caused overlaps of some radionuclides in complicated chains.
 - Document method for installing via conda.
