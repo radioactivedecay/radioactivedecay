@@ -683,7 +683,7 @@ class Inventory:
         """
 
         parsed_add_contents: Dict[str, float] = _check_dictionary(
-            add_contents, self.data.radionuclides, self.data.dataset, input_type
+            add_contents, self.data.radionuclides, input_type, self.data
         )
         new_contents = _add_dictionaries(self.contents, parsed_add_contents)
         self._change(new_contents, "number", False, self.data)
@@ -711,7 +711,7 @@ class Inventory:
 
         """
         parsed_sub_contents: Dict[str, float] = _check_dictionary(
-            sub_contents, self.data.radionuclides, input_type, self.data.dataset
+            sub_contents, self.data.radionuclides, input_type, self.data
         )
         parsed_sub_contents.update(
             (nuclide, number * -1.0)
