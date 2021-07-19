@@ -352,12 +352,12 @@ def _input_to_number(
     
     number_abundance_dict, number_dict = {}, {}
     
-    if input_type == "mass":
+    if input_type == "masses":
         for nuc, mass in input_inv_dict.items():
             number = _mass_to_number(nuc, mass, data)
             number_dict[nuc] = number
         converted_dict = number_dict.copy()
-    elif input_type == "activity":
+    elif input_type == "activities":
         for nuc, act in input_inv_dict.items():
             number = _activity_to_number(nuc, act, data)
             number_dict[nuc] = number
@@ -379,7 +379,7 @@ def _input_to_number(
 def _check_dictionary(
     input_inv_dict: Dict[Union[str, Radionuclide], float],
     radionuclides: List[str],
-    input_type: str = "activity",
+    input_type: str = "activities",
     data: DecayData = DEFAULTDATA
 ) -> Dict[str, float]:
     """
@@ -394,7 +394,7 @@ def _check_dictionary(
     radionuclides : List[str]
         List of all the radionuclides in the decay dataset.
     input_type : str, optional
-        Type of input (number, mass (abundance), or activity), default is activity.
+        Type of input (numbers, masses (abundance), or activities), default is activities.
     data : DecayData, optional
         Decay dataset (default is the ICRP-107 dataset).
 
@@ -411,10 +411,10 @@ def _check_dictionary(
 
     Examples
     --------
-    >>> rd.inventory._check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, "number", rd.DEFAULTDATA.dataset)
+    >>> rd.inventory._check_dictionary({'3H': 1.0}, rd.DEFAULTDATA.radionuclides, "numbers", rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
     >>> H3 = rd.Radionuclide('H-3')
-    >>> rd.inventory._check_dictionary({H3: 1.0}, rd.DEFAULTDATA.radionuclides, "number", rd.DEFAULTDATA.dataset)
+    >>> rd.inventory._check_dictionary({H3: 1.0}, rd.DEFAULTDATA.radionuclides, "numbers", rd.DEFAULTDATA.dataset)
     {'H-3': 1.0}
 
     """
@@ -433,7 +433,7 @@ def _check_dictionary(
                 str(inp) + " is not a valid input for " + str(nuc) + "."
             )
 
-    if input_type != "number":
+    if input_type != "numbers":
         inv_dict = _input_to_number(parsed_inv_dict, input_type, data).copy()
     else:
         inv_dict = parsed_inv_dict.copy()
@@ -494,7 +494,7 @@ class Inventory:
         Dictionary containing radionuclide strings or Radionuclide objects as keys and numbers
         as values.
     input_type : str, optional
-        Type of input (abundance, number, activity; activity is default)
+        Type of input (masses, numbers, activities; activities is default)
     check : bool, optional
         Check for the validity of contents (default is True).
     data : DecayData, optional
@@ -515,7 +515,7 @@ class Inventory:
     >>> H3 = rd.Radionuclide('H-3')
     >>> rd.Inventory({H3: 3.0})
     Inventory: {'H-3': 1682678687.3382246}, decay dataset: icrp107
-    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, input_type="mass")
+    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, input_type="masses")
     Inventory: {'Co-57': 7.61542657764305e+22, 'U-238': 5.337817684684321e+22}, decay dataset: icrp107
 
     """
@@ -523,7 +523,7 @@ class Inventory:
     def __init__(
         self,
         input: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activity",
+        input_type: str = "activities",
         check: bool = True,
         data: DecayData = DEFAULTDATA
     ) -> None:
@@ -671,12 +671,12 @@ class Inventory:
             Dictionary containing radionuclide strings or Radionuclide objects as keys and
             activities as values which are added to the Inventory.
         input_type : str, optional
-            Type of input, default is activity.
+            Type of input, default is activities.
 
         Examples
         --------
-        >>> inv = rd.Inventory({'H-3': 1.0}, "number")
-        >>> inv.add({'C-14': 2.0}, "number")
+        >>> inv = rd.Inventory({'H-3': 1.0}, "numbers")
+        >>> inv.add({'C-14': 2.0}, "numbers")
         >>> inv.contents()
         {'C-14': 2.0, 'H-3': 1.0}
 
@@ -686,12 +686,12 @@ class Inventory:
             add_contents, self.data.radionuclides, input_type, self.data
         )
         new_contents = _add_dictionaries(self.contents, parsed_add_contents)
-        self._change(new_contents, "number", False, self.data)
+        self._change(new_contents, "numbers", False, self.data)
 
     def subtract(
         self,
         sub_contents: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activity"
+        input_type: str = "activities"
     ) -> None:
         """
         Subtracts a dictionary of radionuclides and associated numbers from this inventory.
@@ -704,8 +704,8 @@ class Inventory:
 
         Examples
         --------
-        >>> inv = rd.Inventory({'C-14': 2.0, 'H-3': 1.0}, "number")
-        >>> inv.subtract({'H-3': 1.0}, "number")
+        >>> inv = rd.Inventory({'C-14': 2.0, 'H-3': 1.0}, "numbers")
+        >>> inv.subtract({'H-3': 1.0}, "numbers")
         >>> inv.contents()
         {'C-14': 2.0, 'H-3': 0.0}
 
@@ -718,7 +718,7 @@ class Inventory:
             for nuclide, number in parsed_sub_contents.items()
         )
         new_contents = _add_dictionaries(self.contents, parsed_sub_contents)
-        self._change(new_contents, "number", False, self.data)
+        self._change(new_contents, "numbers", False, self.data)
 
     def __add__(self, other: "Inventory") -> "Inventory":
         """
@@ -733,7 +733,7 @@ class Inventory:
                 + other.data.dataset
             )
         new_contents = _add_dictionaries(self.contents, other.contents)
-        return Inventory(new_contents, "number", False, self.data)
+        return Inventory(new_contents, "numbers", False, self.data)
 
     def __sub__(self, other: "Inventory") -> "Inventory":
         """
@@ -753,7 +753,7 @@ class Inventory:
             for nuclide, number in sub_contents.items()
         )
         new_contents = _add_dictionaries(self.contents, sub_contents)
-        return Inventory(new_contents, "number", False, self.data)
+        return Inventory(new_contents, "numbers", False, self.data)
 
     def __mul__(self, const: float) -> "Inventory":
         """
@@ -764,7 +764,7 @@ class Inventory:
         new_contents = self.contents.copy()
         for nuclide, number in new_contents.items():
             new_contents[nuclide] = number * const
-        return Inventory(new_contents, "number", False, self.data)
+        return Inventory(new_contents, "numbers", False, self.data)
 
     def __rmul__(self, const: float) -> "Inventory":
         """
@@ -817,7 +817,7 @@ class Inventory:
         if delete not in new_contents:
             raise ValueError(delete + " does not exist in this inventory.")
         new_contents.pop(delete)
-        self._change(new_contents, "number", False, self.data)
+        self._change(new_contents, "numbers", False, self.data)
 
     @remove.register(Radionuclide)
     def _(
@@ -832,7 +832,7 @@ class Inventory:
         if delete not in new_contents:
             raise ValueError(delete + " does not exist in this inventory.")
         new_contents.pop(delete)
-        self._change(new_contents, "number", False, self.data)
+        self._change(new_contents, "numbers", False, self.data)
 
     @remove.register(list)
     def _(
@@ -853,7 +853,7 @@ class Inventory:
             if nuc not in new_contents:
                 raise ValueError(nuc + " does not exist in this inventory.")
             new_contents.pop(nuc)
-        self._change(new_contents, "number", False, self.data)
+        self._change(new_contents, "numbers", False, self.data)
 
     def decay(
         self, decay_time: float, units: str = "s", sig_fig: Union[None, int] = None
@@ -939,7 +939,7 @@ class Inventory:
             dict(zip(self.data.radionuclides[indices], vector_at))
         )
 
-        return Inventory(new_contents, "number", False, self.data)
+        return Inventory(new_contents, "numbers", False, self.data)
 
     def decay_high_precision(
         self, decay_time: float, units: str = "s", sig_fig: int = 320
@@ -1031,7 +1031,7 @@ class Inventory:
             new_contents[self.data.radionuclides[i]] = float(vector_nt[i, 0])
         new_contents = _sort_dictionary_alphabetically(new_contents)
 
-        return Inventory(new_contents, "number", False, self.data)
+        return Inventory(new_contents, "numbers", False, self.data)
 
     def half_lives(self, units: str = "s") -> Dict[str, Union[float, str]]:
         """
