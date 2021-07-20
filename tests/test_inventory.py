@@ -324,8 +324,8 @@ class Test(unittest.TestCase):
             inv.decay(20.0, "h").contents,
             {
                 "I-123": 2.040459244534774,
-                'Ru-99': 0.0,
-                'Sb-123': 0.0,
+                "Ru-99": 0.0,
+                "Sb-123": 0.0,
                 "Tc-99": 6.729944738772211e-09,
                 "Tc-99m": 0.22950748010063513,
                 "Te-123": 9.485166535243877e-18,
@@ -348,8 +348,8 @@ class Test(unittest.TestCase):
                 "Pa-231": 0.2690006198549055,
                 "Pa-234": 0.13601313171698984,
                 "Pa-234m": 85.00820732310412,
-                'Pb-206': 0.0,
-                'Pb-207': 0.0,
+                "Pb-206": 0.0,
+                "Pb-207": 0.0,
                 "Pb-210": 85.01434361489548,
                 "Pb-211": 0.2690008442558569,
                 "Pb-214": 84.99734032384839,
@@ -404,8 +404,8 @@ class Test(unittest.TestCase):
                 "Pa-231": 0.2690006198549054,
                 "Pa-234": 0.13601313171698984,
                 "Pa-234m": 85.00820732310412,
-                'Pb-206': 0.0,
-                'Pb-207': 0.0,
+                "Pb-206": 0.0,
+                "Pb-207": 0.0,
                 "Pb-210": 85.01434361489547,
                 "Pb-211": 0.26900084425585685,
                 "Pb-214": 84.99734032384836,
@@ -496,8 +496,10 @@ class Test(unittest.TestCase):
         self.assertEqual(ax.get_ylabel(), "Activity")
         self.assertEqual(ax.get_xlim(), (-5.25, 110.25))
         self.assertEqual(ax.get_ylim(), (0.0, 2.1))
-        self.assertEqual(ax.get_legend_handles_labels()[-1], ['K-40', 'Ca-40', 'Ar-40',
-                                                              'C-14', 'N-14'])
+        self.assertEqual(
+            ax.get_legend_handles_labels()[-1],
+            ["K-40", "Ca-40", "Ar-40", "C-14", "N-14"],
+        )
 
         _, ax = inv.plot(
             100,
@@ -513,7 +515,7 @@ class Test(unittest.TestCase):
         self.assertEqual(ax.get_ylabel(), "Activity (Bq)")
         self.assertEqual(ax.get_xlim()[0], 0.0707945784384138)
         self.assertEqual(ax.get_ylim(), (0.1, 2.1))
-        self.assertEqual(ax.get_legend_handles_labels()[-1], ['K-40', 'C-14'])
+        self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40", "C-14"])
 
         _, ax = inv.plot(100, "ky", xmin=50, ymin=1.0, ymax=2.5, display="K40")
         self.assertEqual(ax.get_xlim(), (47.5, 102.5))
@@ -521,8 +523,10 @@ class Test(unittest.TestCase):
         self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40"])
 
         _, ax = inv.plot(100, "ky", order="alphabetical")
-        self.assertEqual(ax.get_legend_handles_labels()[-1], ['Ar-40', 'C-14', 'Ca-40',
-                                                              'K-40', 'N-14'])
+        self.assertEqual(
+            ax.get_legend_handles_labels()[-1],
+            ["Ar-40", "C-14", "Ca-40", "K-40", "N-14"],
+        )
 
         with self.assertRaises(ValueError):
             inv.plot(100, "ky", order="invalid")
