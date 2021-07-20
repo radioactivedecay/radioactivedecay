@@ -187,7 +187,7 @@ class Test(unittest.TestCase):
             "DecayMatrices: data stored in SymPy objects for arbitrary-precision calculations.",
         )
 
-    def test_decaydata_instantiation(self):#hello
+    def test_decaydata_instantiation(self):
         """
         Test instantiation of DecayData objects.
         """
@@ -244,7 +244,6 @@ class Test(unittest.TestCase):
         self.assertEqual(list(data.prog_bfs_modes[0].values())[1][0], 0.0021)
         self.assertEqual(list(data.prog_bfs_modes[0].values())[1][1], "SF")
         self.assertEqual(list(data.prog_bfs_modes[-1].keys()), [])
-        self.assertEqual(list(data.prog_bfs_modes[-1].keys()), [])
         self.assertEqual(list(data.prog_bfs_modes[-1].values()), [])
         self.assertEqual(
             data.scipy_data.decay_consts[0], np.log(2) / (100.5 * 24 * 60 * 60)
@@ -275,7 +274,6 @@ class Test(unittest.TestCase):
         self.assertEqual(list(data.prog_bfs_modes[0].keys())[1], "SF")
         self.assertEqual(list(data.prog_bfs_modes[0].values())[1][0], 0.0021)
         self.assertEqual(list(data.prog_bfs_modes[0].values())[1][1], "SF")
-        self.assertEqual(list(data.prog_bfs_modes[-1].keys()), [])
         self.assertEqual(list(data.prog_bfs_modes[-1].keys()), [])
         self.assertEqual(list(data.prog_bfs_modes[-1].values()), [])
         self.assertEqual(
@@ -316,7 +314,6 @@ class Test(unittest.TestCase):
         self.assertEqual(list(data.prog_bfs_modes[0].keys())[1], "SF")
         self.assertEqual(list(data.prog_bfs_modes[0].values())[1][0], 0.0021)
         self.assertEqual(list(data.prog_bfs_modes[0].values())[1][1], "SF")
-        self.assertEqual(list(data.prog_bfs_modes[-1].keys()), [])
         self.assertEqual(list(data.prog_bfs_modes[-1].keys()), [])
         self.assertEqual(list(data.prog_bfs_modes[-1].values()), [])
         self.assertEqual(
