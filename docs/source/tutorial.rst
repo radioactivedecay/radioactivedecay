@@ -21,19 +21,48 @@ Create an inventory of radionuclides and associated activities as follows:
 
 This is an inventory of natural uranium.
 
-The following commands can be used to view the contents (the radionuclides and
-their activities) and decay data set associated with an inventory:
+The ``Inventory`` class keeps track of the number of atoms
+of each nuclide. The following commands can be used to convert the contents
+(the nuclides and their respective number of atoms) into activities, numbers,
+masses, or abundances, as well as return the decay data set associated with an
+inventory:
 
 .. code-block:: python3
 
-    >>> inv_t0.contents
+    >>> inv_t0.activities()
     {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}
     >>> inv_t0.radionuclides
     ['U-234', 'U-235', 'U-238']
-    >>> inv_t0.activities
-    [0.005, 0.72, 99.274]
+    >>> inv_t0.numbers():
+    {'U-234': 55884417984.51489, 'U-235': 2.3076736283495652e+16, 'U-238': 2.0193793783074922e+19}
+    >>> inv_t0.masses():
+    {'U-234': 2.1718592794623984e-11, 'U-235': 9.006841520909447e-06, 'U-238': 0.00798245788808877}
+    >>> inv_t0.mass_abundances():
+    {'U-234': 2.7177236552303014e-09, 'U-235': 0.0011270576547825488, 'U-238': 0.9988729396274937}
+    >>> inv_t0.moles():
+    {'U-234': 9.279825930955971e-14, 'U-235': 3.831982214161273e-08, 'U-238': 3.3532583491248255e-05}
     >>> inv_t0
-    Inventory: {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}, decay dataset: icrp107
+    Inventory: {'U-234': 55884417984.51489, 'U-235': 2.3076736283495652e+16, 'U-238': 2.0193793783074922e+19}, decay dataset: icrp107
+
+The input of ``Inventory`` is by default activity. The user can easily change
+the input using the ``input_type`` keyword argument during initialization: 
+
+.. code-block:: python3
+
+    # initialize an inventory using activities:
+    >>> inv1 = rd.Inventory({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005})
+    >>> inv1.activities()
+    {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}
+    >>> inv1.numbers():
+    {'U-234': 55884417984.51489, 'U-235': 2.3076736283495652e+16, 'U-238': 2.0193793783074922e+19}
+    
+    # initialize an inventory using number of atoms:
+    >>> inv2 = rd.Inventory({'U-238': 2000, 'U-235': 3000, 'U-234': 1500}, input_type="numbers")
+    >>> inv2.activities()
+    {'U-234': 1.3420556696283726e-10, 'U-235': 9.360075764027427e-14, 'U-238': 9.832129719300668e-15}
+    >>> inv2.numbers():
+    {'U-234': 1500, 'U-235': 3000, 'U-238': 2000}
+
 
 Radioactive decay calculations
 ------------------------------
@@ -44,26 +73,26 @@ uranium inventory:
 .. code-block:: python3
 
     >>> inv_t1 = inv_t0.decay(1E9, 'y')
-    >>> inv_t1.contents
+    >>> inv_t1.activities()
     {'Ac-227': 0.2690006281740556, 'At-218': 0.017002868638497183,
      'At-219': 2.227325201281319e-07, 'Bi-210': 85.01434361515662,
      'Bi-211': 0.26900084425585846, 'Bi-214': 85.01432618961896,
      'Bi-215': 2.1605054452429237e-07, 'Fr-223': 0.0037122086688021884,
      'Hg-206': 1.6152725286830197e-06, 'Pa-231': 0.2690006198549055,
      'Pa-234': 0.13601313171698984, 'Pa-234m': 85.00820732310412,
-     'Pb-210': 85.01434361489548, 'Pb-211': 0.2690008442558569,
-     'Pb-214': 84.99734032384839, 'Po-210': 85.01434362236536,
-     'Po-211': 0.0007424423301461693, 'Po-214': 84.99649018398776,
-     'Po-215': 0.26900084425583065, 'Po-218': 85.01434319248591,
-     'Ra-223': 0.26900062820528614, 'Ra-226': 85.01434319228659,
-     'Rn-218': 1.7002868638497185e-05, 'Rn-219': 0.26900062820528614,
-     'Rn-222': 85.0143431924858, 'Th-227': 0.2652884195245263,
-     'Th-230': 85.01431274847525, 'Th-231': 0.26898810215560653,
-     'Th-234': 85.00820732310407, 'Tl-206': 0.00011383420610068998,
-     'Tl-207': 0.26825840192571576, 'Tl-210': 0.01785300849981999,
-     'U-234': 85.01287846492669, 'U-235': 0.2689881021544942,
-     'U-238': 85.00820732184867}
-    
+     'Pb-206': 0.0, 'Pb-207': 0.0, 'Pb-210': 85.01434361489548,
+     'Pb-211': 0.2690008442558569, 'Pb-214': 84.99734032384839,
+     'Po-210': 85.01434362236536, 'Po-211': 0.0007424423301461693,
+     'Po-214': 84.99649018398776, 'Po-215': 0.26900084425583065,
+     'Po-218': 85.01434319248591, 'Ra-223': 0.26900062820528614,
+     'Ra-226': 85.01434319228659, 'Rn-218': 1.7002868638497185e-05,
+     'Rn-219': 0.26900062820528614, 'Rn-222': 85.0143431924858,
+     'Th-227': 0.2652884195245263, 'Th-230': 85.01431274847525,
+     'Th-231': 0.26898810215560653, 'Th-234': 85.00820732310407,
+     'Tl-206': 0.00011383420610068998, 'Tl-207': 0.26825840192571576,
+     'Tl-210': 0.01785300849981999, 'U-234': 85.01287846492669,
+     'U-235': 0.2689881021544942, 'U-238': 85.00820732184867}
+        
 The ``decay()`` method takes two arguments: the decay time period and its
 units. Units can be entered using :code:`'ps'`, :code:`'ns'`, :code:`'us'`,
 :code:`'ms'`, :code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`, :code:`'y'`,
@@ -85,25 +114,25 @@ with the ``decay()`` method.
 .. code-block:: python3
 
     >>> inv_t1 = inv_t0.decay_high_precision(1E9, 'y')
-    >>> inv_t1.contents
+    >>> inv_t1.activities()
     {'Ac-227': 0.26900062817405557, 'At-218': 0.01700286863849718,
     'At-219': 2.227325201281318e-07, 'Bi-210': 85.01434361515662,
     'Bi-211': 0.2690008442558584, 'Bi-214': 85.01432618961894,
     'Bi-215': 2.1605054452429227e-07, 'Fr-223': 0.003712208668802187,
     'Hg-206': 1.6152725286830195e-06, 'Pa-231': 0.2690006198549054,
     'Pa-234': 0.13601313171698984, 'Pa-234m': 85.00820732310412,
-    'Pb-210': 85.01434361489547, 'Pb-211': 0.26900084425585685,
-    'Pb-214': 84.99734032384836, 'Po-210': 85.01434362236536,
-    'Po-211': 0.0007424423301461693, 'Po-214': 84.99649018398776,
-    'Po-215': 0.26900084425583065, 'Po-218': 85.0143431924859,
-    'Ra-223': 0.2690006282052861, 'Ra-226': 85.0143431922866,
-    'Rn-218': 1.7002868638497178e-05, 'Rn-219': 0.26900062820528614,
-    'Rn-222': 85.01434319248578, 'Th-227': 0.26528841952452625,
-    'Th-230': 85.01431274847525, 'Th-231': 0.26898810215560653,
-    'Th-234': 85.00820732310407, 'Tl-206': 0.00011383420610068996,
-    'Tl-207': 0.2682584019257157, 'Tl-210': 0.017853008499819988,
-    'U-234': 85.01287846492669, 'U-235': 0.26898810215449415,
-    'U-238': 85.00820732184867}
+    'Pb-206': 0.0, 'Pb-207': 0.0, 'Pb-210': 85.01434361489547,
+    'Pb-211': 0.26900084425585685, 'Pb-214': 84.99734032384836,
+    'Po-210': 85.01434362236536, 'Po-211': 0.0007424423301461693,
+    'Po-214': 84.99649018398776, 'Po-215': 0.26900084425583065,
+    'Po-218': 85.0143431924859, 'Ra-223': 0.2690006282052861,
+    'Ra-226': 85.0143431922866, 'Rn-218': 1.7002868638497178e-05,
+    'Rn-219': 0.26900062820528614, 'Rn-222': 85.01434319248578,
+    'Th-227': 0.26528841952452625, 'Th-230': 85.01431274847525,
+    'Th-231': 0.26898810215560653, 'Th-234': 85.00820732310407,
+    'Tl-206': 0.00011383420610068996, 'Tl-207': 0.2682584019257157,
+    'Tl-210': 0.017853008499819988, 'U-234': 85.01287846492669,
+    'U-235': 0.26898810215449415, 'U-238': 85.00820732184867}
 
 Radionuclide name formatting and metastable states
 --------------------------------------------------
@@ -217,11 +246,20 @@ It is easy to add radionuclides to an ``Inventory`` using the ``add()`` method:
 .. code-block:: python3
 
     >>> inv = rd.Inventory({'H-3': 1.0, 'Be-10': 2.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0, 'H-3': 1.0}
     >>> inv.add({'C-14': 3.0, 'K-40': 4.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 4.0}
+
+Similarly, subtract radionuclides from an ``Inventory`` using the
+``subtract()`` method:
+
+.. code-block:: python3
+
+    >>> inv.subtract({'Be-10': 1.0, 'K-40': 2.0})
+    >>> inv.activities()
+    {'Be-10': 1.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 2.0}
 
 Likewise use ``remove()`` to erase one or more radionuclide from an
 ``Inventory``:
@@ -229,11 +267,23 @@ Likewise use ``remove()`` to erase one or more radionuclide from an
 .. code-block:: python3
 
     >>> inv.remove('H-3')
-    >>> inv.contents
-    {'Be-10': 2.0, 'C-14': 3.0, 'K-40': 4.0}
+    >>> inv.activities()
+    {'Be-10': 1.0, 'C-14': 3.0, 'K-40': 2.0}
     >>> inv.remove(['Be-10', 'K-40'])
-    >>> inv.contents
+    >>> inv.activities()
     {'C-14': 3.0}
+
+The ``add()`` and ``subtract()`` methods also have the ``input_type`` argument
+for inputs other than activities, and mixing input types is allowed:
+
+.. code-block:: python3
+
+    >>> inv.add({'H-3': 1.3E9}, input_type="numbers")
+    >>> inv.activities()
+    {'C-14': 3.0, 'H-3': 2.3177330463306007}
+    >>> inv.subtract({'C-14': 7.1E-12}, input_type="masses")
+    >>> inv.activities()
+    {'C-14': 1.8233790683016682, 'H-3': 2.3177330463306007}
 
 You can also supply ``Radionuclide`` objects instead of strings to the
 ``Inventory`` constructor, and the ``add()`` and ``remove()`` methods:
@@ -242,14 +292,14 @@ You can also supply ``Radionuclide`` objects instead of strings to the
 
     >>> H3 = rd.Radionuclide('H-3')
     >>> inv = rd.Inventory({H3: 1.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'H-3': 1.0}
     >>> Be10 = rd.Radionuclide('Be-10')
     >>> inv.add({Be10: 2.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0, 'H-3': 1.0}
     >>> inv.remove(H3)
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0}
 
 Note if the decay dataset of the ``Radionuclide`` instance is different to that
@@ -264,10 +314,10 @@ inventory:
 
 .. code-block:: python3
 
-    >>> inv1 = rd.Inventory({'H-3': 1.0})
-    >>> inv2 = rd.Inventory({'C-14': 1.0})
+    >>> inv1 = rd.Inventory({'H-3': 1.0}, input_type="masses")
+    >>> inv2 = rd.Inventory({'C-14': 1.0}, input_type="masses")
     >>> inv = inv1 + inv2
-    >>> inv.contents
+    >>> inv.masses()
     {'C-14': 1.0, 'H-3': 1.0}
 
 It is also possible to subtract the contents of one inventory from another:
@@ -275,7 +325,7 @@ It is also possible to subtract the contents of one inventory from another:
 .. code-block:: python3
 
     >>> inv = inv - inv1
-    >>> inv.contents
+    >>> inv.masses()
     {'C-14': 1.0, 'H-3': 0.0}
 
 Multiplication and division on inventories
@@ -286,11 +336,11 @@ by a constant as follows:
 
 .. code-block:: python3
 
-    >>> inv = rd.Inventory({'Sr-90': 1.0, 'Cs-137': 1.0})
+    >>> inv = rd.Inventory({'Sr-90': 1.0, 'Cs-137': 1.0}, input_type="numbers")
     >>> inv = inv * 2
-    >>> inv.contents
+    >>> inv.numbers()
     {'Sr-90': 2.0, 'Cs-137': 2.0}
     >>> inv = inv / 2
-    >>> inv.contents
+    >>> inv.numbers()
     {'Sr-90': 1.0, 'Cs-137': 1.0} 
 
