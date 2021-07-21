@@ -18,6 +18,7 @@ from collections import deque
 from typing import Any, Dict, List, Tuple, Union
 import matplotlib
 import networkx as nx
+import numpy as np
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.plots import (
     _parse_nuclide_label,
@@ -332,9 +333,10 @@ def _build_decay_digraph(
                 node_label = _parse_nuclide_label(prog)
                 if prog in parent_rn.data.radionuclide_dict:
                     node_label += "\n" + str(parent_rn.data.half_life(prog, "readable"))
-                    dequeue.append(prog)
-                    generations.append(generation)
-                    xpositions.append(xpos + xcounter)
+                    if np.isfinite(parent_rn.data.half_life(prog)):
+                        dequeue.append(prog)
+                        generations.append(generation)
+                        xpositions.append(xpos + xcounter)
                 if prog == "SF":
                     prog = parent + "_SF"
 
