@@ -56,26 +56,35 @@ class Test(unittest.TestCase):
 
         # Dictionary parsing
         self.assertEqual(
-            _check_dictionary({"H-3": 1.0}, radionuclides, input_type="numbers"), {"H-3": 1.0}
+            _check_dictionary({"H-3": 1.0}, radionuclides, input_type="numbers"),
+            {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"H3": 1.0}, radionuclides, input_type="numbers"), {"H-3": 1.0}
+            _check_dictionary({"H3": 1.0}, radionuclides, input_type="numbers"),
+            {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"3H": 1.0}, radionuclides, input_type="numbers"), {"H-3": 1.0}
+            _check_dictionary({"3H": 1.0}, radionuclides, input_type="numbers"),
+            {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1}, radionuclides, input_type="numbers"), {"H-3": 1}
+            _check_dictionary({"H-3": 1}, radionuclides, input_type="numbers"),
+            {"H-3": 1},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1}, radionuclides, input_type="numbers"), {"H-3": 1.0}
+            _check_dictionary({"H-3": 1}, radionuclides, input_type="numbers"),
+            {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"),
+            _check_dictionary(
+                {"H-3": 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"
+            ),
             {"H-3": 1.0, "C-14": 2.0},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"),
+            _check_dictionary(
+                {"H-3": 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"
+            ),
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
@@ -83,11 +92,15 @@ class Test(unittest.TestCase):
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1.0, C14: 2.0}, radionuclides, input_type="numbers"),
+            _check_dictionary(
+                {"H-3": 1.0, C14: 2.0}, radionuclides, input_type="numbers"
+            ),
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({H3: 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"),
+            _check_dictionary(
+                {H3: 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"
+            ),
             {"C-14": 2.0, "H-3": 1.0},
         )
 
@@ -197,11 +210,15 @@ class Test(unittest.TestCase):
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "numbers")
         inv.subtract({"C-14": 3.0, "K-40": 4.0}, "numbers")
-        self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "numbers")
+        self.assertEqual(
+            inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "numbers"
+        )
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "numbers")
         inv.subtract({"C-14": 3.0, Radionuclide("K-40"): 4.0}, "numbers")
-        self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "numbers")
+        self.assertEqual(
+            inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "numbers"
+        )
 
     def test_inventory___add__(self):
         """

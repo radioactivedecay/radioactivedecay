@@ -74,9 +74,7 @@ def _add_dictionaries(
 
 
 def _activity_to_number(
-    radionuclide: str,
-    activity : float,
-    data: DecayData = DEFAULTDATA
+    radionuclide: str, activity: float, data: DecayData = DEFAULTDATA
 ) -> float:
     """
     Converts activity to number of atoms.
@@ -105,19 +103,13 @@ def _activity_to_number(
     try:
         index = data.radionuclide_dict[radionuclide]
     except:
-        raise ValueError(
-            radionuclide
-            + " is not a valid member of "
-            + data.dataset
-            )
-        
-    return (activity / data.scipy_data.decay_consts[index])
+        raise ValueError(radionuclide + " is not a valid member of " + data.dataset)
+
+    return activity / data.scipy_data.decay_consts[index]
 
 
 def _mass_to_number(
-    radionuclide: str,
-    mass : float,
-    data: DecayData = DEFAULTDATA
+    radionuclide: str, mass: float, data: DecayData = DEFAULTDATA
 ) -> float:
     """
     Converts a mass to number of atoms.
@@ -146,16 +138,12 @@ def _mass_to_number(
     try:
         index = data.radionuclide_dict[radionuclide]
     except:
-        raise ValueError(
-            radionuclide
-            + " is not a valid member of "
-            + data.dataset
-            )
+        raise ValueError(radionuclide + " is not a valid member of " + data.dataset)
 
-    return (mass / data.masses[index] * Avogadro)
+    return mass / data.masses[index] * Avogadro
 
 
-def _moles_to_number(moles : float) -> float:
+def _moles_to_number(moles: float) -> float:
     """
     Converts number of moles to number of atoms.
 
@@ -180,9 +168,7 @@ def _moles_to_number(moles : float) -> float:
 
 
 def _number_to_activity(
-    radionuclide: str,
-    number : float,
-    data: DecayData = DEFAULTDATA
+    radionuclide: str, number: float, data: DecayData = DEFAULTDATA
 ) -> float:
     """
     Converts number of atoms to activity.
@@ -211,19 +197,13 @@ def _number_to_activity(
     try:
         index = data.radionuclide_dict[radionuclide]
     except:
-        raise ValueError(
-            radionuclide
-            + " is not a valid member of "
-            + data.dataset
-            )
-    
-    return (number * data.scipy_data.decay_consts[index])
+        raise ValueError(radionuclide + " is not a valid member of " + data.dataset)
+
+    return number * data.scipy_data.decay_consts[index]
 
 
 def _number_to_mass(
-    radionuclide: str,
-    number : float,
-    data: DecayData = DEFAULTDATA
+    radionuclide: str, number: float, data: DecayData = DEFAULTDATA
 ) -> float:
     """
     Converts number of atoms to mass in grams.
@@ -252,13 +232,9 @@ def _number_to_mass(
     try:
         index = data.radionuclide_dict[radionuclide]
     except:
-        raise ValueError(
-            radionuclide
-            + " is not a valid member of "
-            + data.dataset
-            )
-    
-    return (number / Avogadro * data.masses[index])
+        raise ValueError(radionuclide + " is not a valid member of " + data.dataset)
+
+    return number / Avogadro * data.masses[index]
 
 
 def _number_to_moles(number: float) -> float:
@@ -281,7 +257,7 @@ def _number_to_moles(number: float) -> float:
     0.49816172015215404
 
     """
-    
+
     return number / Avogadro
 
 
@@ -313,9 +289,7 @@ def _sort_dictionary_alphabetically(
 
 
 def _input_to_number(
-    input_inv_dict: Dict[str, float],
-    input_type : str,
-    data: DecayData = DEFAULTDATA
+    input_inv_dict: Dict[str, float], input_type: str, data: DecayData = DEFAULTDATA
 ) -> Dict[str, float]:
     """
     Converts mass, moles, or activity input inventory dictionary into number.
@@ -349,9 +323,9 @@ def _input_to_number(
     {'U-238': 5.337817684684321e+22, 'Co-57': 7.61542657764305e+22}
 
     """
-    
-    number_abundance_dict, number_dict = {}, {}
-    
+
+    number_dict = {}
+
     if input_type == "masses":
         for nuc, mass in input_inv_dict.items():
             number = _mass_to_number(nuc, mass, data)
@@ -364,14 +338,11 @@ def _input_to_number(
         converted_dict = number_dict.copy()
     elif input_type == "moles":
         for nuc, moles in input_inv_dict.items():
-            number = _moles_to_number(nuc, moles, data)
+            number = _moles_to_number(moles)
             number_dict[nuc] = number
         converted_dict = number_dict.copy()
     else:
-        raise ValueError(
-            input_type
-            + " is not a valid value input type"
-        )
+        raise ValueError(input_type + " is not a valid value input type")
 
     return converted_dict
 
@@ -380,7 +351,7 @@ def _check_dictionary(
     input_inv_dict: Dict[Union[str, Radionuclide], float],
     radionuclides: List[str],
     input_type: str = "activities",
-    data: DecayData = DEFAULTDATA
+    data: DecayData = DEFAULTDATA,
 ) -> Dict[str, float]:
     """
     Checks validity of a dictionary of radionuclides and associated numbers. Radionuclides must
@@ -429,9 +400,7 @@ def _check_dictionary(
     }
     for nuc, inp in parsed_inv_dict.items():
         if not isinstance(inp, (float, int)):
-            raise ValueError(
-                str(inp) + " is not a valid input for " + str(nuc) + "."
-            )
+            raise ValueError(str(inp) + " is not a valid input for " + str(nuc) + ".")
 
     if input_type != "numbers":
         inv_dict = _input_to_number(parsed_inv_dict, input_type, data).copy()
@@ -525,7 +494,7 @@ class Inventory:
         input: Dict[Union[str, Radionuclide], float],
         input_type: str = "activities",
         check: bool = True,
-        data: DecayData = DEFAULTDATA
+        data: DecayData = DEFAULTDATA,
     ) -> None:
 
         self._change(input, input_type, check, data)
@@ -535,7 +504,7 @@ class Inventory:
         contents: Dict[Union[str, Radionuclide], float],
         input_type: str,
         check: bool,
-        data: DecayData
+        data: DecayData,
     ) -> None:
         """
         Changes the contents and data attributes of this Inventory instance.
@@ -549,7 +518,7 @@ class Inventory:
         )
         self.data: DecayData = data
         self.input_type = input_type
-        
+
     @property
     def radionuclides(self) -> List[str]:
         """
@@ -563,7 +532,7 @@ class Inventory:
         """
 
         return list(self.contents)
-    
+
     def numbers(self) -> Dict[str, float]:
         """
         Returns a dictionary of radionuclides and associated numbers in the inventory.
@@ -589,12 +558,12 @@ class Inventory:
         """
 
         activities = {
-            nuc : _number_to_activity(nuc, num, self.data)
+            nuc: _number_to_activity(nuc, num, self.data)
             for nuc, num in self.contents.items()
         }
 
         return activities
-    
+
     def masses(self) -> Dict[str, float]:
         """
         Returns a dictionary of radionuclides and associated masses in the inventory.
@@ -607,12 +576,12 @@ class Inventory:
         """
 
         masses = {
-            nuc : _number_to_mass(nuc, num, self.data)
+            nuc: _number_to_mass(nuc, num, self.data)
             for nuc, num in self.contents.items()
         }
 
         return masses
-    
+
     def moles(self) -> Dict[str, float]:
         """
         Returns a dictionary of radionuclides and associated moles of material in the inventory.
@@ -624,13 +593,10 @@ class Inventory:
 
         """
 
-        moles = {
-            nuc : _number_to_moles(num)
-            for nuc, num in self.contents.items()
-        }
+        moles = {nuc: _number_to_moles(num) for nuc, num in self.contents.items()}
 
         return moles
-    
+
     def mass_abundances(self) -> Dict[str, float]:
         """
         Returns a dictionary of radionuclides and associated mass abundances in the inventory.
@@ -643,11 +609,8 @@ class Inventory:
         """
 
         total_mass = sum(self.masses().values())
-        abundances = {
-            nuc : mass / total_mass
-            for nuc, mass in self.masses().items()
-        }
-        
+        abundances = {nuc: mass / total_mass for nuc, mass in self.masses().items()}
+
         return abundances
 
     def __len__(self) -> int:
@@ -660,7 +623,7 @@ class Inventory:
     def add(
         self,
         add_contents: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activity"
+        input_type: str = "activity",
     ) -> None:
         """
         Adds a dictionary of radionuclides and associated numbers to the inventory.
@@ -691,7 +654,7 @@ class Inventory:
     def subtract(
         self,
         sub_contents: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activities"
+        input_type: str = "activities",
     ) -> None:
         """
         Subtracts a dictionary of radionuclides and associated numbers from this inventory.
@@ -714,8 +677,7 @@ class Inventory:
             sub_contents, self.data.radionuclides, input_type, self.data
         )
         parsed_sub_contents.update(
-            (nuclide, number * -1.0)
-            for nuclide, number in parsed_sub_contents.items()
+            (nuclide, number * -1.0) for nuclide, number in parsed_sub_contents.items()
         )
         new_contents = _add_dictionaries(self.contents, parsed_sub_contents)
         self._change(new_contents, "numbers", False, self.data)
@@ -749,8 +711,7 @@ class Inventory:
             )
         sub_contents = other.contents.copy()
         sub_contents.update(
-            (nuclide, number * -1.0)
-            for nuclide, number in sub_contents.items()
+            (nuclide, number * -1.0) for nuclide, number in sub_contents.items()
         )
         new_contents = _add_dictionaries(self.contents, sub_contents)
         return Inventory(new_contents, "numbers", False, self.data)
@@ -918,7 +879,7 @@ class Inventory:
         indices_set = set()
         for radionuclide in self.contents:
             i = self.data.radionuclide_dict[radionuclide]
-            vector_n0[i] = (self.contents[radionuclide])
+            vector_n0[i] = self.contents[radionuclide]
             indices_set.update(self.data.scipy_data.matrix_c[:, i].nonzero()[0])
         indices = list(indices_set)
 
@@ -1009,7 +970,7 @@ class Inventory:
         indices_set = set()
         for radionuclide in self.contents:
             i = self.data.radionuclide_dict[radionuclide]
-            vector_n0[i, 0] = (nsimplify(self.contents[radionuclide]))
+            vector_n0[i, 0] = nsimplify(self.contents[radionuclide])
             indices_set.update(self.data.scipy_data.matrix_c[:, i].nonzero()[0])
         indices = list(indices_set)
 
