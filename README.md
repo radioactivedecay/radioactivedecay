@@ -49,10 +49,11 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 >>> import radioactivedecay as rd
 >>> inv_t0 = rd.Inventory({'Mo-99': 2.0})
 >>> inv_t1 = inv_t0.decay(20.0, 'h')
->>> inv_t1.contents
+>>> inv_t1.activities()
 {'Mo-99': 1.6207863893776937,
-'Tc-99': 9.05304236308454e-09,
-'Tc-99m': 1.3719829376710406}
+ 'Ru-99': 0.0, 
+ 'Tc-99': 9.05304236308454e-09,
+ 'Tc-99m': 1.3719829376710406}
 ```
 
 An ``Inventory`` of 2.0 Bq of Mo-99 was decayed for 20 hours, producing the
@@ -75,6 +76,34 @@ Radionuclides can be specified in three equivalent ways in
 * ``'Ir-192n'``, ``'Ir192n'`` or ``'192nIr'``
 
 are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
+
+Additional options for inputs and outputs include masses and numbers of atoms,
+using the ``input_type`` argument and ``numbers()``, ``masses()``,
+``mass_abundances()``, and ``moles()`` methods. 
+
+.. code-block:: python3
+
+    >>> inv_mass_t0 = rd.Inventory({'H-3': 3.2}, input_type="masses")
+    >>> inv_mass_t1 = inv_mass_t0.decay(12.32, 'y')
+    >>> inv_mass_t1.masses()
+    {'H-3': 1.6000000000000003, 'He-3': 1.5999894116584246}
+
+    >>> inv_num_t0 = rd.Inventory({'C-14': 3.2E24}, input_type="numbers")
+    >>> inv_num_t1 = inv_num_t0.decay(3000, 'y')
+    >>> inv_num_t1.moles()
+    {'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
+
+Mass follows slightly stricter rules for units: mass in grams, with the added
+ability to input mass abundances using an inventory with masses summing to 1.0:
+
+.. code-block:: python3
+
+    >>> inv_abund_t0 = rd.Inventory({'Ni-56': .8, 'Co-56': .2}, input_type="masses")
+    >>> inv_abund_t1 = inv_abund_t0.decay(35.0, 'd')
+    >>> inv_abund_t1.mass_abundances()
+    {'Co-56': 0.7643201942234104,
+     'Fe-56': 0.2209301066281599,
+     'Ni-56': 0.014749699148429682}
 
 
 ### Plotting decay graphs
@@ -145,27 +174,28 @@ short-lived radionuclides:
 ```pycon
 >>> inv_t0 = rd.Inventory({'U-238': 1.0})
 >>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
->>> inv_t1.contents
+>>> inv_t1.activities()
 {'At-218': 1.4511675857141352e-25,
-'Bi-210': 1.8093327888942224e-26,
-'Bi-214': 7.09819414496093e-22,
-'Hg-206': 1.9873081129046843e-33,
-'Pa-234': 0.00038581180879502017,
-'Pa-234m': 0.24992285949158477,
-'Pb-210': 1.0508864357335218e-25,
-'Pb-214': 7.163682655782086e-22,
-'Po-210': 1.171277829871092e-28,
-'Po-214': 7.096704966148592e-22,
-'Po-218': 7.255923469955255e-22,
-'Ra-226': 2.6127168262000313e-21,
-'Rn-218': 1.4511671865210924e-28,
-'Rn-222': 7.266530698712501e-22,
-'Th-230': 8.690585458641225e-16,
-'Th-234': 0.2499481473619856,
-'Tl-206': 2.579902288672889e-32,
-'Tl-210': 1.4897029111914831e-25,
-'U-234': 1.0119788393651999e-08,
-'U-238': 0.9999999999957525}
+ 'Bi-210': 1.8093327888942224e-26,
+ 'Bi-214': 7.09819414496093e-22,
+ 'Hg-206': 1.9873081129046843e-33,
+ 'Pa-234': 0.00038581180879502017,
+ 'Pa-234m': 0.24992285949158477,
+ 'Pb-206': 0.0,
+ 'Pb-210': 1.0508864357335218e-25,
+ 'Pb-214': 7.163682655782086e-22,
+ 'Po-210': 1.171277829871092e-28,
+ 'Po-214': 7.096704966148592e-22,
+ 'Po-218': 7.255923469955255e-22,
+ 'Ra-226': 2.6127168262000313e-21,
+ 'Rn-218': 1.4511671865210924e-28,
+ 'Rn-222': 7.266530698712501e-22,
+ 'Th-230': 8.690585458641225e-16,
+ 'Th-234': 0.2499481473619856,
+ 'Tl-206': 2.579902288672889e-32,
+ 'Tl-210': 1.4897029111914831e-25,
+ 'U-234': 1.0119788393651999e-08,
+ 'U-238': 0.9999999999957525}
 ```
 
 ## How radioactivedecay works

@@ -46,7 +46,7 @@ Import the ``radioactivedecay`` package and decay a simple inventory using:
     >>> import radioactivedecay as rd
     >>> inv_t0 = rd.Inventory({'H-3': 10.0})
     >>> inv_t1 = inv_t0.decay(12.32, 'y')
-    >>> inv_t1.contents
+    >>> inv_t1.activities()
     {'H-3': 5.0}
 
 Here we created an inventory of 10.0 units of tritium (:sup:`3`\H) and decayed
@@ -57,6 +57,35 @@ as 12.32 years is the half-life of tritium.
 same as the input units. The above example could therefore represent 10.0 Bq of
 tritium decaying to 5.0 Bq, or 10.0 Ci to 5.0 Ci, or whichever activity unit
 you prefer.
+
+Additional options for inputs and outputs include masses and numbers of atoms,
+using the ``input_type`` argument and ``numbers()``, ``masses()``,
+``mass_abundances()``, and ``moles()`` methods. 
+
+.. code-block:: python3
+
+    >>> inv_mass_t0 = rd.Inventory({'H-3': 3.2}, input_type="masses")
+    >>> inv_mass_t1 = inv_mass_t0.decay(12.32, 'y')
+    >>> inv_mass_t1.masses()
+    {'H-3': 1.6000000000000003, 'He-3': 1.5999894116584246}
+
+    >>> inv_num_t0 = rd.Inventory({'C-14': 3.2E24}, input_type="numbers")
+    >>> inv_num_t1 = inv_num_t0.decay(3000, 'y')
+    >>> inv_num_t1.moles()
+    {'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
+
+Mass follows slightly stricter rules for units: mass in grams, with the added
+ability to input mass abundances using an inventory with masses summing to 1.0:
+
+.. code-block:: python3
+
+    >>> inv_abund_t0 = rd.Inventory({'Ni-56': .8, 'Co-56': .2}, input_type="masses")
+    >>> inv_abund_t1 = inv_abund_t0.decay(35.0, 'd')
+    >>> inv_abund_t1.mass_abundances()
+    {'Co-56': 0.7643201942234104,
+     'Fe-56': 0.2209301066281599,
+     'Ni-56': 0.014749699148429682}
+
 
 Use the ``plot()`` method to show the decay of the inventory over time:
 

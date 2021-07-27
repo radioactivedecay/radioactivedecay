@@ -76,10 +76,21 @@ to ``decay()``. :math:`e^{\varLambda_{d} t}` is the matrix exponential of
 :math:`\varLambda_{d} t`. It is a diagonal matrix with elements
 :math:`e^{\varLambda_{d} t}_{ii} = e^{-\lambda_i t}`. 
 
-The final equation that is needed is the conversion between the activity
-(:math:`\mathbf{A}`) and number of atoms (:math:`\mathbf{N}`) vectors.
-:math:`\mathbf{A}` is just an element-wise multiplication of the decay constants
-and the number of atoms:
+The final equations that are needed are the conversions between the various
+input and output types and the numbers of each atom in the initial number of 
+atoms (:math:`\mathbf{N}`) vector, which is done using element-wise
+algebra using the number of atoms.
+
+Converting between mass (:math:`\mathbf{M}`, in grams) and number of atoms
+(:math:`\mathbf{N}`) uses the vector of atomic masses (:math:`\mathbf{Ma}`) and
+the Avogadro constant (:math:`N_a`):
+
+.. math::
+    M_i =  \frac{Ma_i N_i}{N_a}.
+
+Converting between activity (:math:`\mathbf{A}`) and number of atoms
+(:math:`\mathbf{N}`) uses the vector of decay constants
+(:math:`\mathbf{\lambda}`):
 
 .. math::
     A_i = \lambda_i N_i.
@@ -112,33 +123,20 @@ e.g.
 .. code-block:: python3
 
     >>> inv = rd.Inventory({'Es-254': 1.0})
-    >>> inv.decay(0.0).contents
-    {'At-218': -8.24439035981494e-30,
-    'Bi-210': 2.5308844932098316e-26,
-    'Bi-214': -4.256549745172888e-26,
-    'Bk-250': 0.0,
-    'Cf-250': 0.0,
-    'Cm-246': 8.802967479989175e-21,
-    'Es-254': 1.0,
-    'Fm-254': 0.0,
-    'Hg-206': -3.4696439711117526e-34,
-    'Pa-234': 2.330729590281097e-29,
-    'Pa-234m': -1.5696690930108473e-26,
-    'Pb-210': 2.673060958594837e-26,
-    'Pb-214': -7.310828272597407e-27,
-    'Po-210': -1.048466176320909e-27,
-    'Po-214': 2.3260114484256133e-26,
-    'Po-218': -1.1433437709020225e-26,
-    'Pu-242': 1.3827905917787723e-22,
-    'Ra-226': -1.0811575068833228e-26,
-    'Rn-218': -1.618765025703667e-33,
-    'Rn-222': -1.581593359682259e-26,
-    'Th-230': -1.2628442466252288e-26,
-    'Th-234': -2.6140879622245746e-27,
-    'Tl-206': -4.332210492987691e-34,
-    'Tl-210': 2.2028710112960294e-31,
-    'U-234': -1.0389580591195201e-26,
-    'U-238': -8.466705440297454e-27}
+    >>> inv.decay(0.0).activities()
+    {'At-218': -8.24439035981494e-30, 'Bi-210': 2.5308844932098316e-26,
+     'Bi-214': -4.256549745172888e-26, 'Bk-250': 0.0, 'Cf-250': 0.0,
+     'Cm-246': 8.802967479989175e-21, 'Es-254': 1.0, 'Fm-254': 0.0,
+     'Hg-206': -3.4696439711117526e-34, 'Pa-234': 2.330729590281097e-29,
+     'Pa-234m': -1.5696690930108473e-26, 'Pb-206': 0.0,
+     'Pb-210': 2.673060958594837e-26, 'Pb-214': -7.310828272597407e-27,
+     'Po-210': -1.048466176320909e-27, 'Po-214': 2.3260114484256133e-26,
+     'Po-218': -1.1433437709020225e-26, 'Pu-242': 1.3827905917787723e-22,
+     'Ra-226': -1.0811575068833228e-26, 'Rn-218': -1.618765025703667e-33,
+     'Rn-222': -1.581593359682259e-26, 'Th-230': -1.2628442466252288e-26,
+     'Th-234': -2.6140879622245746e-27, 'Tl-206': -4.332210492987691e-34,
+     'Tl-210': 2.2028710112960294e-31, 'U-234': -1.0389580591195201e-26,
+     'U-238': -8.466705440297454e-27}
 
 All the progeny of Es-254 should have an activity of exactly zero for this
 calculation.
@@ -150,33 +148,16 @@ numerical precision is needed:
 .. code-block:: python3
 
     >>> inv = rd.Inventory({'Es-254': 1.0})
-    >>> inv.decay_high_precision(0.0).contents
-    {'At-218': 0.0,
-    'Bi-210': 0.0,
-    'Bi-214': 0.0,
-    'Bk-250': 0.0,
-    'Cf-250': 0.0,
-    'Cm-246': 0.0,
-    'Es-254': 1.0,
-    'Fm-254': 0.0,
-    'Hg-206': 0.0,
-    'Pa-234': 0.0,
-    'Pa-234m': 0.0,
-    'Pb-210': 0.0,
-    'Pb-214': 0.0,
-    'Po-210': 0.0,
-    'Po-214': 0.0,
-    'Po-218': 0.0,
-    'Pu-242': 0.0,
-    'Ra-226': 0.0,
-    'Rn-218': 0.0,
-    'Rn-222': 0.0,
-    'Th-230': 0.0,
-    'Th-234': 0.0,
-    'Tl-206': 0.0,
-    'Tl-210': 0.0,
-    'U-234': 0.0,
-    'U-238': 0.0}
+    >>> inv.decay_high_precision(0.0).activities()
+    {'At-218': 0.0, 'Bi-210': 0.0, 'Bi-214': 0.0,
+     'Bk-250': 0.0, 'Cf-250': 0.0, 'Cm-246': 0.0,
+     'Es-254': 1.0, 'Fm-254': 0.0, 'Hg-206': 0.0,
+     'Pa-234': 0.0, 'Pa-234m': 0.0, 'Pb-206': 0.0,
+     'Pb-210': 0.0, 'Pb-214': 0.0, 'Po-210': 0.0,
+     'Po-214': 0.0, 'Po-218': 0.0, 'Pu-242': 0.0,
+     'Ra-226': 0.0, 'Rn-218': 0.0, 'Rn-222': 0.0,
+     'Th-230': 0.0, 'Th-234': 0.0, 'Tl-206': 0.0,
+     'Tl-210': 0.0, 'U-234': 0.0,  'U-238': 0.0}
 
 The ``decay_high_precision()`` method carries exact SymPy expressions through
 decay calculations as far as is practicable. At the final step, the decayed
