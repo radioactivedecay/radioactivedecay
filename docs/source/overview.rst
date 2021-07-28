@@ -53,14 +53,10 @@ Here we created an inventory of 10.0 units of tritium (:sup:`3`\H) and decayed
 it for 12.32 years. The activity reduced by a factor of two, i.e. to 5.0 units,
 as 12.32 years is the half-life of tritium.
 
-``radioactivedecay`` is agnostic to activity units: the output units are the
-same as the input units. The above example could therefore represent 10.0 Bq of
-tritium decaying to 5.0 Bq, or 10.0 Ci to 5.0 Ci, or whichever activity unit
-you prefer.
-
 Additional options for inputs and outputs include masses and numbers of atoms,
-using the ``input_type`` argument and ``numbers()``, ``masses()``,
-``mass_abundances()``, and ``moles()`` methods. 
+using the ``units`` argument to the ``Inventory()`` constructor, and the
+``numbers()``, ``masses()``, ``mass_fractions()``, ``moles()``, and
+``mole_fraction()`` methods for obtaining results. 
 
 .. code-block:: python3
 

@@ -25,6 +25,12 @@ from radioactivedecay.decaydata import DecayData, DEFAULTDATA, np
 from radioactivedecay.plots import _decay_graph
 from radioactivedecay.radionuclide import Radionuclide
 from radioactivedecay.utils import (
+    activity_units,
+    activity_unit_conv,
+    mass_units,
+    mass_unit_conv,
+    moles_units,
+    moles_unit_conv,
     parse_nuclide,
     time_unit_conv,
     time_unit_conv_sympy,
@@ -282,7 +288,7 @@ def _sort_dictionary_alphabetically(
 
 
 def _input_to_number(
-    input_inv_dict: Dict[str, float], input_type: str, data: DecayData
+    input_inv_dict: Dict[str, float], units: str, data: DecayData
 ) -> Dict[str, float]:
     """
     Converts mass, moles, or activity input inventory dictionary into number.
@@ -290,10 +296,10 @@ def _input_to_number(
     Parameters
     ----------
     input_inv_dict : dict
-        Dictionary containing nuclide strings or Radionuclide objects as keys and masses,
+        Dictionary containing nuclide strings or Radionuclide objects as keys, and masses,
         moles, or activities as values.
-    input_type : str
-        The input type ('activities', 'moles' or 'masses').
+    units : str
+        Units of the values in the input dictionary.
     data : DecayData
         Decay dataset.
 
@@ -318,30 +324,32 @@ def _input_to_number(
 
     number_dict = {}
 
-    if input_type == "activities":
+    if units in activity_units:
         for nuc, act in input_inv_dict.items():
-            number = _activity_to_number(nuc, act, data)
+            number = _activity_to_number(
+                nuc, activity_unit_conv(act, units, "Bq"), data
+            )
             number_dict[nuc] = number
         converted_dict = number_dict.copy()
-    elif input_type == "moles":
+    elif units in moles_units:
         for nuc, moles in input_inv_dict.items():
-            number = _moles_to_number(moles)
+            number = _moles_to_number(moles_unit_conv(moles, units, "mol"))
             number_dict[nuc] = number
         converted_dict = number_dict.copy()
-    elif input_type == "masses":
+    elif units in mass_units:
         for nuc, mass in input_inv_dict.items():
-            number = _mass_to_number(nuc, mass, data)
+            number = _mass_to_number(nuc, mass_unit_conv(mass, units, "g"), data)
             number_dict[nuc] = number
         converted_dict = number_dict.copy()
     else:
-        raise ValueError(input_type + " is not a valid value input type")
+        raise ValueError(units + " is not a valid value input type")
 
     return converted_dict
 
 
 def _check_dictionary(
     input_inv_dict: Dict[Union[str, Radionuclide], float],
-    input_type: str,
+    units: str,
     data: DecayData,
 ) -> Dict[str, float]:
     """
@@ -353,8 +361,8 @@ def _check_dictionary(
     input_inv_dict : dict
         Dictionary containing nuclide strings or Radionuclide objects as keys and quantities
         as values.
-    input_type : str
-        The input type ('activities', 'moles' or 'masses').
+    units : str
+        Units of the values in the input dictionary (e.g. 'Bq', 'g', 'mol', 'num').
     data : DecayData
         Decay dataset.
 
@@ -393,8 +401,8 @@ def _check_dictionary(
                 str(inp) + " is not a valid amount of nuclide " + str(nuc) + "."
             )
 
-    if input_type != "numbers":
-        inv_dict = _input_to_number(parsed_inv_dict, input_type, data).copy()
+    if units != "num":
+        inv_dict = _input_to_number(parsed_inv_dict, units, data).copy()
     else:
         inv_dict = parsed_inv_dict.copy()
 
@@ -453,8 +461,9 @@ class Inventory:
     contents : dict
         Dictionary containing nuclide strings or Radionuclide objects as keys and numbers of
         nuclides as values.
-    input_type : str, optional
-        Type of input (masses, numbers, activities; activities is default)
+    units : str, optional
+        Units of the values in the dictionary (e.g. 'Bq', 'Ci', 'g', 'mol', 'num'; 'Bq' is the
+        default).
     check : bool, optional
         Check for the validity of contents (default is True).
     data : DecayData, optional
@@ -475,7 +484,7 @@ class Inventory:
     >>> H3 = rd.Radionuclide('H-3')
     >>> rd.Inventory({H3: 3.0})
     Inventory activities: {'H-3': 3.0}, decay dataset: icrp107
-    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, input_type="masses")
+    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, units='Ci')
     Inventory activities: {'Co-57': 7.2, 'U-238': 21.1}, decay dataset: icrp107
 
     """
@@ -483,17 +492,17 @@ class Inventory:
     def __init__(
         self,
         contents: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activities",
+        units: str = "Bq",
         check: bool = True,
         data: DecayData = DEFAULTDATA,
     ) -> None:
 
-        self._change(contents, input_type, check, data)
+        self._change(contents, units, check, data)
 
     def _change(
         self,
         contents: Dict[Union[str, Radionuclide], float],
-        input_type: str,
+        units: str,
         check: bool,
         data: DecayData,
     ) -> None:
@@ -502,13 +511,12 @@ class Inventory:
         """
 
         parsed_contents: Dict[str, float] = (
-            _check_dictionary(contents, input_type, data) if check is True else contents
+            _check_dictionary(contents, units, data) if check is True else contents
         )
         self.contents: Dict[str, float] = _sort_dictionary_alphabetically(
             parsed_contents
         )
         self.data: DecayData = data
-        self.input_type = input_type
 
     @property
     def nuclides(self) -> List[str]:
@@ -537,45 +545,65 @@ class Inventory:
 
         return self.contents
 
-    def activities(self) -> Dict[str, float]:
+    def activities(self, units: str = "Bq") -> Dict[str, float]:
         """
         Returns a dictionary containing the activity of each nuclide within the inventory.
 
+        Parameters
+        ----------
+        units : str, optional
+            Activity units for output, e.g. 'Bq', 'kBq', 'mBq', 'Ci', 'dpm'...
+            Deafult is 'Bq'.
+
         Examples
         --------
-        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).activities()
+        >>> rd.Inventory({'Tc-99m': 2300, 'I-123': 5800}, 'Bq').activities('kBq')
         {'I-123': 5.8, 'Tc-99m': 2.3}
 
         """
 
         activities = {
-            nuc: _number_to_activity(nuc, num, self.data)
+            nuc: activity_unit_conv(
+                _number_to_activity(nuc, num, self.data), "Bq", units
+            )
             for nuc, num in self.contents.items()
         }
 
         return activities
 
-    def masses(self) -> Dict[str, float]:
+    def masses(self, units: str = "g") -> Dict[str, float]:
         """
         Returns a dictionary containing the mass of each nuclide within the inventory
 
+        Parameters
+        ----------
+        units : str, optional
+            Mass units for output, e.g. 'Bq', 'g', 'kg', 'mg', 'ton'...
+            Deafult is 'g'.
+
         Examples
         --------
-        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).masses()
-        {'I-123': 8.158243973887584e-17, 'Tc-99m': 1.1800869622748501e-17}
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).masses('pg')
+        {'I-123': 8.158243973887584e-5, 'Tc-99m': 1.1800869622748501e-5}
 
         """
 
         masses = {
-            nuc: _number_to_mass(nuc, num, self.data)
+            nuc: mass_unit_conv(_number_to_mass(nuc, num, self.data), "g", units)
             for nuc, num in self.contents.items()
         }
 
         return masses
 
-    def moles(self) -> Dict[str, float]:
+    def moles(self, units: str = "mol") -> Dict[str, float]:
         """
         Returns a dictionary containing the number of atoms of each nuclide within the inventory in moles.
+
+        Parameters
+        ----------
+        units : str, optional
+            Moles units, e.g. 'mmol', 'mol', 'kmol'...
+            Deafult is 'mol'.
 
         Examples
         --------
@@ -584,17 +612,20 @@ class Inventory:
 
         """
 
-        moles = {nuc: _number_to_moles(num) for nuc, num in self.contents.items()}
+        moles = {
+            nuc: moles_unit_conv(_number_to_moles(num), "mol", units)
+            for nuc, num in self.contents.items()
+        }
 
         return moles
 
-    def mass_abundances(self) -> Dict[str, float]:
+    def mass_fractions(self) -> Dict[str, float]:
         """
         Returns a dictionary containing the mass fraction of each nuclide within the inventory.
 
         Examples
         --------
-        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).mass_abundances()
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).mass_fractions()
         {'I-123': 0.8736297770616593, 'Tc-99m': 0.12637022293834066}
 
         """
@@ -615,10 +646,8 @@ class Inventory:
 
         """
 
-        total_number = sum(self.numbers().values())
-        mole_fractions = {
-            nuc: num / total_number for nuc, num in self.numbers().items()
-        }
+        total_number = sum(self.contents)
+        mole_fractions = {nuc: num / total_number for nuc, num in self.contents.items()}
 
         return mole_fractions
 
@@ -632,7 +661,7 @@ class Inventory:
     def add(
         self,
         add_contents: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activity",
+        units: str = "Bq",
     ) -> None:
         """
         Adds a dictionary of nuclides and associated numbers/activities/masses
@@ -642,10 +671,11 @@ class Inventory:
         ----------
         add_contents : dict
             Dictionary containing nuclide strings or Radionuclide objects as keys
-            and the amount of each nuclide, as specified by input_type, as values
+            and the amount of each nuclide (with specified units) as values
             which are added to the Inventory.
-        input_type : str, optional
-            Type of input (masses, numbers, activities; activities is default)
+        units : str, optional
+            Units of the values in the dictionary (e.g. 'Bq', 'Ci', 'g', 'mol', 'num'; 'Bq' is the
+            default).
 
         Examples
         --------
@@ -657,7 +687,7 @@ class Inventory:
         """
 
         parsed_add_contents: Dict[str, float] = _check_dictionary(
-            add_contents, input_type, self.data
+            add_contents, units, self.data
         )
         new_contents = _add_dictionaries(self.contents, parsed_add_contents)
         self._change(new_contents, "numbers", False, self.data)
@@ -665,7 +695,7 @@ class Inventory:
     def subtract(
         self,
         sub_contents: Dict[Union[str, Radionuclide], float],
-        input_type: str = "activities",
+        units: str = "Bq",
     ) -> None:
         """
         Subtracts a dictionary of nuclides and associated numbers/activities/masses
@@ -675,10 +705,11 @@ class Inventory:
         ----------
         sub_contents : dict
             Dictionary containing nuclide strings or Radionuclide objects as keys
-            and the amount of each nuclide, as specified by input_type, as values
+            and the amount of each nuclide (with specified units) as values
             which are subtracted from the Inventory.
-        input_type : str, optional
-            Type of input (masses, numbers, activities; activities is default)
+        units : str, optional
+            Units of the values in the dictionary (e.g. 'Bq', 'Ci', 'g', 'mol', 'num'; 'Bq' is the
+            default).
 
         Examples
         --------
@@ -689,7 +720,7 @@ class Inventory:
 
         """
         parsed_sub_contents: Dict[str, float] = _check_dictionary(
-            sub_contents, input_type, self.data
+            sub_contents, units, self.data
         )
         parsed_sub_contents.update(
             (nuclide, number * -1.0) for nuclide, number in parsed_sub_contents.items()
@@ -1254,7 +1285,7 @@ class Inventory:
 
     def __repr__(self) -> str:
         return (
-            "Inventory activities: "
+            "Inventory activities (Bq): "
             + str(self.activities())
             + ", decay dataset: "
             + self.data.dataset_name

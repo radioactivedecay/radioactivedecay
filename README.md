@@ -59,11 +59,6 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 An ``Inventory`` of 2.0 Bq of Mo-99 was decayed for 20 hours, producing the
 radioactive progeny Tc-99m and Tc-99.
 
-Note we did not have to specify the units of the initial Mo-99 activity. This
-is because the output activity units are the same as the input units. So the
-above calculation could have represented the decay of 2.0 Ci of Mo-99, or of
-2.0 dpm, 2.0 kBq, etc.
-
 We supplied ``'h'`` as an argument to ``decay()`` to specify the decay time
 period had units of hours. Supported time units include ``'μs'``, ``'ms'``,
 ``'s'``, ``'m'``, ``'h'``, ``'d'``, ``'y'`` etc. Note seconds (``'s'``) is the

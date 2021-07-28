@@ -260,6 +260,35 @@ def time_unit_conv_sympy(
     return time_period * conv[units_from] / conv[units_to]
 
 
+activity_units = {
+    "pBq": 1.0e-12,
+    "nBq": 1.0e-9,
+    "μBq": 1.0e-6,
+    "uBq": 1.0e-6,
+    "mBq": 1.0e-3,
+    "Bq": 1.0,
+    "kBq": 1.0e3,
+    "MBq": 1.0e6,
+    "GBq": 1.0e9,
+    "TBq": 1.0e12,
+    "PBq": 1.0e15,
+    "EBq": 1.0e18,
+    "pCi": 1.0e-12 * 3.7e10,
+    "nCi": 1.0e-9 * 3.7e10,
+    "μCi": 1.0e-6 * 3.7e10,
+    "uCi": 1.0e-6 * 3.7e10,
+    "mCi": 1.0e-3 * 3.7e10,
+    "Ci": 1.0 * 3.7e10,
+    "kCi": 1.0e3 * 3.7e10,
+    "MCi": 1.0e6 * 3.7e10,
+    "GCi": 1.0e9 * 3.7e10,
+    "TCi": 1.0e12 * 3.7e10,
+    "PCi": 1.0e15 * 3.7e10,
+    "ECi": 1.0e18 * 3.7e10,
+    "dpm": 60.0,
+}
+
+
 def activity_unit_conv(activity: float, units_from: str, units_to: str) -> float:
     """
     Converts an activity from one unit to another.
@@ -290,47 +319,17 @@ def activity_unit_conv(activity: float, units_from: str, units_to: str) -> float
 
     """
 
-    curie_to_Bq = 3.7e10
-
-    conv = {
-        "pBq": 1.0e-12,
-        "nBq": 1.0e-9,
-        "μBq": 1.0e-6,
-        "uBq": 1.0e-6,
-        "mBq": 1.0e-3,
-        "Bq": 1.0,
-        "kBq": 1.0e3,
-        "MBq": 1.0e6,
-        "GBq": 1.0e9,
-        "TBq": 1.0e12,
-        "PBq": 1.0e15,
-        "EBq": 1.0e18,
-        "pCi": 1.0e-12 * curie_to_Bq,
-        "nCi": 1.0e-9 * curie_to_Bq,
-        "μCi": 1.0e-6 * curie_to_Bq,
-        "uCi": 1.0e-6 * curie_to_Bq,
-        "mCi": 1.0e-3 * curie_to_Bq,
-        "Ci": 1.0 * curie_to_Bq,
-        "kCi": 1.0e3 * curie_to_Bq,
-        "MCi": 1.0e6 * curie_to_Bq,
-        "GCi": 1.0e9 * curie_to_Bq,
-        "TCi": 1.0e12 * curie_to_Bq,
-        "PCi": 1.0e15 * curie_to_Bq,
-        "ECi": 1.0e18 * curie_to_Bq,
-        "dpm": 60.0,
-    }
-
-    if units_from not in conv:
+    if units_from not in activity_units:
         raise ValueError(
             str(units_from)
             + ' is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
         )
-    if units_to not in conv:
+    if units_to not in activity_units:
         raise ValueError(
             str(units_to) + ' is not a activitiy unit, e.g. "Bq", "kBq", "Ci"...'
         )
 
-    return activity * conv[units_from] / conv[units_to]
+    return activity * activity_units[units_from] / activity_units[units_to]
 
 
 def activity_unit_conv_sympy(
@@ -360,8 +359,6 @@ def activity_unit_conv_sympy(
 
     """
 
-    curie_to_Bq = 37000000000
-
     conv = {
         "pBq": Integer(1) / 1000000000000,
         "nBq": Integer(1) / 1000000000,
@@ -375,18 +372,18 @@ def activity_unit_conv_sympy(
         "TBq": Integer(1000000000000),
         "PBq": Integer(1000000000000000),
         "EBq": Integer(1000000000000000000),
-        "pCi": Integer(1) / 1000000000000 * curie_to_Bq,
-        "nCi": Integer(1) / 1000000000 * curie_to_Bq,
-        "μCi": Integer(1) / 1000000 * curie_to_Bq,
-        "uCi": Integer(1) / 1000000 * curie_to_Bq,
-        "mCi": Integer(1) / 1000 * curie_to_Bq,
-        "Ci": Integer(1) * curie_to_Bq,
-        "kCi": Integer(1000) * curie_to_Bq,
-        "MCi": Integer(1000000) * curie_to_Bq,
-        "GCi": Integer(1000000000) * curie_to_Bq,
-        "TCi": Integer(1000000000000) * curie_to_Bq,
-        "PCi": Integer(1000000000000000) * curie_to_Bq,
-        "ECi": Integer(1000000000000000000) * curie_to_Bq,
+        "pCi": Integer(1) / 1000000000000 * 37000000000,
+        "nCi": Integer(1) / 1000000000 * 37000000000,
+        "μCi": Integer(1) / 1000000 * 37000000000,
+        "uCi": Integer(1) / 1000000 * 37000000000,
+        "mCi": Integer(1) / 1000 * 37000000000,
+        "Ci": Integer(1) * 37000000000,
+        "kCi": Integer(1000) * 37000000000,
+        "MCi": Integer(1000000) * 37000000000,
+        "GCi": Integer(1000000000) * 37000000000,
+        "TCi": Integer(1000000000000) * 37000000000,
+        "PCi": Integer(1000000000000000) * 37000000000,
+        "ECi": Integer(1000000000000000000) * 37000000000,
         "dpm": Integer(60),
     }
 
@@ -401,6 +398,20 @@ def activity_unit_conv_sympy(
         )
 
     return activity * conv[units_from] / conv[units_to]
+
+
+mass_units = {
+    "pg": 1.0e-12,
+    "ng": 1.0e-9,
+    "μg": 1.0e-6,
+    "ug": 1.0e-6,
+    "mg": 1.0e-3,
+    "g": 1.0,
+    "kg": 1.0e3,
+    "Mg": 1.0e6,
+    "t": 1.0e6,
+    "ton": 1.0e6,
+}
 
 
 def mass_unit_conv(mass: float, units_from: str, units_to: str) -> float:
@@ -433,29 +444,16 @@ def mass_unit_conv(mass: float, units_from: str, units_to: str) -> float:
 
     """
 
-    conv = {
-        "pg": 1.0e-12,
-        "ng": 1.0e-9,
-        "μg": 1.0e-6,
-        "ug": 1.0e-6,
-        "mg": 1.0e-3,
-        "g": 1.0,
-        "kg": 1.0e3,
-        "Mg": 1.0e6,
-        "t": 1.0e6,
-        "ton": 1.0e6,
-    }
-
-    if units_from not in conv:
+    if units_from not in mass_units:
         raise ValueError(
             str(units_from) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
         )
-    if units_to not in conv:
+    if units_to not in mass_units:
         raise ValueError(
             str(units_to) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
         )
 
-    return mass * conv[units_from] / conv[units_to]
+    return mass * mass_units[units_from] / mass_units[units_to]
 
 
 def mass_unit_conv_sympy(mass: Rational, units_from: str, units_to: str) -> Rational:
@@ -508,6 +506,18 @@ def mass_unit_conv_sympy(mass: Rational, units_from: str, units_to: str) -> Rati
     return mass * conv[units_from] / conv[units_to]
 
 
+moles_units = {
+    "pmol": 1.0e-12,
+    "nmol": 1.0e-9,
+    "μmol": 1.0e-6,
+    "umol": 1.0e-6,
+    "mmol": 1.0e-3,
+    "mol": 1.0,
+    "kmol": 1.0e3,
+    "Mmol": 1.0e6,
+}
+
+
 def moles_unit_conv(moles: float, units_from: str, units_to: str) -> float:
     """
     Converts a number of moles from one order of magnitude to another.
@@ -538,27 +548,16 @@ def moles_unit_conv(moles: float, units_from: str, units_to: str) -> float:
 
     """
 
-    conv = {
-        "pmol": 1.0e-12,
-        "nmol": 1.0e-9,
-        "μmol": 1.0e-6,
-        "umol": 1.0e-6,
-        "mmol": 1.0e-3,
-        "mol": 1.0,
-        "kmol": 1.0e3,
-        "Mmol": 1.0e6,
-    }
-
-    if units_from not in conv:
+    if units_from not in moles_units:
         raise ValueError(
             str(units_from) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
         )
-    if units_to not in conv:
+    if units_to not in moles_units:
         raise ValueError(
             str(units_to) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
         )
 
-    return moles * conv[units_from] / conv[units_to]
+    return moles * moles_units[units_from] / moles_units[units_to]
 
 
 def moles_unit_conv_sympy(moles: Rational, units_from: str, units_to: str) -> Rational:
