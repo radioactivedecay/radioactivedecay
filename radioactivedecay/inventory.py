@@ -75,14 +75,14 @@ def _add_dictionaries(
 
 def _activity_to_number(nuclide: str, activity: float, data: DecayData) -> float:
     """
-    Converts activity to number of atoms.
+    Converts an activity in Bq to the number of atoms.
 
     Parameters
     ----------
     nuclide : str
         The name of the nuclide to be converted.
     activity : float
-        The activity of the nuclide to be converted.
+        The activity in Bq of the nuclide to be converted.
     data : DecayData
         Decay dataset.
 
@@ -98,24 +98,18 @@ def _activity_to_number(nuclide: str, activity: float, data: DecayData) -> float
 
     Example
     --------
-    >>> rd.inventory._activity_to_number("C-14", 250)
+    >>> rd.inventory._activity_to_number("C-14", 250, rd.DEFAULTDATA)
     64876004584874.73
 
     """
 
-    try:
-        index = data.nuclide_dict[nuclide]
-    except BaseException as error:
-        raise ValueError(
-            nuclide + " is not a valid member of " + data.dataset_name
-        ) from error
-
+    index = data.nuclide_dict[nuclide]
     return activity / data.scipy_data.decay_consts[index]
 
 
 def _mass_to_number(nuclide: str, mass: float, data: DecayData) -> float:
     """
-    Converts a mass to number of atoms.
+    Converts a mass in grams to number of atoms.
 
     Parameters
     ----------
@@ -138,18 +132,12 @@ def _mass_to_number(nuclide: str, mass: float, data: DecayData) -> float:
 
     Example
     --------
-    >>> rd.inventory._mass_to_number("Fe-56", 25)
+    >>> rd.inventory._mass_to_number("Fe-56", 25, rd.DEFAULTDATA)
     2.6915829535623837e+23
 
     """
 
-    try:
-        index = data.nuclide_dict[nuclide]
-    except BaseException as error:
-        raise ValueError(
-            nuclide + " is not a valid member of " + data.dataset_name
-        ) from error
-
+    index = data.nuclide_dict[nuclide]
     return mass / data.masses[index] * Avogadro
 
 
@@ -202,18 +190,12 @@ def _number_to_activity(nuclide: str, number: float, data: DecayData) -> float:
 
     Examples
     --------
-    >>> rd.inventory._number_to_activity('U-238', 3 * 10**23)
+    >>> rd.inventory._number_to_activity('U-238', 3 * 10**23, rd.DEFAULTDATA)
     1474819.4578951003
 
     """
 
-    try:
-        index = data.nuclide_dict[nuclide]
-    except BaseException as error:
-        raise ValueError(
-            nuclide + " is not a valid member of " + data.dataset_name
-        ) from error
-
+    index = data.nuclide_dict[nuclide]
     return number * data.scipy_data.decay_consts[index]
 
 
@@ -239,18 +221,12 @@ def _number_to_mass(
 
     Examples
     --------
-    >>> rd.inventory._number_to_mass('Fe-56', 3 * 10**23)
+    >>> rd.inventory._number_to_mass('Fe-56', 3 * 10**23, rd.DEFAULTDATA)
     27.86464370371177
 
     """
 
-    try:
-        index = data.nuclide_dict[nuclide]
-    except BaseException as error:
-        raise ValueError(
-            nuclide + " is not a valid member of " + data.dataset_name
-        ) from error
-
+    index = data.nuclide_dict[nuclide]
     return number / Avogadro * data.masses[index]
 
 
@@ -333,9 +309,9 @@ def _input_to_number(
 
     Examples
     --------
-    >>> rd.inventory._input_to_number({'Ni-56': .3, 'Co-56': .7}, "activity")
+    >>> rd.inventory._input_to_number({'Ni-56': .3, 'Co-56': .7}, 'activities', rd.DEFAULTDATA)
     {'Ni-56': 227172.53191853972, 'Co-56': 6738641.562715049}
-    >>> rd.inventory._input_to_number({'U-238': 21.1, 'Co-57': 7.2}, "mass")
+    >>> rd.inventory._input_to_number({'U-238': 21.1, 'Co-57': 7.2}, 'masses', rd.DEFAULTDATA)
     {'U-238': 5.337817684684321e+22, 'Co-57': 7.61542657764305e+22}
 
     """
@@ -413,7 +389,7 @@ def _check_dictionary(
     }
     for nuc, inp in parsed_inv_dict.items():
         if not isinstance(inp, (float, int)):
-            raise ValueError(str(inp) + " is not a valid input for " + str(nuc) + ".")
+            raise ValueError(str(inp) + " is not a valid amount of nuclide " + str(nuc) + ".")
 
     if input_type != "numbers":
         inv_dict = _input_to_number(parsed_inv_dict, input_type, data).copy()

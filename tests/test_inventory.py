@@ -3,11 +3,19 @@ Unit tests for inventory.py functions, classes and methods.
 """
 
 import copy
+import math
 import unittest
 from unittest.mock import patch
 from radioactivedecay.inventory import (
     _add_dictionaries,
+    _activity_to_number,
+    _mass_to_number,
+    _moles_to_number,
+    _number_to_activity,
+    _number_to_mass,
+    _number_to_moles,
     _sort_dictionary_alphabetically,
+     _input_to_number,
     _check_dictionary,
     _sort_list_according_to_dataset,
     Inventory,
@@ -35,7 +43,52 @@ class Test(unittest.TestCase):
         )
 
     def test__activity_to_number(self):
-        pass
+        """
+        Test the conversion of activity in Bq to number of atoms.
+        """
+
+        self.assertEqual(_activity_to_number("H-3", 1.0, DEFAULTDATA), 560892895.7794082)
+
+    def test__mass_to_number(self):
+        """
+        Test the conversion of mass in grams to number of atoms.
+        """
+
+        self.assertEqual(_mass_to_number("H-3", 1.0, DEFAULTDATA), 1.996698395247825e+23)
+        self.assertEqual(_mass_to_number("He-3", 1.0, DEFAULTDATA), 1.9967116089131645e+23)
+
+    def test__moles_to_number(self):
+        """
+        Test the conversion of number of moles to number of atoms.
+        """
+
+        self.assertEqual(_moles_to_number(1.0), 6.02214076e+23)
+        self.assertEqual(_moles_to_number(0.0), 0.0)
+
+    def test__number_to_activity(self):
+        """
+        Test the conversion of number of atoms to activity in Bq.
+        """
+
+        self.assertEqual(_number_to_activity("H-3", 560892895.7794082, DEFAULTDATA), 1.0)
+        self.assertEqual(_number_to_activity("He-3", 1.0, DEFAULTDATA), 0.0)
+        self.assertEqual(_number_to_activity("He-3", 0.0, DEFAULTDATA), 0.0)
+
+    def test__number_to_mass(self):
+        """
+        Test the conversion of number of atoms to mass in grams.
+        """
+
+        self.assertEqual(_number_to_mass("H-3", 1.996698395247825e+23, DEFAULTDATA), 1.0)
+        self.assertEqual(_number_to_mass("He-3", 1.9967116089131645e+23, DEFAULTDATA), 1.0)
+
+    def test__number_to_moles(self):
+        """
+        Test the conversion of number of atoms to number of moles.
+        """
+
+        self.assertEqual(_number_to_moles(6.02214076e+23), 1.0)
+        self.assertEqual(_number_to_moles(0.0), 0.0)
 
     def test__sort_dictionary_alphabetically(self):
         """
