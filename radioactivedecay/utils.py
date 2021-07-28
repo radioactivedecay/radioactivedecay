@@ -258,3 +258,352 @@ def time_unit_conv_sympy(
         )
 
     return time_period * conv[units_from] / conv[units_to]
+
+
+def activity_unit_conv(activity: float, units_from: str, units_to: str) -> float:
+    """
+    Converts an activity from one unit to another.
+
+    Parameters
+    ----------
+    activity : float
+        Activity before conversion.
+    units_from : str
+        Activity unit before conversion
+    units_to : str
+        Activity unit after conversion
+
+    Returns
+    -------
+    float
+        Activity in new units.
+
+    Raises
+    ------
+    ValueError
+        If one of the activity unit parameters is invalid.
+
+    Examples
+    --------
+    >>> rd.utils.activity_unit_conv(1.0, 'Ci', 'Bq')
+    3.7e10
+
+    """
+
+    curie_to_Bq = 3.7e10
+
+    conv = {
+        "pBq": 1.0e-12,
+        "nBq": 1.0e-9,
+        "μBq": 1.0e-6,
+        "uBq": 1.0e-6,
+        "mBq": 1.0e-3,
+        "Bq": 1.0,
+        "kBq": 1.0e3,
+        "MBq": 1.0e6,
+        "GBq": 1.0e9,
+        "TBq": 1.0e12,
+        "PBq": 1.0e15,
+        "EBq": 1.0e18,
+        "pCi": 1.0e-12 * curie_to_Bq,
+        "nCi": 1.0e-9 * curie_to_Bq,
+        "μCi": 1.0e-6 * curie_to_Bq,
+        "uCi": 1.0e-6 * curie_to_Bq,
+        "mCi": 1.0e-3 * curie_to_Bq,
+        "Ci": 1.0 * curie_to_Bq,
+        "kCi": 1.0e3 * curie_to_Bq,
+        "MCi": 1.0e6 * curie_to_Bq,
+        "GCi": 1.0e9 * curie_to_Bq,
+        "TCi": 1.0e12 * curie_to_Bq,
+        "PCi": 1.0e15 * curie_to_Bq,
+        "ECi": 1.0e18 * curie_to_Bq,
+        "dpm": 60.0,
+    }
+
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from)
+            + ' is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+        )
+
+    return activity * conv[units_from] / conv[units_to]
+
+
+def activity_unit_conv_sympy(
+    activity: Rational, units_from: str, units_to: str
+) -> Rational:
+    """
+    Same functionality as activity_unit_conv(), but uses SymPy arbitrary-precision arithmetic.
+
+    Parameters
+    ----------
+    activity : sympy.core.numbers.Rational
+        Activity before conversion.
+    units_from : str
+        Activity unit before conversion
+    units_to : str
+        Activity unit after conversion
+
+    Returns
+    -------
+    sympy.core.numbers.Rational
+        Activity in new units.
+
+    Raises
+    ------
+    ValueError
+        If one of the activity unit parameters is invalid.
+
+    """
+
+    curie_to_Bq = 37000000000
+
+    conv = {
+        "pBq": Integer(1) / 1000000000000,
+        "nBq": Integer(1) / 1000000000,
+        "μBq": Integer(1) / 1000000,
+        "uBq": Integer(1) / 1000000,
+        "mBq": Integer(1) / 1000,
+        "Bq": Integer(1),
+        "kBq": Integer(1000),
+        "MBq": Integer(1000000),
+        "GBq": Integer(1000000000),
+        "TBq": Integer(1000000000000),
+        "PBq": Integer(1000000000000000),
+        "EBq": Integer(1000000000000000000),
+        "pCi": Integer(1) / 1000000000000 * curie_to_Bq,
+        "nCi": Integer(1) / 1000000000 * curie_to_Bq,
+        "μCi": Integer(1) / 1000000 * curie_to_Bq,
+        "uCi": Integer(1) / 1000000 * curie_to_Bq,
+        "mCi": Integer(1) / 1000 * curie_to_Bq,
+        "Ci": Integer(1) * curie_to_Bq,
+        "kCi": Integer(1000) * curie_to_Bq,
+        "MCi": Integer(1000000) * curie_to_Bq,
+        "GCi": Integer(1000000000) * curie_to_Bq,
+        "TCi": Integer(1000000000000) * curie_to_Bq,
+        "PCi": Integer(1000000000000000) * curie_to_Bq,
+        "ECi": Integer(1000000000000000000) * curie_to_Bq,
+        "dpm": Integer(60),
+    }
+
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from)
+            + ' is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+        )
+
+    return activity * conv[units_from] / conv[units_to]
+
+
+def mass_unit_conv(mass: float, units_from: str, units_to: str) -> float:
+    """
+    Converts a mass from one unit to another.
+
+    Parameters
+    ----------
+    mass : float
+        Mass before conversion.
+    units_from : str
+        Mass unit before conversion
+    units_to : str
+        Mass unit after conversion
+
+    Returns
+    -------
+    float
+        Mass in new units.
+
+    Raises
+    ------
+    ValueError
+        If one of the mass unit parameters is invalid.
+
+    Examples
+    --------
+    >>> rd.utils.mass_unit_conv(1.0, 'Ci', 'Bq')
+    3.7e10
+
+    """
+
+    conv = {
+        "pg": 1.0e-12,
+        "ng": 1.0e-9,
+        "μg": 1.0e-6,
+        "ug": 1.0e-6,
+        "mg": 1.0e-3,
+        "g": 1.0,
+        "kg": 1.0e3,
+        "Mg": 1.0e6,
+        "t": 1.0e6,
+        "ton": 1.0e6,
+    }
+
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
+        )
+
+    return mass * conv[units_from] / conv[units_to]
+
+
+def mass_unit_conv_sympy(mass: Rational, units_from: str, units_to: str) -> Rational:
+    """
+    Same functionality as mass_unit_conv(), but uses SymPy arbitrary-precision arithmetic.
+
+    Parameters
+    ----------
+    mass : sympy.core.numbers.Rational
+        Mass before conversion.
+    units_from : str
+        Mass unit before conversion
+    units_to : str
+        Mass unit after conversion
+
+    Returns
+    -------
+    sympy.core.numbers.Rational
+        Mass in new units.
+
+    Raises
+    ------
+    ValueError
+        If one of the mass unit parameters is invalid.
+
+    """
+
+    conv = {
+        "pg": Integer(1) / 1000000000000,
+        "ng": Integer(1) / 1000000000,
+        "μg": Integer(1) / 1000000,
+        "ug": Integer(1) / 1000000,
+        "mg": Integer(1) / 1000,
+        "g": Integer(1),
+        "kg": Integer(1000),
+        "Mg": Integer(1000000),
+        "t": Integer(1000000),
+        "ton": Integer(1000000),
+    }
+
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
+        )
+
+    return mass * conv[units_from] / conv[units_to]
+
+
+def moles_unit_conv(moles: float, units_from: str, units_to: str) -> float:
+    """
+    Converts a number of moles from one order of magnitude to another.
+
+    Parameters
+    ----------
+    moles : float
+        Amount before conversion.
+    units_from : str
+        Unit before conversion.
+    units_to : str
+        Unit after conversion.
+
+    Returns
+    -------
+    float
+        Result in chosen units.
+
+    Raises
+    ------
+    ValueError
+        If one of the unit parameters is invalid.
+
+    Examples
+    --------
+    >>> rd.utils.moles_unit_conv(1.0, 'Ci', 'Bq')
+    3.7e10
+
+    """
+
+    conv = {
+        "pmol": 1.0e-12,
+        "nmol": 1.0e-9,
+        "μmol": 1.0e-6,
+        "umol": 1.0e-6,
+        "mmol": 1.0e-3,
+        "mol": 1.0,
+        "kmol": 1.0e3,
+        "Mmol": 1.0e6,
+    }
+
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
+        )
+
+    return moles * conv[units_from] / conv[units_to]
+
+
+def moles_unit_conv_sympy(moles: Rational, units_from: str, units_to: str) -> Rational:
+    """
+    Same functionality as mass_unit_conv(), but uses SymPy arbitrary-precision arithmetic.
+
+    Parameters
+    ----------
+    moles : sympy.core.numbers.Rational
+        Amount before conversion.
+    units_from : str
+        Unit before conversion.
+    units_to : str
+        Unit after conversion.
+
+    Returns
+    -------
+    sympy.core.numbers.Rational
+        Result in chosen units.
+
+    Raises
+    ------
+    ValueError
+        If one of the unit parameters is invalid.
+
+    """
+
+    conv = {
+        "pmol": Integer(1) / 1000000000000,
+        "nmol": Integer(1) / 1000000000,
+        "μmol": Integer(1) / 1000000,
+        "umol": Integer(1) / 1000000,
+        "mmol": Integer(1) / 1000,
+        "mol": Integer(1),
+        "kmol": Integer(1000),
+        "Mmol": Integer(1000000),
+    }
+
+    if units_from not in conv:
+        raise ValueError(
+            str(units_from) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
+        )
+    if units_to not in conv:
+        raise ValueError(
+            str(units_to) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
+        )
+
+    return moles * conv[units_from] / conv[units_to]

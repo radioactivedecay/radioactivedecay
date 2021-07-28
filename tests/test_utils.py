@@ -9,6 +9,12 @@ from radioactivedecay.utils import (
     parse_nuclide,
     time_unit_conv,
     time_unit_conv_sympy,
+    activity_unit_conv,
+    activity_unit_conv_sympy,
+    mass_unit_conv,
+    mass_unit_conv_sympy,
+    moles_unit_conv,
+    moles_unit_conv_sympy,
 )
 
 
@@ -320,6 +326,278 @@ class Test(unittest.TestCase):
             time_unit_conv_sympy(1.0, "y", "ty", yconv)
         with self.assertRaises(ValueError):
             time_unit_conv_sympy(1.0, "ty", 1.0, yconv)
+
+    def test_activity_unit_conv(self):
+        """
+        Test the conversion between activity units.
+        """
+
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "Bq"), 1.0e0)
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "pBq"), 1.0e12, places=(15 - 12)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "nBq"), 1.0e9, places=(15 - 9)
+        )
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "μBq"), 1.0e6)
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "uBq"), 1.0e6)
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "mBq"), 1.0e3)
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "kBq"), 1.0e-3, places=(3 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "MBq"), 1.0e-6, places=(6 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "GBq"), 1.0e-9, places=(9 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "TBq"), 1.0e-12, places=(12 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "PBq"), 1.0e-15, places=(15 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "EBq"), 1.0e-18, places=(18 + 15)
+        )
+
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "pCi"), 1.0e12 / 3.7e10, places=(15 - 12)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "nCi"), 1.0e9 / 3.7e10, places=(15 - 9)
+        )
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "μCi"), 1.0e6 / 3.7e10)
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "uCi"), 1.0e6 / 3.7e10)
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "mCi"), 1.0e3 / 3.7e10)
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "Ci"), 1.0 / 3.7e10)
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "kCi"), 1.0e-3 / 3.7e10, places=(3 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "MCi"), 1.0e-6 / 3.7e10, places=(6 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "GCi"), 1.0e-9 / 3.7e10, places=(9 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "TCi"), 1.0e-12 / 3.7e10, places=(12 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "PCi"), 1.0e-15 / 3.7e10, places=(15 + 15)
+        )
+        self.assertAlmostEqual(
+            activity_unit_conv(1.0, "Bq", "ECi"), 1.0e-18 / 3.7e10, places=(18 + 15)
+        )
+
+        self.assertEqual(activity_unit_conv(1.0, "Bq", "dpm"), 1.0 / 60.0)
+
+        # Catch some incorrect activity units
+        with self.assertRaises(ValueError):
+            activity_unit_conv(1.0, "tBq", "Bq")
+        with self.assertRaises(ValueError):
+            activity_unit_conv(1.0, "Bq", "tBq")
+        with self.assertRaises(ValueError):
+            activity_unit_conv(1.0, "tBq", 1.0)
+
+    def test_activity_unit_conv_sympy(self):
+        """
+        Test of the variation of activity_unit_conv() which uses SymPy objects.
+        """
+
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "pBq", "nBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "nBq", "μBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(activity_unit_conv_sympy(Integer(1), "μBq", "uBq"), Integer(1))
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "uBq", "mBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "mBq", "Bq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "Bq", "kBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "kBq", "MBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "MBq", "GBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "GBq", "TBq"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "TBq", "PBq"), 1 / Integer(1000)
+        )
+
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "pBq", "pCi"), 1 / Integer(37000000000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "pCi", "nCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "nCi", "μCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(activity_unit_conv_sympy(Integer(1), "μCi", "uCi"), Integer(1))
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "uCi", "mCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "mCi", "Ci"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "Ci", "kCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "kCi", "MCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "MCi", "GCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "GCi", "TCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "TCi", "PCi"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "PCi", "ECi"), 1 / Integer(1000)
+        )
+
+        self.assertEqual(
+            activity_unit_conv_sympy(Integer(1), "Bq", "dpm"), 1 / Integer(60)
+        )
+
+        # Catch some incorrect activity units
+        with self.assertRaises(ValueError):
+            activity_unit_conv_sympy(1.0, "tBq", "Bq")
+        with self.assertRaises(ValueError):
+            activity_unit_conv_sympy(1.0, "Bq", "tBq")
+        with self.assertRaises(ValueError):
+            activity_unit_conv_sympy(1.0, "tBq", 1.0)
+
+    def test_mass_unit_conv(self):
+        """
+        Test the conversion between mass units.
+        """
+
+        self.assertEqual(mass_unit_conv(1.0, "g", "g"), 1.0e0)
+        self.assertAlmostEqual(mass_unit_conv(1.0, "g", "pg"), 1.0e12, places=(15 - 12))
+        self.assertAlmostEqual(mass_unit_conv(1.0, "g", "ng"), 1.0e9, places=(15 - 9))
+        self.assertEqual(mass_unit_conv(1.0, "g", "μg"), 1.0e6)
+        self.assertEqual(mass_unit_conv(1.0, "g", "ug"), 1.0e6)
+        self.assertEqual(mass_unit_conv(1.0, "g", "mg"), 1.0e3)
+        self.assertAlmostEqual(mass_unit_conv(1.0, "g", "kg"), 1.0e-3, places=(3 + 15))
+        self.assertAlmostEqual(mass_unit_conv(1.0, "g", "Mg"), 1.0e-6, places=(6 + 15))
+        self.assertAlmostEqual(mass_unit_conv(1.0, "g", "t"), 1.0e-6, places=(6 + 15))
+        self.assertAlmostEqual(mass_unit_conv(1.0, "g", "ton"), 1.0e-6, places=(6 + 15))
+
+        # Catch some incorrect activity units
+        with self.assertRaises(ValueError):
+            mass_unit_conv(1.0, "tg", "g")
+        with self.assertRaises(ValueError):
+            mass_unit_conv(1.0, "g", "tg")
+        with self.assertRaises(ValueError):
+            mass_unit_conv(1.0, "tg", 1.0)
+
+    def test_mass_unit_conv_sympy(self):
+        """
+        Test of the variation of mass_unit_conv() which uses SymPy objects.
+        """
+
+        self.assertEqual(
+            mass_unit_conv_sympy(Integer(1), "pg", "ng"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            mass_unit_conv_sympy(Integer(1), "ng", "μg"), 1 / Integer(1000)
+        )
+        self.assertEqual(mass_unit_conv_sympy(Integer(1), "μg", "ug"), Integer(1))
+        self.assertEqual(
+            mass_unit_conv_sympy(Integer(1), "ug", "mg"), 1 / Integer(1000)
+        )
+        self.assertEqual(mass_unit_conv_sympy(Integer(1), "mg", "g"), 1 / Integer(1000))
+        self.assertEqual(mass_unit_conv_sympy(Integer(1), "g", "kg"), 1 / Integer(1000))
+        self.assertEqual(
+            mass_unit_conv_sympy(Integer(1), "kg", "Mg"), 1 / Integer(1000)
+        )
+        self.assertEqual(mass_unit_conv_sympy(Integer(1), "Mg", "t"), Integer(1))
+        self.assertEqual(mass_unit_conv_sympy(Integer(1), "Mg", "ton"), Integer(1))
+
+        # Catch some incorrect activity units
+        with self.assertRaises(ValueError):
+            mass_unit_conv_sympy(1.0, "tg", "g")
+        with self.assertRaises(ValueError):
+            mass_unit_conv_sympy(1.0, "g", "tg")
+        with self.assertRaises(ValueError):
+            mass_unit_conv_sympy(1.0, "tg", 1.0)
+
+    def test_moles_unit_conv(self):
+        """
+        Test the conversion between moles orders of magnitude.
+        """
+
+        self.assertEqual(moles_unit_conv(1.0, "mol", "mol"), 1.0e0)
+        self.assertAlmostEqual(
+            moles_unit_conv(1.0, "mol", "pmol"), 1.0e12, places=(15 - 12)
+        )
+        self.assertAlmostEqual(
+            moles_unit_conv(1.0, "mol", "nmol"), 1.0e9, places=(15 - 9)
+        )
+        self.assertEqual(moles_unit_conv(1.0, "mol", "μmol"), 1.0e6)
+        self.assertEqual(moles_unit_conv(1.0, "mol", "umol"), 1.0e6)
+        self.assertEqual(moles_unit_conv(1.0, "mol", "mmol"), 1.0e3)
+        self.assertAlmostEqual(
+            moles_unit_conv(1.0, "mol", "kmol"), 1.0e-3, places=(3 + 15)
+        )
+        self.assertAlmostEqual(
+            moles_unit_conv(1.0, "mol", "Mmol"), 1.0e-6, places=(6 + 15)
+        )
+
+        # Catch some incorrect activity units
+        with self.assertRaises(ValueError):
+            moles_unit_conv(1.0, "tmol", "mol")
+        with self.assertRaises(ValueError):
+            moles_unit_conv(1.0, "mol", "tmol")
+        with self.assertRaises(ValueError):
+            moles_unit_conv(1.0, "tmol", 1.0)
+
+    def test_moles_unit_conv_sympy(self):
+        """
+        Test of the variation of moles_unit_conv() which uses SymPy objects.
+        """
+
+        self.assertEqual(
+            moles_unit_conv_sympy(Integer(1), "pmol", "nmol"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            moles_unit_conv_sympy(Integer(1), "nmol", "μmol"), 1 / Integer(1000)
+        )
+        self.assertEqual(moles_unit_conv_sympy(Integer(1), "μmol", "umol"), Integer(1))
+        self.assertEqual(
+            moles_unit_conv_sympy(Integer(1), "umol", "mmol"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            moles_unit_conv_sympy(Integer(1), "mmol", "mol"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            moles_unit_conv_sympy(Integer(1), "mol", "kmol"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            moles_unit_conv_sympy(Integer(1), "kmol", "Mmol"), 1 / Integer(1000)
+        )
+
+        # Catch some incorrect activity units
+        with self.assertRaises(ValueError):
+            moles_unit_conv_sympy(1.0, "tmol", "mol")
+        with self.assertRaises(ValueError):
+            moles_unit_conv_sympy(1.0, "mol", "tmol")
+        with self.assertRaises(ValueError):
+            moles_unit_conv_sympy(1.0, "tmol", 1.0)
 
 
 if __name__ == "__main__":

@@ -389,7 +389,9 @@ def _check_dictionary(
     }
     for nuc, inp in parsed_inv_dict.items():
         if not isinstance(inp, (float, int)):
-            raise ValueError(str(inp) + " is not a valid amount of nuclide " + str(nuc) + ".")
+            raise ValueError(
+                str(inp) + " is not a valid amount of nuclide " + str(nuc) + "."
+            )
 
     if input_type != "numbers":
         inv_dict = _input_to_number(parsed_inv_dict, input_type, data).copy()

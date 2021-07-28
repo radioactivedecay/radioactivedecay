@@ -3,7 +3,6 @@ Unit tests for inventory.py functions, classes and methods.
 """
 
 import copy
-import math
 import unittest
 from unittest.mock import patch
 from radioactivedecay.inventory import (
