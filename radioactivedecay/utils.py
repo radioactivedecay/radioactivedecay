@@ -15,7 +15,7 @@ from typing import List
 from sympy import Integer, Rational
 
 
-def parse_nuclide(nuclide: str) -> str:
+def parse_nuclide_str(nuclide: str) -> str:
     """
     Parses a nuclide string from e.g. '241Pu' or 'Pu241' format to 'Pu-241' format. Not this
     function works for both radioactive and stable nuclides.
@@ -32,9 +32,9 @@ def parse_nuclide(nuclide: str) -> str:
 
     Examples
     --------
-    >>> rd.utils.parse_nuclide('222Rn')
+    >>> rd.utils.parse_nuclide_str('222Rn')
     'Rn-222'
-    >>> rd.utils.parse_nuclide('Ca40')
+    >>> rd.utils.parse_nuclide_str('Ca40')
     'Ca-40'
 
     """
@@ -65,54 +65,52 @@ def parse_nuclide(nuclide: str) -> str:
     return nuclide
 
 
-def parse_radionuclide(
-    radionuclide: str, radionuclides: List[str], dataset: str
-) -> str:
+def parse_nuclide(nuclide: str, nuclides: List[str], dataset_name: str) -> str:
     """
-    Parses a radionuclide string into symbol - mass number format and checks whether the
-    radionuclide is contained in the decay dataset.
+    Parses a nuclide string into symbol - mass number format and checks whether the
+    nuclide is contained in the decay dataset.
 
     Parameters
     ----------
-    radionuclide : str
-        Radionuclide string.
-    radionuclides : List[str]
-        List of all the radionuclides in the decay dataset.
-    dataset : str
+    nuclide : str
+        Nuclide name string.
+    nuclides : List[str]
+        List of all the nuclides in the decay dataset.
+    dataset_name : str
         Name of the decay dataset.
 
     Returns
     -------
     str
-        Radionuclide string parsed in symbol - mass number format.
+        Nuclide string parsed in symbol - mass number format.
 
     Raises
     ------
     ValueError
-        If the radionuclide string is invalid or the radionuclide is not contained in the decay
+        If the input nuclide string is invalid or the nuclide is not contained in the decay
         dataset.
 
     Examples
     --------
-    >>> rd.utils.parse_radionuclide('222Rn', rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.utils.parse_nuclide('222Rn', rd.DEFAULTDATA.nuclides, rd.DEFAULTDATA.dataset_name)
     'Rn-222'
-    >>> rd.utils.parse_radionuclide('Ba137m', rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.utils.parse_nuclide('Ba137m', rd.DEFAULTDATA.nuclides, rd.DEFAULTDATA.dataset_name)
     'Ba-137m'
 
     """
 
-    original_radionuclide = radionuclide
-    radionuclide = parse_nuclide(radionuclide)
+    original_nuclide = nuclide
+    nuclide = parse_nuclide_str(nuclide)
 
-    if radionuclide not in radionuclides:
+    if nuclide not in nuclides:
         raise ValueError(
-            str(original_radionuclide)
-            + " is not a valid radionuclide in "
-            + dataset
-            + " dataset."
+            str(original_nuclide)
+            + " is not a valid nuclide in "
+            + dataset_name
+            + " decay dataset."
         )
 
-    return radionuclide
+    return nuclide
 
 
 def time_unit_conv(

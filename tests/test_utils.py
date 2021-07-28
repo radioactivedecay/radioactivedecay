@@ -5,8 +5,8 @@ Unit tests for utils.py functions.
 import unittest
 from sympy import Integer
 from radioactivedecay.utils import (
+    parse_nuclide_str,
     parse_nuclide,
-    parse_radionuclide,
     time_unit_conv,
     time_unit_conv_sympy,
 )
@@ -17,21 +17,21 @@ class Test(unittest.TestCase):
     Unit tests for utils.py functions.
     """
 
-    def test_parse_nuclide(self):
+    def test_parse_nuclide_str(self):
         """
         Test the parsing of nuclide strings.
         """
 
-        self.assertEqual(parse_nuclide("Ca-40"), "Ca-40")
-        self.assertEqual(parse_nuclide("Ca40"), "Ca-40")
-        self.assertEqual(parse_nuclide("40Ca"), "Ca-40")
+        self.assertEqual(parse_nuclide_str("Ca-40"), "Ca-40")
+        self.assertEqual(parse_nuclide_str("Ca40"), "Ca-40")
+        self.assertEqual(parse_nuclide_str("40Ca"), "Ca-40")
 
-    def test_parse_radionuclide(self):
+    def test_parse_nuclide(self):
         """
         Test the parsing of radionuclide strings.
         """
 
-        radionuclides = [
+        nuclides = [
             "H-3",
             "Be-7",
             "C-10",
@@ -43,69 +43,57 @@ class Test(unittest.TestCase):
             "Tb-156m",
             "Tb-156n",
         ]
-        dataset = "test"
+        dataset_name = "test"
 
         # Re-formatting of acceptable strings e.g. 100Pd -> Pd-100
-        self.assertEqual(parse_radionuclide("H-3", radionuclides, dataset), "H-3")
-        self.assertEqual(parse_radionuclide("H3", radionuclides, dataset), "H-3")
-        self.assertEqual(parse_radionuclide("3H", radionuclides, dataset), "H-3")
-        self.assertEqual(parse_radionuclide("Be-7", radionuclides, dataset), "Be-7")
-        self.assertEqual(parse_radionuclide("Be7", radionuclides, dataset), "Be-7")
-        self.assertEqual(parse_radionuclide("7Be", radionuclides, dataset), "Be-7")
-        self.assertEqual(parse_radionuclide("C-10", radionuclides, dataset), "C-10")
-        self.assertEqual(parse_radionuclide("C10", radionuclides, dataset), "C-10")
-        self.assertEqual(parse_radionuclide("10C", radionuclides, dataset), "C-10")
-        self.assertEqual(parse_radionuclide("Ne-19", radionuclides, dataset), "Ne-19")
-        self.assertEqual(parse_radionuclide("Ne19", radionuclides, dataset), "Ne-19")
-        self.assertEqual(parse_radionuclide("19Ne", radionuclides, dataset), "Ne-19")
-        self.assertEqual(parse_radionuclide("I-118", radionuclides, dataset), "I-118")
-        self.assertEqual(parse_radionuclide("I118", radionuclides, dataset), "I-118")
-        self.assertEqual(parse_radionuclide("118I", radionuclides, dataset), "I-118")
-        self.assertEqual(parse_radionuclide("Pd-100", radionuclides, dataset), "Pd-100")
-        self.assertEqual(parse_radionuclide("Pd100", radionuclides, dataset), "Pd-100")
-        self.assertEqual(parse_radionuclide("100Pd", radionuclides, dataset), "Pd-100")
-        self.assertEqual(parse_radionuclide("Cl-34m", radionuclides, dataset), "Cl-34m")
-        self.assertEqual(parse_radionuclide("Cl34m", radionuclides, dataset), "Cl-34m")
-        self.assertEqual(parse_radionuclide("34mCl", radionuclides, dataset), "Cl-34m")
-        self.assertEqual(parse_radionuclide("I-118m", radionuclides, dataset), "I-118m")
-        self.assertEqual(parse_radionuclide("I118m", radionuclides, dataset), "I-118m")
-        self.assertEqual(parse_radionuclide("118mI", radionuclides, dataset), "I-118m")
-        self.assertEqual(
-            parse_radionuclide("Tb-156m", radionuclides, dataset), "Tb-156m"
-        )
-        self.assertEqual(
-            parse_radionuclide("Tb156m", radionuclides, dataset), "Tb-156m"
-        )
-        self.assertEqual(
-            parse_radionuclide("156mTb", radionuclides, dataset), "Tb-156m"
-        )
-        self.assertEqual(
-            parse_radionuclide("Tb-156n", radionuclides, dataset), "Tb-156n"
-        )
-        self.assertEqual(
-            parse_radionuclide("Tb156n", radionuclides, dataset), "Tb-156n"
-        )
-        self.assertEqual(
-            parse_radionuclide("156nTb", radionuclides, dataset), "Tb-156n"
-        )
+        self.assertEqual(parse_nuclide("H-3", nuclides, dataset_name), "H-3")
+        self.assertEqual(parse_nuclide("H3", nuclides, dataset_name), "H-3")
+        self.assertEqual(parse_nuclide("3H", nuclides, dataset_name), "H-3")
+        self.assertEqual(parse_nuclide("Be-7", nuclides, dataset_name), "Be-7")
+        self.assertEqual(parse_nuclide("Be7", nuclides, dataset_name), "Be-7")
+        self.assertEqual(parse_nuclide("7Be", nuclides, dataset_name), "Be-7")
+        self.assertEqual(parse_nuclide("C-10", nuclides, dataset_name), "C-10")
+        self.assertEqual(parse_nuclide("C10", nuclides, dataset_name), "C-10")
+        self.assertEqual(parse_nuclide("10C", nuclides, dataset_name), "C-10")
+        self.assertEqual(parse_nuclide("Ne-19", nuclides, dataset_name), "Ne-19")
+        self.assertEqual(parse_nuclide("Ne19", nuclides, dataset_name), "Ne-19")
+        self.assertEqual(parse_nuclide("19Ne", nuclides, dataset_name), "Ne-19")
+        self.assertEqual(parse_nuclide("I-118", nuclides, dataset_name), "I-118")
+        self.assertEqual(parse_nuclide("I118", nuclides, dataset_name), "I-118")
+        self.assertEqual(parse_nuclide("118I", nuclides, dataset_name), "I-118")
+        self.assertEqual(parse_nuclide("Pd-100", nuclides, dataset_name), "Pd-100")
+        self.assertEqual(parse_nuclide("Pd100", nuclides, dataset_name), "Pd-100")
+        self.assertEqual(parse_nuclide("100Pd", nuclides, dataset_name), "Pd-100")
+        self.assertEqual(parse_nuclide("Cl-34m", nuclides, dataset_name), "Cl-34m")
+        self.assertEqual(parse_nuclide("Cl34m", nuclides, dataset_name), "Cl-34m")
+        self.assertEqual(parse_nuclide("34mCl", nuclides, dataset_name), "Cl-34m")
+        self.assertEqual(parse_nuclide("I-118m", nuclides, dataset_name), "I-118m")
+        self.assertEqual(parse_nuclide("I118m", nuclides, dataset_name), "I-118m")
+        self.assertEqual(parse_nuclide("118mI", nuclides, dataset_name), "I-118m")
+        self.assertEqual(parse_nuclide("Tb-156m", nuclides, dataset_name), "Tb-156m")
+        self.assertEqual(parse_nuclide("Tb156m", nuclides, dataset_name), "Tb-156m")
+        self.assertEqual(parse_nuclide("156mTb", nuclides, dataset_name), "Tb-156m")
+        self.assertEqual(parse_nuclide("Tb-156n", nuclides, dataset_name), "Tb-156n")
+        self.assertEqual(parse_nuclide("Tb156n", nuclides, dataset_name), "Tb-156n")
+        self.assertEqual(parse_nuclide("156nTb", nuclides, dataset_name), "Tb-156n")
 
         # Catch erroneous strings
         with self.assertRaises(ValueError):
-            parse_radionuclide("H", radionuclides, dataset)
+            parse_nuclide("H", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("A1", radionuclides, dataset)
+            parse_nuclide("A1", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("1A", radionuclides, dataset)
+            parse_nuclide("1A", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("H-4", radionuclides, dataset)
+            parse_nuclide("H-4", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("H4", radionuclides, dataset)
+            parse_nuclide("H4", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("4H", radionuclides, dataset)
+            parse_nuclide("4H", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("Pb-198m", radionuclides, dataset)
+            parse_nuclide("Pb-198m", nuclides, dataset_name)
         with self.assertRaises(ValueError):
-            parse_radionuclide("Pbo-198m", radionuclides, dataset)
+            parse_nuclide("Pbo-198m", nuclides, dataset_name)
 
     def test_time_unit_conv_seconds(self):
         """
@@ -128,7 +116,8 @@ class Test(unittest.TestCase):
         self.assertEqual(time_unit_conv(1.0, "s", "h", yconv), 1.0 / (60.0 ** 2))
         self.assertEqual(time_unit_conv(1.0, "s", "d", yconv), 1.0 / (60.0 ** 2 * 24.0))
         self.assertEqual(
-            time_unit_conv(1.0, "s", "y", yconv), 1.0 / (60.0 ** 2 * 24.0 * 365.2422),
+            time_unit_conv(1.0, "s", "y", yconv),
+            1.0 / (60.0 ** 2 * 24.0 * 365.2422),
         )
         self.assertAlmostEqual(
             time_unit_conv(1.0, "ps", "s", yconv), 1.0e-12, places=(12 + 15)

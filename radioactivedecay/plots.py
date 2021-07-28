@@ -127,7 +127,7 @@ def _check_fig_ax(
 def _decay_graph(
     time_points: np.ndarray,
     activities: np.ndarray,
-    radionuclides: np.ndarray,
+    nuclides: np.ndarray,
     xunits: str,
     yunits: Union[None, str],
     xscale: str,
@@ -148,8 +148,8 @@ def _decay_graph(
         Time points for x-axis.
     activities : numpy.ndarray
         Radioactivities for y-axis.
-    radionuclides : numpy.ndarray
-        NumPy array of the radionuclides (string format is 'H-3', etc.).
+    nuclides : numpy.ndarray
+        NumPy array of the nuclides (string format is 'H-3', etc.).
     xunits : str
         Units for decay time axis.
     yunits : None or str
@@ -161,7 +161,7 @@ def _decay_graph(
     ylimits : numpy.ndarray
         Limits for the y-axis.
     display : set of str
-        Radionuclides to display on the graph.
+        Nuclides to display on the graph.
     fig_in : None or matplotlib.figure.Figure
         matplotlib figure object to use, or None creates one.
     ax_in : matplotlib.axes.Axes or None, optional
@@ -180,14 +180,17 @@ def _decay_graph(
 
     fig, ax = _check_fig_ax(fig_in, ax_in)
 
-    for i, label in enumerate(radionuclides):
+    for i, label in enumerate(nuclides):
         if label in display:
             ax.plot(time_points, activities[i], label=label, **kwargs)
     ax.legend(loc="upper right")
     xlabel = "Time (" + xunits + ")"
     ylabel = "Activity (" + yunits + ")" if yunits else "Activity"
     ax.set(
-        xlabel=xlabel, ylabel=ylabel, xscale=xscale, yscale=yscale,
+        xlabel=xlabel,
+        ylabel=ylabel,
+        xscale=xscale,
+        yscale=yscale,
     )
     ax.set_ylim(ylimits)
 

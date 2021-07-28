@@ -34,6 +34,9 @@ class Test(unittest.TestCase):
             {"Pm-141": 4.0, "Rb-78": 2.0, "Rb-90": 4.0},
         )
 
+    def test__activity_to_number(self):
+        pass
+
     def test__sort_dictionary_alphabetically(self):
         """
         Test the sorting of a dictionary by its keys alphabetically.
@@ -50,65 +53,67 @@ class Test(unittest.TestCase):
         Test the checking of inventory dictionaries.
         """
 
-        radionuclides = ["H-3", "C-14"]
+        nuclides = ["H-3", "C-14"]
         H3 = Radionuclide("H3")
         C14 = Radionuclide("C14")
 
         # Dictionary parsing
         self.assertEqual(
-            _check_dictionary({"H-3": 1.0}, radionuclides, input_type="numbers"),
+            _check_dictionary({"H-3": 1.0}, input_type="numbers", data=DEFAULTDATA),
             {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"H3": 1.0}, radionuclides, input_type="numbers"),
+            _check_dictionary({"H3": 1.0}, input_type="numbers", data=DEFAULTDATA),
             {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"3H": 1.0}, radionuclides, input_type="numbers"),
+            _check_dictionary({"3H": 1.0}, input_type="numbers", data=DEFAULTDATA),
             {"H-3": 1.0},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1}, radionuclides, input_type="numbers"),
+            _check_dictionary({"H-3": 1}, input_type="numbers", data=DEFAULTDATA),
             {"H-3": 1},
         )
         self.assertEqual(
-            _check_dictionary({"H-3": 1}, radionuclides, input_type="numbers"),
+            _check_dictionary({"H-3": 1}, input_type="numbers", data=DEFAULTDATA),
             {"H-3": 1.0},
         )
         self.assertEqual(
             _check_dictionary(
-                {"H-3": 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"
+                {"H-3": 1.0, "C-14": 2.0}, input_type="numbers", data=DEFAULTDATA
             ),
             {"H-3": 1.0, "C-14": 2.0},
         )
         self.assertEqual(
             _check_dictionary(
-                {"H-3": 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"
-            ),
-            {"C-14": 2.0, "H-3": 1.0},
-        )
-        self.assertEqual(
-            _check_dictionary({H3: 1.0, C14: 2.0}, radionuclides, input_type="numbers"),
-            {"C-14": 2.0, "H-3": 1.0},
-        )
-        self.assertEqual(
-            _check_dictionary(
-                {"H-3": 1.0, C14: 2.0}, radionuclides, input_type="numbers"
+                {"H-3": 1.0, "C-14": 2.0}, input_type="numbers", data=DEFAULTDATA
             ),
             {"C-14": 2.0, "H-3": 1.0},
         )
         self.assertEqual(
             _check_dictionary(
-                {H3: 1.0, "C-14": 2.0}, radionuclides, input_type="numbers"
+                {H3: 1.0, C14: 2.0}, input_type="numbers", data=DEFAULTDATA
+            ),
+            {"C-14": 2.0, "H-3": 1.0},
+        )
+        self.assertEqual(
+            _check_dictionary(
+                {"H-3": 1.0, C14: 2.0}, input_type="numbers", data=DEFAULTDATA
+            ),
+            {"C-14": 2.0, "H-3": 1.0},
+        )
+        self.assertEqual(
+            _check_dictionary(
+                {H3: 1.0, "C-14": 2.0}, input_type="numbers", data=DEFAULTDATA
             ),
             {"C-14": 2.0, "H-3": 1.0},
         )
 
         # Catch incorrect arguments
         with self.assertRaises(ValueError):
-            _check_dictionary({"H-3": "1.0"}, radionuclides, input_type="numbers")
+            _check_dictionary({"H-3": "1.0"}, input_type="numbers", data=DEFAULTDATA)
         with self.assertRaises(ValueError):
-            _check_dictionary({"1.0": "H-3"}, radionuclides, input_type="numbers")
+            _check_dictionary({"1.0": "H-3"}, input_type="numbers", data=DEFAULTDATA)
 
     def test__sort_list_according_to_dataset(self):
         """
@@ -118,7 +123,7 @@ class Test(unittest.TestCase):
         radionuclide_list = ["Tc-99", "Tc-99m"]
         self.assertEqual(
             _sort_list_according_to_dataset(
-                radionuclide_list, DEFAULTDATA.radionuclide_dict
+                radionuclide_list, DEFAULTDATA.nuclide_dict
             ),
             ["Tc-99m", "Tc-99"],
         )
@@ -156,15 +161,15 @@ class Test(unittest.TestCase):
         inv._change({Tc99m: 2.3, "I-123": 5.8}, "numbers", True, DEFAULTDATA)
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
-    def test_inventory_radionuclides(self):
+    def test_inventory_nuclides(self):
         """
         Test Inventory radionuclides property.
         """
 
         inv = Inventory({"H-3": 1.0})
-        self.assertEqual(inv.radionuclides, ["H-3"])
+        self.assertEqual(inv.nuclides, ["H-3"])
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
-        self.assertEqual(inv.radionuclides, ["I-123", "Tc-99m"])
+        self.assertEqual(inv.nuclides, ["I-123", "Tc-99m"])
 
     def test_inventory_activities(self):
         """
@@ -231,7 +236,7 @@ class Test(unittest.TestCase):
         self.assertEqual(inv.contents, {"C-14": 1.0, "H-3": 5.0}, "numbers")
 
         temp_data = copy.deepcopy(DEFAULTDATA)
-        temp_data.dataset = "icrp107_"
+        temp_data.dataset_name = "icrp107_"
         inv3 = Inventory({"H-3": 2.0}, "numbers", data=temp_data)
         with self.assertRaises(ValueError):
             inv = inv1 + inv3
@@ -247,7 +252,7 @@ class Test(unittest.TestCase):
         self.assertEqual(inv.contents, {"C-14": 1.0, "H-3": 3.0})
 
         temp_data = copy.deepcopy(DEFAULTDATA)
-        temp_data.dataset = "icrp107_"
+        temp_data.dataset_name = "icrp107_"
         inv3 = Inventory({"H-3": 2.0}, "numbers", data=temp_data)
         with self.assertRaises(ValueError):
             inv = inv1 - inv3
@@ -552,9 +557,10 @@ class Test(unittest.TestCase):
         Test Inventory representations.
         """
 
-        inv = Inventory({"H-3": 10.0}, "numbers")
+        inv = Inventory({"H-3": 10.0}, "activities")
         self.assertEqual(
-            inv.__repr__(), "Inventory: {'H-3': 10.0}, decay dataset: icrp107"
+            inv.__repr__(),
+            "Inventory activities: {'H-3': 10.0}, decay dataset: icrp107",
         )
 
     def test_inventory___eq__(self):

@@ -25,7 +25,7 @@ from scipy import sparse
 from sympy import log, Matrix
 from sympy.core.numbers import Rational
 from sympy.matrices import SparseMatrix
-from radioactivedecay.utils import parse_nuclide, parse_radionuclide, time_unit_conv
+from radioactivedecay.utils import parse_nuclide, time_unit_conv
 
 try:
     from importlib import resources
@@ -33,14 +33,14 @@ except ImportError:
     import importlib_resources as resources
 
 
-def _get_package_filepath(dataset: str, filename: str) -> ContextManager[Path]:
+def _get_package_filepath(dataset_name: str, filename: str) -> ContextManager[Path]:
     """
     Returns the path to a decay dataset file which is bundled as a sub-package within the
     ``radioactivedecay`` package.
 
     Parameters
     ----------
-    dataset : str
+    dataset_name : str
         Name of the decay dataset.
     filename : str
         Name of the file.
@@ -51,18 +51,20 @@ def _get_package_filepath(dataset: str, filename: str) -> ContextManager[Path]:
         A context manager providing a file path object for the decay dataset file.
     """
 
-    with resources.path(__package__ + "." + dataset, filename) as package_path:
+    with resources.path(__package__ + "." + dataset_name, filename) as package_path:
         return package_path
 
 
-def _get_package_pickle(dataset: str, filename: str) -> Union[Matrix, SparseMatrix]:
+def _get_package_pickle(
+    dataset_name: str, filename: str
+) -> Union[Matrix, SparseMatrix]:
     """
     Returns an object loaded from a decay dataset file which is bundled as a sub-package within the
     ``radioactivedecay`` package.
 
     Parameters
     ----------
-    dataset : str
+    dataset_name : str
         Name of the decay dataset.
     filename : str
         Name of the file.
@@ -73,7 +75,7 @@ def _get_package_pickle(dataset: str, filename: str) -> Union[Matrix, SparseMatr
         A SymPy dense or sparse matrix loaded from the decay dataset pickle file.
     """
 
-    with resources.open_binary(__package__ + "." + dataset, filename) as file:
+    with resources.open_binary(__package__ + "." + dataset_name, filename) as file:
         return pickle.load(file)
 
 
@@ -134,7 +136,7 @@ class DecayMatrices:
         The matrix exponential that is used in radioactive decay calculations. It is a diagonal
         matrix that is pre-allocted for performance reasons.
     vector_n0 : numpy.ndarray or sympy.matrices.dense.MutableDenseMatrix
-        Column vector for the number of atoms of each radionuclide. It is pre-allocted for
+        Column vector for the number of atoms of each nuclide. It is pre-allocted for
         performance reasons.
     year_conv : float or sympy.core.numbers.Rational
         Conversion factor for number of days in one year.
@@ -217,7 +219,7 @@ class DecayData:
 
     Parameters
     ----------
-    dataset : str
+    dataset_name : str
         Name of the decay dataset.
     dir_path : str or None, optional
         Path to the directory containing the decay dataset files. Use None if the data are bundled
@@ -228,17 +230,19 @@ class DecayData:
 
     Attributes
     ----------
-    dataset : str
+    dataset_name : str
         Name of the decay dataset.
     hldata : numpy.ndarray
         List of tuples containing half-life floats, time unit strings and readable format half-life
         strings.
-    num_radionuclides : int
-        Number of radionuclides in the dataset.
-    radionuclides : numpy.ndarray
-        NumPy array of radionuclides in the dataset (string format is 'H-3', etc.).
-    radionuclide_dict : dict
-        Dictionary containing radionuclide strings as keys and positions in the matrices as values.
+    masses : numpy.ndarray
+        NumPy array of atomic masses (g/mol) of the nuclides in the dataset.
+    num_nuclides : int
+        Number of nuclides in the dataset.
+    nuclides : numpy.ndarray
+        NumPy array of nuclides in the dataset (string format is 'H-3', etc.).
+    nuclide_dict : dict
+        Dictionary containing nuclide strings as keys and positions in the matrices as values.
     prog_bfs_modes : numpy.ndarray
         NumPy array of dictionaries with direct progeny as keys and lists with branching fraction
         and decay mode data as values.
@@ -253,28 +257,29 @@ class DecayData:
     # pylint: disable=too-many-instance-attributes
 
     def __init__(
-        self, dataset: str, dir_path: Union[str, None] = None, load_sympy: bool = False,
+        self,
+        dataset_name: str,
+        dir_path: Union[str, None] = None,
+        load_sympy: bool = False,
     ) -> None:
 
-        self.dataset = dataset
+        self.dataset_name = dataset_name
 
         if dir_path is None:
             data = np.load(
-                _get_package_filepath(self.dataset, "decay_data.npz"),
+                _get_package_filepath(self.dataset_name, "decay_data.npz"),
                 allow_pickle=True,
             )
         else:
             data = np.load(dir_path + "/decay_data.npz", allow_pickle=True)
 
-        self.radionuclides = data["radionuclides"]
+        self.nuclides = data["radionuclides"]
         self.hldata = data["hldata"]
         self.prog_bfs_modes = data["prog_bfs_modes"]
         self.masses = data["masses"]
 
-        self.num_radionuclides = self.radionuclides.size
-        self.radionuclide_dict = dict(
-            zip(self.radionuclides, list(range(0, self.num_radionuclides)))
-        )
+        self.num_nuclides = self.nuclides.size
+        self.nuclide_dict = dict(zip(self.nuclides, list(range(0, self.num_nuclides))))
 
         decay_consts = np.array(
             [
@@ -288,10 +293,10 @@ class DecayData:
 
         if dir_path is None:
             matrix_c = sparse.load_npz(
-                _get_package_filepath(self.dataset, "c_scipy.npz")
+                _get_package_filepath(self.dataset_name, "c_scipy.npz")
             )
             matrix_c_inv = sparse.load_npz(
-                _get_package_filepath(self.dataset, "c_inv_scipy.npz")
+                _get_package_filepath(self.dataset_name, "c_inv_scipy.npz")
             )
         else:
             matrix_c = sparse.load_npz(dir_path + "/c_scipy.npz")
@@ -303,12 +308,14 @@ class DecayData:
         if load_sympy:
             if dir_path is None:
                 decay_consts = _get_package_pickle(
-                    self.dataset, "decay_consts_sympy.pickle"
+                    self.dataset_name, "decay_consts_sympy.pickle"
                 )
-                matrix_c = _get_package_pickle(self.dataset, "c_sympy.pickle")
-                matrix_c_inv = _get_package_pickle(self.dataset, "c_inv_sympy.pickle")
+                matrix_c = _get_package_pickle(self.dataset_name, "c_sympy.pickle")
+                matrix_c_inv = _get_package_pickle(
+                    self.dataset_name, "c_inv_sympy.pickle"
+                )
                 year_conv = _get_package_pickle(
-                    self.dataset, "year_conversion_sympy.pickle"
+                    self.dataset_name, "year_conversion_sympy.pickle"
                 )
             else:
                 with open(dir_path + "/decay_consts_sympy.pickle", "rb") as file:
@@ -326,15 +333,15 @@ class DecayData:
         else:
             self.sympy_data = None
 
-    def half_life(self, radionuclide: str, units: str = "s") -> Union[float, str]:
+    def half_life(self, nuclide: str, units: str = "s") -> Union[float, str]:
         """
-        Returns the half-life of the radionuclide as a float in your chosen units, or as
+        Returns the half-life of the nuclide as a float in your chosen units, or as
         a human-readable string with appropriate units.
 
         Parameters
         ----------
-        radionuclide : str
-            Radionuclide string.
+        nuclide : str
+            Nuclide string.
         units : str, optional
             Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
@@ -343,7 +350,7 @@ class DecayData:
         Returns
         -------
         float or str
-            Radionuclide half-life.
+            Nuclide half-life.
 
         Examples
         --------
@@ -353,15 +360,15 @@ class DecayData:
         388781329.30560005
         >>> rd.DEFAULTDATA.half_life('H-3', 'readable')
         '12.32 y'
+        >>> rd.DEFAULTDATA.half_life('He-3')
+        inf
+        >>> rd.DEFAULTDATA.half_life('He-3', 'readable')
+        'stable'
 
         """
 
-        radionuclide = parse_radionuclide(
-            radionuclide, self.radionuclides, self.dataset
-        )
-        half_life, unit, readable_str = self.hldata[
-            self.radionuclide_dict[radionuclide]
-        ]
+        nuclide = parse_nuclide(nuclide, self.nuclides, self.dataset_name)
+        half_life, unit, readable_str = self.hldata[self.nuclide_dict[nuclide]]
 
         if units == "readable":
             return readable_str
@@ -384,7 +391,7 @@ class DecayData:
         Parameters
         ----------
         parent : str
-            Radionuclide string of the parent.
+            Nuclide string of the parent.
         progeny : str
             Nuclide string of the progeny (can be stable or radioactive nuclide).
 
@@ -400,10 +407,10 @@ class DecayData:
 
         """
 
-        parent = parse_radionuclide(parent, self.radionuclides, self.dataset)
-        progeny = parse_nuclide(progeny)
-        if progeny in self.prog_bfs_modes[self.radionuclide_dict[parent]]:
-            return self.prog_bfs_modes[self.radionuclide_dict[parent]][progeny][0]
+        parent = parse_nuclide(parent, self.nuclides, self.dataset_name)
+        progeny = parse_nuclide(progeny, self.nuclides, self.dataset_name)
+        if progeny in self.prog_bfs_modes[self.nuclide_dict[parent]]:
+            return self.prog_bfs_modes[self.nuclide_dict[parent]][progeny][0]
 
         return 0.0
 
@@ -417,9 +424,9 @@ class DecayData:
         Parameters
         ----------
         parent : str
-            Radionuclide string of the parent.
+            Nuclide string of the parent.
         progeny : str
-            Nuclide string of the progeny (can be stable or radioactive nuclide).
+            Nuclide string of the progeny.
 
         Returns
         -------
@@ -433,10 +440,10 @@ class DecayData:
 
         """
 
-        parent = parse_radionuclide(parent, self.radionuclides, self.dataset)
-        progeny = parse_nuclide(progeny)
-        if progeny in self.prog_bfs_modes[self.radionuclide_dict[parent]]:
-            return self.prog_bfs_modes[self.radionuclide_dict[parent]][progeny][1]
+        parent = parse_nuclide(parent, self.nuclides, self.dataset_name)
+        progeny = parse_nuclide(progeny, self.nuclides, self.dataset_name)
+        if progeny in self.prog_bfs_modes[self.nuclide_dict[parent]]:
+            return self.prog_bfs_modes[self.nuclide_dict[parent]][progeny][1]
 
         return ""
 
@@ -446,11 +453,11 @@ class DecayData:
         """
 
         return (
-            self.dataset == other.dataset
+            self.dataset_name == other.dataset_name
             and (self.hldata == other.hldata).all()
-            and self.num_radionuclides == other.num_radionuclides
-            and (self.radionuclides == other.radionuclides).all()
-            and self.radionuclide_dict == other.radionuclide_dict
+            and self.num_nuclides == other.num_nuclides
+            and (self.nuclides == other.nuclides).all()
+            and self.nuclide_dict == other.nuclide_dict
             and (self.prog_bfs_modes == other.prog_bfs_modes).all()
             and self.scipy_data == other.scipy_data
             and self.sympy_data == other.sympy_data
@@ -465,9 +472,9 @@ class DecayData:
 
     def __repr__(self) -> str:
         return (
-            "Decay dataset: " + self.dataset + ", contains SymPy data: False"
+            "Decay dataset: " + self.dataset_name + ", contains SymPy data: False"
             if self.sympy_data is None
-            else "Decay dataset: " + self.dataset + ", contains SymPy data: True"
+            else "Decay dataset: " + self.dataset_name + ", contains SymPy data: True"
         )
 
 
