@@ -90,6 +90,8 @@ class Radionuclide:
         >>> K40 = rd.Radionuclide('K-40')
         >>> K40.half_life('y')
         1251000000.0
+        >>> K40.half_life('readable')
+        '1.251 By'
 
         """
 

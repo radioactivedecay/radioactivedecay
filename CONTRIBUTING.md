@@ -63,11 +63,13 @@ error count with your changes. 😊
 ### Tests
 
 The project uses Python's
-[unittest framework](https://docs.python.org/3/library/unittest.html) for
+[unittest](https://docs.python.org/3/library/unittest.html) framework for
 testsing. Please write unit tests for any new functionality you create. The
 tests are stored in the
 [tests](https://github.com/alexmalins/radioactivedecay/tree/main/tests)
 sub-directory.
+
+Run the tests via ``python -m unittest discover`` from the base directory.
 
 
 ### Docstrings and Documentation
@@ -77,7 +79,7 @@ Documentation is handled via the
 file and the reStructuredText files in the
 [docs/source](https://github.com/alexmalins/radioactivedecay/tree/main/docs/source/)
 sub-directory. [Spinx](http://www.sphinx-doc.org/en/master/) is used for compiling the
-docs (``make html`` from within the
+docs (run ``make html`` from within the
 [docs](https://github.com/alexmalins/radioactivedecay/tree/main/docs/)
  sub-directory).
 
