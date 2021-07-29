@@ -1,8 +1,8 @@
 # Contributing
 
-Anybody is welcome to submit bug reports and make feature requests. You can
-also submit pull requests (PRs) with new code to improve this package. Below
-are some general guidelines for requesting changes or submitting a PR.
+Anybody is welcome to submit bug reports and make feature requests. You are
+also welcome submit pull requests (PRs) with new code to improve this package.
+Below are some general guidelines for requesting changes or submitting a PR.
 
 
 ## Reporting Issues
@@ -64,12 +64,13 @@ error count with your changes. 😊
 
 The project uses Python's
 [unittest](https://docs.python.org/3/library/unittest.html) framework for
-testsing. Please write unit tests for any new functionality you create. The
+testing. Please write unit tests for any new functionality you add. The
 tests are stored in the
 [tests](https://github.com/alexmalins/radioactivedecay/tree/main/tests)
 sub-directory.
 
-Run the tests via ``python -m unittest discover`` from the base directory.
+Run the tests by excecuting the command ``python -m unittest discover`` from
+the base directory.
 
 
 ### Docstrings and Documentation
@@ -87,21 +88,25 @@ Code docstrings follow the
 [NumPy format](https://numpydoc.readthedocs.io/en/latest/format.html). Please
 create new or update existing docstrings as appropriate. The doctrings are
 automatically harvested by Sphinx to create the API section of the
-[documentation](https://alexmalins.com/radioactivedecay/).
+[documentation](https://alexmalins.com/radioactivedecay/api.html).
 
 
 ## Release Guidelines
 
-These notes describe the process for cutting a new release:
+These notes describe the steps for cutting a new release:
 
 * Update the version number in setup.py
 * Update the version number in radioactivedecay/__init__.py
 * Update the version number in docs/source/conf.py
+* Make sure
+[CHANGELOG.md](https://github.com/alexmalins/radioactivedecay/blob/main/CHANGELOG.md)
+documents the changes
 * Run ``python setup.py sdist bdist_wheel`` to create a new package
 * Run the tests and code coverage calc: ``coverage run -m unittest discover``
 * Upload the code coverage reports to codecov
 * Compile the docs: ``docs/make html``
-* Upload the docs to https://alexmalins.com/radioactivedecay/
-* Create a release on GitHub (attach the ``.tar.gz`` and ``.whl`` files)
+* Upload the new docs html files to https://alexmalins.com/radioactivedecay/
+* Create a release on GitHub (attach the ``.tar.gz`` and ``.whl`` distribution
+files)
 * Upload the new version to PyPi
 * Upload the new version to conda-forge
