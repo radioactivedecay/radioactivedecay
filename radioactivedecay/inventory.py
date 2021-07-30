@@ -1,10 +1,10 @@
 """
 The inventory module defines the ``Inventory`` class. Each ``Inventory`` instance contains one or
-more nuclide each with an associated number of atoms. The decay of the nuclide(s) in an
+more nuclide each with an associated quantity (number of atoms). The decay of the nuclide(s) in an
 ``Inventory`` can be calculated by using the ``decay()`` method (normal double-precision
 floating-point operations). Use the ``decay_high_precision()`` method to perform a SymPy high
-numerical precision calculation. A ``DecayData`` dataset associated with each ``Inventory``
-instance is the radioactive decay data source (default is rd.DEFAULTDATA).
+numerical precision calculation. A ``DecayData`` dataset is associated with each ``Inventory``
+instance (default is rd.DEFAULTDATA).
 
 The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
 as:
@@ -173,7 +173,7 @@ def _moles_to_number(moles: float) -> float:
 
 def _number_to_activity(nuclide: str, number: float, data: DecayData) -> float:
     """
-    Converts number of atoms to activity.
+    Converts number of atoms to activity in Bq.
 
     Parameters
     ----------
@@ -187,7 +187,7 @@ def _number_to_activity(nuclide: str, number: float, data: DecayData) -> float:
     Returns
     -------
     float
-        Activity of the nuclide.
+        Activity of the nuclide in Bq.
 
     Raises
     ------
@@ -291,7 +291,8 @@ def _input_to_number(
     input_inv_dict: Dict[str, float], units: str, data: DecayData
 ) -> Dict[str, float]:
     """
-    Converts mass, moles, or activity input inventory dictionary into number.
+    Converts an inventory dictionary where the values are mass, moles, or activity into one where
+    the values are number of atoms.
 
     Parameters
     ----------
@@ -315,36 +316,32 @@ def _input_to_number(
 
     Examples
     --------
-    >>> rd.inventory._input_to_number({'Ni-56': .3, 'Co-56': .7}, 'activities', rd.DEFAULTDATA)
-    {'Ni-56': 227172.53191853972, 'Co-56': 6738641.562715049}
-    >>> rd.inventory._input_to_number({'U-238': 21.1, 'Co-57': 7.2}, 'masses', rd.DEFAULTDATA)
-    {'U-238': 5.337817684684321e+22, 'Co-57': 7.61542657764305e+22}
+    >>> rd.inventory._input_to_number({'Ni-56': .3, 'Co-56': .7}, 'mBq', rd.DEFAULTDATA)
+    {'Ni-56': 227.17253191853973, 'Co-56': 6738.641562715049}
+    >>> rd.inventory._input_to_number({'U-238': 21.1, 'Co-57': 7.2}, 'μg', rd.DEFAULTDATA)
+    {'U-238': 5.337817684684321e+16, 'Co-57': 7.61542657764305e+16}
 
     """
 
-    number_dict = {}
-
     if units in activity_units:
-        for nuc, act in input_inv_dict.items():
-            number = _activity_to_number(
-                nuc, activity_unit_conv(act, units, "Bq"), data
-            )
-            number_dict[nuc] = number
-        converted_dict = number_dict.copy()
+        number_dict = {
+            nuc: _activity_to_number(nuc, activity_unit_conv(act, units, "Bq"), data)
+            for nuc, act in input_inv_dict.items()
+        }
     elif units in moles_units:
-        for nuc, moles in input_inv_dict.items():
-            number = _moles_to_number(moles_unit_conv(moles, units, "mol"))
-            number_dict[nuc] = number
-        converted_dict = number_dict.copy()
+        number_dict = {
+            nuc: _moles_to_number(moles_unit_conv(mol, units, "mol"))
+            for nuc, mol in input_inv_dict.items()
+        }
     elif units in mass_units:
-        for nuc, mass in input_inv_dict.items():
-            number = _mass_to_number(nuc, mass_unit_conv(mass, units, "g"), data)
-            number_dict[nuc] = number
-        converted_dict = number_dict.copy()
+        number_dict = {
+            nuc: _mass_to_number(nuc, mass_unit_conv(mass, units, "g"), data)
+            for nuc, mass in input_inv_dict.items()
+        }
     else:
-        raise ValueError(units + " is not a valid value input type")
+        raise ValueError(units + " is not a supported unit.")
 
-    return converted_dict
+    return number_dict
 
 
 def _check_dictionary(
@@ -360,7 +357,7 @@ def _check_dictionary(
     ----------
     input_inv_dict : dict
         Dictionary containing nuclide strings or Radionuclide objects as keys and quantities
-        as values.
+        (activities, masses, numbers or moles) as values.
     units : str
         Units of the values in the input dictionary (e.g. 'Bq', 'g', 'mol', 'num').
     data : DecayData
@@ -379,11 +376,11 @@ def _check_dictionary(
 
     Examples
     --------
-    >>> rd.inventory._check_dictionary({'3H': 1.0}, 'numbers', rd.DEFAULTDATA)
+    >>> rd.inventory._check_dictionary({'3H': 1.0}, 'num', rd.DEFAULTDATA)
     {'H-3': 1.0}
     >>> H3 = rd.Radionuclide('H-3')
-    >>> rd.inventory._check_dictionary({H3: 1.0}, 'activities', rd.DEFAULTDATA)
-    {'H-3': 1.0}
+    >>> rd.inventory._check_dictionary({H3: 1.0}, 'Bq', rd.DEFAULTDATA)
+    {'H-3': 560892895.7794082}
 
     """
 
@@ -402,11 +399,9 @@ def _check_dictionary(
             )
 
     if units != "num":
-        inv_dict = _input_to_number(parsed_inv_dict, units, data).copy()
-    else:
-        inv_dict = parsed_inv_dict.copy()
+        parsed_inv_dict = _input_to_number(parsed_inv_dict, units, data)
 
-    return inv_dict
+    return parsed_inv_dict
 
 
 def _sort_list_according_to_dataset(
@@ -584,7 +579,7 @@ class Inventory:
         Examples
         --------
         >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}).masses('pg')
-        {'I-123': 8.158243973887584e-5, 'Tc-99m': 1.1800869622748501e-5}
+        {'I-123': 8.158243973887584e-05, 'Tc-99m': 1.1800869622748502e-05}
 
         """
 
@@ -646,8 +641,10 @@ class Inventory:
 
         """
 
-        total_number = sum(self.contents)
-        mole_fractions = {nuc: num / total_number for nuc, num in self.contents.items()}
+        total_number = sum(self.numbers().values())
+        mole_fractions = {
+            nuc: num / total_number for nuc, num in self.numbers().items()
+        }
 
         return mole_fractions
 
@@ -664,7 +661,7 @@ class Inventory:
         units: str = "Bq",
     ) -> None:
         """
-        Adds a dictionary of nuclides and associated numbers/activities/masses
+        Adds a dictionary of nuclides and associated quantities (numbers/activities/masses/moles)
         to the inventory.
 
         Parameters
@@ -1152,7 +1149,7 @@ class Inventory:
         yscale: str = "linear",
         ymin: float = 0.0,
         ymax: Union[None, float] = None,
-        yunits: Union[None, str] = None,
+        yunits: str = "Bq",
         sig_fig: Union[None, int] = None,
         display: Union[str, List[str]] = "all",
         order: str = "dataset",
@@ -1178,14 +1175,15 @@ class Inventory:
         xscale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         yscale : str, optional
-            The activities axis scale type to apply ('linear' or 'log', default is 'linear').
+            The y-axis scale type to apply ('linear' or 'log', default is 'linear').
         ymin : float, optional
-            Minimum activity for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
+            Minimum value for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
         ymax : None or float, optional
-            Maximum activity for the y-axis. Default is None, which sets the limit to 1.05x the
-            maximum radioactivity that occurs over the decay period.
-        yunits : None or str, optional
-            Acivity unit for the y-axis label (default is to show no unit).
+            Maximum value for the y-axis. Default is None, which sets the limit to 1.05x the
+            maximum quantity that occurs over the decay period.
+        yunits : str, optional
+            Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
+            'mass_frac', 'mol_frac'. Default is 'Bq'.
         sig_fig : None or int, optional
             None: use normal double precision decay calculations (default), int: perform Sympy high
             precision decay calculations with this many significant figures.
@@ -1257,21 +1255,60 @@ class Inventory:
                 for rad in display
             ]
 
-        acts = np.zeros(shape=(npoints, len(display)))
-        for i in range(0, npoints):
-            decayed_contents = self.decay(time_points[i], xunits, sig_fig).contents
-            acts[i] = [decayed_contents[rad] for rad in display]
+        ydata = np.zeros(shape=(npoints, len(display)))
+        if yunits in activity_units:
+            for i in range(0, npoints):
+                decayed_contents = self.decay(
+                    time_points[i], xunits, sig_fig
+                ).activities(yunits)
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Activity (" + yunits + ")"
+        elif yunits in moles_units:
+            for i in range(0, npoints):
+                decayed_contents = self.decay(time_points[i], xunits, sig_fig).moles(
+                    yunits
+                )
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Number of moles (" + yunits + ")"
+        elif yunits in mass_units:
+            for i in range(0, npoints):
+                decayed_contents = self.decay(time_points[i], xunits, sig_fig).masses(
+                    yunits
+                )
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Mass (" + yunits + ")"
+        elif yunits == "num":
+            for i in range(0, npoints):
+                decayed_contents = self.decay(time_points[i], xunits, sig_fig).numbers()
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Number of atoms"
+        elif yunits == "mass_frac":
+            for i in range(0, npoints):
+                decayed_contents = self.decay(
+                    time_points[i], xunits, sig_fig
+                ).mass_fractions()
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Mass fraction"
+        elif yunits == "mol_frac":
+            for i in range(0, npoints):
+                decayed_contents = self.decay(
+                    time_points[i], xunits, sig_fig
+                ).mole_fractions()
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Mole fraction"
+        else:
+            raise ValueError(yunits + " is not a supported y-axes unit.")
 
         if yscale == "log" and ymin == 0.0:
             ymin = 0.1
-        ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * acts.max()]
+        ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * ydata.max()]
 
         fig, ax = _decay_graph(
             time_points=time_points,
-            activities=acts.T,
+            ydata=ydata.T,
             nuclides=display,
             xunits=xunits,
-            yunits=yunits,
+            ylabel=ylabel,
             xscale=xscale,
             yscale=yscale,
             ylimits=ylimits,

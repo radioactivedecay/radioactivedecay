@@ -126,10 +126,10 @@ def _check_fig_ax(
 
 def _decay_graph(
     time_points: np.ndarray,
-    activities: np.ndarray,
+    ydata: np.ndarray,
     nuclides: np.ndarray,
     xunits: str,
-    yunits: Union[None, str],
+    ylabel: str,
     xscale: str,
     yscale: str,
     ylimits: np.ndarray,
@@ -146,18 +146,18 @@ def _decay_graph(
     ----------
     time_points : numpy.ndarray
         Time points for x-axis.
-    activities : numpy.ndarray
-        Radioactivities for y-axis.
+    ydata : numpy.ndarray
+        y-axis data.
     nuclides : numpy.ndarray
         NumPy array of the nuclides (string format is 'H-3', etc.).
     xunits : str
         Units for decay time axis.
-    yunits : None or str
-        Units for the activity axis
+    ylabel : str
+        Units for the y-axis
     xscale : str
         The time axis scale type to apply ('linear' or 'log').
     yscale : str
-        The activities axis scale type to apply ('linear' or 'log').
+        The y-axis scale type to apply ('linear' or 'log').
     ylimits : numpy.ndarray
         Limits for the y-axis.
     display : set of str
@@ -182,10 +182,9 @@ def _decay_graph(
 
     for i, label in enumerate(nuclides):
         if label in display:
-            ax.plot(time_points, activities[i], label=label, **kwargs)
+            ax.plot(time_points, ydata[i], label=label, **kwargs)
     ax.legend(loc="upper right")
     xlabel = "Time (" + xunits + ")"
-    ylabel = "Activity (" + yunits + ")" if yunits else "Activity"
     ax.set(
         xlabel=xlabel,
         ylabel=ylabel,

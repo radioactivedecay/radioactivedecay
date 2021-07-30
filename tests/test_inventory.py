@@ -108,12 +108,36 @@ class Test(unittest.TestCase):
             {"Tc-99": 5.8, "Tc-99m": 2.3, "U-235": 1.2},
         )
 
+    def test__input_to_number(self):
+        """
+        Test the units conversion of inventory dictionaries from mass, moles, or activity into
+        number of atoms.
+        """
+
+        inv_dict = {"Ni-56": 0.3, "Co-56": 0.7}
+        self.assertEqual(
+            _input_to_number(inv_dict, "mBq", DEFAULTDATA),
+            {"Ni-56": 227.17253191853973, "Co-56": 6738.641562715049},
+        )
+        inv_dict = {"He-3": 1.0}
+        self.assertEqual(
+            _input_to_number(inv_dict, "mol", DEFAULTDATA),
+            {"He-3": 6.02214076e23},
+        )
+        inv_dict = {"U-238": 21.1, "Co-57": 7.2}
+        self.assertEqual(
+            _input_to_number(inv_dict, "μg", DEFAULTDATA),
+            {"U-238": 5.337817684684321e16, "Co-57": 7.61542657764305e16},
+        )
+
+        with self.assertRaises(ValueError):
+            _input_to_number((inv_dict), "xyz", DEFAULTDATA)
+
     def test__check_dictionary(self):
         """
         Test the checking of inventory dictionaries.
         """
 
-        nuclides = ["H-3", "C-14"]
         H3 = Radionuclide("H3")
         C14 = Radionuclide("C14")
 
@@ -158,6 +182,10 @@ class Test(unittest.TestCase):
             _check_dictionary({H3: 1.0, "C-14": 2.0}, units="num", data=DEFAULTDATA),
             {"C-14": 2.0, "H-3": 1.0},
         )
+        self.assertEqual(
+            _check_dictionary({"He-3": 1.0}, units="mol", data=DEFAULTDATA),
+            {"He-3": 6.02214076e23},
+        )
 
         # Catch incorrect arguments
         with self.assertRaises(ValueError):
@@ -167,14 +195,12 @@ class Test(unittest.TestCase):
 
     def test__sort_list_according_to_dataset(self):
         """
-        Test the sorting of list of radionuclides according to their position in the decay dataset.
+        Test the sorting of list of nuclides according to their position in the decay dataset.
         """
 
-        radionuclide_list = ["Tc-99", "Tc-99m"]
+        nuclide_list = ["Tc-99", "Tc-99m"]
         self.assertEqual(
-            _sort_list_according_to_dataset(
-                radionuclide_list, DEFAULTDATA.nuclide_dict
-            ),
+            _sort_list_according_to_dataset(nuclide_list, DEFAULTDATA.nuclide_dict),
             ["Tc-99m", "Tc-99"],
         )
 
@@ -197,6 +223,18 @@ class Test(unittest.TestCase):
         inv = Inventory({"Tc-99m": 2.3, I123: 5.8}, "num")
         self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
 
+        inv = Inventory({"H-3": 1.0})
+        self.assertEqual(inv.contents, {"H-3": 560892895.7794082})
+
+        inv = Inventory({"H-3": 1.0}, "mBq")
+        self.assertEqual(inv.contents, {"H-3": 560892.8957794083})
+
+        inv = Inventory({"He-3": 1.0}, "mol")
+        self.assertEqual(inv.contents, {"He-3": 6.02214076e23})
+
+        inv = Inventory({"He-3": 1.0}, "kg")
+        self.assertEqual(inv.contents, {"He-3": 1.9967116089131648e26})
+
     def test_inventory__change(self):
         """
         Test Inventory _change() method.
@@ -208,18 +246,39 @@ class Test(unittest.TestCase):
 
         Tc99m = Radionuclide("Tc-99m")
         inv = Inventory({"H-3": 1.0})
-        inv._change({Tc99m: 2.3, "I-123": 5.8}, "num", True, DEFAULTDATA)
-        self.assertEqual(inv.contents, {"Tc-99m": 2.3, "I-123": 5.8})
+        inv._change({Tc99m: 2.3, "I-123": 5.8}, "Bq", True, DEFAULTDATA)
+        self.assertEqual(
+            inv.contents, {"I-123": 399738.47946141585, "Tc-99m": 71852.27235544211}
+        )
+
+        with self.assertRaises(ValueError):
+            inv._change({"He-3": "2.3"}, "Bq", True, DEFAULTDATA)
+        with self.assertRaises(ValueError):
+            inv._change({"Xy-10": 2.3}, "Bq", True, DEFAULTDATA)
+        inv._change({"Xy-10": 2.3}, "Bq", False, DEFAULTDATA)
+        self.assertEqual(inv.contents, {"Xy-10": 2.3})
 
     def test_inventory_nuclides(self):
         """
-        Test Inventory radionuclides property.
+        Test Inventory nuclides property.
         """
 
         inv = Inventory({"H-3": 1.0})
         self.assertEqual(inv.nuclides, ["H-3"])
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(inv.nuclides, ["I-123", "Tc-99m"])
+
+    def test_inventory_numbers(self):
+        """
+        Test Inventory numbers property.
+        """
+
+        inv = Inventory({"H-3": 1}, "num")
+        self.assertEqual(inv.numbers(), {"H-3": 1})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.numbers(), {"I-123": 399738.47946141585, "Tc-99m": 71852.27235544211}
+        )
 
     def test_inventory_activities(self):
         """
@@ -230,6 +289,66 @@ class Test(unittest.TestCase):
         self.assertEqual(inv.activities(), {"H-3": 1})
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
         self.assertEqual(inv.activities(), {"I-123": 5.8, "Tc-99m": 2.3})
+        inv = Inventory({"Tc-99m": 2300, "I-123": 5800})
+        self.assertEqual(inv.activities("kBq"), {"I-123": 5.8, "Tc-99m": 2.3})
+
+    def test_inventory_masses(self):
+        """
+        Test Inventory masses property.
+        """
+
+        inv = Inventory({"H-3": 1}, "g")
+        self.assertEqual(inv.masses(), {"H-3": 1})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.masses(),
+            {"I-123": 8.158243973887584e-17, "Tc-99m": 1.1800869622748501e-17},
+        )
+        self.assertEqual(
+            inv.masses("pg"),
+            {"I-123": 8.158243973887584e-05, "Tc-99m": 1.1800869622748502e-05},
+        )
+
+    def test_inventory_moles(self):
+        """
+        Test Inventory moles property.
+        """
+
+        inv = Inventory({"H-3": 1}, "mol")
+        self.assertEqual(inv.moles(), {"H-3": 1})
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.moles(),
+            {"I-123": 6.637813617983513e-19, "Tc-99m": 1.1931350531142702e-19},
+        )
+        self.assertEqual(
+            inv.moles("mmol"),
+            {"I-123": 6.637813617983513e-16, "Tc-99m": 1.1931350531142702e-16},
+        )
+
+    def test_inventory_mass_fractions(self):
+        """
+        Test Inventory mass_fractions property.
+        """
+
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.mass_fractions(),
+            {"I-123": 0.8736297770616593, "Tc-99m": 0.12637022293834066},
+        )
+        self.assertEqual(sum(inv.mass_fractions().values()), 1.0)
+
+    def test_inventory_mole_fractions(self):
+        """
+        Test Inventory mole_fractions property.
+        """
+
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.mole_fractions(),
+            {"I-123": 0.8476385041932588, "Tc-99m": 0.15236149580674116},
+        )
+        self.assertEqual(sum(inv.mole_fractions().values()), 1.0)
 
     def test_inventory___len__(self):
         """
@@ -332,7 +451,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_remove(self):
         """
-        Test operator to remove radionuclides from an inventory.
+        Test operator to remove nuclides from an inventory.
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
@@ -341,7 +460,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_remove_string(self):
         """
-        Test operator to remove one radionuclide from an inventory using a radionuclide string.
+        Test operator to remove one nuclide from an inventory using a nuclide string.
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
@@ -351,9 +470,9 @@ class Test(unittest.TestCase):
         with self.assertRaises(ValueError):
             inv.remove("Be-10")
 
-    def test_inventory_remove_radionuclide(self):
+    def test_inventory_remove_Radionuclide(self):
         """
-        Test operator to remove one radionuclide from an inventory using a ``Radionuclide`` object.
+        Test operator to remove one nuclide from an inventory using a ``Radionuclide`` object.
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
@@ -365,7 +484,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_remove_list(self):
         """
-        Test operator to remove list of radionuclides from an inventory.
+        Test operator to remove list of nuclides from an inventory.
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
@@ -501,7 +620,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_half_lives(self):
         """
-        Test method to fetch half-lives of radionuclides in the Inventory.
+        Test method to fetch half-lives of nuclides in the Inventory.
         """
 
         inv = Inventory({"C-14": 1.0, "H-3": 2.0}, "num")
@@ -522,7 +641,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_progeny(self):
         """
-        Test method to fetch progeny of radionuclides in the Inventory.
+        Test method to fetch progeny of nuclides in the Inventory.
         """
 
         inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "num")
@@ -530,7 +649,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_branching_fractions(self):
         """
-        Test method to fetch branching fractions of radionuclides in the Inventory.
+        Test method to fetch branching fractions of nuclides in the Inventory.
         """
 
         inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "num")
@@ -540,7 +659,7 @@ class Test(unittest.TestCase):
 
     def test_inventory_decay_modes(self):
         """
-        Test method to fetch decay modes of radionuclides in the Inventory.
+        Test method to fetch decay modes of nuclides in the Inventory.
         """
 
         inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "num")
@@ -555,48 +674,65 @@ class Test(unittest.TestCase):
         Test method to create decay plots.
         """
 
-        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "num")
-        _, ax = inv.plot(105, "ky")
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "MBq")
+        _, ax = inv.plot(105, "ky", yunits="kBq")
         self.assertEqual(ax.get_xscale(), "linear")
         self.assertEqual(ax.get_yscale(), "linear")
         self.assertEqual(ax.get_xlabel(), "Time (ky)")
-        self.assertEqual(ax.get_ylabel(), "Activity")
+        self.assertEqual(ax.get_ylabel(), "Activity (kBq)")
         self.assertEqual(ax.get_xlim(), (-5.25, 110.25))
-        self.assertEqual(ax.get_ylim(), (0.0, 2.1))
+        self.assertEqual(ax.get_ylim(), (0.0, 2100.0))
         self.assertEqual(
             ax.get_legend_handles_labels()[-1],
             ["K-40", "Ca-40", "Ar-40", "C-14", "N-14"],
         )
 
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "mol")
         _, ax = inv.plot(
             100,
             xscale="log",
             yscale="log",
-            yunits="Bq",
+            yunits="mmol",
             sig_fig=320,
             display=["K40", "C14"],
         )
         self.assertEqual(ax.get_xscale(), "log")
         self.assertEqual(ax.get_yscale(), "log")
         self.assertEqual(ax.get_xlabel(), "Time (s)")
-        self.assertEqual(ax.get_ylabel(), "Activity (Bq)")
+        self.assertEqual(ax.get_ylabel(), "Number of moles (mmol)")
         self.assertEqual(ax.get_xlim()[0], 0.0707945784384138)
-        self.assertEqual(ax.get_ylim(), (0.1, 2.1))
+        self.assertEqual(ax.get_ylim(), (0.1, 2100.0))
         self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40", "C-14"])
 
-        _, ax = inv.plot(100, "ky", xmin=50, ymin=1.0, ymax=2.5, display="K40")
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "kg")
+        _, ax = inv.plot(
+            100, "ky", xmin=50, ymin=1.0, ymax=2.5, yunits="kg", display="K40"
+        )
         self.assertEqual(ax.get_xlim(), (47.5, 102.5))
         self.assertEqual(ax.get_ylim(), (1.0, 2.5))
+        self.assertEqual(ax.get_ylabel(), "Mass (kg)")
         self.assertEqual(ax.get_legend_handles_labels()[-1], ["K-40"])
 
-        _, ax = inv.plot(100, "ky", order="alphabetical")
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "num")
+        _, ax = inv.plot(100, "ky", yunits="num", order="alphabetical")
         self.assertEqual(
             ax.get_legend_handles_labels()[-1],
             ["Ar-40", "C-14", "Ca-40", "K-40", "N-14"],
         )
+        self.assertEqual(ax.get_ylabel(), "Number of atoms")
+
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "g")
+        _, ax = inv.plot(100, "ky", yunits="mass_frac")
+        self.assertEqual(ax.get_ylabel(), "Mass fraction")
+
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "kmol")
+        _, ax = inv.plot(100, "ky", yunits="mol_frac")
+        self.assertEqual(ax.get_ylabel(), "Mole fraction")
 
         with self.assertRaises(ValueError):
             inv.plot(100, "ky", order="invalid")
+        with self.assertRaises(ValueError):
+            inv.plot(100, "ky", yunits="invalid")
 
     def test_inventory___repr__(self):
         """
