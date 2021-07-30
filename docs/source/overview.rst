@@ -44,44 +44,35 @@ Import the ``radioactivedecay`` package and decay a simple inventory using:
 .. code-block:: python3
 
     >>> import radioactivedecay as rd
-    >>> inv_t0 = rd.Inventory({'H-3': 10.0})
+    >>> inv_t0 = rd.Inventory({'H-3': 10.0}, 'Bq')
     >>> inv_t1 = inv_t0.decay(12.32, 'y')
     >>> inv_t1.activities()
     {'H-3': 5.0}
 
-Here we created an inventory of 10.0 units of tritium (:sup:`3`\H) and decayed
-it for 12.32 years. The activity reduced by a factor of two, i.e. to 5.0 units,
+Here we created an inventory of 10.0 Bq of tritium (:sup:`3`\H) and decayed
+it for 12.32 years. The activity reduced by a factor of two, i.e. to 5.0 Bq,
 as 12.32 years is the half-life of tritium.
 
-Additional options for inputs and outputs include masses and numbers of atoms,
-using the ``units`` argument to the ``Inventory()`` constructor, and the
-``numbers()``, ``masses()``, ``mass_fractions()``, ``moles()``, and
-``mole_fraction()`` methods for obtaining results. 
+Additional options for inputs and outputs include masses, moles and numbers of
+atoms. Use the ``units`` argument to the ``Inventory()`` constructor, and the
+``masses()``, ``moles()``, ``numbers()``, ``mass_fractions()``, and
+``mole_fractions()`` methods to obtain results. 
 
 .. code-block:: python3
 
-    >>> inv_mass_t0 = rd.Inventory({'H-3': 3.2}, input_type="masses")
+    >>> inv_mass_t0 = rd.Inventory({'H-3': 3.2}, 'g')
     >>> inv_mass_t1 = inv_mass_t0.decay(12.32, 'y')
-    >>> inv_mass_t1.masses()
+    >>> inv_mass_t1.masses('g')
     {'H-3': 1.6000000000000003, 'He-3': 1.5999894116584246}
 
-    >>> inv_num_t0 = rd.Inventory({'C-14': 3.2E24}, input_type="numbers")
-    >>> inv_num_t1 = inv_num_t0.decay(3000, 'y')
-    >>> inv_num_t1.moles()
-    {'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
-
-Mass follows slightly stricter rules for units: mass in grams, with the added
-ability to input mass abundances using an inventory with masses summing to 1.0:
-
-.. code-block:: python3
-
-    >>> inv_abund_t0 = rd.Inventory({'Ni-56': .8, 'Co-56': .2}, input_type="masses")
-    >>> inv_abund_t1 = inv_abund_t0.decay(35.0, 'd')
-    >>> inv_abund_t1.mass_abundances()
-    {'Co-56': 0.7643201942234104,
-     'Fe-56': 0.2209301066281599,
-     'Ni-56': 0.014749699148429682}
-
+    >>> inv_mol_t0 = rd.Inventory({'C-14': 1.0}, 'mol')
+    >>> inv_mol_t1 = inv_mol_t0.decay(3000.0, 'y')
+    >>> inv_mol_t1.moles('mol')
+    {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
+    >>> inv_mol_t1.numbers()
+    {'C-14': 4.181326323680147e+23, 'N-14': 1.840814436319853e+23}
+    >>> inv_mole_t1.mol_fractions()
+    {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 
 Use the ``plot()`` method to show the decay of the inventory over time:
 
@@ -168,11 +159,6 @@ There are also some limitations associated with the ICRP-107 decay dataset:
   Bk-246 (|alpha| ~1.5%), and U-228 -> Pa-228 (|epsilon| ~2.5%). For more
   details see refs. :ref:`[11] <refs>` and :ref:`[12] <refs>` on the creation of
   the ICRP-107 dataset.
-* Radioactive progeny resulting from some decay pathways present in ICRP-107
-  are not themselves included in the publication. The missing radionuclides all
-  have extremely long half-lives and can be considered as practically stable,
-  e.g. Os-184, which results from the decay of Ir-184, has a half-life of over
-  56,000 billion years.
 
 License
 -------
@@ -204,6 +190,7 @@ Special thanks to:
 * `Daniel Jewell <https://github.com/danieldjewell>`_
 * `Ezequiel Pássaro <https://epassaro.github.io/>`_
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
+* `Wolfgang Kerzendorg <https://wkerzendorf.github.io/>`_
 
 for suggestions, support and assistance to this project.
 

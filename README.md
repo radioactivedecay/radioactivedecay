@@ -47,9 +47,9 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
->>> inv_t0 = rd.Inventory({'Mo-99': 2.0})
+>>> inv_t0 = rd.Inventory({'Mo-99': 2.0}, 'Bq')
 >>> inv_t1 = inv_t0.decay(20.0, 'h')
->>> inv_t1.activities()
+>>> inv_t1.activities('Bq')
 {'Mo-99': 1.6207863893776937,
  'Ru-99': 0.0, 
  'Tc-99': 9.05304236308454e-09,
@@ -57,7 +57,7 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 ```
 
 An ``Inventory`` of 2.0 Bq of Mo-99 was decayed for 20 hours, producing the
-radioactive progeny Tc-99m and Tc-99.
+radioactive progeny Tc-99m and Tc-99, and the stable nuclide Ru-99.
 
 We supplied ``'h'`` as an argument to ``decay()`` to specify the decay time
 period had units of hours. Supported time units include ``'μs'``, ``'ms'``,
@@ -72,32 +72,26 @@ Radionuclides can be specified in three equivalent ways in
 
 are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
 
-Additional options for inputs and outputs include masses and numbers of atoms,
-using the ``input_type`` argument and ``numbers()``, ``masses()``,
-``mass_abundances()``, and ``moles()`` methods. 
+Inventories can be created by supplying activity (``'Bq'``, ``'Ci'``,
+``'dpm'``...), mass (``'g'``, ``'kg'``...), or moles (``'mol'``, ``'kmol'``...)
+units, or numbers of nuclei (``'num'``) to the constructor. Use methods
+``activities()``, ``masses()``, ``moles()``, ``numbers()``,
+``mass_fractions()`` and ``mole_fractions()`` to fetch results: 
 
 ```pycon
->>> inv_mass_t0 = rd.Inventory({'H-3': 3.2}, input_type="masses")
->>> inv_mass_t1 = inv_mass_t0.decay(12.32, 'y')
->>> inv_mass_t1.masses()
-{'H-3': 1.6000000000000003, 'He-3': 1.5999894116584246}
+>>> tritium_t0 = rd.Inventory({'H-3': 3.2}, 'g')
+>>> tritium_t1 = tritium_t0.decay(12.32, 'y')
+>>> tritium_t1.masses('g')
+{'H-3': 1.6000000000000002, 'He-3': 1.5999894116584244}
+>>> tritium_t1.mass_fractions()
+{'H-3': 0.5000016544338455, 'He-3': 0.49999834556615447}
 
->>> inv_num_t0 = rd.Inventory({'C-14': 3.2E24}, input_type="numbers")
->>> inv_num_t1 = inv_num_t0.decay(3000, 'y')
->>> inv_num_t1.moles()
+>>> carbon14_t0 = rd.Inventory({'C-14': 3.2E24}, 'num')
+>>> carbon14_t1 = carbon14_t0.decay(3000, 'y')
+>>> carbon14_t1.moles('mol')
 {'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
-```
-
-Mass follows slightly stricter rules for units: mass in grams, with the added
-ability to input mass abundances using an inventory with masses summing to 1.0:
-
-```pycon
->>> inv_abund_t0 = rd.Inventory({'Ni-56': .8, 'Co-56': .2}, input_type="masses")
->>> inv_abund_t1 = inv_abund_t0.decay(35.0, 'd')
->>> inv_abund_t1.mass_abundances()
-{'Co-56': 0.7643201942234104,
- 'Fe-56': 0.2209301066281599,
-  'Ni-56': 0.014749699148429682}
+>>> carbon14_t1.mole_fraction()
+{'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 ```
 
 ### Plotting decay graphs
@@ -105,10 +99,10 @@ ability to input mass abundances using an inventory with masses summing to 1.0:
 Use the ``plot()`` method to graph of the decay of an ``Inventory`` over time:
 
 ```pycon
->>> inv_t0.plot(20, 'd')
+>>> inv_t0.plot(20, 'd', yunits='Bq')
 ```
 
-<img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
+<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
 The graph shows the decay of Mo-99 over 20 days, leading to the ingrowth of
 Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
@@ -155,7 +149,7 @@ diagrams:
 >>> nuc.plot()
 ```
 
-<img src="https://alexmalins.com/radioactivedecay/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
+<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
 
 These diagrams are drawn using NetworkX and Matplotlib.
 

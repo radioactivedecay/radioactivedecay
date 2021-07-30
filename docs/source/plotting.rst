@@ -49,12 +49,12 @@ simplest, supply the decay timespan to the method:
   :width: 450
 
 The graph shows the ingrowth of short-lived Rn-222 progeny. Use parameters such
-as ``xscale``, ``yscale``, ``xmin`` and ``ymin`` to tailor the graph to your
-own needs:
+as ``xscale``, ``yscale``, ``xmin``, ``ymin`` and ``yunits`` to tailor the
+graph to your own needs:
 
 .. code-block:: python3
 
-    >>> fig, ax = inv.plot(1000, 'd', xscale='log', yscale='log', xmin=1, ymin=1E-8)
+    >>> fig, ax = inv.plot(1000, 'd', xscale='log', yscale='log', xmin=1, ymin=1E-17, yunits='mg')
 
 .. image:: images/Rn-222_decay_2.png
   :width: 450

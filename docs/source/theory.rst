@@ -76,17 +76,13 @@ to ``decay()``. :math:`e^{\varLambda_{d} t}` is the matrix exponential of
 :math:`\varLambda_{d} t`. It is a diagonal matrix with elements
 :math:`e^{\varLambda_{d} t}_{ii} = e^{-\lambda_i t}`. 
 
-The final equations that are needed are the conversions between the various
-input and output types and the numbers of each atom in the initial number of 
-atoms (:math:`\mathbf{N}`) vector, which is done using element-wise
-algebra using the number of atoms.
-
-Converting between mass (:math:`\mathbf{M}`, in grams) and number of atoms
-(:math:`\mathbf{N}`) uses the vector of atomic masses (:math:`\mathbf{Ma}`) and
-the Avogadro constant (:math:`N_a`):
+The final equations that are needed are for converting between various
+quantities. Converting between mass (:math:`\mathbf{M}`, in grams) and
+number of atoms (:math:`\mathbf{N}`) uses the vector of atomic masses
+(:math:`\mathbf{M_u}`) and the Avogadro constant (:math:`N_a`):
 
 .. math::
-    M_i =  \frac{Ma_i N_i}{N_a}.
+    M_i =  \frac{M_{ui} N_i}{N_a}.
 
 Converting between activity (:math:`\mathbf{A}`) and number of atoms
 (:math:`\mathbf{N}`) uses the vector of decay constants
