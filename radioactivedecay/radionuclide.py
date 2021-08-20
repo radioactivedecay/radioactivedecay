@@ -15,7 +15,7 @@ as:
 """
 
 from collections import deque
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import matplotlib
 import networkx as nx
 import numpy as np
@@ -23,11 +23,9 @@ from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.plots import (
     _parse_nuclide_label,
     _parse_decay_mode_label,
-    _check_fig_ax,
+    _check_fig_axes,
 )
 from radioactivedecay.utils import parse_nuclide
-
-# pylint: disable=too-many-arguments, too-many-locals
 
 
 class Radionuclide:
@@ -39,7 +37,7 @@ class Radionuclide:
     ----------
     nuclide : str
         Nuclide string.
-    data : DecayData, optional
+    decay_data : DecayData, optional
         Decay dataset (default is the ICRP-107 dataset).
 
     Attributes
@@ -49,7 +47,7 @@ class Radionuclide:
     prog_bf_mode : dict
         Dictionary containing direct progeny as keys, and a list containing the branching fraction
         and the decay mode for that progeny as values.
-    data : DecayData
+    decay_data : DecayData
         Decay dataset.
 
     Examples
@@ -59,12 +57,16 @@ class Radionuclide:
 
     """
 
-    def __init__(self, nuclide: str, data: DecayData = DEFAULTDATA) -> None:
-        self.nuclide: str = parse_nuclide(nuclide, data.nuclides, data.dataset_name)
-        self.prog_bf_mode: Dict[str, List] = data.prog_bfs_modes[
-            data.nuclide_dict[self.nuclide]
-        ]
-        self.data: DecayData = data
+    # pylint: disable=too-many-arguments
+
+    def __init__(self, nuclide: str, decay_data: DecayData = DEFAULTDATA) -> None:
+        self.nuclide: str = parse_nuclide(
+            nuclide, decay_data.nuclides, decay_data.dataset_name
+        )
+        self.prog_bf_mode: Dict[
+            str, List[Union[float, str]]
+        ] = decay_data.prog_bfs_modes[decay_data.nuclide_dict[self.nuclide]]
+        self.decay_data: DecayData = decay_data
 
     def half_life(self, units: str = "s") -> Union[float, str]:
         """
@@ -93,7 +95,7 @@ class Radionuclide:
 
         """
 
-        return self.data.half_life(self.nuclide, units)
+        return self.decay_data.half_life(self.nuclide, units)
 
     def progeny(self) -> List[str]:
         """
@@ -132,7 +134,10 @@ class Radionuclide:
 
         """
 
-        return [bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())]
+        branching_fractions: List[float] = [
+            bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())
+        ]
+        return branching_fractions
 
     def decay_modes(self) -> List[str]:
         """
@@ -154,15 +159,18 @@ class Radionuclide:
 
         """
 
-        return [bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())]
+        decay_modes: List[str] = [
+            bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())
+        ]
+        return decay_modes
 
     def plot(
         self,
         label_pos: float = 0.5,
-        fig: Union[None, matplotlib.figure.Figure] = None,
-        ax: Union[None, matplotlib.axes.Axes] = None,
-        kwargs_draw: Union[None, Dict[str, Any]] = None,
-        kwargs_edge_labels: Union[None, Dict[str, Any]] = None,
+        fig: Optional[matplotlib.figure.Figure] = None,
+        axes: Optional[matplotlib.axes.Axes] = None,
+        kwargs_draw: Optional[Dict[str, Any]] = None,
+        kwargs_edge_labels: Optional[Dict[str, Any]] = None,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
         Plots a diagram of the decay chain of the nuclide. The creates a NetworkX DiGraph and
@@ -182,7 +190,7 @@ class Radionuclide:
         fig : None or matplotlib.figure.Figure, optional
             matplotlib figure object to use, or None makes ``radioactivedecay`` create one (default
             is None).
-        ax : None or matplotlib.axes.Axes, optional
+        axes : None or matplotlib.axes.Axes, optional
             matplotlib axes object to use, or None makes ``radioactivedecay`` create one (default
             is None).
         **kwargs_draw, optional
@@ -194,7 +202,7 @@ class Radionuclide:
         -------
         fig : matplotlib.figure.Figure
             matplotlib figure object used to plot the decay chain.
-        ax : matplotlib.axes.Axes
+        axes : matplotlib.axes.Axes
             matplotlib axes object used to plot the decay chain.
 
         """
@@ -205,8 +213,8 @@ class Radionuclide:
         node_labels = nx.get_node_attributes(digraph, "label")
         edge_labels = nx.get_edge_attributes(digraph, "label")
 
-        fig, ax = _check_fig_ax(
-            fig, ax, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
+        fig, axes = _check_fig_axes(
+            fig, axes, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
         )
 
         if kwargs_draw is None:
@@ -221,7 +229,7 @@ class Radionuclide:
         nx.draw(
             G=digraph,
             pos=positions,
-            ax=ax,
+            ax=axes,
             labels=node_labels,
             **kwargs_draw,
         )
@@ -242,35 +250,39 @@ class Radionuclide:
             pos=positions,
             edge_labels=edge_labels,
             label_pos=label_pos,
-            ax=ax,
+            ax=axes,
             **kwargs_edge_labels,
         )
 
-        ax.set_xlim(-0.3, max_xpos + 0.3)
-        ax.set_ylim(-max_generation - 0.3, 0.3)
+        axes.set_xlim(-0.3, max_xpos + 0.3)
+        axes.set_ylim(-max_generation - 0.3, 0.3)
 
-        return fig, ax
+        return fig, axes
 
     def __repr__(self) -> str:
         return (
             "Radionuclide: "
             + str(self.nuclide)
             + ", decay dataset: "
-            + self.data.dataset_name
+            + self.decay_data.dataset_name
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Check whether two ``Radionuclide`` instances are equal with ``==`` operator.
         """
 
-        return self.nuclide == other.nuclide and self.data == other.data
+        if not isinstance(other, Radionuclide):
+            return NotImplemented
+        return self.nuclide == other.nuclide and self.decay_data == other.decay_data
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: object) -> bool:
         """
         Check whether two ``Radionuclide`` instances are not equal with ``!=`` operator.
         """
 
+        if not isinstance(other, Radionuclide):
+            return NotImplemented
         return not self.__eq__(other)
 
     def __hash__(self) -> int:
@@ -278,12 +290,15 @@ class Radionuclide:
         Hash function for ``Radionuclide`` instances.
         """
 
-        return hash((self.nuclide, self.data.dataset_name))
+        return hash((self.nuclide, self.decay_data.dataset_name))
+
+
+# pylint: disable=too-many-locals
 
 
 def _build_decay_digraph(
     parent: Radionuclide,
-    digraph=nx.classes.digraph.DiGraph,
+    digraph: nx.classes.digraph.DiGraph,
 ) -> nx.classes.digraph.DiGraph:
     """
     Build a networkx DiGraph for the decay chain of this nuclide.
@@ -323,7 +338,7 @@ def _build_decay_digraph(
         xpos = xpositions.popleft()
         if generation not in generation_max_xpos:
             generation_max_xpos[generation] = -1
-        parent = Radionuclide(parent_name, parent.data)
+        parent = Radionuclide(parent_name, parent.decay_data)
 
         progeny = parent.progeny()
         branching_fractions = parent.branching_fractions()
@@ -335,9 +350,11 @@ def _build_decay_digraph(
         for i, prog in enumerate(progeny):
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
-                if prog in parent.data.nuclide_dict:
-                    node_label += "\n" + str(parent.data.half_life(prog, "readable"))
-                    if np.isfinite(parent.data.half_life(prog)):
+                if prog in parent.decay_data.nuclide_dict:
+                    node_label += "\n" + str(
+                        parent.decay_data.half_life(prog, "readable")
+                    )
+                    if np.isfinite(parent.decay_data.half_life(prog)):
                         dequeue.append(prog)
                         generations.append(generation)
                         xpositions.append(xpos + xcounter)

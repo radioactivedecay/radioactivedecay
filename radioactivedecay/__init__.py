@@ -14,4 +14,4 @@ __version__ = "0.4.0"
 
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.radionuclide import Radionuclide
-from radioactivedecay.inventory import Inventory
+from radioactivedecay.inventory import Inventory, InventoryHP

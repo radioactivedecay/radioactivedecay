@@ -31,7 +31,7 @@ inventory:
 
     >>> inv_t0.activities('MBq')
     {'U-234': 269.4016050086039, 'U-235': 13.528246506057048, 'U-238': 293.90300567125}
-    >>> inv_t0.radionuclides
+    >>> inv_t0.nuclides
     ['U-234', 'U-235', 'U-238']
     >>> inv_t0.numbers()
     {'U-234': 3.01107038e+21, 'U-235': 4.3359413471999995e+23, 'U-238': 5.9784200180824e+25}
@@ -44,7 +44,7 @@ inventory:
     >>> inv_t0.mole_fractions()
     {'U-234': 5.000050000500006e-05, 'U-235': 0.0072000720007200075, 'U-238': 0.992749927499275}
     >>> inv_t0
-    Inventory activities (Bq): {'U-234': 269401605.0086039, 'U-235': 13528246.506057048, 'U-238': 293903005.67125}, decay dataset: icrp107
+    Inventory activities (Bq): {'U-234': 269401605.0086039, 'U-235': 13528246.506057048, 'U-238': 293903005.67125}, decay dataset: icrp107_ame2020_nubase2020
 
 By default the input dictionary to ``Inventory()`` is assumed to contain
 activities in Bq. The user can easily specify different units:
@@ -52,17 +52,17 @@ activities in Bq. The user can easily specify different units:
 .. code-block:: python3
 
     # initialize an inventory using activities:
-    >>> inv1 = rd.Inventory({'C-14': 5.0, 'H-3': 2.0})
-    >>> inv1.activities('Bq')
+    >>> inv = rd.Inventory({'C-14': 5.0, 'H-3': 2.0})
+    >>> inv.activities('Bq')
     {'C-14': 5.0, 'H-3': 2.0}
-    >>> inv1.numbers():
+    >>> inv.numbers()
     {'C-14': 1297520091697.4946, 'H-3': 1121785791.5588164}
     
     # initialize an inventory using number of atoms:
-    >>> inv2 = rd.Inventory({'U-238': 2000.0, 'U-235': 3000.0, 'U-234': 1500.0}, "num")
-    >>> inv2.activities()
+    >>> inv = rd.Inventory({'U-238': 2000.0, 'U-235': 3000.0, 'U-234': 1500.0}, 'num')
+    >>> inv.activities('Bq')
     {'U-234': 1.3420556696283726e-10, 'U-235': 9.360075764027427e-14, 'U-238': 9.832129719300668e-15}
-    >>> inv2.numbers():
+    >>> inv.numbers()
     {'U-234': 1500.0, 'U-235': 3000.0, 'U-238': 2000.0}
 
 
@@ -75,26 +75,26 @@ uranium inventory:
 .. code-block:: python3
 
     >>> inv_t1 = inv_t0.decay(1E9, 'y')
-    >>> inv_t1.activities()
-    {'Ac-227': 5.054315011420582, 'At-218': 0.05033739144073731,
-     'At-219': 4.184972829456502e-06, 'Bi-210': 251.68695845501313,
-     'Bi-211': 5.0543190714315465, 'Bi-214': 251.68690686630012,
-     'Bi-215': 4.059423644572891e-06, 'Fr-223': 0.06974954715760817,
-     'Hg-206': 4.782052210630577e-06, 'Pa-231': 5.054314855110146,
-     'Pa-234': 0.40267006690959306, 'Pa-234m': 251.66879181845263,
+    >>> inv_t1.activities('Bq')
+    {'Ac-227': 5054315.0114205815, 'At-218': 50337.39144073731,
+     'At-219': 4.184972829456502, 'Bi-210': 251686958.45501313,
+     'Bi-211': 5054319.0714315465, 'Bi-214': 251686906.8663001,
+     'Bi-215': 4.059423644572891, 'Fr-223': 69749.54715760818,
+     'Hg-206': 4.782052210630576, 'Pa-231': 5054314.855110146,
+     'Pa-234': 402670.06690959306, 'Pa-234m': 251668791.81845263,
      'Pb-206': 0.0, 'Pb-207': 0.0,
-     'Pb-210': 251.68695845423997, 'Pb-211': 5.054319071431516,
-     'Pb-214': 251.6366198122487, 'Po-210': 251.68695847635476,
-     'Po-211': 0.013949920637151067, 'Po-214': 251.63410295324954,
-     'Po-215': 5.054319071431024, 'Po-218': 251.68695720368655,
-     'Ra-223': 5.05431501200738, 'Ra-226': 251.68695720309648,
-     'Rn-218': 5.033739144073732e-05, 'Rn-219': 5.05431501200738,
-     'Rn-222': 251.68695720368623, 'Th-227': 4.9845654646250965,
-     'Th-230': 251.68686707347885, 'Th-231': 5.054079657163196,
-     'Th-234': 251.66879181845243, 'Tl-206': 0.00033700883737124854,
-     'Tl-207': 5.040369150794461, 'Tl-210': 0.052854250441923045,
-     'U-234': 251.68262084338932, 'U-235': 5.054079657142295,
-     'U-238': 251.6687918147358}
+     'Pb-210': 251686958.45423996, 'Pb-211': 5054319.071431517,
+     'Pb-214': 251636619.8122487, 'Po-210': 251686958.47635475,
+     'Po-211': 13949.920637151068, 'Po-214': 251634102.95324954,
+     'Po-215': 5054319.071431024, 'Po-218': 251686957.20368654,
+     'Ra-223': 5054315.01200738, 'Ra-226': 251686957.20309648,
+     'Rn-218': 50.33739144073732, 'Rn-219': 5054315.01200738,
+     'Rn-222': 251686957.20368624, 'Th-227': 4984565.464625097,
+     'Th-230': 251686867.07347885, 'Th-231': 5054079.657163195,
+     'Th-234': 251668791.81845245, 'Tl-206': 337.00883737124855,
+     'Tl-207': 5040369.15079446, 'Tl-210': 52854.250441923046,
+     'U-234': 251682620.8433893, 'U-235': 5054079.657142295,
+     'U-238': 251668791.8147358}
         
 The ``decay()`` method takes two arguments: the decay time period and its
 units. Units can be entered using :code:`'ps'`, :code:`'ns'`, :code:`'us'`,
@@ -107,36 +107,38 @@ respectively. In the above case we decayed for one billion years.
 High numerical precision radioactive decay calculations
 -------------------------------------------------------
 
-The ``decay_high_precision()`` method calculates radioactive decays with high
-numerical precision, based on SymPy arbitrary-precision routines. This method
-method can give more accurate results for decay chains containing radionuclides
-with both very long and very short half-lives, or when extremely long or short
-decay times are required. Note computation times can be slightly longer than
-with the ``decay()`` method.
+The ``InventoryHP`` class can be used for high numerical precision
+calculations. This class uses SymPy arbitrary-precision numerical calculation
+routines. The ``InventoryHP.decay()`` method can give more accurate decay
+calculation results for chains containing radionuclides with long and short
+half-lives, or when extremely long or short decay times are required. Note
+computation times are longer when using the ``InventoryHP`` class as compared
+to the `Inventory`` class.
 
 .. code-block:: python3
 
-    >>> inv_t1 = inv_t0.decay_high_precision(1E9, 'y')
-    >>> inv_t1.activities()
-    {'Ac-227': 5.054315011420582, 'At-218': 0.05033739144073731,
-     'At-219': 4.1849728294565e-06, 'Bi-210': 251.68695845501315,
-     'Bi-211': 5.0543190714315465, 'Bi-214': 251.68690686630015,
-     'Bi-215': 4.059423644572889e-06, 'Fr-223': 0.06974954715760817,
-     'Hg-206': 4.782052210630577e-06, 'Pa-231': 5.054314855110146,
-     'Pa-234': 0.40267006690959317, 'Pa-234m': 251.6687918184527,
+    >>> high_precision_inv_t0 = rd.InventoryHP({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005}, 'mol')
+    >>> high_precision_inv_t1 = high_precision_inv_t0.decay(1E9, 'y')
+    >>> high_precision_inv_t1.activities()
+    {'Ac-227': 5054315.0114205815, 'At-218': 50337.391440737316,
+     'At-219': 4.184972829456501, 'Bi-210': 251686958.4550132,
+     'Bi-211': 5054319.071431547, 'Bi-214': 251686906.86630014,
+     'Bi-215': 4.059423644572889, 'Fr-223': 69749.54715760818,
+     'Hg-206': 4.782052210630577, 'Pa-231': 5054314.855110147,
+     'Pa-234': 402670.0669095932, 'Pa-234m': 251668791.81845266,
      'Pb-206': 0.0, 'Pb-207': 0.0,
-     'Pb-210': 251.68695845423997, 'Pb-211': 5.054319071431518,
-     'Pb-214': 251.6366198122487, 'Po-210': 251.6869584763548,
-     'Po-211': 0.01394992063715107, 'Po-214': 251.63410295324965,
-     'Po-215': 5.054319071431025, 'Po-218': 251.6869572036866,
-     'Ra-223': 5.054315012007379, 'Ra-226': 251.68695720309654,
-     'Rn-218': 5.033739144073731e-05, 'Rn-219': 5.05431501200738,
-     'Rn-222': 251.6869572036862, 'Th-227': 4.9845654646250965,
-     'Th-230': 251.68686707347894, 'Th-231': 5.054079657163196,
-     'Th-234': 251.66879181845252, 'Tl-206': 0.00033700883737124854,
-     'Tl-207': 5.0403691507944615, 'Tl-210': 0.05285425044192306,
-     'U-234': 251.6826208433894, 'U-235': 5.054079657142295,
-     'U-238': 251.66879181473587}
+     'Pb-210': 251686958.45424002, 'Pb-211': 5054319.071431518,
+     'Pb-214': 251636619.8122487, 'Po-210': 251686958.4763548,
+     'Po-211': 13949.92063715107, 'Po-214': 251634102.95324966,
+     'Po-215': 5054319.071431025, 'Po-218': 251686957.2036866,
+     'Ra-223': 5054315.01200738, 'Ra-226': 251686957.20309657,
+     'Rn-218': 50.33739144073732, 'Rn-219': 5054315.012007381,
+     'Rn-222': 251686957.20368624, 'Th-227': 4984565.464625096,
+     'Th-230': 251686867.07347894, 'Th-231': 5054079.657163196,
+     'Th-234': 251668791.81845254, 'Tl-206': 337.0088373712486,
+     'Tl-207': 5040369.150794461, 'Tl-210': 52854.25044192306,
+     'U-234': 251682620.84338942, 'U-235': 5054079.6571422955,
+     'U-238': 251668791.8147359}
 
 Radionuclide name formatting and metastable states
 --------------------------------------------------
@@ -155,8 +157,8 @@ etc. for first, second... metastable states, respectively:
 
 .. code-block:: python3
 
-    >>> inv1 = rd.Inventory({'Ir-192m': 1.0})
-    >>> inv2 = rd.Inventory({'Ir-192n': 1.0})
+    >>> inv = rd.Inventory({'Ir-192m': 1.0})
+    >>> inv = rd.Inventory({'Ir-192n': 1.0})
 
 Equivalently we could have specified these metastable states using
 :code:`'Ir192m'` or :code:`'192mIr'` for the former, or :code:`'Ir192n'` or
@@ -232,8 +234,8 @@ data in ICRP-107, which is the default dataset in ``radioactivedecay``, by:
 
 .. code-block:: python3
 
-    >>> rd.DEFAULTDATA.dataset
-    'icrp107'
+    >>> rd.DEFAULTDATA.dataset_name
+    'icrp107_ame2020_nubase2020'
     >>> rd.DEFAULTDATA.half_life('Cs-137', 'y')
     30.1671
     >>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
@@ -277,15 +279,15 @@ Likewise use ``remove()`` to erase one or more radionuclide from an
     >>> inv.activities()
     {'C-14': 3.0}
 
-The ``add()`` and ``subtract()`` methods also have the ``input_type`` argument
+The ``add()`` and ``subtract()`` methods also accept the ``'unit'`` argument
 for inputs other than activities, and mixing input types is allowed:
 
 .. code-block:: python3
 
-    >>> inv.add({'H-3': 1.3E9}, input_type="numbers")
+    >>> inv.add({'H-3': 1.3E9}, 'num')
     >>> inv.activities()
     {'C-14': 3.0, 'H-3': 2.3177330463306007}
-    >>> inv.subtract({'C-14': 7.1E-12}, input_type="masses")
+    >>> inv.subtract({'C-14': 7.1E-12}, 'g')
     >>> inv.activities()
     {'C-14': 1.8233790683016682, 'H-3': 2.3177330463306007}
 
@@ -318,8 +320,8 @@ inventory:
 
 .. code-block:: python3
 
-    >>> inv1 = rd.Inventory({'H-3': 1.0}, input_type="masses")
-    >>> inv2 = rd.Inventory({'C-14': 1.0}, input_type="masses")
+    >>> inv1 = rd.Inventory({'H-3': 1.0}, 'g')
+    >>> inv2 = rd.Inventory({'C-14': 1.0}, 'g')
     >>> inv = inv1 + inv2
     >>> inv.masses()
     {'C-14': 1.0, 'H-3': 1.0}
@@ -340,8 +342,8 @@ by a constant as follows:
 
 .. code-block:: python3
 
-    >>> inv = rd.Inventory({'Sr-90': 1.0, 'Cs-137': 1.0}, input_type="numbers")
-    >>> inv = inv * 2
+    >>> inv = rd.Inventory({'Sr-90': 1.0, 'Cs-137': 1.0}, 'num')
+    >>> inv = 2*inv
     >>> inv.numbers()
     {'Sr-90': 2.0, 'Cs-137': 2.0}
     >>> inv = inv / 2

@@ -136,15 +136,16 @@ At present ``radioactivedecay`` has the following limitations:
 * It cannot model temporal sources of external radioactivity input or removal
   from an inventory over time.
 * Care is needed when decaying backwards in time, i.e. supplying a negative
-  argument to the ``decay()`` and ``decay_high_precision()`` methods, as this
-  can result in numerical instabilities and nonsensical results.
+  argument to the ``Inventory.decay()`` method, as this can result in numerical
+  instabilities and nonsensical results. The high precision
+  ``InventoryHP.decay()`` is more robust to these instabilities, but not immune
+  from them.
 
 There are also some limitations associated with the ICRP-107 decay dataset:
 
 * ICRP-107 does not contain data on branching fractions for radionuclides
-  produced from spontaneous fission decays. Thus ``decay()`` and
-  ``decay_high_precision()`` do not calculate activities for spontaneous
-  fission progeny.
+  produced from spontaneous fission decays. Thus the ``decay()`` methods do not
+  calculate activities for spontaneous fission progeny.
 * Decay data is quoted in ICRP-107 with up to 5 significant figures of
   precision. The results of decay calculations will therefore in theory never
   be more precise than this level of precision.
@@ -167,18 +168,44 @@ License
 
 ``radioactivedecay`` is open source software released under the `MIT 
 <https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE>`_ licence.
-It uses a processed version of the ICRP-107 decay data :ref:`[1] <refs>`, which
-is originally Copyright |copy| 2008 A. Endo and K.F. Eckerman.
 
-Contributors & Contributing
----------------------------
+The default decay data used by ``radioactivedecay`` is ICRP-107 :ref:`[1] <refs>`, which
+is Copyright |copy| A. Endo and K.F. Eckerman (2008). See `LICENSE.ICRP-07
+<https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE.ICRP-07>`_
+for more details.
+
+The default atomic mass data is based on the Atomic Mass Data Center (`AMDC
+<https://www-nds.iaea.org/amdc/>`_) AME2020 :ref:`[2] <refs>`,
+:ref:`[3] <refs>` and Nubase2020 :ref:`[4] <refs>` evaluations. See
+`LICENSE.AMDC
+<https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE.AMDC>`_ for
+more details.
+
+Contributors
+------------
+
+List of contributors to ``radioactivedeay``:
 
 * `Alex Malins <https://alexmalins.com>`_
 * `Thom Lemoine <https://github.com/lemointm>`_
 
+
+Contributing
+------------
+
 Users are welcome to fix bugs, add new features or make feature requests.
-Please open a pull request or a new issue on the
+Please read the `contributor guidelines
+<https://github.com/alexmalins/radioactivedecay/blob/master/CONTRIBUTING.md>`_
+and open a pull request or issue on the
 `GitHub repository <https://github.com/alexmalins/radioactivedecay>`_.
+
+Queries
+-------
+
+If you have any questions or queries about the functionality and use of this
+package, you are welcome to `email
+<mailto:radioactivedecay@REMOVETHISalexmalins.com>`_ the lead contributor
+(Alex Malins) for support.
 
 Acknowledgements
 ----------------

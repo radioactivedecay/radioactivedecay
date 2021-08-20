@@ -12,7 +12,7 @@ contains 1252 radionuclides of 97 elements.
 
 It solves the radioactive decay differential equations analytically using NumPy
 and SciPy linear algebra routines. There is also a high numerical precision
-decay mode using SymPy routines, useful for when there are orders of magnitude
+mode using SymPy routines, useful for when there are orders of magnitude
 differences between half-lives of radionuclides in the same decay chain.
 
 - **Full Documentation**: 
@@ -47,13 +47,11 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
->>> inv_t0 = rd.Inventory({'Mo-99': 2.0}, 'Bq')
->>> inv_t1 = inv_t0.decay(20.0, 'h')
->>> inv_t1.activities('Bq')
-{'Mo-99': 1.6207863893776937,
- 'Ru-99': 0.0, 
- 'Tc-99': 9.05304236308454e-09,
- 'Tc-99m': 1.3719829376710406}
+>>> Mo99_t0 = rd.Inventory({'Mo-99': 2.0}, 'Bq')
+>>> Mo99_t1 = inv_t0.decay(20.0, 'h')
+>>> Mo99_t1.activities('Bq')
+{'Mo-99': 1.6207863893776937, 'Ru-99': 0.0,
+ 'Tc-99': 9.05304236308454e-09, 'Tc-99m': 1.3719829376710406}
 ```
 
 An ``Inventory`` of 2.0 Bq of Mo-99 was decayed for 20 hours, producing the
@@ -73,24 +71,25 @@ Radionuclides can be specified in three equivalent ways in
 are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
 
 Inventories can be created by supplying activity (``'Bq'``, ``'Ci'``,
-``'dpm'``...), mass (``'g'``, ``'kg'``...), or moles (``'mol'``, ``'kmol'``...)
-units, or numbers of nuclei (``'num'``) to the constructor. Use methods
-``activities()``, ``masses()``, ``moles()``, ``numbers()``,
-``mass_fractions()`` and ``mole_fractions()`` to fetch results: 
+``'dpm'``...), mass (``'g'``, ``'kg'``...), mole (``'mol'``, ``'kmol'``...)
+units, or numbers of nuclei (``'num'``) to the ``Inventory()`` constructor. Use
+the methods ``activities()``, ``masses()``, ``moles()``, ``numbers()``,
+``mass_fractions()`` and ``mole_fractions()`` to obtain the contents of the
+inventory in 
 
 ```pycon
->>> tritium_t0 = rd.Inventory({'H-3': 3.2}, 'g')
->>> tritium_t1 = tritium_t0.decay(12.32, 'y')
->>> tritium_t1.masses('g')
-{'H-3': 1.6000000000000002, 'He-3': 1.5999894116584244}
->>> tritium_t1.mass_fractions()
-{'H-3': 0.5000016544338455, 'He-3': 0.49999834556615447}
+>>> H3_t0 = rd.Inventory({'H-3': 3.0}, 'g')
+>>> H3_t1 = tritium_t0.decay(12.32, 'y')
+>>> H3_t1.masses('g')
+{'H-3': 1.5, 'He-3': 1.4999900734297729}
+>>> H3_t1.mass_fractions()
+{'H-3': 0.5000016544338455, 'He-3': 0.4999983455661545}
 
->>> carbon14_t0 = rd.Inventory({'C-14': 3.2E24}, 'num')
->>> carbon14_t1 = carbon14_t0.decay(3000, 'y')
->>> carbon14_t1.moles('mol')
+>>> C14_t0 = rd.Inventory({'C-14': 3.2E24}, 'num')
+>>> C14_t1 = carbon14_t0.decay(3000, 'y')
+>>> C14_t1.moles('mol')
 {'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
->>> carbon14_t1.mole_fraction()
+>>> c14_t1.mole_fractions()
 {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 ```
 
@@ -99,7 +98,7 @@ units, or numbers of nuclei (``'num'``) to the constructor. Use methods
 Use the ``plot()`` method to graph of the decay of an ``Inventory`` over time:
 
 ```pycon
->>> inv_t0.plot(20, 'd', yunits='Bq')
+>>> mo99_t0.plot(20, 'd', yunits='Bq')
 ```
 
 <img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
@@ -115,8 +114,10 @@ individual radionuclides, e.g. for Rn-222:
 
 ```pycon
 >>> nuc = rd.Radionuclide('Rn-222')
->>> nuc.half_life('d')
-3.8235
+>>> nuc.half_life('s')
+330350.4
+>>> nuc.half_life('readable')
+'3.8235 d'
 >>> nuc.progeny()
 ['Po-218']
 >>> nuc.branching_fractions()
@@ -128,14 +129,14 @@ individual radionuclides, e.g. for Rn-222:
 Likewise similar methods exist for ``Inventory`` instances:
 
 ```pycon
->>> inv_t1.half_lives('readable')
-{'Mo-99': '65.94 h', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
->>> inv_t1.progeny()
-{'Mo-99': ['Tc-99m', 'Tc-99'], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
->>> inv_t1.branching_fractions()
-{'Mo-99': [0.8773, 0.1227], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
->>> inv_t1.decay_modes()
-{'Mo-99': ['β-', 'β-'], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
+>>> Mo99_t1.half_lives('readable')
+{'Mo-99': '65.94 h', 'Ru-99': 'stable', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
+>>> Mo99_t1.progeny()
+{'Mo-99': ['Tc-99m', 'Tc-99'], 'Ru-99': [], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
+>>> Mo99_t1.branching_fractions()
+{'Mo-99': [0.8773, 0.1227], 'Ru-99': [], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
+>>> Mo99_t1.decay_modes()
+{'Mo-99': ['β-', 'β-'], 'Ru-99': [], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
 ```
 
 
@@ -155,13 +156,13 @@ These diagrams are drawn using NetworkX and Matplotlib.
 
 ### High numerical precision decay calculations
 
-``radioactivedecay`` includes a high numerical precision decay mode. This can
-give more reliable results for decay chains containing both long- and
-short-lived radionuclides:
+``radioactivedecay`` includes an ``InventoryHP`` class for high numerical
+precision calculations. This class can give more reliable decay calculation
+results for chains containing long- and short-lived radionuclides:
 
 ```pycon
->>> inv_t0 = rd.Inventory({'U-238': 1.0})
->>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
+>>> inv_t0 = rd.InventoryHP({'U-238': 1.0})
+>>> inv_t1 = inv_t0.decay(10.0, 'd')
 >>> inv_t1.activities()
 {'At-218': 1.4511675857141352e-25,
  'Bi-210': 1.8093327888942224e-26,
@@ -202,7 +203,9 @@ precision calculations.
 
 By default ``radioactivedecay`` uses decay data from
 [ICRP Publication 107
-(2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
+(2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3) and atomic mass
+data from the [Atomic Mass Data Center](https://www-nds.iaea.org/amdc/)
+(AMDC- AME2020 and Nubase2020 evaluations).
 
 The [notebooks
 directory](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
@@ -228,10 +231,15 @@ $ python -m unittest discover
 
 ## License
 
-``radioactivedecay`` is open source software released under the MIT License. The
-ICRP-107 decay data is copyright 2008 A. Endo and K.F. Eckerman. See
-[LICENSE](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE) for
-details. 
+``radioactivedecay`` is open source software released under the MIT License.
+See [LICENSE](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE)
+file for details.
+
+The default decay data used by ``radioactivedecay`` (ICRP-107) is copyright
+2008 A. Endo and K.F. Eckerman and distributed under a separate [license]
+(https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.ICRP-07). The
+default atomic mass data is from AMDC ([license]
+(https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.AMDC)).
 
 
 ## Contributing

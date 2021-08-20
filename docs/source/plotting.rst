@@ -36,9 +36,9 @@ default value of 0.5:
 Inventory decay graphs
 ----------------------
 
-The Inventory ``plot()`` method is for creating graphs of the radioactive decay
-of the radionuclides in an inventory and their progeny over time. At its
-simplest, supply the decay timespan to the method:
+The ``Inventory`` and ``InventoryHP`` class  ``plot()`` method is for creating
+graphs of the radioactive decay of the radionuclides in an inventory and their
+progeny over time. At its simplest, supply the decay timespan to the method:
 
 .. code-block:: python3
 
