@@ -25,7 +25,7 @@ from scipy import sparse
 from sympy import log, Matrix
 from sympy.matrices import SparseMatrix
 from radioactivedecay.converters import (
-    UnitConverter,
+    UnitConverterFloat,
     UnitConverterSympy,
     QuantityConverter,
     QuantityConverterSympy,
@@ -329,7 +329,7 @@ class DecayData:
         Name of the decay dataset.
     float_quantity_converter : QuantityConverter
         Convert between quantities using floating point operations.
-    float_unit_converter : UnitConverter
+    float_unit_converter : UnitConverterFloat
         Convert within units using floating point operations.
     hldata : numpy.ndarray
         List of tuples containing half-life floats, time unit strings and readable format half-life
@@ -370,7 +370,7 @@ class DecayData:
         else:
             data = np.load(dir_path + "/decay_data.npz", allow_pickle=True)
 
-        self.float_unit_converter = UnitConverter(data["year_conv"])
+        self.float_unit_converter = UnitConverterFloat(data["year_conv"])
         self.hldata = data["hldata"]
         self.nuclides = data["radionuclides"]
         self.nuclide_dict = dict(zip(self.nuclides, list(range(0, self.nuclides.size))))

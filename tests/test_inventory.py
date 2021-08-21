@@ -12,13 +12,13 @@ from radioactivedecay.inventory import (
 )
 from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
 
+# pylint: disable=protected-access, too-many-public-methods
+
 
 class TestInventory(unittest.TestCase):
     """
     Unit tests for the inventory.py Inventory class.
     """
-
-    # pylint: disable=protected-access
 
     def test_instantiation(self) -> None:
         """
@@ -569,7 +569,9 @@ class TestInventoryHP(unittest.TestCase):
         """
 
         inv = InventoryHP({"H3": 1}, "Bq", True)
-        self.assertEqual(inv.contents, {"H-3": Integer(242988330816) / (Integer(625) * log(2))})
+        self.assertEqual(
+            inv.contents, {"H-3": Integer(242988330816) / (Integer(625) * log(2))}
+        )
         self.assertEqual(inv.decay_data, DEFAULTDATA)
         self.assertEqual(inv.decay_matrices, DEFAULTDATA.sympy_data)
         self.assertEqual(inv.quantity_converter, DEFAULTDATA.sympy_quantity_converter)
@@ -585,6 +587,18 @@ class TestInventoryHP(unittest.TestCase):
         temp_data.sympy_data = None
         with self.assertRaises(ValueError):
             InventoryHP({"H3": 1}, "Bq", True, temp_data)
+
+    def test_numbers(self) -> None:
+        """
+        Test InventoryHP.numbers() method.
+        """
+
+        inv = InventoryHP({"H-3": 1}, "num")
+        self.assertEqual(inv.numbers(), {"H-3": 1.0})
+        inv = InventoryHP({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.numbers(), {"I-123": 399738.47946141585, "Tc-99m": 71852.27235544211}
+        )
 
     def test_activities(self) -> None:
         """

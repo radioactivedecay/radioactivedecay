@@ -6,25 +6,25 @@ import unittest
 import numpy as np
 from sympy import Integer, log
 from radioactivedecay.converters import (
-    UnitConverter,
+    UnitConverterFloat,
     UnitConverterSympy,
     QuantityConverter,
     QuantityConverterSympy,
 )
 
 
-class TestUnitConverter(unittest.TestCase):
+class TestUnitConverterFloat(unittest.TestCase):
     """
-    Unit tests for the utils.py UnitConverter class.
+    Unit tests for the utils.py UnitConverterFloat class.
     """
 
     def test_instantiation(self) -> None:
         """
-        Test instantiation of UnitConverter objects.
+        Test instantiation of UnitConverterFloat objects.
         """
 
         year_conv = 365.2422
-        uconv = UnitConverter(year_conv)
+        uconv = UnitConverterFloat(year_conv)
         self.assertEqual(uconv.time_units["s"], 1.0)
         self.assertEqual(uconv.time_units["y"], 86400.0 * year_conv)
         self.assertEqual(uconv.activity_units["Bq"], 1.0)
@@ -37,7 +37,7 @@ class TestUnitConverter(unittest.TestCase):
         """
 
         year_conv = 365.2422
-        uconv = UnitConverter(year_conv)
+        uconv = UnitConverterFloat(year_conv)
 
         self.assertEqual(uconv.time_unit_conv(1.0, "s", "s"), 1.0e0)
         self.assertAlmostEqual(
@@ -86,7 +86,7 @@ class TestUnitConverter(unittest.TestCase):
         """
 
         year_conv = 365.2422
-        uconv = UnitConverter(year_conv)
+        uconv = UnitConverterFloat(year_conv)
 
         self.assertEqual(uconv.time_unit_conv(1.0, "s", "sec"), 1.0e0)
         self.assertEqual(uconv.time_unit_conv(1.0, "s", "second"), 1.0e0)
@@ -117,7 +117,7 @@ class TestUnitConverter(unittest.TestCase):
         """
 
         year_conv = 365.2422
-        uconv = UnitConverter(year_conv)
+        uconv = UnitConverterFloat(year_conv)
 
         self.assertAlmostEqual(
             uconv.time_unit_conv(1.0, "y", "ky"), 1.0e-3, places=(3 + 15)
@@ -158,7 +158,7 @@ class TestUnitConverter(unittest.TestCase):
         Test conversions between activity units.
         """
 
-        uconv = UnitConverter(365.2422)
+        uconv = UnitConverterFloat(365.2422)
 
         self.assertEqual(uconv.activity_unit_conv(1.0, "Bq", "Bq"), 1.0e0)
         self.assertAlmostEqual(
@@ -241,7 +241,7 @@ class TestUnitConverter(unittest.TestCase):
         Test conversions between mass units.
         """
 
-        uconv = UnitConverter(365.2422)
+        uconv = UnitConverterFloat(365.2422)
 
         self.assertEqual(uconv.mass_unit_conv(1.0, "g", "g"), 1.0e0)
         self.assertAlmostEqual(
@@ -279,7 +279,7 @@ class TestUnitConverter(unittest.TestCase):
         Test conversions between moles orders of magnitude.
         """
 
-        uconv = UnitConverter(365.2422)
+        uconv = UnitConverterFloat(365.2422)
 
         self.assertEqual(uconv.moles_unit_conv(1.0, "mol", "mol"), 1.0e0)
         self.assertAlmostEqual(
@@ -308,34 +308,34 @@ class TestUnitConverter(unittest.TestCase):
 
     def test___eq__(self) -> None:
         """
-        Test UnitConveter equality.
+        Test UnitConverterFloat equality.
         """
 
-        uc1 = UnitConverter(365.2422)
-        uc2 = UnitConverter(365.2422)
+        uc1 = UnitConverterFloat(365.2422)
+        uc2 = UnitConverterFloat(365.2422)
         self.assertEqual(uc1, uc2)
 
         self.assertFalse(uc1 == "random object")
 
     def test___neq__(self) -> None:
         """
-        Test UnitConveter inequality.
+        Test UnitConverterFloat inequality.
         """
 
-        uc1 = UnitConverter(365.2422)
-        uc2 = UnitConverter(365.25)
+        uc1 = UnitConverterFloat(365.2422)
+        uc2 = UnitConverterFloat(365.25)
         self.assertNotEqual(uc1, uc2)
 
         self.assertTrue(uc1 != "random object")
 
     def test___repr__(self) -> None:
         """
-        Test UnitConveter __repr__ strings.
+        Test UnitConverterFloat __repr__ strings.
         """
 
-        uconv = UnitConverter(365.2422)
+        uconv = UnitConverterFloat(365.2422)
         self.assertEqual(
-            uconv.__repr__(), "UnitConverter using 365.2422 days in a year."
+            uconv.__repr__(), "UnitConverterFloat using 365.2422 days in a year."
         )
 
 

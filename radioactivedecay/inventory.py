@@ -26,7 +26,7 @@ from sympy.core.expr import Expr
 from radioactivedecay.converters import (
     QuantityConverter,
     QuantityConverterSympy,
-    UnitConverter,
+    UnitConverterFloat,
     UnitConverterSympy,
 )
 from radioactivedecay.decaydata import (
@@ -45,7 +45,7 @@ from radioactivedecay.utils import (
 )
 
 
-# pylint: disable=too-many-arguments, too-many-locals
+# pylint: disable=too-many-arguments, too-many-lines, too-many-locals
 
 
 def _method_dispatch(func):
@@ -92,7 +92,7 @@ class Inventory:
         Float/SciPy version of the DecayMatrices associated with the decay dataset.
     quantity_converter : QuantityConverter
         Float/SciPy version of a convertor between different quantities.
-    unit_converter : UnitConverter
+    unit_converter : UnitConverterFloat
         Float version of a convertor for within different units.
 
     Examples
@@ -116,9 +116,9 @@ class Inventory:
     ) -> None:
 
         self.decay_data = decay_data
-        self.decay_matrices = self._setup_decay_matrices()
-        self.quantity_converter = self._setup_quantity_converter()
-        self.unit_converter = self._setup_unit_converter()
+        self.decay_matrices = self._get_decay_matrices()
+        self.quantity_converter = self._get_quantity_converter()
+        self.unit_converter = self._get_unit_converter()
 
         if check is True:
             contents_with_parsed_keys: Dict[str, float] = self._parse_nuclides(
@@ -162,17 +162,17 @@ class Inventory:
                     continue
             raise ValueError(f"{inp} is not a valid quantity of nuclide {nuc}.")
 
-    def _setup_decay_matrices(self) -> DecayMatrices:
+    def _get_decay_matrices(self) -> DecayMatrices:
         """Returns the appropriate DecayMatrices instance."""
 
         return self.decay_data.scipy_data
 
-    def _setup_quantity_converter(self) -> QuantityConverter:
+    def _get_quantity_converter(self) -> QuantityConverter:
         """Returns the appropriate QuantityConverter instance."""
 
         return self.decay_data.float_quantity_converter
 
-    def _setup_unit_converter(self) -> UnitConverter:
+    def _get_unit_converter(self) -> UnitConverterFloat:
         """Returns the appropriate UnitConverter instance."""
 
         return self.decay_data.float_unit_converter
@@ -182,7 +182,7 @@ class Inventory:
         contents: Dict[str, Union[float, Expr]],
         units: str,
         quantity_converter: QuantityConverter,
-        unit_converter: UnitConverter,
+        unit_converter: UnitConverterFloat,
     ) -> Dict[str, Union[float, Expr]]:
         """
         Converts an inventory dictionary where the values are masses, moles or activities to one
@@ -197,7 +197,7 @@ class Inventory:
             Units of the values in the input dictionary.
         quantity_conveter : QuantityConverter
             Convertor between quantities.
-        unit_conveter : UnitConverter
+        unit_conveter : UnitConverterFloat
             Convertor between units of a single quantity.
 
         Returns
@@ -995,18 +995,20 @@ class InventoryHP(Inventory):
     Attributes
     ----------
     contents : dict
-        Dictionary containing nuclide string as keys and number of nuclides as values. Nuclides
-        are sorted alphabetically in this dictionary.
+        Dictionary containing nuclide strings as keys and number of atoms of each nuclide as
+        values. Nuclides are sorted alphabetically in this dictionary.
     data : DecayData
         Decay dataset.
+    decay_matrices : DecayMatrices
+       SymPy DecayMatrices instance associated with the decay dataset.
     sig_fig: int
         Number of significant figures for high precision decay calculations and plots. Deafult is
         320.
-    sympy_contents : None or dict
-        Dictionary containing nuclides strings as keys and SymPy quantities as values. Unused if
-        data (the decay dataset) does not contain SymPy data.
-    sympy_units : None or str
-        Current units of the quantities held in sympy_contents.
+     quantity_converter : QuantityConverterSympy
+        Float/SciPy version of a convertor between different quantities.
+    unit_converter : UnitConverterSympy
+        Float version of a convertor for within different units.
+
 
     Examples
     --------
@@ -1032,7 +1034,7 @@ class InventoryHP(Inventory):
         self.sig_fig = 320
         super().__init__(contents, units, check, decay_data)
 
-    def _setup_decay_matrices(self) -> DecayMatricesSympy:
+    def _get_decay_matrices(self) -> DecayMatricesSympy:
         """
         Returns the appropriate DecayMatrices instance.
         """
@@ -1043,7 +1045,7 @@ class InventoryHP(Inventory):
             )
         return self.decay_data.sympy_data
 
-    def _setup_quantity_converter(self) -> QuantityConverterSympy:
+    def _get_quantity_converter(self) -> QuantityConverterSympy:
         """
         Returns the appropriate QuantityConverter instance.
         """
@@ -1053,7 +1055,7 @@ class InventoryHP(Inventory):
             )
         return self.decay_data.sympy_quantity_converter
 
-    def _setup_unit_converter(self) -> UnitConverterSympy:
+    def _get_unit_converter(self) -> UnitConverterSympy:
         """
         Returns the appropriate UnitConverter instance.
         """
