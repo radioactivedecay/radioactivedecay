@@ -12,7 +12,7 @@ The original goal was to create a light-weight Python package for radioactive
 decay calculations, with full support for branching decays, multi-step decay
 chains, and metastable states. By default ``radioactivedecay`` uses decay data
 from ICRP Publication 107 :ref:`[1] <refs>` and atomic mass data from the
-Atomic Mass Data Center (AMDC AME2020 and Nubase 2020 evaluations)
+Atomic Mass Data Center (AME2020 and Nubase 2020 evaluations)
 :ref:`[2] <refs>`, :ref:`[3] <refs>` and :ref:`[4] <refs>`. It solves the radioactive
 decay differential equations analytically using basic linear algebra operations
 :ref:`[5] <refs>`.
