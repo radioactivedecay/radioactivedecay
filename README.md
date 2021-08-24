@@ -245,10 +245,9 @@ file for details.
 
 The default decay data used by ``radioactivedecay`` (ICRP-107) is copyright
 2008 A. Endo and K.F. Eckerman and distributed under a separate
-[license](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.ICRP-07)
-. The default atomic mass data is from AMDC (
-[license](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.AMDC)
-).
+[license](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.ICRP-07).
+The default atomic mass data is from AMDC
+([license](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.AMDC)).
 
 
 ## Contributing
