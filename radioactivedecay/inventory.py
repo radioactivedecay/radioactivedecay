@@ -351,6 +351,22 @@ class Inventory:
 
         return moles
 
+    def activity_fractions(self) -> Dict[str, float]:
+        """
+        Returns a dictionary containing the activity fraction of each nuclide within the inventory.
+
+        Examples
+        --------
+        >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq').activity_fractions()
+        {'I-123': 0.7160493827160493, 'Tc-99m': 0.2839506172839506}
+
+        """
+
+        total_activity = sum(self.activities().values())
+        activity_fractions = {nuc: act / total_activity for nuc, act in self.activities().items()}
+
+        return activity_fractions
+
     def mass_fractions(self) -> Dict[str, float]:
         """
         Returns a dictionary containing the mass fraction of each nuclide within the inventory.

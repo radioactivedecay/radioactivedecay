@@ -6,11 +6,12 @@ import copy
 import unittest
 from unittest.mock import patch
 from sympy import Integer, log
+from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.inventory import (
     Inventory,
     InventoryHP,
 )
-from radioactivedecay import DEFAULTDATA, DecayData, Radionuclide
+from radioactivedecay.radionuclide import Radionuclide
 
 # pylint: disable=protected-access, too-many-public-methods
 
@@ -190,6 +191,18 @@ class TestInventory(unittest.TestCase):
             inv.moles("mmol"),
             {"I-123": 6.637813617983513e-16, "Tc-99m": 1.1931350531142702e-16},
         )
+
+    def test_activity_fractions(self) -> None:
+        """
+        Test Inventory.activity_fractions() method.
+        """
+
+        inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8})
+        self.assertEqual(
+            inv.activity_fractions(),
+            {"I-123": 0.7160493827160493, "Tc-99m": 0.2839506172839506},
+        )
+        self.assertEqual(sum(inv.activity_fractions().values()), 1.0)
 
     def test_mass_fractions(self) -> None:
         """

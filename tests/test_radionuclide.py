@@ -3,7 +3,8 @@ Unit tests for radionuclide.py functions, classes and methods.
 """
 
 import unittest
-from radioactivedecay import Radionuclide, DecayData
+from radioactivedecay.decaydata import DecayData
+from radioactivedecay.radionuclide import Radionuclide
 
 
 class TestRadionuclide(unittest.TestCase):
