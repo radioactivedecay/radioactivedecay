@@ -1,7 +1,9 @@
 ﻿[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
+[![Conda](https://img.shields.io/conda/v/conda-forge/radioactivedecay)](https://anaconda.org/conda-forge/radioactivedecay)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 <img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
