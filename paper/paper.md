@@ -11,9 +11,13 @@ authors:
   - name: Alex Malins
     orcid: 0000-0003-1922-4496
     affiliation: 1
+  - name: Thom Lemoine
+    affiliation: 2
 affiliations:
 - name: Center for Computational Science &amp; e-Systems (CCSE), Japan Atomic Energy Agency (JAEA), 178-4-4 Wakashiba, Kashiwa, Chiba, 277-0871, Japan
   index: 1
+- name: Whitman College
+  index: 2
 date: XX April 2021
 bibliography: paper.bib
 ---
