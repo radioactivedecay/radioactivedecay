@@ -224,7 +224,7 @@ By default ``radioactivedecay`` uses decay data from
 [ICRP Publication 107
 (2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3) and atomic mass
 data from the [Atomic Mass Data Center](https://www-nds.iaea.org/amdc/)
-(AMDC- AME2020 and Nubase2020 evaluations).
+(AMDC - AME2020 and Nubase2020 evaluations).
 
 The [notebooks
 directory](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
