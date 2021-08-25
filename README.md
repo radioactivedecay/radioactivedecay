@@ -114,7 +114,7 @@ obtain the contents of the inventory in different formats:
 
 ### Plotting decay graphs
 
-Use the ``plot()`` method to graph of the decay of an ``Inventory`` over time:
+Use the ``plot()`` method to graph of the decay of an inventory over time:
 
 ```pycon
 >>> mo99_t0.plot(20, 'd', yunits='Bq')
@@ -145,7 +145,7 @@ individual radionuclides, e.g. for Rn-222:
 ['α']
 ```
 
-Likewise similar methods exist for ``Inventory`` instances:
+Likewise similar methods exist for inventory instances:
 
 ```pycon
 >>> Mo99_t1.half_lives('readable')
