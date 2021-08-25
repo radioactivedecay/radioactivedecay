@@ -21,7 +21,7 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import matplotlib
 import numpy as np
 from scipy import sparse
-from sympy import exp, Matrix, nsimplify
+from sympy import exp, Integer, Matrix, nsimplify
 from sympy.core.expr import Expr
 from radioactivedecay.converters import (
     QuantityConverter,
@@ -700,6 +700,56 @@ class Inventory:
 
         return Inventory(new_contents, "num", False, self.decay_data)
 
+    def cumulative_decays(
+        self, decay_time: float, units: str = "s"
+    ) -> Dict[str, float]:
+        """
+        Calculates the total number of decays of each nuclide in the inventory between t=0 and
+        t=decay_time. Note no results are reported for stable nuclides, as cumulative decays is
+        zero.
+
+        Parameters
+        ----------
+        decay_time : float
+            Decay time (calculates total number of decays over this period).
+        units : str, optional
+            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
+            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
+            these time units.
+
+        Returns
+        -------
+        dict
+            Dictionary containing radionuclide strings as keys and total number of decays of each
+            radionuclide as values (floats).
+
+        Examples
+        --------
+        >>> inv_t0 = rd.Inventory({'Sr-90': 10.0}, 'num')
+        >>> inv_t0.cumulative_decays(1.0, 'My')
+        {'Sr-90': 10.0, 'Y-90': 10.000000000000002}
+
+        """
+
+        decay_time = self._convert_decay_time(decay_time, units)
+        vector_n0, indices, matrix_e = self._setup_decay_calc()
+
+        indices = [i for i in indices if self.decay_matrices.decay_consts[i] > 0.0]
+        for i in indices:
+            matrix_e[i, i] = (
+                1.0 - np.exp((-decay_time * self.decay_matrices.decay_consts[i]))
+            ) / self.decay_matrices.decay_consts[i]
+
+        cumulative_decays = self._perform_decay_calc(vector_n0, matrix_e)
+        result_dict = {
+            self.decay_data.nuclides[i]: float(
+                self.decay_matrices.decay_consts[i] * cumulative_decays[i]
+            )
+            for i in indices
+        }
+
+        return result_dict
+
     def half_lives(self, units: str = "s") -> Dict[str, Union[float, str]]:
         """
         Returns dictionary of half-lives of the nuclides in the inventory in your chosen time
@@ -1201,21 +1251,21 @@ class InventoryHP(Inventory):
         Raises
         ------
         ValueError
-            If the decay dataset associated with this Inventory (self.data) does not contain SymPy
-            versions of the decay data.
+            If self.sig_fig is set to be lower than 1.
 
         Examples
         --------
-        >>> inv_t0 = rd.Inventory({'Fm-257': 1.0})
-        >>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
+        >>> inv_t0 = rd.InventoryHP({'Fm-257': 1.0})
+        >>> inv_t1 = inv_t0.decay(10.0, 'd')
         >>> inv_t1.activities()
-        {'Ac-225': 4.080588235484085e-50,
-        'Am-241': 6.3571164015402466e-27,
-        'Am-245': 6.3608186478274594e-06,
+        {'Ac-225': 0.0,
+        'Am-241': 9.985270042416324e-24,
+        'Am-245': 5.4061684195880344e-09,
         ...
-        'Fm-257': 0.9333548028364756,
+        'Fm-257': 0.9333548028364793,
         ...
         }
+
         """
 
         if self.sig_fig < 1:
@@ -1236,6 +1286,74 @@ class InventoryHP(Inventory):
         new_contents = {self.decay_data.nuclides[i]: vector_nt[i] for i in indices}
 
         return InventoryHP(new_contents, "num", False, self.decay_data)
+
+    def cumulative_decays(
+        self, decay_time: float, units: str = "s"
+    ) -> Dict[str, float]:
+        """
+        Calculates the total number of decays of each radionuclide in the inventory between t=0 and
+        t=decay_time. Uses SymPy high precision calculations. Note no results are reported for
+        stable nuclides, as cumulative decays is zero.
+
+        Parameters
+        ----------
+        decay_time : float
+            Decay time (calculates total number of decays over this period).
+        units : str, optional
+            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
+            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
+            these time units.
+
+        Returns
+        -------
+        dict
+            Dictionary containing radionuclide strings as keys and total number of decays of each
+            radionuclide as values (floats).
+
+        Raises
+        ------
+        ValueError
+            If self.sig_fig is set to be lower than 1.
+
+        Examples
+        --------
+        >>> inv_t0 = rd.Inventory({'Sr-90': 10.0}, 'num')
+        >>> inv_t0.cumulative_decays(1.0, 'My')
+        {'Sr-90': 10.0, 'Y-90': 10.0}
+
+        """
+
+        if self.sig_fig < 1:
+            raise ValueError(
+                "InventoryHP.sig_fig attribute needs to be int greater than 0."
+            )
+
+        decay_time = nsimplify(decay_time)
+        decay_time = self._convert_decay_time(decay_time, units)
+        vector_n0, indices, matrix_e = self._setup_decay_calc()
+
+        indices = [
+            i for i in indices if self.decay_matrices.decay_consts[i] > Integer(0)
+        ]
+        for i in indices:
+            matrix_e[i, i] = (
+                Integer(1)
+                - exp(
+                    (-decay_time * self.decay_matrices.decay_consts[i]).evalf(
+                        self.sig_fig
+                    )
+                )
+            ) / self.decay_matrices.decay_consts[i]
+
+        cumulative_decays = self._perform_decay_calc(vector_n0, matrix_e)
+        result_dict = {
+            self.decay_data.nuclides[i]: float(
+                self.decay_matrices.decay_consts[i] * cumulative_decays[i]
+            )
+            for i in indices
+        }
+
+        return result_dict
 
     def plot(
         self,

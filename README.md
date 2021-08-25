@@ -1,11 +1,13 @@
-﻿[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
+﻿<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
+
+_________________
+
+[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Conda](https://img.shields.io/conda/v/conda-forge/radioactivedecay)](https://anaconda.org/conda-forge/radioactivedecay)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching
@@ -69,6 +71,14 @@ We supplied ``'h'`` as an argument to ``decay()`` to specify the decay time
 period had units of hours. Supported time units include ``'μs'``, ``'ms'``,
 ``'s'``, ``'m'``, ``'h'``, ``'d'``, ``'y'`` etc. Note seconds (``'s'``) is the
 default if no unit is supplied to ``decay()``.
+
+Use `cumulative_decays()` to calculate the total number of atoms of each
+radionuclide that decay over the decay time period:
+
+>>> Mo99_t0.cumulative_decays(20.0, 'h')
+{'Mo-99': 129870.3165339939, 'Tc-99m': 71074.31925850797,
+'Tc-99': 0.0002724635511147602}
+```
 
 Radionuclides can be specified in three equivalent ways in
 ``radioactivedecay``. The strings

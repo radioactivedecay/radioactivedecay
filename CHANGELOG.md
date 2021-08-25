@@ -11,7 +11,9 @@ precision `Inventory` class. The old `Inventory.decay_high_precision()` method i
 use `InventoryHP.decay()` instead for high-precision decay calculations. The number of significant
 figures for decay calculations is now specified via the `InventoryHP.sig_fig` attribute (default is
 320) rather than as a parameter to the `decay()` and `plot()` methods.
-- Documentation updates for all changed functionality.
+- Added new `cumulative_decays()` method to the inventory classes. This calculates the total number
+of atoms of each radionuclide that decay over the decay time period.
+- Documentation updates for all new and modified functionality.
 - LICENSE file split into separate files for `radioactivedecay`, ICRP-107 decay data, and AMDC
 atomic mass data (#38).
 - Added parsing of AME2020 and NuBase2020 atomic mass and isomer excitation energy data to ICRP-107

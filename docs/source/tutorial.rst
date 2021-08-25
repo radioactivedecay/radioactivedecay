@@ -140,6 +140,33 @@ to the `Inventory`` class.
      'U-234': 251682620.84338942, 'U-235': 5054079.6571422955,
      'U-238': 251668791.8147359}
 
+Calculating total number of decays
+----------------------------------
+
+The ``cumulative_decays()`` method can be used to calculate the total number
+of decays that occur for each radionuclide over a decay period. With a normal
+precision ``Inventory``:
+
+.. code-block:: python3
+
+    >>> inv = rd.Inventory({'Sr-90': 10.0}, 'num')
+    >>> inv.cumulative_decays(1.0 'My')
+    {'Sr-90': 10.0, 'Y-90': 10.000000000000002}
+
+So in this calculation, 10 atoms of strontium-90 and 10 atoms of its progeny,
+yttrium-90, decayed over the million year time period.
+
+Using a high precision inventory fixes the floating-point rounding error:
+
+.. code-block:: python3
+
+    >>> inv = rd.InventoryHP({'Sr-90': 10.0}, 'num')
+    >>> inv.cumulative_decays(1.0 'My')
+    {'Sr-90': 10.0, 'Y-90': 10.0}
+
+Note the ``cumulative_decays()`` method does not report the total number of
+decays of stable nuclides (as these are all zero).
+
 Radionuclide name formatting and metastable states
 --------------------------------------------------
 
