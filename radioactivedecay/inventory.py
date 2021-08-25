@@ -363,7 +363,9 @@ class Inventory:
         """
 
         total_activity = sum(self.activities().values())
-        activity_fractions = {nuc: act / total_activity for nuc, act in self.activities().items()}
+        activity_fractions = {
+            nuc: act / total_activity for nuc, act in self.activities().items()
+        }
 
         return activity_fractions
 
@@ -841,7 +843,7 @@ class Inventory:
             maximum quantity that occurs over the decay period.
         yunits : str, optional
             Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
-            'mass_frac', 'mol_frac'. Default is 'Bq'.
+            'activity_fract', 'mass_frac', 'mol_frac'. Default is 'Bq'.
         display : str or list, optional
             Only display the nuclides within this list on the graph. Use this parameter when
             you want to choose specific nuclide decay curves shown on the graph, either by
@@ -927,6 +929,13 @@ class Inventory:
                 decayed_contents = self.decay(time_points[i], xunits).numbers()
                 ydata[i] = [decayed_contents[rad] for rad in display]
                 ylabel = "Number of atoms"
+        elif yunits == "activity_frac":
+            for i in range(0, npoints):
+                decayed_contents = self.decay(
+                    time_points[i], xunits
+                ).activity_fractions()
+                ydata[i] = [decayed_contents[rad] for rad in display]
+                ylabel = "Activity fraction"
         elif yunits == "mass_frac":
             for i in range(0, npoints):
                 decayed_contents = self.decay(time_points[i], xunits).mass_fractions()

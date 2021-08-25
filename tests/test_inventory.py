@@ -516,6 +516,10 @@ class TestInventory(unittest.TestCase):
         )
         self.assertEqual(axes.get_ylabel(), "Number of atoms")
 
+        inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "Bq")
+        _, axes = inv.plot(100, "ky", yunits="activity_frac")
+        self.assertEqual(axes.get_ylabel(), "Activity fraction")
+
         inv = Inventory({"C-14": 1.0, "K-40": 2.0}, "g")
         _, axes = inv.plot(100, "ky", yunits="mass_frac")
         self.assertEqual(axes.get_ylabel(), "Mass fraction")
