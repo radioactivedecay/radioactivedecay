@@ -269,6 +269,7 @@ class DecayData:
         self.radionuclides = data["radionuclides"]
         self.hldata = data["hldata"]
         self.prog_bfs_modes = data["prog_bfs_modes"]
+        self.masses = data["masses"]
 
         self.num_radionuclides = self.radionuclides.size
         self.radionuclide_dict = dict(

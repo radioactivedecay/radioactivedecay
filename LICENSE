@@ -19,9 +19,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-radioactivedecay uses the ICRP-107 decay data, which is copyright 2008 A. Endo
-and K.F. Eckerman. The original copyright notice and license is reproduced
-below.
+radioactivedecay uses decay data from ICRP Publication 107 (ICRP-07) and atomic
+mass data from the Atomic Mass Data Center (from the AME2020 and Nubase2020
+evaluations). The original copyright notice, license and references are
+reproduced below.
+
+
+ICRP-07 reference: ICRP, 2008. Nuclear Decay Data for Dosimetric Calculations.
+ICRP Publication 107. Ann. ICRP 38 (3).
+http://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3
 
 ICRP-07 Data Files Copyright Notice
 
@@ -48,3 +54,18 @@ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 THE SOFTWARE, DATA FILES AND ACCOMPANYING DOCUMENTATION PROVIDED HEREUNDER IS
 PROVIDED "AS IS". THE AUTHORS HAVE NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,
 FUTURE UPDATES, ENHANCEMENTS, OR MODIFICATIONS TO THE SOFTWARE.
+
+
+Atomic Mass Data Center (AMDC) - https://www-nds.iaea.org/amdc/
+
+Atomic Mass Evaluation (AME2020) references:
+W.J. Huang et al 2021. The AME 2020 atomic mass evaluation (I). Evaluation of
+input data, and adjustment procedures. Chinese Phys. C 45 030002.
+https://doi.org/10.1088/1674-1137/abddb0
+Meng Wang et al 2021. The AME 2020 atomic mass evaluation (II). Tables, graphs
+and references. Chinese Phys. C 45 030003.
+https://doi.org/10.1088/1674-1137/abddaf
+
+Nubase Evaluation (Nubase2020) reference:
+F.G. Kondev et al 2021. The NUBASE2020 evaluation of nuclear physics
+properties. Chinese Phys. C 45 030001. https://doi.org/10.1088/1674-1137/abddae
