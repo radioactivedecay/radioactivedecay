@@ -93,8 +93,8 @@ Inventories can be created by supplying activity (``'Bq'``, ``'Ci'``,
 ``'dpm'``...), mass (``'g'``, ``'kg'``...), mole (``'mol'``, ``'kmol'``...)
 units, or numbers of nuclei (``'num'``) to the ``Inventory()`` constructor. Use
 the methods ``activities()``, ``masses()``, ``moles()``, ``numbers()``,
-``mass_fractions()`` and ``mole_fractions()`` to obtain the contents of the
-inventory in 
+``activity_fractions()``, ``mass_fractions()`` and ``mole_fractions()`` to
+obtain the contents of the inventory in different formats:
 
 ```pycon
 >>> H3_t0 = rd.Inventory({'H-3': 3.0}, 'g')
