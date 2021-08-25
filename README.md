@@ -1,6 +1,6 @@
 ﻿<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
-_________________
+***
 
 [![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Conda](https://img.shields.io/conda/v/conda-forge/radioactivedecay)](https://anaconda.org/conda-forge/radioactivedecay)
@@ -75,6 +75,7 @@ default if no unit is supplied to ``decay()``.
 Use `cumulative_decays()` to calculate the total number of atoms of each
 radionuclide that decay over the decay time period:
 
+```pycon
 >>> Mo99_t0.cumulative_decays(20.0, 'h')
 {'Mo-99': 129870.3165339939, 'Tc-99m': 71074.31925850797,
 'Tc-99': 0.0002724635511147602}
