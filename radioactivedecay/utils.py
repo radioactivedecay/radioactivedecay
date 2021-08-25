@@ -17,7 +17,7 @@ from sympy import Integer, Rational
 
 def parse_nuclide(nuclide: str) -> str:
     """
-    Parses a nuclide string from e.g. '241Pu' or 'Pu241' format to 'Pu-241' format. Not this
+    Parses a nuclide string from e.g. '241Pu' or 'Pu241' format to 'Pu-241' format. Note this
     function works for both radioactive and stable nuclides.
 
     Parameters
