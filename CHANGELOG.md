@@ -8,9 +8,10 @@ conversions use atomic mass data from the Atomic Mass Data Center (AMDC) by defa
 - To enable SymPy high precision calculations throughout unit and quantity conversions, there is a
 new `InventoryHP` class (high-precision inventory class). This behaves the same as the normal
 precision `Inventory` class. The old `Inventory.decay_high_precision()` method is now depricated -
-use `InventoryHP.decay()` instead for high-precision decay calculations. The number of significant
-figures for decay calculations is now specified via the `InventoryHP.sig_fig` attribute (default is
-320) rather than as a parameter to the `decay()` and `plot()` methods.
+use `InventoryHP.decay()` instead for high-precision decay calculations.
+The number of significant figures for high precision decay calculations is now specified via the
+`InventoryHP.sig_fig` attribute (default is 320) rather than as a parameter to the `InventoryHP`
+`decay()` and `plot()` methods.
 - Added new `cumulative_decays()` method to the inventory classes. This calculates the total number
 of atoms of each radionuclide that decay over the decay time period.
 - Documentation updates for all new and modified functionality.
