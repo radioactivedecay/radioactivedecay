@@ -11,5 +11,4 @@ API
    decaydata
    inventory
    radionuclide
-   utils
    

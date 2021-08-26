@@ -20,11 +20,11 @@ sys.setrecursionlimit(1500)
 # -- Project information -----------------------------------------------------
 
 project = "radioactivedecay"
-copyright = "2021, Alex Malins"
+copyright = "2021, JAEA"
 author = "Alex Malins"
 
 # The full version, including alpha/beta/rc tags
-release = "0.3.4"
+release = "0.4.0"
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,10 +1,25 @@
 # Changelog
 
-## [0.3.5] - 2021-07-12
-- Added parsing of AME2020 and NuBase2020 atomic mass and isomer excitation energy data to ICRP-107 
-dataset Jupyter notebook.
-- Added stable nuclides to decaydata.npz file, C and C_inv matrix Scipy and Sympy files in ICRP-107
-notebook folder
+## [0.4.0] - 2021-XX-XX
+- Release 0.4.0 is a large update to `radioactivedecay`. It adds functionality to supply nuclide
+masses, moles and numbers of atoms when creating inventories, and also methods so inventories can
+report their contents in terms of these quantities, as well as mass or atom fractions (#35). Mass
+conversions use atomic mass data from the Atomic Mass Data Center (AMDC) by default.
+- To enable SymPy high precision calculations throughout unit and quantity conversions, there is a
+new `InventoryHP` class (high-precision inventory class). This behaves the same as the normal
+precision `Inventory` class. The old `Inventory.decay_high_precision()` method is now depricated -
+use `InventoryHP.decay()` instead for high-precision decay calculations.
+The number of significant figures for high precision decay calculations is now specified via the
+`InventoryHP.sig_fig` attribute (default is 320) rather than as a parameter to the `InventoryHP`
+`decay()` and `plot()` methods.
+- Added new `cumulative_decays()` method to the inventory classes. This calculates the total number
+of atoms of each radionuclide that decay over the decay time period.
+- Documentation updates for all new and modified functionality.
+- LICENSE file split into separate files for `radioactivedecay`, ICRP-107 decay data, and AMDC
+atomic mass data (#38).
+- Added parsing of AME2020 and NuBase2020 atomic mass and isomer excitation energy data to ICRP-107
+dataset Jupyter notebook. Added stable nuclides to decaydata.npz file, C and C_inv matrix SciPy
+and SymPy files in ICRP-107 (#33 & #34).
 
 ## [0.3.4] - 2021-06-21
 - Fix bug in decay chain plots which caused overlaps of some radionuclides in complicated chains.

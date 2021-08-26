@@ -1,6 +1,6 @@
 """
 The radionuclide module defines the ``Radionuclide`` class. Each ``Radionuclide`` instance
-represents one radionuclide from the associated ``DecayData`` dataset. The methods provide an
+represents one nuclide from the associated ``DecayData`` dataset. The methods provide an
 access point for the decay data. The default decay dataset used if none is supplied to the
 constructor is rd.DEFAULTDATA.
 
@@ -15,7 +15,7 @@ as:
 """
 
 from collections import deque
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import matplotlib
 import networkx as nx
 import numpy as np
@@ -23,54 +23,54 @@ from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.plots import (
     _parse_nuclide_label,
     _parse_decay_mode_label,
-    _check_fig_ax,
+    _check_fig_axes,
 )
-from radioactivedecay.utils import parse_radionuclide
-
-# pylint: disable=too-many-arguments, too-many-locals
+from radioactivedecay.utils import parse_nuclide
 
 
 class Radionuclide:
     """
-    ``Radionuclide`` instances represent one radionuclide from the assoicated ``DecayData``
+    ``Radionuclide`` instances represent one nuclide from the assoicated ``DecayData``
     dataset.
 
     Parameters
     ----------
-    radionuclide : str
-        Radionuclide string.
-    data : DecayData, optional
+    nuclide : str
+        Nuclide string.
+    decay_data : DecayData, optional
         Decay dataset (default is the ICRP-107 dataset).
 
     Attributes
     ----------
-    radionuclide : str
-        Radionuclide string.
+    nuclide : str
+        nuclide string.
     prog_bf_mode : dict
         Dictionary containing direct progeny as keys, and a list containing the branching fraction
         and the decay mode for that progeny as values.
-    data : DecayData
+    decay_data : DecayData
         Decay dataset.
 
     Examples
     --------
     >>> rd.Radionuclide('K-40')
-    Radionuclide: K-40, decay dataset: icrp107
+    Nuclide: K-40, decay dataset: icrp107
 
     """
 
-    def __init__(self, radionuclide: str, data: DecayData = DEFAULTDATA) -> None:
-        self.radionuclide: str = parse_radionuclide(
-            radionuclide, data.radionuclides, data.dataset
+    # pylint: disable=too-many-arguments
+
+    def __init__(self, nuclide: str, decay_data: DecayData = DEFAULTDATA) -> None:
+        self.nuclide: str = parse_nuclide(
+            nuclide, decay_data.nuclides, decay_data.dataset_name
         )
-        self.prog_bf_mode: Dict[str, List] = data.prog_bfs_modes[
-            data.radionuclide_dict[self.radionuclide]
-        ]
-        self.data: DecayData = data
+        self.prog_bf_mode: Dict[
+            str, List[Union[float, str]]
+        ] = decay_data.prog_bfs_modes[decay_data.nuclide_dict[self.nuclide]]
+        self.decay_data: DecayData = decay_data
 
     def half_life(self, units: str = "s") -> Union[float, str]:
         """
-        Returns the half-life of the radionuclide as a float in your chosen units, or as
+        Returns the half-life of the nuclide as a float in your chosen units, or as
         a human-readable string with appropriate units.
 
         Parameters
@@ -83,26 +83,28 @@ class Radionuclide:
         Returns
         -------
         float or str
-            Radionuclide half-life.
+            Nuclide half-life.
 
         Examples
         --------
         >>> K40 = rd.Radionuclide('K-40')
         >>> K40.half_life('y')
         1251000000.0
+        >>> K40.half_life('readable')
+        '1.251 By'
 
         """
 
-        return self.data.half_life(self.radionuclide, units)
+        return self.decay_data.half_life(self.nuclide, units)
 
     def progeny(self) -> List[str]:
         """
-        Returns the direct progeny of the radionuclide.
+        Returns the direct progeny of the nuclide.
 
         Returns
         -------
         list
-            List of the direct progeny of the radionuclide, ordered by decreasing branching
+            List of the direct progeny of the nuclide, ordered by decreasing branching
             fraction.
 
         Examples
@@ -117,7 +119,7 @@ class Radionuclide:
 
     def branching_fractions(self) -> List[float]:
         """
-        Returns the branching fractions to the direct progeny of the radionuclide.
+        Returns the branching fractions to the direct progeny of the nuclide.
 
         Returns
         -------
@@ -132,11 +134,14 @@ class Radionuclide:
 
         """
 
-        return [bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())]
+        branching_fractions: List[float] = [
+            bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())
+        ]
+        return branching_fractions
 
     def decay_modes(self) -> List[str]:
         """
-        Returns the decay modes for the radionuclide, as defined in the decay dataset. Note: the
+        Returns the decay modes for the nuclide, as defined in the decay dataset. Note: the
         decay mode strings returned are not lists of all the different radiation types emitted
         during the parent to progeny decay processes. They are the labels defined in the decay
         dataset to classify the parent to progeny decay type (e.g. '\u03b1', '\u03b2-' or 'IT').
@@ -154,18 +159,21 @@ class Radionuclide:
 
         """
 
-        return [bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())]
+        decay_modes: List[str] = [
+            bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())
+        ]
+        return decay_modes
 
     def plot(
         self,
         label_pos: float = 0.5,
-        fig: Union[None, matplotlib.figure.Figure] = None,
-        ax: Union[None, matplotlib.axes.Axes] = None,
-        kwargs_draw: Union[None, Dict[str, Any]] = None,
-        kwargs_edge_labels: Union[None, Dict[str, Any]] = None,
+        fig: Optional[matplotlib.figure.Figure] = None,
+        axes: Optional[matplotlib.axes.Axes] = None,
+        kwargs_draw: Optional[Dict[str, Any]] = None,
+        kwargs_edge_labels: Optional[Dict[str, Any]] = None,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
-        Plots a diagram of the decay chain of the radionuclide. The creates a NetworkX DiGraph and
+        Plots a diagram of the decay chain of the nuclide. The creates a NetworkX DiGraph and
         creates a plot of it using NetworkX's Matplotlib-based plotting functionality.
 
         Some of the NetworkX default plotting parameters are changed to produce nice decay chain
@@ -182,7 +190,7 @@ class Radionuclide:
         fig : None or matplotlib.figure.Figure, optional
             matplotlib figure object to use, or None makes ``radioactivedecay`` create one (default
             is None).
-        ax : None or matplotlib.axes.Axes, optional
+        axes : None or matplotlib.axes.Axes, optional
             matplotlib axes object to use, or None makes ``radioactivedecay`` create one (default
             is None).
         **kwargs_draw, optional
@@ -194,7 +202,7 @@ class Radionuclide:
         -------
         fig : matplotlib.figure.Figure
             matplotlib figure object used to plot the decay chain.
-        ax : matplotlib.axes.Axes
+        axes : matplotlib.axes.Axes
             matplotlib axes object used to plot the decay chain.
 
         """
@@ -205,8 +213,8 @@ class Radionuclide:
         node_labels = nx.get_node_attributes(digraph, "label")
         edge_labels = nx.get_edge_attributes(digraph, "label")
 
-        fig, ax = _check_fig_ax(
-            fig, ax, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
+        fig, axes = _check_fig_axes(
+            fig, axes, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
         )
 
         if kwargs_draw is None:
@@ -219,7 +227,11 @@ class Radionuclide:
             kwargs_draw["edgecolors"] = "#000000"
 
         nx.draw(
-            G=digraph, pos=positions, ax=ax, labels=node_labels, **kwargs_draw,
+            G=digraph,
+            pos=positions,
+            ax=axes,
+            labels=node_labels,
+            **kwargs_draw,
         )
 
         if kwargs_edge_labels is None:
@@ -238,35 +250,39 @@ class Radionuclide:
             pos=positions,
             edge_labels=edge_labels,
             label_pos=label_pos,
-            ax=ax,
+            ax=axes,
             **kwargs_edge_labels,
         )
 
-        ax.set_xlim(-0.3, max_xpos + 0.3)
-        ax.set_ylim(-max_generation - 0.3, 0.3)
+        axes.set_xlim(-0.3, max_xpos + 0.3)
+        axes.set_ylim(-max_generation - 0.3, 0.3)
 
-        return fig, ax
+        return fig, axes
 
     def __repr__(self) -> str:
         return (
             "Radionuclide: "
-            + str(self.radionuclide)
+            + str(self.nuclide)
             + ", decay dataset: "
-            + self.data.dataset
+            + self.decay_data.dataset_name
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Check whether two ``Radionuclide`` instances are equal with ``==`` operator.
         """
 
-        return self.radionuclide == other.radionuclide and self.data == other.data
+        if not isinstance(other, Radionuclide):
+            return NotImplemented
+        return self.nuclide == other.nuclide and self.decay_data == other.decay_data
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: object) -> bool:
         """
         Check whether two ``Radionuclide`` instances are not equal with ``!=`` operator.
         """
 
+        if not isinstance(other, Radionuclide):
+            return NotImplemented
         return not self.__eq__(other)
 
     def __hash__(self) -> int:
@@ -274,19 +290,23 @@ class Radionuclide:
         Hash function for ``Radionuclide`` instances.
         """
 
-        return hash((self.radionuclide, self.data.dataset))
+        return hash((self.nuclide, self.decay_data.dataset_name))
+
+
+# pylint: disable=too-many-locals
 
 
 def _build_decay_digraph(
-    parent_rn: Radionuclide, digraph=nx.classes.digraph.DiGraph,
+    parent: Radionuclide,
+    digraph: nx.classes.digraph.DiGraph,
 ) -> nx.classes.digraph.DiGraph:
     """
-    Build a networkx DiGraph for the decay chain of this radionuclide.
+    Build a networkx DiGraph for the decay chain of this nuclide.
 
     Parameters
     ----------
-    radionuclide : Radionuclide
-        Radionuclide instance of the parent radionuclide of the decay chain.
+    parent : Radionuclide
+        Radionuclide instance of the parent nuclide of the decay chain.
     digraph : networkx.classes.digraph.DiGraph
         DiGraph for the decay chain.
 
@@ -303,27 +323,26 @@ def _build_decay_digraph(
 
     generation_max_xpos = {0: 0}
 
-    parent = parent_rn.radionuclide
-    dequeue = deque([parent])
+    dequeue = deque([parent.nuclide])
     generations = deque([0])
     xpositions = deque([0])
     node_label = (
-        _parse_nuclide_label(parent) + "\n" + str(parent_rn.half_life("readable"))
+        _parse_nuclide_label(parent.nuclide) + "\n" + str(parent.half_life("readable"))
     )
-    digraph.add_node(parent, generation=0, xpos=0, label=node_label)
-    seen = {parent}
+    digraph.add_node(parent.nuclide, generation=0, xpos=0, label=node_label)
+    seen = {parent.nuclide}
 
     while len(dequeue) > 0:
-        parent = dequeue.popleft()
+        parent_name = dequeue.popleft()
         generation = generations.popleft() + 1
         xpos = xpositions.popleft()
         if generation not in generation_max_xpos:
             generation_max_xpos[generation] = -1
-        parent_rn = Radionuclide(parent, parent_rn.data)
+        parent = Radionuclide(parent_name, parent.decay_data)
 
-        progeny = parent_rn.progeny()
-        branching_fractions = parent_rn.branching_fractions()
-        decay_modes = parent_rn.decay_modes()
+        progeny = parent.progeny()
+        branching_fractions = parent.branching_fractions()
+        decay_modes = parent.decay_modes()
 
         if xpos < generation_max_xpos[generation] + 1:
             xpos = generation_max_xpos[generation] + 1
@@ -331,17 +350,22 @@ def _build_decay_digraph(
         for i, prog in enumerate(progeny):
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
-                if prog in parent_rn.data.radionuclide_dict:
-                    node_label += "\n" + str(parent_rn.data.half_life(prog, "readable"))
-                    if np.isfinite(parent_rn.data.half_life(prog)):
+                if prog in parent.decay_data.nuclide_dict:
+                    node_label += "\n" + str(
+                        parent.decay_data.half_life(prog, "readable")
+                    )
+                    if np.isfinite(parent.decay_data.half_life(prog)):
                         dequeue.append(prog)
                         generations.append(generation)
                         xpositions.append(xpos + xcounter)
                 if prog == "SF":
-                    prog = parent + "_SF"
+                    prog = parent.nuclide + "_SF"
 
                 digraph.add_node(
-                    prog, generation=generation, xpos=xpos + xcounter, label=node_label,
+                    prog,
+                    generation=generation,
+                    xpos=xpos + xcounter,
+                    label=node_label,
                 )
                 seen.add(prog)
 
@@ -354,7 +378,7 @@ def _build_decay_digraph(
                 + "\n"
                 + str(branching_fractions[i])
             )
-            digraph.add_edge(parent, prog, label=edge_label)
+            digraph.add_edge(parent.nuclide, prog, label=edge_label)
 
     for node in digraph:
         digraph.nodes[node]["pos"] = (
