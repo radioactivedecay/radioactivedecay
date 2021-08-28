@@ -41,7 +41,25 @@ It is also possible to clone the GitHub `repository
 .. code-block:: bash
 
     $ pip install -e .
-    
+
+Testing
+-------
+
+``radioactivedecay`` includes code tests using the unittest framework. To run 
+the tests, first git clone the repository from `GitHub
+<https://github.com/alexmalins/radioactivedecay>`_:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/alexmalins/radioactivedecay.git
+
+then execute:
+
+.. code-block:: bash
+
+    $ cd radioactivedecay
+    $ python -m unittest discover
+
 Uninstallation
 --------------
 

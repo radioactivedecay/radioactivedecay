@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.3.4",
+    version="0.4.0",
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
     license="MIT",
@@ -45,13 +45,14 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={
         "": [
-            "icrp107/decay_data.npz",
-            "icrp107/c_scipy.npz",
-            "icrp107/c_inv_scipy.npz",
-            "icrp107/decay_consts_sympy.pickle",
-            "icrp107/c_sympy.pickle",
-            "icrp107/c_inv_sympy.pickle",
-            "icrp107/year_conversion_sympy.pickle",
+            "icrp107_ame2020_nubase2020/atomic_masses_sympy.pickle",
+            "icrp107_ame2020_nubase2020/decay_data.npz",
+            "icrp107_ame2020_nubase2020/c_scipy.npz",
+            "icrp107_ame2020_nubase2020/c_inv_scipy.npz",
+            "icrp107_ame2020_nubase2020/decay_consts_sympy.pickle",
+            "icrp107_ame2020_nubase2020/c_sympy.pickle",
+            "icrp107_ame2020_nubase2020/c_inv_sympy.pickle",
+            "icrp107_ame2020_nubase2020/year_conversion_sympy.pickle",
         ]
     },
 )

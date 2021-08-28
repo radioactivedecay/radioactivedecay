@@ -1,5 +1,5 @@
 """
-The utils module contains functions to parse nuclide strings and convert between time units.
+The utils module contains functions to parse nuclide strings and manipulate lists and dictionaries.
 
 The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
 as:
@@ -11,8 +11,8 @@ as:
 
 """
 
-from typing import List
-from sympy import Integer, Rational
+from typing import Dict, List, Union
+from sympy.core.expr import Expr
 
 
 Z_DICT = {
@@ -150,7 +150,7 @@ def build_nuclide_string(
     return return_string
 
 
-def parse_nuclide(nuclide: str) -> str:
+def parse_nuclide_str(nuclide: str) -> str:
     """
     Parses a nuclide string from e.g. '241Pu' or 'Pu241' format to 'Pu-241' format. Note this
     function works for both radioactive and stable nuclides.
@@ -167,9 +167,9 @@ def parse_nuclide(nuclide: str) -> str:
 
     Examples
     --------
-    >>> rd.utils.parse_nuclide('222Rn')
+    >>> rd.utils.parse_nuclide_str('222Rn')
     'Rn-222'
-    >>> rd.utils.parse_nuclide('Ca40')
+    >>> rd.utils.parse_nuclide_str('Ca40')
     'Ca-40'
 
     """
@@ -200,198 +200,145 @@ def parse_nuclide(nuclide: str) -> str:
     return nuclide
 
 
-def parse_radionuclide(
-    radionuclide: str, radionuclides: List[str], dataset: str
-) -> str:
+def parse_nuclide(nuclide: str, nuclides: List[str], dataset_name: str) -> str:
     """
-    Parses a radionuclide string into symbol - mass number format and checks whether the
-    radionuclide is contained in the decay dataset.
+    Parses a nuclide string into symbol - mass number format and checks whether the
+    nuclide is contained in the decay dataset.
 
     Parameters
     ----------
-    radionuclide : str
-        Radionuclide string.
-    radionuclides : List[str]
-        List of all the radionuclides in the decay dataset.
-    dataset : str
+    nuclide : str
+        Nuclide name string.
+    nuclides : List[str]
+        List of all the nuclides in the decay dataset.
+    dataset_name : str
         Name of the decay dataset.
 
     Returns
     -------
     str
-        Radionuclide string parsed in symbol - mass number format.
+        Nuclide string parsed in symbol - mass number format.
 
     Raises
     ------
     ValueError
-        If the radionuclide string is invalid or the radionuclide is not contained in the decay
+        If the input nuclide string is invalid or the nuclide is not contained in the decay
         dataset.
 
     Examples
     --------
-    >>> rd.utils.parse_radionuclide('222Rn', rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.utils.parse_nuclide('222Rn', rd.DEFAULTDATA.nuclides, rd.DEFAULTDATA.dataset_name)
     'Rn-222'
-    >>> rd.utils.parse_radionuclide('Ba137m', rd.DEFAULTDATA.radionuclides, rd.DEFAULTDATA.dataset)
+    >>> rd.utils.parse_nuclide('Ba137m', rd.DEFAULTDATA.nuclides, rd.DEFAULTDATA.dataset_name)
     'Ba-137m'
 
     """
 
-    original_radionuclide = radionuclide
-    radionuclide = parse_nuclide(radionuclide)
+    original_nuclide = nuclide
+    nuclide = parse_nuclide_str(nuclide)
 
-    if radionuclide not in radionuclides:
+    if nuclide not in nuclides:
         raise ValueError(
-            str(original_radionuclide)
-            + " is not a valid radionuclide in "
-            + dataset
-            + " dataset."
+            str(original_nuclide)
+            + " is not a valid nuclide in "
+            + dataset_name
+            + " decay dataset."
         )
 
-    return radionuclide
+    return nuclide
 
 
-def time_unit_conv(
-    time_period: float, units_from: str, units_to: str, year_conv: float
-) -> float:
+def add_dictionaries(
+    dict_a: Dict[str, Union[float, Expr]], dict_b: Dict[str, Union[float, Expr]]
+) -> Dict[str, Union[float, Expr]]:
     """
-    Converts a time period from one time unit to another.
+    Adds together two dictionaries of nuclide strings and associated quantities. Supports both
+    floats or SymPy quantities.
 
     Parameters
     ----------
-    time_period : float
-        Time period before conversion.
-    units_from : str
-        Time unit before conversion
-    units_to : str
-        Time unit after conversion
-    yeav_conv : float
-        Conversion factor for number of days in a year.
+    dict_a : dict
+        First dictionary containing nuclide strings as keys and quantitites as values.
+    dict_b : dict
+        Second dictionary containing nuclide strings as keys and quantitites as values.
 
     Returns
     -------
-    float
-        Time period in new units.
-
-    Raises
-    ------
-    ValueError
-        If one of the time unit parameters is invalid.
+    dict
+        Combined dictionary containing the nuclides in both dict_a and dict_b, where the
+        quantities have been added together when a nuclide is present in both input
+        dictionaries.
 
     Examples
     --------
-    >>> rd.utils.time_unit_conv(1.0, 'd', 'h', rd.DEFAULTDATA.year_conv)
-    24.0
+    >>> dict_a = {'Pm-141': 1.0, 'Rb-78': 2.0}
+    >>> dict_b = {'Pm-141': 3.0, 'Rb-90': 4.0}
+    >>> rd.utils.add_dictionaries(dict_a, dict_b)
+    {'Pm-141': 4.0, 'Rb-78': 2.0, 'Rb-90': 4.0}
 
     """
 
-    conv = {
-        "ps": 1.0e-12,
-        "ns": 1.0e-9,
-        "μs": 1.0e-6,
-        "us": 1.0e-6,
-        "ms": 1.0e-3,
-        "s": 1.0,
-        "m": 60.0,
-        "h": 3600.0,
-        "d": 86400.0,
-        "y": 86400.0 * year_conv,
-        "sec": 1,
-        "second": 1,
-        "seconds": 1,
-        "hr": 3600.0,
-        "hour": 3600.0,
-        "hours": 3600.0,
-        "day": 86400.0,
-        "days": 86400.0,
-        "yr": 86400.0 * year_conv,
-        "year": 86400.0 * year_conv,
-        "years": 86400.0 * year_conv,
-        "ky": 86400.0 * year_conv * 1.0e3,
-        "My": 86400.0 * year_conv * 1.0e6,
-        "By": 86400.0 * year_conv * 1.0e9,
-        "Gy": 86400.0 * year_conv * 1.0e9,
-        "Ty": 86400.0 * year_conv * 1.0e12,
-        "Py": 86400.0 * year_conv * 1.0e15,
-    }
+    new_dict = dict_a.copy()
+    for nuclide, quantity in dict_b.items():
+        if nuclide in new_dict:
+            new_dict[nuclide] = new_dict[nuclide] + quantity
+        else:
+            new_dict[nuclide] = quantity
 
-    if units_from not in conv:
-        raise ValueError(
-            str(units_from) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
-        )
-    if units_to not in conv:
-        raise ValueError(
-            str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
-        )
-
-    return time_period * conv[units_from] / conv[units_to]
+    return new_dict
 
 
-def time_unit_conv_sympy(
-    time_period: Rational, units_from: str, units_to: str, year_conv: Rational
-) -> Rational:
+def sort_dictionary_alphabetically(
+    input_inv_dict: Dict[str, Union[float, Expr]]
+) -> Dict[str, Union[float, Expr]]:
     """
-    Same functionality as time_unit_conv(), but uses SymPy arbitrary-precision arithmetic.
+    Sorts a dictionary alphabetically by its keys.
 
     Parameters
     ----------
-    time_period : sympy.core.numbers.Rational
-        Time period before conversion.
-    units_from : str
-        Time unit before conversion
-    units_to : str
-        Time unit after conversion
-    yeav_conv : sympy.core.numbers.Rational
-        Conversion factor for number of days in a year.
+    input_inv_dict : dict
+        Dictionary containing nuclide strings or Radionuclide objects as keys and numbers
+        as values.
 
     Returns
     -------
-    sympy.core.numbers.Rational
-        Time period in new units.
+    dict
+        Inventory dictionary which has been sorted by the nuclides alphabetically.
 
-    Raises
-    ------
-    ValueError
-        If one of the time unit parameters is invalid.
+    Examples
+    --------
+    >>> rd.utils.sort_dictionary_alphabetically({'U-235': 1.2, 'Tc-99m': 2.3, 'Tc-99': 5.8})
+    {'Tc-99': 5.8, 'Tc-99m': 2.3, 'U-235': 1.2}
 
     """
 
-    conv = {
-        "ps": Integer(1) / 1000000000000,
-        "ns": Integer(1) / 1000000000,
-        "μs": Integer(1) / 1000000,
-        "us": Integer(1) / 1000000,
-        "ms": Integer(1) / 1000,
-        "s": Integer(1),
-        "m": Integer(60),
-        "h": Integer(3600),
-        "d": Integer(86400),
-        "y": Integer(86400) * year_conv,
-        "sec": Integer(1),
-        "second": Integer(1),
-        "seconds": Integer(1),
-        "hr": Integer(3600),
-        "hour": Integer(3600),
-        "hours": Integer(3600),
-        "day": Integer(86400),
-        "days": Integer(86400),
-        "yr": Integer(86400) * year_conv,
-        "year": Integer(86400) * year_conv,
-        "years": Integer(86400) * year_conv,
-        "ky": Integer(86400) * year_conv * 1000,
-        "My": Integer(86400) * year_conv * 1000000,
-        "By": Integer(86400) * year_conv * 1000000000,
-        "Gy": Integer(86400) * year_conv * 1000000000,
-        "Ty": Integer(86400) * year_conv * 1000000000000,
-        "Py": Integer(86400) * year_conv * 1000000000000000,
-    }
+    return dict(sorted(input_inv_dict.items(), key=lambda x: x[0]))
 
-    if units_from not in conv:
-        raise ValueError(
-            str(units_from) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
-        )
-    if units_to not in conv:
-        raise ValueError(
-            str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
-        )
 
-    return time_period * conv[units_from] / conv[units_to]
+def sort_list_according_to_dataset(
+    input_list: List[str], key_dict: Dict[str, int]
+) -> List[str]:
+    """
+    Sorts a list of nuclides based on their order of appearence in the decay dataset.
+
+    Parameters
+    ----------
+    input_list : list
+        List of nuclide strings to be sorted.
+    key_dict : dict
+        Dictionary from the decay dataset with nuclide strings as keys and their position
+        (integers) in the decay dataset.
+
+    Returns
+    -------
+    list
+        Sorted nuclide list.
+
+    Examples
+    --------
+    >>> rd.utils.sort_list_according_to_dataset(['Tc-99', 'Tc-99m'], rd.DEFAULTDATA.nuclide_dict)
+    ['Tc-99m', 'Tc-99']
+
+    """
+
+    return sorted(input_list, key=lambda nuclide: key_dict[nuclide])

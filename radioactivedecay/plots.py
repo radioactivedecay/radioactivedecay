@@ -4,7 +4,7 @@ class ``plot()`` method, and activity decay graphs via the Inventory class ``plo
 
 """
 
-from typing import Set, Tuple, Union
+from typing import List, Set, Optional, Tuple
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -82,9 +82,9 @@ def _parse_decay_mode_label(mode: str) -> str:
     return mode
 
 
-def _check_fig_ax(
-    fig_in: Union[None, matplotlib.figure.Figure],
-    ax_in: Union[None, matplotlib.axes.Axes],
+def _check_fig_axes(
+    fig_in: Optional[matplotlib.figure.Figure],
+    axes_in: Optional[matplotlib.axes.Axes],
     **kwargs,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     """
@@ -95,7 +95,7 @@ def _check_fig_ax(
     ----------
     fig_in : None or matplotlib.figure.Figure
         matplotlib figure object to use, or None creates one.
-    ax_in : matplotlib.axes.Axes or None, optional
+    axes_in : matplotlib.axes.Axes or None, optional
         matplotlib axes object to use, or None creates one.
     **kwargs
         All additional keyword arguments to supply to plt.subplots().
@@ -104,67 +104,67 @@ def _check_fig_ax(
     -------
     fig : matplotlib.figure.Figure
         matplotlib figure object used to plot decay chain.
-    ax : matplotlib.axes.Axes
+    axes : matplotlib.axes.Axes
         matplotlib axes object used to plot decay chain.
 
     """
 
-    if fig_in is None and ax_in is None:
-        fig, ax = plt.subplots(**kwargs)
+    if fig_in is None and axes_in is None:
+        fig, axes = plt.subplots(**kwargs)
     elif fig_in is None:
-        ax = ax_in
-        fig = ax.get_figure()
-    elif ax_in is None:
+        axes = axes_in
+        fig = axes.get_figure()
+    elif axes_in is None:
         fig = fig_in
-        ax = fig.gca()
+        axes = fig.gca()
     else:
         fig = fig_in
-        ax = ax_in
+        axes = axes_in
 
-    return fig, ax
+    return fig, axes
 
 
 def _decay_graph(
     time_points: np.ndarray,
-    activities: np.ndarray,
-    radionuclides: np.ndarray,
+    ydata: np.ndarray,
+    nuclides: List[str],
     xunits: str,
-    yunits: Union[None, str],
+    ylabel: str,
     xscale: str,
     yscale: str,
-    ylimits: np.ndarray,
+    ylimits: List[float],
     display: Set[str],
-    fig_in: Union[None, matplotlib.figure.Figure],
-    ax_in: Union[None, matplotlib.axes.Axes],
+    fig_in: Optional[matplotlib.figure.Figure],
+    axes_in: Optional[matplotlib.axes.Axes],
     **kwargs,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     """
     Plots a decay graph showing the change in activity of an inventory over time. Creates
-    matplotlib fig, ax objects if they are not supplied. Returns fig, ax tuple.
+    matplotlib fig, axes objects if they are not supplied. Returns fig, axes tuple.
 
     Parameters
     ----------
     time_points : numpy.ndarray
         Time points for x-axis.
-    activities : numpy.ndarray
-        Radioactivities for y-axis.
-    radionuclides : numpy.ndarray
-        NumPy array of the radionuclides (string format is 'H-3', etc.).
+    ydata : numpy.ndarray
+        y-axis data.
+    nuclides : list
+        List of the nuclides (string format is 'H-3', etc.).
     xunits : str
         Units for decay time axis.
-    yunits : None or str
-        Units for the activity axis
+    ylabel : str
+        Units for the y-axis
     xscale : str
         The time axis scale type to apply ('linear' or 'log').
     yscale : str
-        The activities axis scale type to apply ('linear' or 'log').
-    ylimits : numpy.ndarray
-        Limits for the y-axis.
+        The y-axis scale type to apply ('linear' or 'log').
+    ylimits : list
+        Limits for the y-axis (list or numpy.ndarray with two elements).
     display : set of str
-        Radionuclides to display on the graph.
+        Nuclides to display on the graph.
     fig_in : None or matplotlib.figure.Figure
         matplotlib figure object to use, or None creates one.
-    ax_in : matplotlib.axes.Axes or None, optional
+    axes_in : matplotlib.axes.Axes or None, optional
         matplotlib axes object to use, or None creates one.
     **kwargs
         All additional keyword arguments to supply to matplotlib plot().
@@ -173,22 +173,24 @@ def _decay_graph(
     -------
     fig : matplotlib.figure.Figure
         matplotlib figure object used to plot decay chain.
-    ax : matplotlib.axes.Axes
+    axes : matplotlib.axes.Axes
         matplotlib axes object used to plot decay chain.
 
     """
 
-    fig, ax = _check_fig_ax(fig_in, ax_in)
+    fig, axes = _check_fig_axes(fig_in, axes_in)
 
-    for i, label in enumerate(radionuclides):
+    for i, label in enumerate(nuclides):
         if label in display:
-            ax.plot(time_points, activities[i], label=label, **kwargs)
-    ax.legend(loc="upper right")
+            axes.plot(time_points, ydata[i], label=label, **kwargs)
+    axes.legend(loc="upper right")
     xlabel = "Time (" + xunits + ")"
-    ylabel = "Activity (" + yunits + ")" if yunits else "Activity"
-    ax.set(
-        xlabel=xlabel, ylabel=ylabel, xscale=xscale, yscale=yscale,
+    axes.set(
+        xlabel=xlabel,
+        ylabel=ylabel,
+        xscale=xscale,
+        yscale=yscale,
     )
-    ax.set_ylim(ylimits)
+    axes.set_ylim(ylimits)
 
-    return fig, ax
+    return fig, axes
