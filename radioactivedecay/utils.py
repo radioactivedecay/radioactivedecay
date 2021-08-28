@@ -15,6 +15,141 @@ from typing import List
 from sympy import Integer, Rational
 
 
+Z_DICT = {
+    1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O",
+    9: "F", 10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P",
+    16: "S", 17: "Cl", 18: "Ar", 19: "K", 20: "Ca", 21: "Sc", 22: "Ti",
+    23: "V", 24: "Cr", 25: "Mn", 26: "Fe", 27: "Co", 28: "Ni", 29: "Cu",
+    30: "Zn", 31: "Ga", 32: "Ge", 33: "As", 34: "Se", 35: "Br", 36: "Kr",
+    37: "Rb", 38: "Sr", 39: "Y", 40: "Zr", 41: "Nb", 42: "Mo", 43: "Tc",
+    44: "Ru", 45: "Rh", 46: "Pd", 47: "Ag", 48: "Cd", 49: "In", 50: "Sn",
+    51: "Sb", 52: "Te", 53: "I", 54: "Xe", 55: "Cs", 56: "Ba", 57: "La",
+    58: "Ce", 59: "Pr", 60: "Nd", 61: "Pm", 62: "Sm", 63: "Eu", 64: "Gd",
+    65: "Tb", 66: "Dy", 67: "Ho", 68: "Er", 69: "Tm", 70: "Yb", 71: "Lu",
+    72: "Hf", 73: "Ta", 74: "W", 75: "Re", 76: "Os", 77: "Ir", 78: "Pt",
+    79: "Au", 80: "Hg", 81: "Tl", 82: "Pb", 83: "Bi", 84: "Po", 85: "At",
+    86: "Rn", 87: "Fr", 88: "Ra", 89: "Ac", 90: "Th", 91: "Pa", 92: "U",
+    93: "Np", 94: "Pu", 95: "Am", 96: "Cm", 97: "Bk", 98: "Cf", 99: "Es",
+    100: "Fm", 101: "Md", 102: "No", 103: "Lr", 104: "Rf", 105: "Db",
+    106: "Sg", 107: "Bh", 108: "Hs", 109: "Mt", 110: "Ds", 111: "Rg",
+    112: "Cn", 113: "Nh", 114: "Fl", 115: "Mc", 116: "Lv", 117: "Ts",
+    118: "Og"
+}
+SYM_DICT = dict((v,k) for k,v in Z_DICT.items())
+
+
+
+def Z_to_elem(Z: int) -> str:
+    """
+    Converts atomic number to element symbol.
+
+    Parameters
+    ----------
+    Z : int
+        Atomic number.
+
+    Returns
+    -------
+    str
+        Element string.
+
+    Examples
+    --------
+    >>> rd.utils.Z_to_elem(1)
+    'H'
+    >>> rd.utils.Z_to_elem(35)
+    'Br'
+
+    """
+        
+    return Z_DICT[Z]
+
+
+def elem_to_Z(sym: str) -> int:
+    """
+    Converts element symbol to atomic number.
+
+    Parameters
+    ----------
+    sym : str
+        Element string.
+
+    Returns
+    -------
+    int
+        Atomic number.
+
+    Examples
+    --------
+    >>> rd.utils.elem_to_Z('H')
+    1
+    >>> rd.utils.elem_to_Z('Br')
+    35
+
+    """
+            
+    return SYM_DICT[sym]
+
+
+def build_id(Z: int, A: int, state: str = "") -> int:
+    """
+    Builds a canonical nuclide id from atomic number, atomic mass, and
+    and energy state.
+
+    Parameters
+    ----------
+    Z : int
+        Atomic number.
+    A : int
+        Atomic mass.
+    state : str
+        energy state.
+
+    Returns
+    -------
+    int
+        Canonical nuclide id.
+
+    Examples
+    --------
+    >>> rd.utils.build_id(1,2)
+    10020000
+    >>> rd.utils.build_id(28,56,'m')
+    280560001
+
+    """
+    
+    if state != "":
+        if state == "m":
+            state_int = 1
+        elif state == "n":
+            state_int = 2
+        else:
+            raise ValueError(state + " is not a valid energy state.")
+    else:
+        state_int = 0
+    
+    id = (Z * 10000000) + (A * 10000) + state_int
+
+    return id
+                  
+
+def build_nuclide_string(
+    Z: int,
+    A: int,
+    meta_state: str = ""
+) -> str:
+                
+    if Z not in Z_DICT.keys():
+        raise ValueError(
+            str(Z) + ' is not a valid atomic number'
+        )
+        
+    return_string = Z_DICT[Z] + "-" + str(A) + meta_state
+        
+    return return_string
+
+
 def parse_nuclide(nuclide: str) -> str:
     """
     Parses a nuclide string from e.g. '241Pu' or 'Pu241' format to 'Pu-241' format. Note this
