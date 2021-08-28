@@ -19,14 +19,15 @@ The code examples shown in the docstrings assume the
 """
 
 from collections import deque
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, Optional
 import matplotlib
 import networkx as nx
+import numpy as np
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.plots import (
     _parse_nuclide_label,
     _parse_decay_mode_label,
-    _check_fig_ax,
+    _check_fig_axes,
 )
 from radioactivedecay.utils import (
     parse_nuclide,
@@ -46,10 +47,12 @@ class Nuclide:
     input : Any
         Input value for instantiation. Can be nuclide string in name
         format (with or without hyphen), or canonical id (zzzaaassss).
+    decay_data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
 
     Attributes
     ----------
-    name : str
+    nuclide : str
         Nuclide name string.
     Z : int
         Atomic number.
@@ -58,6 +61,12 @@ class Nuclide:
     id : int
         Canonical nuclide id, in zzzaaassss form. Ground state is 0000,
         first excited state ("m") is 0001, second ("n") is 0002, etc.
+
+    Raises
+    ------
+    ValueError
+        If the input nuclide string is invalid or the nuclide is not
+        contained in the decay dataset.
 
     Examples
     --------
@@ -75,10 +84,16 @@ class Nuclide:
     def __init__(
         self,
         input: Any,
-        data: DecayData = DEFAULTDATA
+        decay_data: DecayData = DEFAULTDATA
     ) -> None:
+        self.decay_data = decay_data
         self.parse_name(input)
-        self.data = data
+        index = decay_data.nuclide_dict[self.nuclide]
+        mass = decay_data.scipy_data.atomic_masses[index]
+        self.atomic_mass = mass
+        self.prog_bf_mode: Dict[
+            str, List[Union[float, str]]
+        ] = decay_data.prog_bfs_modes[decay_data.nuclide_dict[self.nuclide]]
 
     def parse_name(self, input: Any) -> None:
         if isinstance(input, int):
@@ -92,9 +107,17 @@ class Nuclide:
                 state = "n"
             Z = int(id_zzzaaa / 1000)
             A = id_zzzaaa - (Z * 1000)    
-            name = build_nuclide_string(Z, A, state)
+            name = parse_nuclide(
+                build_nuclide_string(Z, A, state),
+                self.decay_data.nuclides,
+                self.decay_data.dataset_name
+            )
         elif isinstance(input, str):
-            name = parse_nuclide(input)
+            name = parse_nuclide(
+                input,
+                self.decay_data.nuclides,
+                self.decay_data.dataset_name
+            )
             Z = elem_to_Z(name.split("-")[0])
             A = int(name.split("-")[1].strip("mn"))
             state = name.split("-")[1].strip("0123456789")
@@ -104,53 +127,18 @@ class Nuclide:
                 "Invalid input type, expected int or str"
             )
         
-        self.name = name
+        self.nuclide = name
         self.Z = Z
         self.A = A
         self.state = state
     
     def __repr__(self) -> str:
-        if self.A == 0:
-            rep =  "Element: " + self.name
-        else:
-            rep = ("Nuclide: "
-                   + self.name
-                   + ", decay dataset: "
-                   + self.data.dataset)
+        rep = ("Nuclide: "
+            + self.nuclide
+            + ", decay dataset: "
+            + self.decay_data.dataset_name)
             
         return rep
-    
-    @property
-    def atomic_mass(self) -> int:
-        """
-        Returns the atomic weight of the nuclide, if contained in the
-        dataset.
-        
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
-
-        Examples
-        --------
-        >>> Ir190n = rd.Nuclide('Ir-190n')
-        >>> Ir190n.atomic_mass
-        189.96094745600013
-        
-        """
-        
-        if self.name not in self.data.radionuclides:
-            raise ValueError(
-                self.name
-                + " is not a valid radionuclide in "
-                + self.data.dataset
-                + " dataset."
-            )
-        
-        index = self.data.radionuclide_dict[self.name]
-        mass = self.data.masses[index]
-        return mass
     
     def half_life(self, units: str = "s") -> Union[float, str]:
         """
@@ -165,12 +153,6 @@ class Nuclide:
             'Ty', 'Py', and common spelling variations. Default is 's',
             i.e. seconds. Use 'readable' to get a string of the
             half-life in human-readable units.
-
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
 
         Returns
         -------
@@ -188,53 +170,7 @@ class Nuclide:
 
         """
 
-        if self.name not in self.data.radionuclides:
-            raise ValueError(
-                self.name
-                + " is not a valid radionuclide in "
-                + self.data.dataset
-                + " dataset."
-            )
-        
-        return self.data.half_life(self.name, units)
-
-    @property
-    def prog_bf_mode(self) -> Dict[str, List]:
-        """
-        Returns the direct progeny of a radionuclide.
-
-        Returns
-        -------
-        prog_bf_mode : dict
-            Dictionary containing direct progeny as keys, and a list
-            containing the branching fraction and the decay mode for
-            that progeny as values.
-            
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
-            
-        Examples
-        --------
-        >>> K40 = rd.Nuclide('K-40')
-        >>> K40.prog_bf_mode
-        {'Ca-40': [0.8914, 'β-'], 'Ar-40': [0.1086, 'β+ & EC']}
-
-        """
-        
-        if self.name not in self.data.radionuclides:
-            raise ValueError(
-                self.name
-                + " is not a valid radionuclide in "
-                + self.data.dataset
-                + " dataset."
-            )
-        
-        return self.data.prog_bfs_modes[
-            self.data.radionuclide_dict[self.name]
-        ]
+        return self.decay_data.half_life(self.nuclide, units)
         
     def progeny(self) -> List[str]:
         """
@@ -245,12 +181,6 @@ class Nuclide:
         list
             List of the direct progeny of the radionuclide, ordered by
             decreasing branching fraction.
-            
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
 
         Examples
         --------
@@ -272,12 +202,6 @@ class Nuclide:
         list
             List of branching fractions.
             
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
-
         Examples
         --------
         >>> K40 = rd.Nuclide('K-40')
@@ -286,7 +210,10 @@ class Nuclide:
 
         """
             
-        return [bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())]
+        branching_fractions: List[float] = [
+            bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())
+        ]
+        return branching_fractions
 
     def decay_modes(self) -> List[str]:
         """
@@ -302,12 +229,6 @@ class Nuclide:
         list
             List of decay modes.
                 
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
-
         Examples
         --------
         >>> K40 = rd.Nuclide('K-40')
@@ -315,24 +236,19 @@ class Nuclide:
         ['\u03b2-', '\u03b2+ & EC']
 
         """
-
-        if self.name not in self.data.radionuclides:
-            raise ValueError(
-                self.name
-                + " is not a valid radionuclide in "
-                + self.data.dataset
-                + " dataset."
-            )
             
-        return [bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())]
+        decay_modes: List[str] = [
+            bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())
+        ]
+        return decay_modes
 
     def plot(
         self,
         label_pos: float = 0.5,
-        fig: Union[None, matplotlib.figure.Figure] = None,
-        ax: Union[None, matplotlib.axes.Axes] = None,
-        kwargs_draw: Union[None, Dict[str, Any]] = None,
-        kwargs_edge_labels: Union[None, Dict[str, Any]] = None,
+        fig: Optional[matplotlib.figure.Figure] = None,
+        axes: Optional[matplotlib.axes.Axes] = None,
+        kwargs_draw: Optional[Dict[str, Any]] = None,
+        kwargs_edge_labels: Optional[Dict[str, Any]] = None,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
         Plots a diagram of the decay chain of a radionuclide. Then
@@ -355,7 +271,7 @@ class Nuclide:
         fig : None or matplotlib.figure.Figure, optional
             matplotlib figure object to use, or None makes
             ``radioactivedecay`` create one (default is None).
-        ax : None or matplotlib.axes.Axes, optional
+        axes : None or matplotlib.axes.Axes, optional
             matplotlib axes object to use, or None makes
             ``radioactivedecay`` create one (default is None).
         **kwargs_draw, optional
@@ -369,32 +285,17 @@ class Nuclide:
             matplotlib figure object used to plot the decay chain.
         ax : matplotlib.axes.Axes
             matplotlib axes object used to plot the decay chain.
-                
-        Raises
-        ------
-        ValueError
-            If the nuclide is not contained in the decay
-            dataset.
 
         """
 
-        if self.name not in self.data.radionuclides:
-            raise ValueError(
-                self.name
-                + " is not a valid radionuclide in "
-                + self.data.dataset
-                + " dataset."
-            )
-
-        digraph, max_generation, max_xpos = _build_decay_digraph(self,
-                                                                 nx.DiGraph())
+        digraph, max_generation, max_xpos = _build_decay_digraph(self, nx.DiGraph())
 
         positions = nx.get_node_attributes(digraph, "pos")
         node_labels = nx.get_node_attributes(digraph, "label")
         edge_labels = nx.get_edge_attributes(digraph, "label")
 
-        fig, ax = _check_fig_ax(
-            fig, ax, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
+        fig, axes = _check_fig_axes(
+            fig, axes, figsize=(3 * max_xpos + 1.5, 3 * max_generation + 1.5)
         )
 
         if kwargs_draw is None:
@@ -409,7 +310,7 @@ class Nuclide:
         nx.draw(
             G=digraph,
             pos=positions,
-            ax=ax,
+            ax=axes,
             labels=node_labels,
             **kwargs_draw,
         )
@@ -430,49 +331,26 @@ class Nuclide:
             pos=positions,
             edge_labels=edge_labels,
             label_pos=label_pos,
-            ax=ax,
+            ax=axes,
             **kwargs_edge_labels,
         )
 
-        ax.set_xlim(-0.3, max_xpos + 0.3)
-        ax.set_ylim(-max_generation - 0.3, 0.3)
+        axes.set_xlim(-0.3, max_xpos + 0.3)
+        axes.set_ylim(-max_generation - 0.3, 0.3)
 
-        return fig, ax
-
-    def __eq__(self, other) -> bool:
-        """
-        Check whether two ``Nuclide`` instances are equal with ``==``
-        operator.
-        """
-
-        return self.name == other.name and self.data == other.data
-
-    def __ne__(self, other) -> bool:
-        """
-        Check whether two ``Nuclide`` instances are not equal with
-        ``!=`` operator.
-        """
-
-        return not self.__eq__(other)
-
-    def __hash__(self) -> int:
-        """
-        Hash function for ``Nuclide`` instances.
-        """
-
-        return hash((self.nuclide, self.data.dataset))
-
+        return fig, axes
 
 def _build_decay_digraph(
-    parent_rn: Nuclide, digraph=nx.classes.digraph.DiGraph,
+    parent: Nuclide,
+    digraph: nx.classes.digraph.DiGraph,
 ) -> nx.classes.digraph.DiGraph:
     """
-    Build a networkx DiGraph for the decay chain of this radionuclide.
+    Build a networkx DiGraph for the decay chain of this nuclide.
 
     Parameters
     ----------
-    parent_rn : Nuclide
-        Nuclide instance of the parent radionuclide of the decay chain.
+    parent : Radionuclide
+        Radionuclide instance of the parent nuclide of the decay chain.
     digraph : networkx.classes.digraph.DiGraph
         DiGraph for the decay chain.
 
@@ -483,36 +361,32 @@ def _build_decay_digraph(
     max_generation : int
         Number of generations of progeny in the decay chain.
     max_xpos : int
-        Maximum number of progeny within any one generation of the
-        decay chain.
+        Maximum number of progeny within any one generation of the decay chain.
 
     """
 
     generation_max_xpos = {0: 0}
 
-    parent = parent_rn.name
-    dequeue = deque([parent])
+    dequeue = deque([parent.nuclide])
     generations = deque([0])
     xpositions = deque([0])
     node_label = (
-        _parse_nuclide_label(parent)
-        + "\n"
-        + str(parent_rn.half_life("readable"))
+        _parse_nuclide_label(parent.nuclide) + "\n" + str(parent.half_life("readable"))
     )
-    digraph.add_node(parent, generation=0, xpos=0, label=node_label)
-    seen = {parent}
+    digraph.add_node(parent.nuclide, generation=0, xpos=0, label=node_label)
+    seen = {parent.nuclide}
 
     while len(dequeue) > 0:
-        parent = dequeue.popleft()
+        parent_name = dequeue.popleft()
         generation = generations.popleft() + 1
         xpos = xpositions.popleft()
         if generation not in generation_max_xpos:
             generation_max_xpos[generation] = -1
-        parent_rn = Nuclide(parent, data=parent_rn.data)
+        parent = Nuclide(parent_name, parent.decay_data)
 
-        progeny = parent_rn.progeny()
-        branching_fractions = parent_rn.branching_fractions()
-        decay_modes = parent_rn.decay_modes()
+        progeny = parent.progeny()
+        branching_fractions = parent.branching_fractions()
+        decay_modes = parent.decay_modes()
 
         if xpos < generation_max_xpos[generation] + 1:
             xpos = generation_max_xpos[generation] + 1
@@ -520,23 +394,22 @@ def _build_decay_digraph(
         for i, prog in enumerate(progeny):
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
-                if prog in parent_rn.data.radionuclide_dict:
-                    node_label += (
-                        "\n"
-                        + str(parent_rn.data.half_life(prog,
-                                                       "readable"))
+                if prog in parent.decay_data.nuclide_dict:
+                    node_label += "\n" + str(
+                        parent.decay_data.half_life(prog, "readable")
                     )
-                    dequeue.append(prog)
-                    generations.append(generation)
-                    xpositions.append(xpos + xcounter)
+                    if np.isfinite(parent.decay_data.half_life(prog)):
+                        dequeue.append(prog)
+                        generations.append(generation)
+                        xpositions.append(xpos + xcounter)
                 if prog == "SF":
-                    prog = parent + "_SF"
+                    prog = parent.nuclide + "_SF"
 
                 digraph.add_node(
                     prog,
                     generation=generation,
                     xpos=xpos + xcounter,
-                    label=node_label
+                    label=node_label,
                 )
                 seen.add(prog)
 
@@ -549,7 +422,7 @@ def _build_decay_digraph(
                 + "\n"
                 + str(branching_fractions[i])
             )
-            digraph.add_edge(parent, prog, label=edge_label)
+            digraph.add_edge(parent.nuclide, prog, label=edge_label)
 
     for node in digraph:
         digraph.nodes[node]["pos"] = (
@@ -557,6 +430,4 @@ def _build_decay_digraph(
             digraph.nodes[node]["generation"] * -1,
         )
 
-    return (digraph,
-            max(generation_max_xpos),
-            max(generation_max_xpos.values())
+    return digraph, max(generation_max_xpos), max(generation_max_xpos.values())
