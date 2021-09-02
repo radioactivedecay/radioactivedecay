@@ -139,6 +139,32 @@ def build_nuclide_string(
     A: int,
     meta_state: str = ""
 ) -> str:
+    """
+    Builds a nuclide string from given atomic mass and number.
+
+    Parameters
+    ----------
+    Z : int
+        Atomic number.
+    A : int
+        Atomic mass.
+    meta_state : str, optional
+        Metastable state indicator character, ex. 'm' for the first
+        atomic metastable state.
+
+    Returns
+    -------
+    str
+        Nuclide string built in symbol - mass number format.
+
+    Examples
+    --------
+    >>> rd.utils.build_nuclide_string(26, 56)
+    'Fe-56'
+    >>> rd.utils.build_nuclide_string(28, 56, 'm')
+    'Fe-56m'
+
+    """
                 
     if Z not in Z_DICT.keys():
         raise ValueError(

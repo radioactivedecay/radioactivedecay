@@ -61,12 +61,18 @@ class Nuclide:
     id : int
         Canonical nuclide id, in zzzaaassss form. Ground state is 0000,
         first excited state ("m") is 0001, second ("n") is 0002, etc.
+    decay_data : DecayData
+        Decay dataset.
+    atomic_mass : float
+        Atomic weight of the nuclide, in g/mol.
+    prog_bf_mode : int
+        Dictionary containing direct progeny as keys, and a list containing the branching fraction
+        and the decay mode for that progeny as values.
 
     Raises
     ------
-    ValueError
-        If the input nuclide string is invalid or the nuclide is not
-        contained in the decay dataset.
+    TypeError
+        If the input is an invalid type, a string or integer is expected.
 
     Examples
     --------
@@ -83,7 +89,7 @@ class Nuclide:
     
     def __init__(
         self,
-        input: Any,
+        input: Union[str, int],
         decay_data: DecayData = DEFAULTDATA
     ) -> None:
         self.decay_data = decay_data
