@@ -297,7 +297,7 @@ def sort_dictionary_alphabetically(
     Parameters
     ----------
     input_inv_dict : dict
-        Dictionary containing nuclide strings or Radionuclide objects as keys and numbers
+        Dictionary containing nuclide strings or Nuclide objects as keys and numbers
         as values.
 
     Returns
