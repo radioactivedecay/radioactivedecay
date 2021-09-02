@@ -341,8 +341,6 @@ class DecayData:
     prog_bfs_modes : numpy.ndarray
         NumPy array of dictionaries with direct progeny as keys and lists with branching fraction
         and decay mode data as values.
-    masses : numpy_ndarray
-        NumPy array of molar masses of the nuclides in the dataset.
     scipy_data : DecayMatrices
         Dataset of double precision decay matrices (SciPy/NumPy objects).
     sympy_data : None or DecayMatricesSympy

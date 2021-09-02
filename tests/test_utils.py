@@ -29,7 +29,7 @@ class TestUtilsFunctions(unittest.TestCase):
 
     def test_parse_nuclide(self) -> None:
         """
-        Test the parsing of radionuclide strings.
+        Test the parsing of nuclide strings.
         """
 
         nuclides = [

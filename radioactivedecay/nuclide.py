@@ -139,6 +139,31 @@ class Nuclide:
             + self.decay_data.dataset_name)
             
         return rep
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Check whether two ``Radionuclide`` instances are equal with ``==`` operator.
+        """
+
+        if not isinstance(other, Nuclide):
+            return NotImplemented
+        return self.nuclide == other.nuclide and self.decay_data == other.decay_data
+
+    def __ne__(self, other: object) -> bool:
+        """
+        Check whether two ``Radionuclide`` instances are not equal with ``!=`` operator.
+        """
+
+        if not isinstance(other, Nuclide):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        """
+        Hash function for ``Radionuclide`` instances.
+        """
+
+        return hash((self.nuclide, self.decay_data.dataset_name))
     
     def half_life(self, units: str = "s") -> Union[float, str]:
         """
