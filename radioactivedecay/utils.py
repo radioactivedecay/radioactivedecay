@@ -11,7 +11,7 @@ as:
 
 """
 
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 from sympy.core.expr import Expr
 
 
@@ -226,15 +226,58 @@ def parse_nuclide_str(nuclide: str) -> str:
     return nuclide
 
 
-def parse_nuclide(nuclide: str, nuclides: List[str], dataset_name: str) -> str:
+def parse_id(input: int) -> str:
     """
-    Parses a nuclide string into symbol - mass number format and checks whether the
-    nuclide is contained in the decay dataset.
+    Parses a nuclide canonical id in zzzaaammmm format into symbol -
+    mass number format.
 
     Parameters
     ----------
-    nuclide : str
-        Nuclide name string.
+    input : int
+        Nuclide in canonical id format.
+        
+    Returns
+    -------
+    str
+        Nuclide string parsed in symbol - mass number format.
+
+    Examples
+    --------
+    >>> rd.utils.parse_id(190400000)
+    'K-40'
+    >>> rd.utils.parse_id(280560001)
+    'Ni-56m'
+
+    """
+    
+    id_zzzaaa = int(input / 10000)
+    state_digits = input - (id_zzzaaa * 10000)
+    state = ""
+    if state_digits == 1:
+        state = "m"
+    elif state_digits == 2:
+        state = "n"
+    Z = int(id_zzzaaa / 1000)
+    A = id_zzzaaa - (Z * 1000)    
+    name = build_nuclide_string(Z, A, state)
+    
+    return name
+
+
+def parse_nuclide(
+    input: Union[str, int],
+    nuclides: List[str],
+    dataset_name: str
+) -> str:
+    """
+    Parses a nuclide string or canonical id into symbol - mass number
+    format and checks whether the nuclide is contained in the decay
+    dataset.
+
+    Parameters
+    ----------
+    input : str or int
+        Nuclide name string or canonical id in zzzaaammmm format.
     nuclides : List[str]
         List of all the nuclides in the decay dataset.
     dataset_name : str
@@ -248,8 +291,11 @@ def parse_nuclide(nuclide: str, nuclides: List[str], dataset_name: str) -> str:
     Raises
     ------
     ValueError
-        If the input nuclide string is invalid or the nuclide is not contained in the decay
-        dataset.
+        If the input nuclide string or id is invalid or the nuclide is
+        not contained in the decay dataset.
+    TypeError
+        If the input is an invalid type, a string or integer is
+        expected.
 
     Examples
     --------
@@ -257,15 +303,25 @@ def parse_nuclide(nuclide: str, nuclides: List[str], dataset_name: str) -> str:
     'Rn-222'
     >>> rd.utils.parse_nuclide('Ba137m', rd.DEFAULTDATA.nuclides, rd.DEFAULTDATA.dataset_name)
     'Ba-137m'
+    >>> rd.utils.parse_nuclide(280560001, rd.DEFAULTDATA.nuclides, rd.DEFAULTDATA.dataset_name)
+    'Ni-56m'
 
     """
 
-    original_nuclide = nuclide
-    nuclide = parse_nuclide_str(nuclide)
+    original_input = input
+    if isinstance(input, int):
+        name = parse_id(input)
+    elif isinstance(input, str):
+        name = input
+    else:
+        raise TypeError(
+            "Invalid input type, expected int or str"
+        )
+    nuclide = parse_nuclide_str(name)
 
     if nuclide not in nuclides:
         raise ValueError(
-            str(original_nuclide)
+            str(original_input)
             + " is not a valid nuclide in "
             + dataset_name
             + " decay dataset."

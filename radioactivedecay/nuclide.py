@@ -33,7 +33,7 @@ from radioactivedecay.utils import (
     parse_nuclide,
     elem_to_Z,
     build_id,
-    build_nuclide_string
+    parse_id
 )
 
 
@@ -52,8 +52,8 @@ class Nuclide:
 
     Attributes
     ----------
-    nuclide : str
-        Nuclide name string.
+    input: str or int
+        Nuclide name string or canonical id.
     Z : int
         Atomic number.
     A : int
@@ -66,13 +66,9 @@ class Nuclide:
     atomic_mass : float
         Atomic weight of the nuclide, in g/mol.
     prog_bf_mode : int
-        Dictionary containing direct progeny as keys, and a list containing the branching fraction
-        and the decay mode for that progeny as values.
-
-    Raises
-    ------
-    TypeError
-        If the input is an invalid type, a string or integer is expected.
+        Dictionary containing direct progeny as keys, and a list
+        containing the branching fraction and the decay mode for that
+        progeny as values.
 
     Examples
     --------
@@ -101,42 +97,16 @@ class Nuclide:
             str, List[Union[float, str]]
         ] = decay_data.prog_bfs_modes[decay_data.nuclide_dict[self.nuclide]]
 
-    def parse_name(self, input: Any) -> None:
-        if isinstance(input, int):
-            self.id = input
-            id_zzzaaa = int(input / 10000)
-            state_digits = input - (id_zzzaaa * 10000)
-            state = ""
-            if state_digits == 1:
-                state = "m"
-            elif state_digits == 2:
-                state = "n"
-            Z = int(id_zzzaaa / 1000)
-            A = id_zzzaaa - (Z * 1000)    
-            name = parse_nuclide(
-                build_nuclide_string(Z, A, state),
-                self.decay_data.nuclides,
-                self.decay_data.dataset_name
-            )
-        elif isinstance(input, str):
-            name = parse_nuclide(
-                input,
-                self.decay_data.nuclides,
-                self.decay_data.dataset_name
-            )
-            Z = elem_to_Z(name.split("-")[0])
-            A = int(name.split("-")[1].strip("mn"))
-            state = name.split("-")[1].strip("0123456789")
-            self.id = build_id(Z, A, state)
-        else:
-            raise TypeError(
-                "Invalid input type, expected int or str"
-            )
-        
-        self.nuclide = name
-        self.Z = Z
-        self.A = A
-        self.state = state
+    def parse_name(self, input: Union[str, int]) -> None:
+        self.nuclide = parse_nuclide(
+            input,
+            self.decay_data.nuclides,
+            self.decay_data.dataset_name
+        )
+        self.Z = elem_to_Z(self.nuclide.split("-")[0])
+        self.A = int(self.nuclide.split("-")[1].strip("mn"))
+        self.state = self.nuclide.split("-")[1].strip("0123456789")
+        self.id = build_id(self.Z, self.A, self.state)
     
     def __repr__(self) -> str:
         rep = ("Nuclide: "

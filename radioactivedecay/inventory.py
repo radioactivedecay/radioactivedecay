@@ -69,8 +69,8 @@ class Inventory:
     Parameters
     ----------
     contents : dict
-        Dictionary containing nuclide strings or Nuclide instances as keys and quantities
-        (activities, number of atoms, masses or moles) as values.
+        Dictionary containing nuclide strings/canonical ids or Nuclide instances as keys and
+        quantities (activities, number of atoms, masses or moles) as values.
     units : str, optional
         Units of the contents dictionary values. Specify either 'num' for number of atoms, or an
         activity, mass or moles unit. e.g. 'Bq', 'kBq', 'Ci', 'g', 'kg', 'mol', 'kmol'. Default is
@@ -102,14 +102,14 @@ class Inventory:
     >>> H3 = rd.Nuclide('H-3')
     >>> rd.Inventory({H3: 3.0}, 'g')
     Inventory activities (Bq): {'H-3': 1067957043281807.0}, decay dataset: icrp107_ame2020_nubase2020
-    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, 'Ci')
+    >>> rd.Inventory({270570000: 7.2, 922380000: 21.1}, 'Ci')
     Inventory activities (Bq): {'Co-57': 266400000000.0, 'U-238': 780700000000.0001}, decay dataset: icrp107_ame2020_nubase2020
 
     """
 
     def __init__(
         self,
-        contents: Dict[Union[str, Nuclide], float],
+        contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
@@ -134,13 +134,13 @@ class Inventory:
 
     @staticmethod
     def _parse_nuclides(
-        contents: Dict[Union[str, Nuclide], Union[float, Expr]],
+        contents: Dict[Union[str, int, Nuclide], Union[float, Expr]],
         nuclides: List[str],
         dataset_name: str,
     ) -> Dict[str, Union[float, Expr]]:
         """
         Checks that nuclide keys in the contents dictionary. Converts Nuclide instances into
-        nuclide name strings. Converts nuclide name strings into Ab-XY format.
+        nuclide name strings. Converts nuclide name strings and ids into Ab-XY format.
         """
 
         return {
@@ -412,7 +412,7 @@ class Inventory:
 
     def add(
         self,
-        add_contents: Dict[Union[str, Nuclide], float],
+        add_contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
     ) -> None:
         """
@@ -422,7 +422,7 @@ class Inventory:
         Parameters
         ----------
         add_contents : dict
-            Dictionary containing nuclide strings or Nuclide objects as keys
+            Dictionary containing nuclide strings/ids or Nuclide objects as keys
             and the amount of each nuclide (with specified units) as values
             which are added to the Inventory.
         units : str, optional
@@ -433,8 +433,9 @@ class Inventory:
         --------
         >>> inv = rd.Inventory({'H-3': 1.0}, 'Bq')
         >>> inv.add({'C-14': 2.0}, 'kBq')
+        >>> inv.add({190400000: 20.0})
         >>> inv.activities()
-        {'C-14': 2000.0, 'H-3': 1.0}
+        {'K-40': 20.0, 'C-14': 2000.0, 'H-3': 1.0}
 
         """
 
@@ -443,7 +444,7 @@ class Inventory:
 
     def subtract(
         self,
-        sub_contents: Dict[Union[str, Nuclide], float],
+        sub_contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
     ) -> None:
         """
@@ -462,8 +463,9 @@ class Inventory:
 
         Examples
         --------
-        >>> inv = rd.Inventory({'C-14': 2.0, 'H-3': 1.0}, 'Bq')
+        >>> inv = rd.Inventory({'K-40': 20.0, 'C-14': 2.0, 'H-3': 1.0}, 'Bq')
         >>> inv.subtract({'H-3': 1.0})
+        >>> inv.subtract({190400000: 20.0})
         >>> inv.activities()
         {'C-14': 2.0, 'H-3': 0.0}
 
@@ -1053,8 +1055,8 @@ class InventoryHP(Inventory):
     Parameters
     ----------
     contents : dict
-        Dictionary containing nuclide strings or Nuclide objects as keys and quantities
-        as values.
+        Dictionary containing nuclide strings/canonical ids or Nuclide
+        objects as keys and quantities as values.
     units : str, optional
         Units of the values in the contents dictionary e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol',
         'num'... (default is 'Bq').
@@ -1099,7 +1101,7 @@ class InventoryHP(Inventory):
 
     def __init__(
         self,
-        contents: Dict[Union[str, Nuclide], float],
+        contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
