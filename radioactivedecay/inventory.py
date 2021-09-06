@@ -36,7 +36,7 @@ from radioactivedecay.decaydata import (
     DEFAULTDATA,
 )
 from radioactivedecay.plots import _decay_graph
-from radioactivedecay.radionuclide import Radionuclide
+from radioactivedecay.nuclide import Nuclide
 from radioactivedecay.utils import (
     parse_nuclide,
     add_dictionaries,
@@ -69,8 +69,8 @@ class Inventory:
     Parameters
     ----------
     contents : dict
-        Dictionary containing nuclide strings or Radionuclide instances as keys and quantities
-        (activities, number of atoms, masses or moles) as values.
+        Dictionary containing nuclide strings/canonical ids or Nuclide instances as keys and
+        quantities (activities, number of atoms, masses or moles) as values.
     units : str, optional
         Units of the contents dictionary values. Specify either 'num' for number of atoms, or an
         activity, mass or moles unit. e.g. 'Bq', 'kBq', 'Ci', 'g', 'kg', 'mol', 'kmol'. Default is
@@ -99,17 +99,17 @@ class Inventory:
     --------
     >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq')
     Inventory activities (Bq): {'I-123': 2.3, 'Tc-99m': 5.8}, decay dataset: icrp107_ame2020_nubase2020
-    >>> H3 = rd.Radionuclide('H-3')
+    >>> H3 = rd.Nuclide('H-3')
     >>> rd.Inventory({H3: 3.0}, 'g')
     Inventory activities (Bq): {'H-3': 1067957043281807.0}, decay dataset: icrp107_ame2020_nubase2020
-    >>> rd.Inventory({'U-238': 21.1, 'Co-57': 7.2}, 'Ci')
+    >>> rd.Inventory({270570000: 7.2, 922380000: 21.1}, 'Ci')
     Inventory activities (Bq): {'Co-57': 266400000000.0, 'U-238': 780700000000.0001}, decay dataset: icrp107_ame2020_nubase2020
 
     """
 
     def __init__(
         self,
-        contents: Dict[Union[str, Radionuclide], float],
+        contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
@@ -134,19 +134,19 @@ class Inventory:
 
     @staticmethod
     def _parse_nuclides(
-        contents: Dict[Union[str, Radionuclide], Union[float, Expr]],
+        contents: Dict[Union[str, int, Nuclide], Union[float, Expr]],
         nuclides: List[str],
         dataset_name: str,
     ) -> Dict[str, Union[float, Expr]]:
         """
-        Checks that nuclide keys in the contents dictionary. Converts Radionuclide instances into
-        nuclide name strings. Converts nuclide name strings into Ab-XY format.
+        Checks that nuclide keys in the contents dictionary. Converts Nuclide instances into
+        nuclide name strings. Converts nuclide name strings and ids into Ab-XY format.
         """
 
         return {
             (
                 parse_nuclide(nuc.nuclide, nuclides, dataset_name)
-                if isinstance(nuc, Radionuclide)
+                if isinstance(nuc, Nuclide)
                 else parse_nuclide(nuc, nuclides, dataset_name)
             ): inp
             for nuc, inp in contents.items()
@@ -191,7 +191,7 @@ class Inventory:
         Parameters
         ----------
         contents : dict
-            Dictionary containing nuclide strings or Radionuclide objects as keys, and masses,
+            Dictionary containing nuclide strings or Nuclide objects as keys, and masses,
             moles, or activities as values.
         units : str
             Units of the values in the input dictionary.
@@ -412,7 +412,7 @@ class Inventory:
 
     def add(
         self,
-        add_contents: Dict[Union[str, Radionuclide], float],
+        add_contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
     ) -> None:
         """
@@ -422,9 +422,9 @@ class Inventory:
         Parameters
         ----------
         add_contents : dict
-            Dictionary containing nuclide strings or Radionuclide objects as keys
-            and the amount of each nuclide (with specified units) as values
-            which are added to the Inventory.
+            Dictionary containing nuclide strings, canonical ids or Nuclide objects as keys and the
+            amount of each nuclide (with specified units) as values which are added to the
+            Inventory.
         units : str, optional
             Units of the values in the dictionary (e.g. 'Bq', 'Ci', 'g', 'mol', 'num'; 'Bq' is the
             default).
@@ -433,8 +433,9 @@ class Inventory:
         --------
         >>> inv = rd.Inventory({'H-3': 1.0}, 'Bq')
         >>> inv.add({'C-14': 2.0}, 'kBq')
+        >>> inv.add({190400000: 20.0})
         >>> inv.activities()
-        {'C-14': 2000.0, 'H-3': 1.0}
+        {'K-40': 20.0, 'C-14': 2000.0, 'H-3': 1.0}
 
         """
 
@@ -443,7 +444,7 @@ class Inventory:
 
     def subtract(
         self,
-        sub_contents: Dict[Union[str, Radionuclide], float],
+        sub_contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
     ) -> None:
         """
@@ -453,7 +454,7 @@ class Inventory:
         Parameters
         ----------
         sub_contents : dict
-            Dictionary containing nuclide strings or Radionuclide objects as keys
+            Dictionary containing nuclide strings or Nuclide objects as keys
             and the amount of each nuclide (with specified units) as values
             which are subtracted from the Inventory.
         units : str, optional
@@ -462,8 +463,9 @@ class Inventory:
 
         Examples
         --------
-        >>> inv = rd.Inventory({'C-14': 2.0, 'H-3': 1.0}, 'Bq')
+        >>> inv = rd.Inventory({'K-40': 20.0, 'C-14': 2.0, 'H-3': 1.0}, 'Bq')
         >>> inv.subtract({'H-3': 1.0})
+        >>> inv.subtract({190400000: 20.0})
         >>> inv.activities()
         {'C-14': 2.0, 'H-3': 0.0}
 
@@ -532,16 +534,16 @@ class Inventory:
 
     @_method_dispatch
     def remove(
-        self, delete: Union[str, Radionuclide, List[Union[str, Radionuclide]]]
+        self, delete: Union[str, int, Nuclide, List[Union[str, int, Nuclide]]]
     ) -> None:
         """
         Removes nuclide(s) from the inventory.
 
         Parameters
         ----------
-        delete : str or Radionuclide or list
-            Radionuclide string, Radionuclide object or list of nuclide strings or
-            Radionuclide objects to delete from the Inventory object.
+        delete : str or int or Nuclide or list
+            Nuclide string, canonical id, Nuclide object or list of nuclide strings, canonical ids
+            or Nuclide objects to delete from the Inventory object.
 
         Examples
         --------
@@ -555,8 +557,8 @@ class Inventory:
 
         """
         raise NotImplementedError(
-            "Method takes a nuclide string, a Radionuclide instance, or list of nuclide strings "
-            + "and Radionuclide instances as a parameter."
+            "Method takes a nuclide string, a canonical id, a Nuclide instance, or list of nuclide"
+            + " strings, canonical ids or Nuclide instances as a parameter."
         )
 
     @remove.register(str)
@@ -575,11 +577,27 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(Radionuclide)
+    @remove.register(int)
     def _(
-        self, delete: Radionuclide
+        self, delete: int
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
-        """Remove Radionuclide object from this inventory."""
+        """Remove nuclide string from this inventory."""
+
+        delete = parse_nuclide(
+            delete, self.decay_data.nuclides, self.decay_data.dataset_name
+        )
+        new_contents = self.contents.copy()
+        if delete not in new_contents:
+            raise ValueError(delete + " does not exist in this inventory.")
+        new_contents.pop(delete)
+
+        self.contents = new_contents
+
+    @remove.register(Nuclide)
+    def _(
+        self, delete: Nuclide
+    ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
+        """Remove Nuclide object from this inventory."""
 
         delete = parse_nuclide(
             delete.nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
@@ -593,7 +611,7 @@ class Inventory:
 
     @remove.register(list)
     def _(
-        self, delete: List[Union[str, Radionuclide]]
+        self, delete: List[Union[str, int, Nuclide]]
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
         """Remove list of nuclide(s) from this inventory."""
 
@@ -601,7 +619,7 @@ class Inventory:
             parse_nuclide(
                 nuc.nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
             )
-            if isinstance(nuc, Radionuclide)
+            if isinstance(nuc, Nuclide)
             else parse_nuclide(
                 nuc, self.decay_data.nuclides, self.decay_data.dataset_name
             )
@@ -720,8 +738,8 @@ class Inventory:
         Returns
         -------
         dict
-            Dictionary containing radionuclide strings as keys and total number of decays of each
-            radionuclide as values (floats).
+            Dictionary containing nuclide strings as keys and total number of decays of each
+            nuclide as values (floats).
 
         Examples
         --------
@@ -797,9 +815,7 @@ class Inventory:
 
         """
 
-        return {
-            nuc: Radionuclide(nuc, self.decay_data).progeny() for nuc in self.contents
-        }
+        return {nuc: Nuclide(nuc, self.decay_data).progeny() for nuc in self.contents}
 
     def branching_fractions(self) -> Dict[str, List[float]]:
         """
@@ -821,7 +837,7 @@ class Inventory:
         """
 
         return {
-            nuc: Radionuclide(nuc, self.decay_data).branching_fractions()
+            nuc: Nuclide(nuc, self.decay_data).branching_fractions()
             for nuc in self.contents
         }
 
@@ -847,8 +863,7 @@ class Inventory:
         """
 
         return {
-            nuc: Radionuclide(nuc, self.decay_data).decay_modes()
-            for nuc in self.contents
+            nuc: Nuclide(nuc, self.decay_data).decay_modes() for nuc in self.contents
         }
 
     def plot(
@@ -1047,14 +1062,15 @@ class Inventory:
 
 class InventoryHP(Inventory):
     """
-    ``Inventory`` instances store a dictionary of nuclides and associated numbers of atoms, and a
-    ``DecayData`` instance of radioactive decay data.
+    ``InventoryHP`` instances store a dictionary of nuclides and associated numbers of atoms, and a
+    ``DecayData`` instance of radioactive decay data. Uses SymPy high precision arithmetic for all
+    calculations.
 
     Parameters
     ----------
     contents : dict
-        Dictionary containing nuclide strings or Radionuclide objects as keys and quantities
-        as values.
+        Dictionary containing nuclide strings/canonical ids or Nuclide
+        objects as keys and quantities as values.
     units : str, optional
         Units of the values in the contents dictionary e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol',
         'num'... (default is 'Bq').
@@ -1079,17 +1095,16 @@ class InventoryHP(Inventory):
     sig_fig: int
         Number of significant figures for high precision decay calculations and plots. Deafult is
         320.
-     quantity_converter : QuantityConverterSympy
+    quantity_converter : QuantityConverterSympy
         Float/SciPy version of a convertor between different quantities.
     unit_converter : UnitConverterSympy
         Float version of a convertor for within different units.
-
 
     Examples
     --------
     >>> rd.InventoryHP({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq')
     InventoryHP activities: {'I-123': 2.3, 'Tc-99m': 5.8}, decay dataset: icrp107
-    >>> H3 = rd.Radionuclide('H-3')
+    >>> H3 = rd.Nuclide('H-3')
     >>> rd.InventoryHP({H3: 3.0} 'Bq')
     InventoryHP activities: {'H-3': 3.0}, decay dataset: icrp107
     >>> rd.InventoryHP({'U-238': 21.1, 'Co-57': 7.2}, 'Ci')
@@ -1099,7 +1114,7 @@ class InventoryHP(Inventory):
 
     def __init__(
         self,
-        contents: Dict[Union[str, Radionuclide], float],
+        contents: Dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
@@ -1145,6 +1160,12 @@ class InventoryHP(Inventory):
         """
         Returns a dictionary containing the number of atoms of each nuclide (as floats) within this
         InventoryHP instance.
+
+        Examples
+        --------
+        >>> rd.InventoryHP({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq').numbers()
+        {'I-123': 399738.47946141585, 'Tc-99m': 71852.27235544211}
+
         """
 
         contents_in_floats = {nuc: float(num) for nuc, num in self.contents.items()}
@@ -1291,7 +1312,7 @@ class InventoryHP(Inventory):
         self, decay_time: float, units: str = "s"
     ) -> Dict[str, float]:
         """
-        Calculates the total number of decays of each radionuclide in the inventory between t=0 and
+        Calculates the total number of decays of each nuclide in the inventory between t=0 and
         t=decay_time. Uses SymPy high precision calculations. Note no results are reported for
         stable nuclides, as cumulative decays is zero.
 
@@ -1307,8 +1328,8 @@ class InventoryHP(Inventory):
         Returns
         -------
         dict
-            Dictionary containing radionuclide strings as keys and total number of decays of each
-            radionuclide as values (floats).
+            Dictionary containing nuclide strings as keys and total number of decays of each
+            nuclide as values (floats).
 
         Raises
         ------

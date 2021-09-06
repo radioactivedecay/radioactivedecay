@@ -81,13 +81,14 @@ radionuclide that decay over the decay time period:
 'Tc-99': 0.0002724635511147602}
 ```
 
-Radionuclides can be specified in three equivalent ways in
-``radioactivedecay``. The strings
+Radionuclides can be specified in four equivalent ways in ``radioactivedecay``:
+three variations of nuclide strings or by
+[canonical ids](https://pyne.io/usersguide/nucname.html). For example, the
+following are equivalent ways of specifying <sup>222</sup>Rn and
+<sup>192n</sup>Ir:
 
-* ``'Rn-222'``, ``'Rn222'`` or ``'222Rn'``,
-* ``'Ir-192n'``, ``'Ir192n'`` or ``'192nIr'``
-
-are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
+* ``'Rn-222'``, ``'Rn222'``, ``'222Rn'``, ``862220000``,
+* ``'Ir-192n'``, ``'Ir192n'``, ``'192nIr'``, ``771920002``.
 
 Inventories can be created by supplying activity (``'Bq'``, ``'Ci'``,
 ``'dpm'``...), mass (``'g'``, ``'kg'``...), mole (``'mol'``, ``'kmol'``...)

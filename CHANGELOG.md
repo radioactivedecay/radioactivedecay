@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.0] - 2021-XX-XX
+## [0.4.0] - 2021-09-06
 - Release 0.4.0 is a large update to `radioactivedecay`. It adds functionality to supply nuclide
 masses, moles and numbers of atoms when creating inventories, and also methods so inventories can
 report their contents in terms of these quantities, as well as mass or atom fractions (#35). Mass
@@ -14,6 +14,7 @@ The number of significant figures for high precision decay calculations is now s
 `decay()` and `plot()` methods.
 - Added new `cumulative_decays()` method to the inventory classes. This calculates the total number
 of atoms of each radionuclide that decay over the decay time period.
+- Added support to specify nuclides using canonical ids (#36).
 - Documentation updates for all new and modified functionality.
 - LICENSE file split into separate files for `radioactivedecay`, ICRP-107 decay data, and AMDC
 atomic mass data (#38).
