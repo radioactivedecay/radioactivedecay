@@ -113,7 +113,7 @@ routines. The ``InventoryHP.decay()`` method can give more accurate decay
 calculation results for chains containing radionuclides with long and short
 half-lives, or when extremely long or short decay times are required. Note
 computation times are longer when using the ``InventoryHP`` class as compared
-to the `Inventory`` class.
+to the ``Inventory`` class.
 
 .. code-block:: python3
 
@@ -204,8 +204,11 @@ Equivalently we could have specified these metastable states using
 :code:`'Ir192m'` or :code:`'192mIr'` for Ir-192m, or :code:`'Ir192n'` or
 :code:`'192nIr'` for Ir-192n.
 
+Note canonical ids are also used by `PyNE
+<https://pyne.io/usersguide/nucname.html>`_.
+
 Fetching atomic and decay data
--------------------
+------------------------------
 
 The ``Nuclide`` class can be used to obtain atomic data for any specific nuclide,
 and decay data for radionuclides. They are built similarly to inventories:

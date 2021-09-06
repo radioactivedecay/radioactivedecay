@@ -31,7 +31,7 @@ class TestUtilsFunctions(unittest.TestCase):
         self.assertEqual(Z_to_elem(1), "H")
         self.assertEqual(Z_to_elem(20), "Ca")
         self.assertEqual(Z_to_elem(26), "Fe")
-        
+
     def test_elem_to_Z(self) -> None:
         """
         Test the conversion of element symbol to atomic number.
@@ -40,7 +40,7 @@ class TestUtilsFunctions(unittest.TestCase):
         self.assertEqual(elem_to_Z("H"), 1)
         self.assertEqual(elem_to_Z("Ca"), 20)
         self.assertEqual(elem_to_Z("Fe"), 26)
-        
+
     def test_built_id(self) -> None:
         """
         Test the canonical id builder.
@@ -50,7 +50,10 @@ class TestUtilsFunctions(unittest.TestCase):
         self.assertEqual(build_id(53, 118), 531180000)
         self.assertEqual(build_id(53, 118, "m"), 531180001)
         self.assertEqual(build_id(65, 156, "n"), 651560002)
-        
+
+        with self.assertRaises(ValueError):
+            build_id(65, 156, "z")
+
     def test_built_nuclide_string(self) -> None:
         """
         Test the nuclide string builder.
@@ -60,7 +63,10 @@ class TestUtilsFunctions(unittest.TestCase):
         self.assertEqual(build_nuclide_string(53, 118), "I-118")
         self.assertEqual(build_nuclide_string(53, 118, "m"), "I-118m")
         self.assertEqual(build_nuclide_string(65, 156, "n"), "Tb-156n")
-        
+
+        with self.assertRaises(ValueError):
+            build_nuclide_string(999, 1000, "z")
+
     def test_parse_id(self) -> None:
         """
         Test the canonical id to nuclide string converter.
@@ -142,6 +148,8 @@ class TestUtilsFunctions(unittest.TestCase):
         self.assertEqual(parse_nuclide(651560002, nuclides, dataset_name), "Tb-156n")
 
         # Catch erroneous strings
+        with self.assertRaises(TypeError):
+            parse_nuclide(1.2, nuclides, dataset_name)
         with self.assertRaises(ValueError):
             parse_nuclide("H", nuclides, dataset_name)
         with self.assertRaises(ValueError):

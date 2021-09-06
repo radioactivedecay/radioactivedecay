@@ -422,9 +422,9 @@ class Inventory:
         Parameters
         ----------
         add_contents : dict
-            Dictionary containing nuclide strings/ids or Nuclide objects as keys
-            and the amount of each nuclide (with specified units) as values
-            which are added to the Inventory.
+            Dictionary containing nuclide strings, canonical ids or Nuclide objects as keys and the
+            amount of each nuclide (with specified units) as values which are added to the
+            Inventory.
         units : str, optional
             Units of the values in the dictionary (e.g. 'Bq', 'Ci', 'g', 'mol', 'num'; 'Bq' is the
             default).
@@ -534,16 +534,16 @@ class Inventory:
 
     @_method_dispatch
     def remove(
-        self, delete: Union[str, Nuclide, List[Union[str, Nuclide]]]
+        self, delete: Union[str, int, Nuclide, List[Union[str, int, Nuclide]]]
     ) -> None:
         """
         Removes nuclide(s) from the inventory.
 
         Parameters
         ----------
-        delete : str or Nuclide or list
-            Nuclide string, Nuclide object or list of nuclide strings or
-            Nuclide objects to delete from the Inventory object.
+        delete : str or int or Nuclide or list
+            Nuclide string, canonical id, Nuclide object or list of nuclide strings, canonical ids
+            or Nuclide objects to delete from the Inventory object.
 
         Examples
         --------
@@ -557,13 +557,29 @@ class Inventory:
 
         """
         raise NotImplementedError(
-            "Method takes a nuclide string, a Nuclide instance, or list of nuclide strings "
-            + "and Nuclide instances as a parameter."
+            "Method takes a nuclide string, a canonical id, a Nuclide instance, or list of nuclide"
+            + " strings, canonical ids or Nuclide instances as a parameter."
         )
 
     @remove.register(str)
     def _(
         self, delete: str
+    ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
+        """Remove nuclide string from this inventory."""
+
+        delete = parse_nuclide(
+            delete, self.decay_data.nuclides, self.decay_data.dataset_name
+        )
+        new_contents = self.contents.copy()
+        if delete not in new_contents:
+            raise ValueError(delete + " does not exist in this inventory.")
+        new_contents.pop(delete)
+
+        self.contents = new_contents
+
+    @remove.register(int)
+    def _(
+        self, delete: int
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
         """Remove nuclide string from this inventory."""
 
@@ -595,7 +611,7 @@ class Inventory:
 
     @remove.register(list)
     def _(
-        self, delete: List[Union[str, Nuclide]]
+        self, delete: List[Union[str, int, Nuclide]]
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
         """Remove list of nuclide(s) from this inventory."""
 
@@ -799,9 +815,7 @@ class Inventory:
 
         """
 
-        return {
-            nuc: Nuclide(nuc, self.decay_data).progeny() for nuc in self.contents
-        }
+        return {nuc: Nuclide(nuc, self.decay_data).progeny() for nuc in self.contents}
 
     def branching_fractions(self) -> Dict[str, List[float]]:
         """
@@ -849,8 +863,7 @@ class Inventory:
         """
 
         return {
-            nuc: Nuclide(nuc, self.decay_data).decay_modes()
-            for nuc in self.contents
+            nuc: Nuclide(nuc, self.decay_data).decay_modes() for nuc in self.contents
         }
 
     def plot(
@@ -1049,8 +1062,9 @@ class Inventory:
 
 class InventoryHP(Inventory):
     """
-    ``Inventory`` instances store a dictionary of nuclides and associated numbers of atoms, and a
-    ``DecayData`` instance of radioactive decay data.
+    ``InventoryHP`` instances store a dictionary of nuclides and associated numbers of atoms, and a
+    ``DecayData`` instance of radioactive decay data. Uses SymPy high precision arithmetic for all
+    calculations.
 
     Parameters
     ----------
@@ -1081,11 +1095,10 @@ class InventoryHP(Inventory):
     sig_fig: int
         Number of significant figures for high precision decay calculations and plots. Deafult is
         320.
-     quantity_converter : QuantityConverterSympy
+    quantity_converter : QuantityConverterSympy
         Float/SciPy version of a convertor between different quantities.
     unit_converter : UnitConverterSympy
         Float version of a convertor for within different units.
-
 
     Examples
     --------
@@ -1147,6 +1160,12 @@ class InventoryHP(Inventory):
         """
         Returns a dictionary containing the number of atoms of each nuclide (as floats) within this
         InventoryHP instance.
+
+        Examples
+        --------
+        >>> rd.InventoryHP({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq').numbers()
+        {'I-123': 399738.47946141585, 'Tc-99m': 71852.27235544211}
+
         """
 
         contents_in_floats = {nuc: float(num) for nuc, num in self.contents.items()}

@@ -29,12 +29,7 @@ from radioactivedecay.plots import (
     _parse_decay_mode_label,
     _check_fig_axes,
 )
-from radioactivedecay.utils import (
-    parse_nuclide,
-    elem_to_Z,
-    build_id,
-    parse_id
-)
+from radioactivedecay.utils import parse_nuclide, elem_to_Z, build_id
 
 
 class Nuclide:
@@ -44,7 +39,7 @@ class Nuclide:
 
     Parameters
     ----------
-    input : Any
+    input_nuclide : str or int
         Input value for instantiation. Can be nuclide string in name
         format (with or without hyphen), or canonical id (zzzaaassss).
     decay_data : DecayData, optional
@@ -52,8 +47,8 @@ class Nuclide:
 
     Attributes
     ----------
-    input: str or int
-        Nuclide name string or canonical id.
+    nuclide: str
+        Nuclide name string.
     Z : int
         Atomic number.
     A : int
@@ -82,14 +77,12 @@ class Nuclide:
     Nuclide: Ni-56m
 
     """
-    
+
     def __init__(
-        self,
-        input: Union[str, int],
-        decay_data: DecayData = DEFAULTDATA
+        self, input_nuclide: Union[str, int], decay_data: DecayData = DEFAULTDATA
     ) -> None:
         self.decay_data = decay_data
-        self.parse_name(input)
+        self.parse_name(input_nuclide)
         index = decay_data.nuclide_dict[self.nuclide]
         mass = decay_data.scipy_data.atomic_masses[index]
         self.atomic_mass = mass
@@ -97,23 +90,27 @@ class Nuclide:
             str, List[Union[float, str]]
         ] = decay_data.prog_bfs_modes[decay_data.nuclide_dict[self.nuclide]]
 
-    def parse_name(self, input: Union[str, int]) -> None:
+    def parse_name(self, input_nuclide: Union[str, int]) -> None:
+        """
+        Parse input and set atomic data attributes.
+        """
+
         self.nuclide = parse_nuclide(
-            input,
-            self.decay_data.nuclides,
-            self.decay_data.dataset_name
+            input_nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
         )
         self.Z = elem_to_Z(self.nuclide.split("-")[0])
         self.A = int(self.nuclide.split("-")[1].strip("mn"))
         self.state = self.nuclide.split("-")[1].strip("0123456789")
         self.id = build_id(self.Z, self.A, self.state)
-    
+
     def __repr__(self) -> str:
-        rep = ("Nuclide: "
+        rep = (
+            "Nuclide: "
             + self.nuclide
             + ", decay dataset: "
-            + self.decay_data.dataset_name)
-            
+            + self.decay_data.dataset_name
+        )
+
         return rep
 
     def __eq__(self, other: object) -> bool:
@@ -140,7 +137,7 @@ class Nuclide:
         """
 
         return hash((self.nuclide, self.decay_data.dataset_name))
-    
+
     def half_life(self, units: str = "s") -> Union[float, str]:
         """
         Returns the half-life of a nuclide as a float in your chosen
@@ -172,7 +169,7 @@ class Nuclide:
         """
 
         return self.decay_data.half_life(self.nuclide, units)
-        
+
     def progeny(self) -> List[str]:
         """
         Returns the direct progeny of a radionuclide.
@@ -202,7 +199,7 @@ class Nuclide:
         -------
         list
             List of branching fractions.
-            
+
         Examples
         --------
         >>> K40 = rd.Nuclide('K-40')
@@ -210,7 +207,7 @@ class Nuclide:
         [0.8914, 0.1086]
 
         """
-            
+
         branching_fractions: List[float] = [
             bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())
         ]
@@ -229,7 +226,7 @@ class Nuclide:
         -------
         list
             List of decay modes.
-                
+
         Examples
         --------
         >>> K40 = rd.Nuclide('K-40')
@@ -237,7 +234,7 @@ class Nuclide:
         ['\u03b2-', '\u03b2+ & EC']
 
         """
-            
+
         decay_modes: List[str] = [
             bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())
         ]
@@ -340,6 +337,7 @@ class Nuclide:
         axes.set_ylim(-max_generation - 0.3, 0.3)
 
         return fig, axes
+
 
 def _build_decay_digraph(
     parent: Nuclide,

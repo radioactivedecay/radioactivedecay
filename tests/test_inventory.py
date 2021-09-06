@@ -244,7 +244,7 @@ class TestInventory(unittest.TestCase):
         """
 
         inv = Inventory({"H-3": 1}, "num")
-        inv.add({"C-14": 3.0, "K-40": 4.0}, "num")
+        inv.add({60140000: 3.0, "K-40": 4.0}, "num")
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 1.0, "K-40": 4.0})
         inv.add({"H-3": 3.0}, "num")
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
@@ -261,7 +261,7 @@ class TestInventory(unittest.TestCase):
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
-        inv.subtract({"C-14": 3.0, "K-40": 4.0}, "num")
+        inv.subtract({60140000: 3.0, "K-40": 4.0}, "num")
         self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "num")
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
@@ -348,6 +348,18 @@ class TestInventory(unittest.TestCase):
         with self.assertRaises(ValueError):
             inv.remove("Be-10")
 
+    def test_remove_canonical_id(self) -> None:
+        """
+        Test operator to remove one nuclide from an inventory using a nuclide canonical id.
+        """
+
+        inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
+        inv.remove(10030000)
+        self.assertEqual(inv.contents, {"C-14": 3.0, "K-40": 4.0})
+
+        with self.assertRaises(ValueError):
+            inv.remove(40100000)
+
     def test_remove_nuclide(self) -> None:
         """
         Test operator to remove one nuclide from an inventory using a ``Nuclide`` object.
@@ -366,7 +378,7 @@ class TestInventory(unittest.TestCase):
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
-        inv.remove(["H-3", "C-14"])
+        inv.remove([10030000, "C-14"])
         self.assertEqual(inv.contents, {"K-40": 4.0})
 
         with self.assertRaises(ValueError):
@@ -763,6 +775,10 @@ class TestInventoryHP(unittest.TestCase):
             },
         )
 
+        inv.sig_fig = 0
+        with self.assertRaises(ValueError):
+            inv.decay(1e9, "y")
+
     def test_cumulative_decays(self) -> None:
         """
         Test InventoryHP.cumulative_decays() calculations.
@@ -832,7 +848,7 @@ class TestInventoryHP(unittest.TestCase):
         # Catch incorrect sig_fig or no SymPy data in decay dataset
         inv.sig_fig = 0
         with self.assertRaises(ValueError):
-            inv.decay(1e9, "y")
+            inv.cumulative_decays(1e9, "y")
 
     @patch("matplotlib.pyplot.show")
     def test_plot(self, mock_show) -> None:

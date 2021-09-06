@@ -20,14 +20,16 @@ class TestNuclide(unittest.TestCase):
         nuc = Nuclide("Rn-222")
         self.assertEqual(nuc.nuclide, "Rn-222")
         self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
-        
+
         nuc = Nuclide("222Rn")
         self.assertEqual(nuc.nuclide, "Rn-222")
         self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
-        
+
         nuc = Nuclide(611450000)
         self.assertEqual(nuc.nuclide, "Pm-145")
-        self.assertEqual(nuc.prog_bf_mode, {"Nd-145": [1.0, "EC"], "Pr-141": [2.8e-09, "\u03b1"]})
+        self.assertEqual(
+            nuc.prog_bf_mode, {"Nd-145": [1.0, "EC"], "Pr-141": [2.8e-09, "\u03b1"]}
+        )
 
     def test_nuclide_Z(self) -> None:
         """
@@ -36,7 +38,7 @@ class TestNuclide(unittest.TestCase):
 
         nuc = Nuclide("H-3")
         self.assertEqual(nuc.Z, 1)
-        
+
     def test_nuclide_A(self) -> None:
         """
         Test Nuclide A attribute.
@@ -44,7 +46,7 @@ class TestNuclide(unittest.TestCase):
 
         nuc = Nuclide("H-3")
         self.assertEqual(nuc.A, 3)
-        
+
     def test_nuclide_id(self) -> None:
         """
         Test Nuclide id attribute.
@@ -52,10 +54,10 @@ class TestNuclide(unittest.TestCase):
 
         nuc = Nuclide("H-3")
         self.assertEqual(nuc.id, 10030000)
-        
+
         nuc = Nuclide("I-118m")
         self.assertEqual(nuc.id, 531180001)
-        
+
         nuc = Nuclide(190400000)
         self.assertEqual(nuc.id, 190400000)
 
@@ -139,7 +141,6 @@ class TestNuclide(unittest.TestCase):
         nuc3 = Nuclide(190400000)
         self.assertEqual(nuc1, nuc2)
         self.assertEqual(nuc1, nuc3)
-
 
         decay_data = DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
         nuc2 = Nuclide("K-40", decay_data)
