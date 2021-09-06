@@ -5,6 +5,11 @@ Unit tests for utils.py functions.
 import unittest
 from sympy import Integer, log
 from radioactivedecay.utils import (
+    Z_to_elem,
+    elem_to_Z,
+    build_id,
+    build_nuclide_string,
+    parse_id,
     parse_nuclide_str,
     parse_nuclide,
     add_dictionaries,
@@ -18,6 +23,54 @@ class TestUtilsFunctions(unittest.TestCase):
     Unit tests for the utils.py functions.
     """
 
+    def test_Z_to_elem(self) -> None:
+        """
+        Test the conversion of atomic number to element symbol.
+        """
+
+        self.assertEqual(Z_to_elem(1), "H")
+        self.assertEqual(Z_to_elem(20), "Ca")
+        self.assertEqual(Z_to_elem(26), "Fe")
+        
+    def test_elem_to_Z(self) -> None:
+        """
+        Test the conversion of element symbol to atomic number.
+        """
+
+        self.assertEqual(elem_to_Z("H"), 1)
+        self.assertEqual(elem_to_Z("Ca"), 20)
+        self.assertEqual(elem_to_Z("Fe"), 26)
+        
+    def test_built_id(self) -> None:
+        """
+        Test the canonical id builder.
+        """
+
+        self.assertEqual(build_id(26, 56), 260560000)
+        self.assertEqual(build_id(53, 118), 531180000)
+        self.assertEqual(build_id(53, 118, "m"), 531180001)
+        self.assertEqual(build_id(65, 156, "n"), 651560002)
+        
+    def test_built_nuclide_string(self) -> None:
+        """
+        Test the nuclide string builder.
+        """
+
+        self.assertEqual(build_nuclide_string(26, 56), "Fe-56")
+        self.assertEqual(build_nuclide_string(53, 118), "I-118")
+        self.assertEqual(build_nuclide_string(53, 118, "m"), "I-118m")
+        self.assertEqual(build_nuclide_string(65, 156, "n"), "Tb-156n")
+        
+    def test_parse_id(self) -> None:
+        """
+        Test the canonical id to nuclide string converter.
+        """
+
+        self.assertEqual(parse_id(260560000), "Fe-56")
+        self.assertEqual(parse_id(531180000), "I-118")
+        self.assertEqual(parse_id(531180001), "I-118m")
+        self.assertEqual(parse_id(651560002), "Tb-156n")
+
     def test_parse_nuclide_str(self) -> None:
         """
         Test the parsing of nuclide strings.
@@ -29,7 +82,7 @@ class TestUtilsFunctions(unittest.TestCase):
 
     def test_parse_nuclide(self) -> None:
         """
-        Test the parsing of radionuclide strings.
+        Test the parsing of nuclide strings.
         """
 
         nuclides = [
@@ -50,33 +103,43 @@ class TestUtilsFunctions(unittest.TestCase):
         self.assertEqual(parse_nuclide("H-3", nuclides, dataset_name), "H-3")
         self.assertEqual(parse_nuclide("H3", nuclides, dataset_name), "H-3")
         self.assertEqual(parse_nuclide("3H", nuclides, dataset_name), "H-3")
+        self.assertEqual(parse_nuclide(10030000, nuclides, dataset_name), "H-3")
         self.assertEqual(parse_nuclide("Be-7", nuclides, dataset_name), "Be-7")
         self.assertEqual(parse_nuclide("Be7", nuclides, dataset_name), "Be-7")
         self.assertEqual(parse_nuclide("7Be", nuclides, dataset_name), "Be-7")
+        self.assertEqual(parse_nuclide(40070000, nuclides, dataset_name), "Be-7")
         self.assertEqual(parse_nuclide("C-10", nuclides, dataset_name), "C-10")
         self.assertEqual(parse_nuclide("C10", nuclides, dataset_name), "C-10")
         self.assertEqual(parse_nuclide("10C", nuclides, dataset_name), "C-10")
+        self.assertEqual(parse_nuclide(60100000, nuclides, dataset_name), "C-10")
         self.assertEqual(parse_nuclide("Ne-19", nuclides, dataset_name), "Ne-19")
         self.assertEqual(parse_nuclide("Ne19", nuclides, dataset_name), "Ne-19")
         self.assertEqual(parse_nuclide("19Ne", nuclides, dataset_name), "Ne-19")
+        self.assertEqual(parse_nuclide(100190000, nuclides, dataset_name), "Ne-19")
         self.assertEqual(parse_nuclide("I-118", nuclides, dataset_name), "I-118")
         self.assertEqual(parse_nuclide("I118", nuclides, dataset_name), "I-118")
         self.assertEqual(parse_nuclide("118I", nuclides, dataset_name), "I-118")
+        self.assertEqual(parse_nuclide(531180000, nuclides, dataset_name), "I-118")
         self.assertEqual(parse_nuclide("Pd-100", nuclides, dataset_name), "Pd-100")
         self.assertEqual(parse_nuclide("Pd100", nuclides, dataset_name), "Pd-100")
         self.assertEqual(parse_nuclide("100Pd", nuclides, dataset_name), "Pd-100")
+        self.assertEqual(parse_nuclide(461000000, nuclides, dataset_name), "Pd-100")
         self.assertEqual(parse_nuclide("Cl-34m", nuclides, dataset_name), "Cl-34m")
         self.assertEqual(parse_nuclide("Cl34m", nuclides, dataset_name), "Cl-34m")
         self.assertEqual(parse_nuclide("34mCl", nuclides, dataset_name), "Cl-34m")
+        self.assertEqual(parse_nuclide(170340001, nuclides, dataset_name), "Cl-34m")
         self.assertEqual(parse_nuclide("I-118m", nuclides, dataset_name), "I-118m")
         self.assertEqual(parse_nuclide("I118m", nuclides, dataset_name), "I-118m")
         self.assertEqual(parse_nuclide("118mI", nuclides, dataset_name), "I-118m")
+        self.assertEqual(parse_nuclide(531180001, nuclides, dataset_name), "I-118m")
         self.assertEqual(parse_nuclide("Tb-156m", nuclides, dataset_name), "Tb-156m")
         self.assertEqual(parse_nuclide("Tb156m", nuclides, dataset_name), "Tb-156m")
         self.assertEqual(parse_nuclide("156mTb", nuclides, dataset_name), "Tb-156m")
+        self.assertEqual(parse_nuclide(651560001, nuclides, dataset_name), "Tb-156m")
         self.assertEqual(parse_nuclide("Tb-156n", nuclides, dataset_name), "Tb-156n")
         self.assertEqual(parse_nuclide("Tb156n", nuclides, dataset_name), "Tb-156n")
         self.assertEqual(parse_nuclide("156nTb", nuclides, dataset_name), "Tb-156n")
+        self.assertEqual(parse_nuclide(651560002, nuclides, dataset_name), "Tb-156n")
 
         # Catch erroneous strings
         with self.assertRaises(ValueError):

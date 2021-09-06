@@ -1,5 +1,5 @@
 """
-The plots module defines functions used for creating decay chain diagrams via the Radionuclide
+The plots module defines functions used for creating decay chain diagrams via the Nuclide
 class ``plot()`` method, and activity decay graphs via the Inventory class ``plot()`` method.
 
 """

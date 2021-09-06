@@ -167,10 +167,10 @@ Using a high precision inventory fixes the floating-point rounding error:
 Note the ``cumulative_decays()`` method does not report the total number of
 decays of stable nuclides (as these are all zero).
 
-Radionuclide name formatting and metastable states
+Nuclide name formatting and metastable states
 --------------------------------------------------
 
-Radionuclides can be specified in three equivalent ways. These are all
+Nuclides can be specified in four equivalent ways. These are all
 equivalent ways of creating an inventory of radon-222:
 
 .. code-block:: python3
@@ -178,28 +178,73 @@ equivalent ways of creating an inventory of radon-222:
     >>> inv = rd.Inventory({'Rn-222': 1.0})
     >>> inv = rd.Inventory({'Rn222': 1.0})
     >>> inv = rd.Inventory({'222Rn': 1.0})
+    >>> inv = rd.Inventory({862220000: 1.0})
+
+For the last instance, the 'canonical id' of the nuclide was used. This number is
+in zzzaaammmm format, where the leftmost digits are the atomic number of radon,
+the next three digits are its atomic mass number, and the last four are for
+specifing its metastability. For nuclides with atomic mass numbers less than 100,
+zeroes must be included as placeholders (ex. aaa = 003 for H-3). 
 
 Metastable states of radionuclides can be inputted by appending \'m\', \'n\',
-etc. for first, second... metastable states, respectively:
+etc. to the nuclide string, or 0001, 0002, etc. to the id, for first, second...
+metastable states, respectively:
 
 .. code-block:: python3
 
+    # using nuclide strings:
     >>> inv = rd.Inventory({'Ir-192m': 1.0})
     >>> inv = rd.Inventory({'Ir-192n': 1.0})
 
-Equivalently we could have specified these metastable states using
-:code:`'Ir192m'` or :code:`'192mIr'` for the former, or :code:`'Ir192n'` or
-:code:`'192nIr'` for the latter.
+    # or, equivalently, using canonical ids:
+    >>> inv = rd.Inventory({771920001: 1.0})
+    >>> inv = rd.Inventory({771920002: 1.0})
 
-Fetching decay data
+Equivalently we could have specified these metastable states using
+:code:`'Ir192m'` or :code:`'192mIr'` for Ir-192m, or :code:`'Ir192n'` or
+:code:`'192nIr'` for Ir-192n.
+
+Fetching atomic and decay data
 -------------------
 
-The ``Radionuclide`` class can be used to obtain decay data for individual
-radionuclides. For example, to get the half-life of iodine-123:
+The ``Nuclide`` class can be used to obtain atomic data for any specific nuclide,
+and decay data for radionuclides. They are built similarly to inventories:
 
 .. code-block:: python3
 
-    >>> nuc = rd.Radionuclide('I123')
+    >>> nuc = rd.Nuclide('Rn-222')
+    >>> nuc = rd.Nuclide('Rn222')
+    >>> nuc = rd.Nuclide('222Rn')
+    >>> nuc = rd.Nuclide(862220000)
+
+The atomic data for a nuclide can be accessed through the ``Nuclide`` object's
+``Z``, ``A``, ``id`` and ``atomic_mass`` methods:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Nuclide('K-40')
+    >>> nuc.Z
+    19
+    >>> nuc.A
+    40
+    >>> nuc.atomic_mass
+    39.963998165
+    
+Additionally, the canonical id of  nuclide, in zzzaaammmm format, can be retrieved
+using the ``id`` method:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Nuclide('Co-58m')
+    >>> nuc.id
+    270580001
+    
+Decay data for radionuclides can also be accessed using ``Nuclide`` objects. For
+example, to get the half-life of iodine-123:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Nuclide('I123')
     >>> nuc.half_life()
     47772.0
 
@@ -216,7 +261,7 @@ with the half-life and time unit is returned:
     '13.27 h'
 
 Use the ``progeny()``, ``branching_fractions()`` and ``decay_modes()`` methods
-to obtain the progeny, branching fractions and decay modes of the radionuclide:
+to obtain the progeny, branching fractions and decay modes of a radionuclide:
 
 .. code-block:: python3
 
@@ -240,8 +285,8 @@ gamma rays, x-rays, decay electrons and Auger electrons, may also be released
 due to various nuclear and atomic relaxation processes that follow α, β-, β+
 etc. decays.
 
-Decay data can be accessed for all radionuclides in an ``Inventory``
-by using the ``half_lives()``, ``progeny()``, ``branching_fractions()`` and
+Decay data can be accessed for all nuclides in an ``Inventory`` by using the
+``half_lives()``, ``progeny()``, ``branching_fractions()`` and
 ``decay_modes()`` methods:
 
 .. code-block:: python3

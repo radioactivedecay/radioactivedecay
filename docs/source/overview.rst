@@ -217,7 +217,7 @@ Special thanks to:
 * `Daniel Jewell <https://github.com/danieldjewell>`_
 * `Ezequiel Pássaro <https://epassaro.github.io/>`_
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
-* `Wolfgang Kerzendorg <https://wkerzendorf.github.io/>`_
+* `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
 
 for suggestions, support and assistance to this project.
 

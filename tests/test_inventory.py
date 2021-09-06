@@ -11,7 +11,7 @@ from radioactivedecay.inventory import (
     Inventory,
     InventoryHP,
 )
-from radioactivedecay.radionuclide import Radionuclide
+from radioactivedecay.nuclide import Nuclide
 
 # pylint: disable=protected-access, too-many-public-methods
 
@@ -34,8 +34,8 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inv.quantity_converter, DEFAULTDATA.float_quantity_converter)
         self.assertEqual(inv.unit_converter, DEFAULTDATA.float_unit_converter)
 
-        # check instantiation using Radionuclide instance
-        tritium = Radionuclide("H3")
+        # check instantiation using Nuclide instance
+        tritium = Nuclide("H3")
         inv = Inventory({tritium: 1.0}, "num", True)
         self.assertEqual(inv.contents, {"H-3": 1})
 
@@ -55,7 +55,7 @@ class TestInventory(unittest.TestCase):
 
     def test__parse_nuclides(self) -> None:
         """
-        Test the conversion of nuclide strings or Radionuclide instances in a contents dictionary
+        Test the conversion of nuclide strings or Nuclide instances in a contents dictionary
         to nuclide strings into Ab-XY form.
         """
 
@@ -70,7 +70,7 @@ class TestInventory(unittest.TestCase):
             {"He-3": 1.0},
         )
 
-        tritium = Radionuclide("H-3")
+        tritium = Nuclide("H-3")
         self.assertEqual(
             Inventory._parse_nuclides(
                 {tritium: 1.0, "3He": 2.0}, nuclides, dataset_name
@@ -250,9 +250,9 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
 
         inv = Inventory({"H-3": 1}, "num")
-        inv.add({Radionuclide("C-14"): 3.0, "K-40": 4.0}, "num")
+        inv.add({Nuclide("C-14"): 3.0, "K-40": 4.0}, "num")
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 1.0, "K-40": 4.0})
-        inv.add({Radionuclide("H-3"): 3.0}, "num")
+        inv.add({Nuclide("H-3"): 3.0}, "num")
         self.assertEqual(inv.contents, {"C-14": 3.0, "H-3": 4.0, "K-40": 4.0})
 
     def test_subtract(self) -> None:
@@ -265,7 +265,7 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "num")
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
-        inv.subtract({"C-14": 3.0, Radionuclide("K-40"): 4.0}, "num")
+        inv.subtract({"C-14": 3.0, Nuclide("K-40"): 4.0}, "num")
         self.assertEqual(inv.contents, {"C-14": 0.0, "H-3": 4.0, "K-40": 0.0}, "num")
 
     def test___add__(self) -> None:
@@ -348,17 +348,17 @@ class TestInventory(unittest.TestCase):
         with self.assertRaises(ValueError):
             inv.remove("Be-10")
 
-    def test_remove_radionuclide(self) -> None:
+    def test_remove_nuclide(self) -> None:
         """
-        Test operator to remove one nuclide from an inventory using a ``Radionuclide`` object.
+        Test operator to remove one nuclide from an inventory using a ``Nuclide`` object.
         """
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
-        inv.remove(Radionuclide("H-3"))
+        inv.remove(Nuclide("H-3"))
         self.assertEqual(inv.contents, {"C-14": 3.0, "K-40": 4.0})
 
         with self.assertRaises(ValueError):
-            inv.remove(Radionuclide("Be-10"))
+            inv.remove(Nuclide("Be-10"))
 
     def test_remove_list(self) -> None:
         """
@@ -373,7 +373,7 @@ class TestInventory(unittest.TestCase):
             inv.remove(["Be-10", "C-14"])
 
         inv = Inventory({"C-14": 3.0, "H-3": 4.0, "K-40": 4.0}, "num")
-        inv.remove(["H-3", Radionuclide("C-14")])
+        inv.remove(["H-3", Nuclide("C-14")])
         self.assertEqual(inv.contents, {"K-40": 4.0})
 
     def test_decay(self) -> None:
