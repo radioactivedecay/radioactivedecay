@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.1] - 2021-09-07
+- Added ICRP-07 and AMDC license files into MANIFEST.in. Includes these files in PyPI package.
+
 ## [0.4.0] - 2021-09-06
 - Release 0.4.0 is a large update to `radioactivedecay`. It adds functionality to supply nuclide
 masses, moles and numbers of atoms when creating inventories, and also methods so inventories can
