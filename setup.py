@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.4.0",
+    version="0.4.1",
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
-    license="MIT",
+    license="MIT, ICRP-07, AMDC",
     description="A Python package for radioactive decay modelling that supports 1252 radionuclides, decay chains, branching, and metastable states.",
     long_description=long_description,
     long_description_content_type="text/markdown",
