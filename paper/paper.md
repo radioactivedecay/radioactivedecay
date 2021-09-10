@@ -39,7 +39,7 @@ Calculations for the decay of radioactivity and the ingrowth of progeny underpin
 It supports decay chains with branching decays and metastable nuclear isomers.
 It includes a high numerical precision decay calculation mode which resolves numerical issues when using double-precision floating-point numbers for decaying chains containing radionuclides with disparate half-lives [@Bakin2018].
 
-This set of features distinguishes `radioactivedecay` from other commonly-used decay packages, such as `Radiological Toolbox` and `PyNE`.
+This set of features distinguishes `radioactivedecay` from other commonly-used decay packages, such as `Radiological Toolbox` [@Hertel2015] and `PyNE` [@Scopatz2012].
 `Radiological Toolbox` is a closed-source Windows application, so it is not easily scriptable and its use of double-precision arithmetic makes it susceptible to numerical round-off errors.
 `PyNE` uses approximations to help mitigate numerical issues, however these may potentially affect accuracy.
 Moreover as of `v0.7.3`, `PyNE` does not correctly model metastable nuclear isomers within decay chains, which means, for example, it cannot simulate the production of $^{99m}\textrm{Tc}$ from $^{99}\textrm{Mo}$ for medical imaging applications.
@@ -140,12 +140,12 @@ Although ICRP Publication 107 is the default dataset, `radioactivedecay` allows 
 
 The main functionality of `radioactivedecay` is based around two classes: the `Nuclide` class and the `Inventory` class.
 The `Nuclide` class is used for fetching atomic and decay data about a single nuclide, such as its atomic weight, half-life, the decay modes, the progeny and the branching fractions.
-It creates diagrams of the nuclide's decay chain (ex. \autoref{fig:decay_diags}(a)) based on `NetworkX` [@Hagberg2008].
+It creates diagrams of the nuclide's decay chain (ex. \autoref{fig:decay_diags}(a)) using the `NetworkX` library [@Hagberg2008].
 
 An `Inventory` can contain multiple nuclides, each with an associated activity.
 The `decay()` and `decay_high_precision()` methods calculate the decay of the `Inventory`, adding any ingrown radioactive progeny automatically.
 The `numbers()`, `activities()`, `masses()`, and `moles()` methods output the inventory of nuclides in various forms using the atomic data stored in the decay dataset. Additional `number_fractions()`, `activity_fractions()`, `mass_fractions()`, and `mole_fractions()` methods provide for these quantities to be outputted in fractions with respect to the sum of the quantities in the inventory. 
-Plots can be made of the variation of radionuclide activities over time (ex. \autoref{fig:decay_diags}(b)) based on `Matplotlib` [@Hunter2007].
+Plots can be made of the variation of radionuclide activities over time (ex. \autoref{fig:decay_diags}(b)) using `Matplotlib` [@Hunter2007].
 
 
 # Validation
