@@ -26,7 +26,7 @@ bibliography: paper.bib
 # Summary
 
 `radioactivedecay` is a Python package for radioactive decay modelling.
-It contains functions to fetch decay data, define inventories of radionuclides and perform decay calculations.
+It contains functions to fetch decay data, define inventories of nuclides and perform decay calculations.
 The default nuclear decay dataset supplied with `radioactivedecay` is based on ICRP Publication 107, which covers 1252 radioisotopes of 97 elements.
 The code calculates an analytical solution to a matrix form of the decay chain differential equations using double or higher precision numerical operations.
 There are visualization functions for drawing decay chain diagrams and plotting activity decay curves.
@@ -138,12 +138,13 @@ Although ICRP Publication 107 is the default dataset, `radioactivedecay` allows 
 
 ![Examples of the plotting capabilities of `radioactivedecay`: (a) Decay chain diagram for molybdenum-99. (b) Graph showing the decay of 1 kBq of $^{99}\textrm{Mo}$ along with the ingrowth of $^{99m}\textrm{Tc}$ and a trace quantity of $^{99}\textrm{Tc}$.\label{fig:decay_diags}](Mo-99.pdf)
 
-The main functionality of `radioactivedecay` is based around two classes: the `Radionuclide` class and the `Inventory` class.
-The `Radionuclide` class is used for fetching decay data about a single radionuclide, such as its half-life, the decay modes, the progeny and the branching fractions.
-It creates diagrams of the radionuclide's decay chain (ex. \autoref{fig:decay_diags}(a)) based on `NetworkX` [@Hagberg2008].
+The main functionality of `radioactivedecay` is based around two classes: the `Nuclide` class and the `Inventory` class.
+The `Nuclide` class is used for fetching atomic and decay data about a single nuclide, such as its atomic weight, half-life, the decay modes, the progeny and the branching fractions.
+It creates diagrams of the nuclide's decay chain (ex. \autoref{fig:decay_diags}(a)) based on `NetworkX` [@Hagberg2008].
 
-An `Inventory` can contain multiple radionuclides, each with an associated radioactivity.
+An `Inventory` can contain multiple nuclides, each with an associated activity.
 The `decay()` and `decay_high_precision()` methods calculate the decay of the `Inventory`, adding any ingrown radioactive progeny automatically.
+The `numbers()`, `activities()`, `masses()`, and `moles()` methods output the inventory of nuclides in various forms using the atomic data stored in the decay dataset. Additional `number_fractions()`, `activity_fractions()`, `mass_fractions()`, and `mole_fractions()` methods provide for these quantities to be outputted in fractions with respect to the sum of the quantities in the inventory. 
 Plots can be made of the variation of radionuclide activities over time (ex. \autoref{fig:decay_diags}(b)) based on `Matplotlib` [@Hunter2007].
 
 
