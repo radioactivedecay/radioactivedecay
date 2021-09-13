@@ -16,7 +16,7 @@ authors:
 affiliations:
 - name: Center for Computational Science &amp; e-Systems (CCSE), Japan Atomic Energy Agency (JAEA), 178-4-4 Wakashiba, Kashiwa, Chiba, 277-0871, Japan
   index: 1
-- name: Whitman College
+- name: Whitman College, Walla Walla, Washington 99362, USA
   index: 2
 date: XX April 2021
 bibliography: paper.bib
@@ -37,12 +37,12 @@ There are visualization functions for drawing decay chain diagrams and plotting 
 Calculations for the decay of radioactivity and the ingrowth of progeny underpin the use of radioisotopes in a wide range of research and industrial fields, spanning from nuclear engineering, medical physics, radiation protection, environmental science and archaeology to non-destructive testing, mineral prospecting, food preservation, homeland security and defence.
 `radioactivedecay` is an open source, cross-platform package for decay calculations and visualization.
 It supports decay chains with branching decays and metastable nuclear isomers.
-It includes a high numerical precision decay calculation mode which resolves numerical issues when using double-precision floating-point numbers for decaying chains containing radionuclides with disparate half-lives [@Bakin2018].
+It includes a high numerical precision decay calculation mode, which resolves numerical problems with using double-precision floating-point numbers to calculate decay chains involving radionuclides with disparate half-lives [@Bakin2018].
 
 This set of features distinguishes `radioactivedecay` from other commonly-used decay packages, such as `Radiological Toolbox` [@Hertel2015] and `PyNE` [@Scopatz2012].
 `Radiological Toolbox` is a closed-source Windows application, so it is not easily scriptable and its use of double-precision arithmetic makes it susceptible to numerical round-off errors.
 `PyNE` uses approximations to help mitigate numerical issues, however these may potentially affect accuracy.
-Moreover as of `v0.7.3`, `PyNE` does not correctly model metastable nuclear isomers within decay chains, which means, for example, it cannot simulate the production of $^{99m}\textrm{Tc}$ from $^{99}\textrm{Mo}$ for medical imaging applications.
+Moreover as of `v0.7.5`, `PyNE` does not correctly model metastable nuclear isomers within decay chains, which means, for example, it cannot simulate the production of $^{99m}\textrm{Tc}$ from $^{99}\textrm{Mo}$ for medical imaging applications.
 
 
 # Theory and Implementation
@@ -110,43 +110,47 @@ $e^{\varLambda_{d} t}$ is a diagonal matrix with elements $e^{\varLambda_{d} t}_
 
 Matrices $C$ and $C^{-1}$ are independent of time so they are pre-calculated and imported from files into `radioactivedecay`.
 $C$ and $C^{-1}$ are stored in sparse matrix data structures to minimize memory use and maximize efficiency when computing the matrix multiplications in \autoref{eq:solution}.
-For decay calculations with double-precision floating-point operations, $C$ and $C^{-1}$ are stored in `SciPy` [@Virtanen2020] Compressed Sparse Row (CSR) matrix data structures. 
+For decay calculations with double-precision floating-point operations, $C$ and $C^{-1}$ are stored in `SciPy` [@Virtanen2020] Compressed Sparse Row (CSR) matrix data structures.
 Conversely, they are stored in `SymPy` [@Meurer2017] SparseMatrix data structures for high numerical precision calculations.
 
-The high numerical precision decay calculation mode resolves numerical issues arising from using double-precision floating-point numbers for decay calculations for chains containing nuclides with disparate half-lives. 
+The high numerical precision decay calculation mode resolves numerical issues arising from using double-precision floating-point numbers for decay calculations for chains containing nuclides with disparate half-lives.
 One example is the decay chain for $^{254}\textrm{Es}$, which contains $^{238}\textrm{U}$ (4.468 billion year half-life) and $^{214}\textrm{Po}$ ($t_{1/2}$ is 164.3 $\mu$s half-life).
-This a 20 orders of magnitude difference in half-life. 
+This a 20 orders of magnitude difference in half-life.
 Loss of numerical precision inevitably occurs when evaluating the off-diagonal elements of $C$ and $C^{-1}$ in \autoref{eq:c} with double-precision floating-point numbers (which hold approximately 15 decimal places of numerical precision).
 Note loss of precision also occurs in the converse scenario, i.e. when a decay chain contains radionuclides with similar half-lives.
 However this scenario does not occur in the ICRP Publication 107 decay dataset, as the relative difference between half-lives of any two radionuclides in the same decay chain is always greater than 0.1%.
 
 The default operation of the high precision decay mode is to evaluate \autoref{eq:solution} using floating-point numbers with 320 significant figures of precision.
 This is sufficient precision to ensure accurate results for any physically relevant decay calculation users may wish to perform.
-Moreover, computations in the high precision mode are fast, taking only 0.5 seconds on a notebook equipped with an Intel Core i5-8250U processor.
+Moreover, computations in the high precision mode are still fast, taking less than one second on a notebook equipped with an Intel Core i5-8250U processor.
 
 
-# Decay Datasets
+# Decay &amp; Atomic Mass Datasets
 
-The default decay dataset supplied with `radioactivedecay` is based on ICRP Publication 107 [@ICRP107].
+The default dataset supplied with `radioactivedecay` uses decay data from ICRP Publication 107 [@ICRP107] and atomic masses from the Atomic Mass Data Center (AMDC) [@Huang2021; @Wang2021; @Kondev2021].
 @Endo2005 and @Endo2007 describe the development of the ICRP Publication 107 decay dataset.
-The raw data was converted into dataset files suitable for `radioactivedecay` using a Jupyter [notebook](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb). 
-Along with `SciPy` and `SymPy` versions of the sparse matrices $C$ and $C^{-1}$, the dataset files store radionuclide half-lives, decay constants, progeny, branching fractions and decay modes.
-Although ICRP Publication 107 is the default dataset, `radioactivedecay` allows users to import and use other decay datasets.
+Raw data from ICRP 107 and AMDC were converted into dataset files suitable for `radioactivedecay` in a Jupyter [notebook](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
+Along with `SciPy` and `SymPy` versions of the sparse matrices $C$ and $C^{-1}$, the dataset files contain radionuclide half-lives, decay constants, progeny, branching fractions, decay modes and atomic masses.
+Although there is a default dataset, `radioactivedecay` allows the import and use other decay data.
 
 
 # Main Functionality
 
 ![Examples of the plotting capabilities of `radioactivedecay`: (a) Decay chain diagram for molybdenum-99. (b) Graph showing the decay of 1 kBq of $^{99}\textrm{Mo}$ along with the ingrowth of $^{99m}\textrm{Tc}$ and a trace quantity of $^{99}\textrm{Tc}$.\label{fig:decay_diags}](Mo-99.pdf)
 
-The main functionality of `radioactivedecay` is based around two classes: the `Nuclide` class and the `Inventory` class.
-The `Nuclide` class is used for fetching atomic and decay data about a single nuclide, such as its atomic weight, half-life, the decay modes, the progeny and the branching fractions.
+The main functionality of `radioactivedecay` is based around `Nuclide`, `Inventory` and `InventoryHP` classes.
+The `Nuclide` class is used for fetching atomic and decay data about a single nuclide, such as its atomic mass, half-life, decay modes, progeny and branching fractions.
 It creates diagrams of the nuclide's decay chain (ex. \autoref{fig:decay_diags}(a)) using the `NetworkX` library [@Hagberg2008].
 
-An `Inventory` can contain multiple nuclides, each with an associated activity.
-The `decay()` and `decay_high_precision()` methods calculate the decay of the `Inventory`, adding any ingrown radioactive progeny automatically.
-The `numbers()`, `activities()`, `masses()`, and `moles()` methods output the inventory of nuclides in various forms using the atomic data stored in the decay dataset. Additional `number_fractions()`, `activity_fractions()`, `mass_fractions()`, and `mole_fractions()` methods provide for these quantities to be outputted in fractions with respect to the sum of the quantities in the inventory. 
-Plots can be made of the variation of radionuclide activities over time (ex. \autoref{fig:decay_diags}(b)) using `Matplotlib` [@Hunter2007].
+An `Inventory` can contain multiple nuclides, each with an associated quantity (the number of atoms of the nuclide).
+Nuclides can be stable or radioactive.
+The `decay()` method calculates the decay of the radioactive nuclides in an `Inventory`, adding any ingrown progeny automatically.
+The `numbers()`, `activities()`, `masses()`, and `moles()` methods output the inventory of nuclides as different quantities using the atomic data stored in the decay dataset.
+Additional `activity_fractions()`, `mass_fractions()`, and `mole_fractions()` methods provide the relative amounts of each nuclide in the inventory with respect to different quantities.
+Plots can be made of the variation of nuclide activities, masses and moles over time (ex. \autoref{fig:decay_diags}(b)) using `Matplotlib` [@Hunter2007].
 
+The `InventoryHP` class is the high numerical precision complement of the `Inventory` class.
+It has the same API as the `Inventory` class, but uses `SymPy` high numerical precision routines for all calculations.
 
 # Validation
 
@@ -168,14 +172,20 @@ The discrepancies between the two codes were attributed to methodological differ
 
 # Limitations
 
-`radioactivedecay` does not model neutronics, so cannot evaluate radioactivity produced from activations or induced fission. It does not support external sources of radioactivity input or removal from an inventory over time. Caution is required if decaying backwards in time, as this can cause floating-point overflows when computing the exponential terms in \autoref{eq:solution}.
+`radioactivedecay` does not model neutronics, so cannot evaluate radioactivity produced from activations or induced fission.
+It does not support external sources of radioactivity input or removal from an inventory over time.
+Caution is required if decaying backwards in time, as this can cause floating-point overflows when computing the exponential terms in \autoref{eq:solution}.
 
-There are also some limitations associated with the ICRP Publication 107 decay dataset. It does not contain data for the radioactivity produced from spontaneous fission decay pathways and the minor decay pathways of some radionuclides. More details on limitations are available in the [documentation](https://alexmalins.com/radioactivedecay/overview.html#limitations), @Endo2005, and @Endo2007.
+There are also some limitations associated with the ICRP Publication 107 decay dataset.
+It does not contain data for the radioactivity produced from spontaneous fission decay pathways and the minor decay pathways of some radionuclides.
+More details on limitations are available in the [documentation](https://alexmalins.com/radioactivedecay/overview.html#limitations), @Endo2005, and @Endo2007.
 
 
 # Acknowledgements
 
-We thank Mitsuhiro Itakura, Kazuyuki Sakuma &amp; colleagues in JAEA's Center for Computational Science &amp; Systems for their support for this project, Kenny McKee &amp; Daniel Jewell for helpful suggestions, and Bj&ouml;rn Dahlgren, Anthony Scopatz &amp; Jonathan Morrell for their work on radioactive decay calculation software.
+We thank Mitsuhiro Itakura, Kazuyuki Sakuma, colleagues in JAEA's Center for Computational Science &amp; Systems, &amp; Wolfgang Kerzendorf for their support for this project.
+We thank Kenny McKee, Daniel Jewell &amp; Ezequiel P&aacute;ssaro for helpful suggestions, and Bj&ouml;rn Dahlgren, Anthony Scopatz &amp; Jonathan Morrell for their work on radioactive decay calculation software.
+We also thank the editors and reviewers at the Journal of Open Source software for constructive comments.
 
 
 # References
