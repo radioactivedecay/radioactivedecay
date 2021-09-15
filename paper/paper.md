@@ -154,16 +154,16 @@ It has the same API as the `Inventory` class, but uses `SymPy` high numerical pr
 
 # Validation
 
-Decay calculations with `radioactivedecay v0.3.2` were cross-checked against `Radiological Toolbox v3.0.0` [@Hertel2015] and `PyNE v0.7.3` [@Scopatz2012] (see Jupyter [notebooks](https://github.com/alexmalins/radioactivedecay/notebooks/comparisons) in the project repository).
+Decay calculations with `radioactivedecay v0.4.2` were cross-checked against `Radiological Toolbox v3.0.0` [@Hertel2015] and `PyNE v0.7.5` [@Scopatz2012] (see Jupyter [notebooks](https://github.com/alexmalins/radioactivedecay/notebooks/comparisons) in the project repository).
 `Radiological Toolbox` employs the ICRP Publication 107 decay data.
 Fifty radionuclides were randomly selected and a decay calculation was performed for 1 Bq of each for a random decay time within a factor of $10^{-3}$ to $10^{3}$ of the half-life.
 Differences between decayed activities reported by each code were within 1% of each other in 64% of cases.
 Discrepancies greater than 1% were attributed to rounding differences, erroneous results from `Radiological Toolbox`, or numerical issues relating to decay chains containing radionuclides with disparate half-lives.
 
-A dataset was prepared for `radioactivedecay` with the same Evaluated Nuclear Structure Data File [@ENSDF] decay data as used by `PyNE v0.7.3`.
-Bugs in `PyNE v0.7.3` cause incorrect decay calculation results for chains containing metastable nuclear isomers, $^{183}\textrm{Pt}$, $^{172}\textrm{Ir}$ or $^{152}\textrm{Lu}$.
-Radionuclides affected by this were excluded from the comparison.
-The decay of 1 Bq of every radionuclide was calculated for multiple decay times varying from 0 to $10^{6}$ times the radionuclide's half-life.
+A dataset was prepared for `radioactivedecay` with the same Evaluated Nuclear Structure Data File [@ENSDF] decay data as used by `PyNE v0.7.5`.
+Bugs in `PyNE v0.7.5` cause incorrect decay calculation results for chains containing metastable nuclear isomers, $^{183}\textrm{Pt}$, $^{172}\textrm{Ir}$ or $^{152}\textrm{Lu}$.
+Thus the affected chains were not used for the comparisons.
+The decay of 1 Bq of every radionuclide was calculated for multiple decay times varying from $0$ to $10^{6}$ times the radionuclide's half-life.
 The absolute difference between the decayed activities reported by each code was less than $10^{-13}$ Bq.
 Relative differences depended on the magnitude of the activity.
 Relative errors of greater than 0.1% only occurred when the calculated activity was less than $2.5\times10^{-11}$ Bq, i.e. 10 orders of magnitude smaller than the initial activity of the parent radionuclide.
