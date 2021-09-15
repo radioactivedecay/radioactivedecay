@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.2] - 2021-09-15
+- Fixed bug in `InventoryHP` meaning `decay()` gave some incorrect results.
+- Hard-coded Avogadro's constant to avoid tests failing with older versions of SciPy.
+- Updated notebooks to be consistend with v0.4.0+.
+
 ## [0.4.1] - 2021-09-07
 - Added ICRP-07 and AMDC license files into MANIFEST.in. Includes these files in PyPI package.
 
