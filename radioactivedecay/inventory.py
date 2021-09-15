@@ -1120,7 +1120,8 @@ class InventoryHP(Inventory):
         decay_data: DecayData = DEFAULTDATA,
     ) -> None:
 
-        contents = {nuc: nsimplify(val) for nuc, val in contents.items()}
+        if check is True:
+            contents = {nuc: nsimplify(val) for nuc, val in contents.items()}
         self.sig_fig = 320
         super().__init__(contents, units, check, decay_data)
 

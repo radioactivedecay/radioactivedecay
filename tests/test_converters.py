@@ -6,6 +6,7 @@ import unittest
 import numpy as np
 from sympy import Integer, log
 from radioactivedecay.converters import (
+    AVOGADRO,
     UnitConverterFloat,
     UnitConverterSympy,
     QuantityConverter,
@@ -13,9 +14,22 @@ from radioactivedecay.converters import (
 )
 
 
+class TestConverters(unittest.TestCase):
+    """
+    Unit tests for the converters.py constants.
+    """
+
+    def test_avogadro(self) -> None:
+        """
+        Test instantiation of UnitConverterFloat objects.
+        """
+
+        self.assertEqual(AVOGADRO, 6.02214076e23)
+
+
 class TestUnitConverterFloat(unittest.TestCase):
     """
-    Unit tests for the utils.py UnitConverterFloat class.
+    Unit tests for the converters.py UnitConverterFloat class.
     """
 
     def test_instantiation(self) -> None:
@@ -341,7 +355,7 @@ class TestUnitConverterFloat(unittest.TestCase):
 
 class TestUnitConverterSympy(unittest.TestCase):
     """
-    Unit tests for the utils.py UnitConverterSympy class.
+    Unit tests for the converters.py UnitConverterSympy class.
     """
 
     def test_instantiation(self) -> None:
@@ -571,7 +585,7 @@ class TestUnitConverterSympy(unittest.TestCase):
 
 class TestQuantityConverter(unittest.TestCase):
     """
-    Unit tests for the utils.py QuantityConverter class.
+    Unit tests for the converters.py QuantityConverter class.
     """
 
     def test_instantiation(self) -> None:
@@ -586,6 +600,7 @@ class TestQuantityConverter(unittest.TestCase):
         self.assertEqual(qconv.nuclide_dict["He-3"], 1)
         self.assertEqual(qconv.atomic_masses[0], 3.01604928132)
         self.assertEqual(qconv.decay_consts[1], 0)
+        self.assertEqual(qconv.avogadro, 6.02214076e23)
 
     def test_activity_to_number(self) -> None:
         """
@@ -709,7 +724,7 @@ class TestQuantityConverter(unittest.TestCase):
 
 class TestQuantityConverterSympy(unittest.TestCase):
     """
-    Unit tests for the utils.py QuantityConverterSympy class.
+    Unit tests for the converters.py QuantityConverterSympy class.
     """
 
     def test_instantiation(self) -> None:
@@ -731,6 +746,7 @@ class TestQuantityConverterSympy(unittest.TestCase):
             Integer("15055351900000000000000000000000000") / Integer(75401232033),
         )
         self.assertEqual(qcs.decay_consts[1], Integer(0))
+        self.assertEqual(qcs.avogadro, Integer(602214076000000000000000))
 
     def test_activity_to_number(self) -> None:
         """

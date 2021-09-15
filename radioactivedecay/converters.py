@@ -14,9 +14,10 @@ as:
 from abc import ABC, abstractmethod
 from typing import Dict, Union
 import numpy as np
-from scipy.constants import Avogadro
 from sympy import Integer, Matrix, nsimplify, Rational
 from sympy.core.expr import Expr
+
+AVOGADRO = 6.02214076e23
 
 
 class UnitConverter(ABC):
@@ -553,7 +554,7 @@ class QuantityConverter:
         self.nuclide_dict = nuclide_dict
         self.atomic_masses = atomic_masses
         self.decay_consts = decay_consts
-        self.avogadro = Avogadro
+        self.avogadro = AVOGADRO
 
     def activity_to_number(
         self, nuclide: str, activity: Union[float, Expr]
