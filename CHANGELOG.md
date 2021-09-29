@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.3] - 2021-XX-XX
+- Refactored DecayData class to store progeny, branching fractions and decay modes data in
+separate numpy arrays.
+- Use np.array_equal() for checking equality of numpy arrays.
+- Fix bug which caused scipy C and C^-1 matrices to be unnecessarily large.
+- Added tests to check shape of scipy C and C^-1 matrices from icrp107_ame2020_nubase2020 dataset.
+- Use idx as variable name for index of for loops.
+
 ## [0.4.2] - 2021-09-15
 - Fixed bug in `InventoryHP` meaning `decay()` gave some incorrect results.
 - Hard-coded Avogadro's constant to avoid tests failing with older versions of SciPy.

@@ -310,10 +310,10 @@ def parse_nuclide_str(nuclide: str) -> str:
     if nuclide[0] in ["m", "n"]:
         nuclide = nuclide[1:] + nuclide[0]
 
-    for i in range(1, len(nuclide)):  # Add hyphen e.g. Tc99m to Tc-99m.
-        if nuclide[i].isdigit():
-            if nuclide[i - 1] != "-":
-                nuclide = nuclide[:i] + "-" + nuclide[i:]
+    for idx in range(1, len(nuclide)):  # Add hyphen e.g. Tc99m to Tc-99m.
+        if nuclide[idx].isdigit():
+            if nuclide[idx - 1] != "-":
+                nuclide = nuclide[:idx] + "-" + nuclide[idx:]
             break
 
     return nuclide

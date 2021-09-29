@@ -197,13 +197,13 @@ class DecayMatrices:
         if not isinstance(other, DecayMatrices):
             return NotImplemented
         return (
-            (self.atomic_masses == other.atomic_masses).all()
-            and (self.decay_consts == other.decay_consts).all()
+            np.array_equal(self.atomic_masses, other.atomic_masses)
+            and np.array_equal(self.decay_consts, other.decay_consts)
             and self.ln2 == other.ln2
             and _csr_matrix_equal(self.matrix_c, other.matrix_c)
             and _csr_matrix_equal(self.matrix_c_inv, other.matrix_c_inv)
             and _csr_matrix_equal(self.matrix_e, other.matrix_e)
-            and (self.vector_n0 == other.vector_n0).all()
+            and np.array_equal(self.vector_n0, other.vector_n0)
         )
 
     def __ne__(self, other: object) -> bool:
@@ -325,6 +325,8 @@ class DecayData:
 
     Attributes
     ----------
+    bfs : numpy.ndarray
+        NumPy array of lists with branching fraction data.
     dataset_name : str
         Name of the decay dataset.
     float_quantity_converter : QuantityConverter
@@ -334,13 +336,14 @@ class DecayData:
     hldata : numpy.ndarray
         List of tuples containing half-life floats, time unit strings and readable format half-life
         strings.
+    modes : numpy.ndarray
+        NumPy array of lists with decay mode data.
     nuclides : numpy.ndarray
         NumPy array of nuclides in the dataset (string format is 'H-3', etc.).
     nuclide_dict : dict
         Dictionary containing nuclide strings as keys and positions in the matrices as values.
-    prog_bfs_modes : numpy.ndarray
-        NumPy array of dictionaries with direct progeny as keys and lists with branching fraction
-        and decay mode data as values.
+    progeny : numpy.ndarray
+        NumPy array of lists with direct progeny data.
     scipy_data : DecayMatrices
         Dataset of double precision decay matrices (SciPy/NumPy objects).
     sympy_data : None or DecayMatricesSympy
@@ -372,9 +375,11 @@ class DecayData:
 
         self.float_unit_converter = UnitConverterFloat(data["year_conv"])
         self.hldata = data["hldata"]
-        self.nuclides = data["radionuclides"]
+        self.nuclides = data["nuclides"]
         self.nuclide_dict = dict(zip(self.nuclides, list(range(0, self.nuclides.size))))
-        self.prog_bfs_modes = data["prog_bfs_modes"]
+        self.progeny = data["progeny"]
+        self.bfs = data["bfs"]
+        self.modes = data["modes"]
 
         decay_consts = np.array(
             [
@@ -534,12 +539,10 @@ class DecayData:
 
         parent = parse_nuclide(parent, self.nuclides, self.dataset_name)
         progeny = parse_nuclide(progeny, self.nuclides, self.dataset_name)
-        if progeny in self.prog_bfs_modes[self.nuclide_dict[parent]]:
-            branching_fraction: float = self.prog_bfs_modes[self.nuclide_dict[parent]][
-                progeny
-            ][0]
-            return branching_fraction
-
+        for idx, prog in enumerate(self.progeny[self.nuclide_dict[parent]]):
+            if prog == progeny:
+                branching_fraction: float = self.bfs[self.nuclide_dict[parent]][idx]
+                return branching_fraction
         return 0.0
 
     def decay_mode(self, parent: str, progeny: str) -> str:
@@ -570,10 +573,10 @@ class DecayData:
 
         parent = parse_nuclide(parent, self.nuclides, self.dataset_name)
         progeny = parse_nuclide(progeny, self.nuclides, self.dataset_name)
-        if progeny in self.prog_bfs_modes[self.nuclide_dict[parent]]:
-            decay_mode: str = self.prog_bfs_modes[self.nuclide_dict[parent]][progeny][1]
-            return decay_mode
-
+        for idx, prog in enumerate(self.progeny[self.nuclide_dict[parent]]):
+            if prog == progeny:
+                decay_mode: str = self.modes[self.nuclide_dict[parent]][idx]
+                return decay_mode
         return ""
 
     def __eq__(self, other: object) -> bool:
@@ -586,10 +589,12 @@ class DecayData:
         return (
             self.dataset_name == other.dataset_name
             and self.float_unit_converter == other.float_unit_converter
-            and (self.hldata == other.hldata).all()
-            and (self.nuclides == other.nuclides).all()
+            and np.array_equal(self.hldata, other.hldata)
+            and np.array_equal(self.nuclides, other.nuclides)
             and self.nuclide_dict == other.nuclide_dict
-            and (self.prog_bfs_modes == other.prog_bfs_modes).all()
+            and np.array_equal(self.progeny, other.progeny)
+            and np.array_equal(self.bfs, other.bfs)
+            and np.array_equal(self.modes, other.modes)
             and self.scipy_data == other.scipy_data
             and self.sympy_data == other.sympy_data
             and self.sympy_unit_converter == other.sympy_unit_converter

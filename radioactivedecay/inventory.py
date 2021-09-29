@@ -652,9 +652,9 @@ class Inventory:
         vector_n0 = self.decay_matrices.vector_n0.copy()
         indices_set = set()
         for nuclide in self.contents:
-            i = self.decay_data.nuclide_dict[nuclide]
-            vector_n0[i] = self.contents[nuclide]
-            indices_set.update(self.decay_data.scipy_data.matrix_c[:, i].nonzero()[0])
+            idx = self.decay_data.nuclide_dict[nuclide]
+            vector_n0[idx] = self.contents[nuclide]
+            indices_set.update(self.decay_data.scipy_data.matrix_c[:, idx].nonzero()[0])
         indices = list(indices_set)
 
         matrix_e = self.decay_matrices.matrix_e.copy()
@@ -752,18 +752,20 @@ class Inventory:
         decay_time = self._convert_decay_time(decay_time, units)
         vector_n0, indices, matrix_e = self._setup_decay_calc()
 
-        indices = [i for i in indices if self.decay_matrices.decay_consts[i] > 0.0]
-        for i in indices:
-            matrix_e[i, i] = (
-                1.0 - np.exp((-decay_time * self.decay_matrices.decay_consts[i]))
-            ) / self.decay_matrices.decay_consts[i]
+        indices = [
+            idx for idx in indices if self.decay_matrices.decay_consts[idx] > 0.0
+        ]
+        for idx in indices:
+            matrix_e[idx, idx] = (
+                1.0 - np.exp((-decay_time * self.decay_matrices.decay_consts[idx]))
+            ) / self.decay_matrices.decay_consts[idx]
 
         cumulative_decays = self._perform_decay_calc(vector_n0, matrix_e)
         result_dict = {
-            self.decay_data.nuclides[i]: float(
-                self.decay_matrices.decay_consts[i] * cumulative_decays[i]
+            self.decay_data.nuclides[idx]: float(
+                self.decay_matrices.decay_consts[idx] * cumulative_decays[idx]
             )
-            for i in indices
+            for idx in indices
         }
 
         return result_dict
@@ -975,41 +977,43 @@ class Inventory:
 
         ydata = np.zeros(shape=(npoints, len(display)))
         if yunits in self.unit_converter.activity_units:
-            for i in range(0, npoints):
-                decayed_contents = self.decay(time_points[i], xunits).activities(yunits)
-                ydata[i] = [decayed_contents[rad] for rad in display]
+            for idx in range(0, npoints):
+                decayed_contents = self.decay(time_points[idx], xunits).activities(
+                    yunits
+                )
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Activity ({yunits})"
         elif yunits in self.unit_converter.moles_units:
-            for i in range(0, npoints):
-                decayed_contents = self.decay(time_points[i], xunits).moles(yunits)
-                ydata[i] = [decayed_contents[rad] for rad in display]
+            for idx in range(0, npoints):
+                decayed_contents = self.decay(time_points[idx], xunits).moles(yunits)
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Number of moles ({yunits})"
         elif yunits in self.unit_converter.mass_units:
-            for i in range(0, npoints):
-                decayed_contents = self.decay(time_points[i], xunits).masses(yunits)
-                ydata[i] = [decayed_contents[rad] for rad in display]
+            for idx in range(0, npoints):
+                decayed_contents = self.decay(time_points[idx], xunits).masses(yunits)
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Mass ({yunits})"
         elif yunits == "num":
-            for i in range(0, npoints):
-                decayed_contents = self.decay(time_points[i], xunits).numbers()
-                ydata[i] = [decayed_contents[rad] for rad in display]
+            for idx in range(0, npoints):
+                decayed_contents = self.decay(time_points[idx], xunits).numbers()
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = "Number of atoms"
         elif yunits == "activity_frac":
-            for i in range(0, npoints):
+            for idx in range(0, npoints):
                 decayed_contents = self.decay(
-                    time_points[i], xunits
+                    time_points[idx], xunits
                 ).activity_fractions()
-                ydata[i] = [decayed_contents[rad] for rad in display]
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = "Activity fraction"
         elif yunits == "mass_frac":
-            for i in range(0, npoints):
-                decayed_contents = self.decay(time_points[i], xunits).mass_fractions()
-                ydata[i] = [decayed_contents[rad] for rad in display]
+            for idx in range(0, npoints):
+                decayed_contents = self.decay(time_points[idx], xunits).mass_fractions()
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = "Mass fraction"
         elif yunits == "mol_frac":
-            for i in range(0, npoints):
-                decayed_contents = self.decay(time_points[i], xunits).mole_fractions()
-                ydata[i] = [decayed_contents[rad] for rad in display]
+            for idx in range(0, npoints):
+                decayed_contents = self.decay(time_points[idx], xunits).mole_fractions()
+                ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = "Mole fraction"
         else:
             raise ValueError(f"{yunits} is not a supported y-axes unit.")
@@ -1299,13 +1303,17 @@ class InventoryHP(Inventory):
         decay_time = self._convert_decay_time(decay_time, units)
         vector_n0, indices, matrix_e = self._setup_decay_calc()
 
-        for i in indices:
-            matrix_e[i, i] = exp(
-                (-decay_time * self.decay_matrices.decay_consts[i]).evalf(self.sig_fig)
+        for idx in indices:
+            matrix_e[idx, idx] = exp(
+                (-decay_time * self.decay_matrices.decay_consts[idx]).evalf(
+                    self.sig_fig
+                )
             )
 
         vector_nt = self._perform_decay_calc(vector_n0, matrix_e)
-        new_contents = {self.decay_data.nuclides[i]: vector_nt[i] for i in indices}
+        new_contents = {
+            self.decay_data.nuclides[idx]: vector_nt[idx] for idx in indices
+        }
 
         return InventoryHP(new_contents, "num", False, self.decay_data)
 
@@ -1355,24 +1363,24 @@ class InventoryHP(Inventory):
         vector_n0, indices, matrix_e = self._setup_decay_calc()
 
         indices = [
-            i for i in indices if self.decay_matrices.decay_consts[i] > Integer(0)
+            idx for idx in indices if self.decay_matrices.decay_consts[idx] > Integer(0)
         ]
-        for i in indices:
-            matrix_e[i, i] = (
+        for idx in indices:
+            matrix_e[idx, idx] = (
                 Integer(1)
                 - exp(
-                    (-decay_time * self.decay_matrices.decay_consts[i]).evalf(
+                    (-decay_time * self.decay_matrices.decay_consts[idx]).evalf(
                         self.sig_fig
                     )
                 )
-            ) / self.decay_matrices.decay_consts[i]
+            ) / self.decay_matrices.decay_consts[idx]
 
         cumulative_decays = self._perform_decay_calc(vector_n0, matrix_e)
         result_dict = {
-            self.decay_data.nuclides[i]: float(
-                self.decay_matrices.decay_consts[i] * cumulative_decays[i]
+            self.decay_data.nuclides[idx]: float(
+                self.decay_matrices.decay_consts[idx] * cumulative_decays[idx]
             )
-            for i in indices
+            for idx in indices
         }
 
         return result_dict
