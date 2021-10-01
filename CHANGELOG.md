@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.3] - 2021-XX-XX
+## [0.4.3] - 2021-10-01
 - Refactored DecayData class to store progeny, branching fractions and decay modes data in
 separate numpy arrays.
 - Use np.array_equal() for checking equality of numpy arrays.
