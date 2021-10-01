@@ -180,9 +180,9 @@ def _decay_graph(
 
     fig, axes = _check_fig_axes(fig_in, axes_in)
 
-    for i, label in enumerate(nuclides):
+    for idx, label in enumerate(nuclides):
         if label in display:
-            axes.plot(time_points, ydata[i], label=label, **kwargs)
+            axes.plot(time_points, ydata[idx], label=label, **kwargs)
     axes.legend(loc="upper right")
     xlabel = "Time (" + xunits + ")"
     axes.set(

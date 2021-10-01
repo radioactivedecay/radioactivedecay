@@ -19,17 +19,21 @@ class TestNuclide(unittest.TestCase):
 
         nuc = Nuclide("Rn-222")
         self.assertEqual(nuc.nuclide, "Rn-222")
-        self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
+        self.assertEqual(nuc.prog, ["Po-218"])
+        self.assertEqual(nuc.bfs, [1.0])
+        self.assertEqual(nuc.modes, ["\u03b1"])
 
         nuc = Nuclide("222Rn")
         self.assertEqual(nuc.nuclide, "Rn-222")
-        self.assertEqual(nuc.prog_bf_mode, {"Po-218": [1.0, "\u03b1"]})
+        self.assertEqual(nuc.prog, ["Po-218"])
+        self.assertEqual(nuc.bfs, [1.0])
+        self.assertEqual(nuc.modes, ["\u03b1"])
 
         nuc = Nuclide(611450000)
         self.assertEqual(nuc.nuclide, "Pm-145")
-        self.assertEqual(
-            nuc.prog_bf_mode, {"Nd-145": [1.0, "EC"], "Pr-141": [2.8e-09, "\u03b1"]}
-        )
+        self.assertEqual(nuc.prog, ["Nd-145", "Pr-141"])
+        self.assertEqual(nuc.bfs, [1.0, 2.8e-09])
+        self.assertEqual(nuc.modes, ["EC", "\u03b1"])
 
     def test_nuclide_Z(self) -> None:
         """
@@ -119,6 +123,11 @@ class TestNuclide(unittest.TestCase):
         _, axes = nuc.plot()
         self.assertEqual(axes.get_xlim(), (-0.3, 2.3))
         self.assertEqual(axes.get_ylim(), (-19.3, 0.3))
+
+        nuc = Nuclide("Cu-64")
+        _, axes = nuc.plot()
+        self.assertEqual(axes.get_xlim(), (-0.3, 1.3))
+        self.assertEqual(axes.get_ylim(), (-1.3, 0.3))
 
     def test_radionuclide___repr__(self) -> None:
         """

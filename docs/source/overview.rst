@@ -212,12 +212,13 @@ Acknowledgements
 
 Special thanks to:
 
-* `Center for Computational Science & e-Systems <https://ccse.jaea.go.jp/index_eng.html>`_, JAEA.
+* `Center for Computational Science & e-Systems, JAEA <https://ccse.jaea.go.jp/index_eng.html>`_
 * `Kenny McKee <https://github.com/Rolleroo>`_
 * `Daniel Jewell <https://github.com/danieldjewell>`_
 * `Ezequiel Pássaro <https://epassaro.github.io/>`_
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
 * `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
+* `Hunter Ratliff <https://hratliff.com/>`_
 
 for suggestions, support and assistance to this project.
 

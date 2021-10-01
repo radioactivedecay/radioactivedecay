@@ -19,7 +19,7 @@ The code examples shown in the docstrings assume the
 """
 
 from collections import deque
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 import matplotlib
 import networkx as nx
 import numpy as np
@@ -60,10 +60,12 @@ class Nuclide:
         Decay dataset.
     atomic_mass : float
         Atomic weight of the nuclide, in g/mol.
-    prog_bf_mode : int
-        Dictionary containing direct progeny as keys, and a list
-        containing the branching fraction and the decay mode for that
-        progeny as values.
+    prog : list
+        List of direct progeny of this nuclide.
+    bfs : list
+        List of branching fractions to direct progeny of this nuclide.
+    modes : list
+        List of modes to direct progeny of this nuclide.
 
     Examples
     --------
@@ -83,12 +85,11 @@ class Nuclide:
     ) -> None:
         self.decay_data = decay_data
         self.parse_name(input_nuclide)
-        index = decay_data.nuclide_dict[self.nuclide]
-        mass = decay_data.scipy_data.atomic_masses[index]
-        self.atomic_mass = mass
-        self.prog_bf_mode: Dict[
-            str, List[Union[float, str]]
-        ] = decay_data.prog_bfs_modes[decay_data.nuclide_dict[self.nuclide]]
+        idx = decay_data.nuclide_dict[self.nuclide]
+        self.atomic_mass = decay_data.scipy_data.atomic_masses[idx]
+        self.prog: List[str] = decay_data.progeny[idx]
+        self.bfs: List[float] = decay_data.bfs[idx]
+        self.modes: List[str] = decay_data.modes[idx]
 
     def parse_name(self, input_nuclide: Union[str, int]) -> None:
         """
@@ -188,7 +189,7 @@ class Nuclide:
 
         """
 
-        return list(self.prog_bf_mode.keys())
+        return self.prog
 
     def branching_fractions(self) -> List[float]:
         """
@@ -208,10 +209,7 @@ class Nuclide:
 
         """
 
-        branching_fractions: List[float] = [
-            bf_mode[0] for bf_mode in list(self.prog_bf_mode.values())
-        ]
-        return branching_fractions
+        return self.bfs
 
     def decay_modes(self) -> List[str]:
         """
@@ -235,10 +233,7 @@ class Nuclide:
 
         """
 
-        decay_modes: List[str] = [
-            bf_mode[1] for bf_mode in list(self.prog_bf_mode.values())
-        ]
-        return decay_modes
+        return self.modes
 
     def plot(
         self,
@@ -390,7 +385,7 @@ def _build_decay_digraph(
         if xpos < generation_max_xpos[generation] + 1:
             xpos = generation_max_xpos[generation] + 1
         xcounter = 0
-        for i, prog in enumerate(progeny):
+        for idx, prog in enumerate(progeny):
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
                 if prog in parent.decay_data.nuclide_dict:
@@ -417,9 +412,9 @@ def _build_decay_digraph(
                 xcounter += 1
 
             edge_label = (
-                _parse_decay_mode_label(decay_modes[i])
+                _parse_decay_mode_label(decay_modes[idx])
                 + "\n"
-                + str(branching_fractions[i])
+                + str(branching_fractions[idx])
             )
             digraph.add_edge(parent.nuclide, prog, label=edge_label)
 
