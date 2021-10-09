@@ -910,7 +910,7 @@ class Inventory:
             maximum quantity that occurs over the decay period.
         yunits : str, optional
             Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
-            'activity_fract', 'mass_frac', 'mol_frac'. Default is 'Bq'.
+            'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
         display : str or list, optional
             Only display the nuclides within this list on the graph. Use this parameter when
             you want to choose specific nuclide decay curves shown on the graph, either by
