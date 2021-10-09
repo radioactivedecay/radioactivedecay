@@ -219,6 +219,7 @@ Special thanks to:
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
 * `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
 * `Hunter Ratliff <https://hratliff.com/>`_
+* `Jayson Vavrek <https://github.com/jvavrek>`_
 
 for suggestions, support and assistance to this project.
 
