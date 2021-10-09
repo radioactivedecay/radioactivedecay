@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.4] - 2021-10-08
+- Fix docstring typo, Inventory `plot()` method (#48).
+
 ## [0.4.3] - 2021-10-01
 - Refactored DecayData class to store progeny, branching fractions and decay modes data in
 separate numpy arrays.
