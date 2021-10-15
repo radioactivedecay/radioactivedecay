@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.5] - 2021-10-15
+- Latest SymPy release (v1.9) changed internals of Rational / Matrix objects. This breaks loading
+of SymPy <=1.8 pickle objects when using SymPy v1.9. `radioactivedecay` now packages SymPy pickle
+files appropriate for SymPy <=1.8 and for SymPy >=1.9. It checks which SymPy version is in the
+local environment before choosing the correct files to load (fixes issue #50 and failure of
+`radioactivedecay` v0.4.4 to build on the conda-forge feedstock).
+- Added support for Python v3.10 (PyPI only, not yet available via conda-forge).
+- Move responsibility for file I/O from `DecayData` class initiator into separate function called
+`load_dataset()`.
+
 ## [0.4.4] - 2021-10-08
 - Fix docstring typo, Inventory `plot()` method (#48).
 
@@ -26,7 +36,7 @@ report their contents in terms of these quantities, as well as mass or atom frac
 conversions use atomic mass data from the Atomic Mass Data Center (AMDC) by default.
 - To enable SymPy high precision calculations throughout unit and quantity conversions, there is a
 new `InventoryHP` class (high-precision inventory class). This behaves the same as the normal
-precision `Inventory` class. The old `Inventory.decay_high_precision()` method is now depricated -
+precision `Inventory` class. The old `Inventory.decay_high_precision()` method is now deprecated -
 use `InventoryHP.decay()` instead for high-precision decay calculations.
 The number of significant figures for high precision decay calculations is now specified via the
 `InventoryHP.sig_fig` attribute (default is 320) rather than as a parameter to the `InventoryHP`

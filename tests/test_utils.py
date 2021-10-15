@@ -3,6 +3,7 @@ Unit tests for utils.py functions.
 """
 
 import unittest
+import numpy as np
 from sympy import Integer, log
 from radioactivedecay.utils import (
     Z_to_elem,
@@ -18,7 +19,7 @@ from radioactivedecay.utils import (
 )
 
 
-class TestUtilsFunctions(unittest.TestCase):
+class TestFunctions(unittest.TestCase):
     """
     Unit tests for the utils.py functions.
     """
@@ -91,18 +92,20 @@ class TestUtilsFunctions(unittest.TestCase):
         Test the parsing of nuclide strings.
         """
 
-        nuclides = [
-            "H-3",
-            "Be-7",
-            "C-10",
-            "Ne-19",
-            "I-118",
-            "Pd-100",
-            "Cl-34m",
-            "I-118m",
-            "Tb-156m",
-            "Tb-156n",
-        ]
+        nuclides = np.array(
+            [
+                "H-3",
+                "Be-7",
+                "C-10",
+                "Ne-19",
+                "I-118",
+                "Pd-100",
+                "Cl-34m",
+                "I-118m",
+                "Tb-156m",
+                "Tb-156n",
+            ]
+        )
         dataset_name = "test"
 
         # Re-formatting of acceptable strings e.g. 100Pd -> Pd-100

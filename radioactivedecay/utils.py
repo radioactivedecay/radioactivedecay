@@ -12,6 +12,7 @@ as:
 """
 
 from typing import Dict, List, Union
+import numpy as np
 from sympy.core.expr import Expr
 
 
@@ -358,7 +359,7 @@ def parse_id(input_id: int) -> str:
 
 
 def parse_nuclide(
-    input_nuclide: Union[str, int], nuclides: List[str], dataset_name: str
+    input_nuclide: Union[str, int], nuclides: np.ndarray, dataset_name: str
 ) -> str:
     """
     Parses a nuclide string or canonical id into symbol - mass number
@@ -369,7 +370,7 @@ def parse_nuclide(
     ----------
     input_nuclide : str or int
         Nuclide name string or canonical id in zzzaaammmm format.
-    nuclides : List[str]
+    nuclides : numpy.ndarray
         List of all the nuclides in the decay dataset.
     dataset_name : str
         Name of the decay dataset.
