@@ -135,7 +135,7 @@ class Inventory:
     @staticmethod
     def _parse_nuclides(
         contents: Dict[Union[str, int, Nuclide], Union[float, Expr]],
-        nuclides: List[str],
+        nuclides: np.ndarray,
         dataset_name: str,
     ) -> Dict[str, Union[float, Expr]]:
         """

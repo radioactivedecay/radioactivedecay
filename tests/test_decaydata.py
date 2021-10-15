@@ -7,10 +7,10 @@ import numpy as np
 from scipy import sparse
 from sympy import Integer, log, Matrix
 from sympy.matrices import SparseMatrix
-from radioactivedecay import decaydata, icrp107_ame2020_nubase2020
+from radioactivedecay import converters, decaydata, icrp107_ame2020_nubase2020
 
 
-class TestDecayDataFunctions(unittest.TestCase):
+class TestFunctions(unittest.TestCase):
     """
     Unit tests for the decaydata.py functions.
     """
@@ -122,7 +122,7 @@ class TestDecayMatrices(unittest.TestCase):
         )
 
 
-class TestDecayMatricesSymPy(unittest.TestCase):
+class TestDecayMatricesSympy(unittest.TestCase):
     """
     Unit tests for the decaydata.py DecayMatricesSympy class.
     """
@@ -237,15 +237,187 @@ class TestDecayData(unittest.TestCase):
         Test instantiation of DecayData objects.
         """
 
+        dataset_name = "test_dataset"
+
+        bfs = np.array([[1.0], []], dtype=object)
+        hldata = np.array([[2.0, "h", "2.0 h"], [np.inf, "s", "stable"]], dtype=object)
+        modes = np.array([["\u03b2+"], []], dtype=object)
+        nuclides = np.array(["A-2", "B-1"])
+        progeny = np.array([["B-1"], []], dtype=object)
+        float_unit_converter = converters.UnitConverterFloat(365.2422)
+
+        atomic_masses = np.array([0.0] * 2)
+        decay_consts = np.array([0.0] * 2)
+        matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
+        matrix_c_inv = sparse.csr_matrix(([1.0], ([1], [1])), shape=(2, 2))
+        decay_mats = decaydata.DecayMatrices(
+            atomic_masses, decay_consts, matrix_c, matrix_c_inv
+        )
+
+        dataset = decaydata.DecayData(
+            dataset_name,
+            bfs,
+            hldata,
+            modes,
+            nuclides,
+            progeny,
+            decay_mats,
+            float_unit_converter,
+        )
+
+        self.assertEqual(dataset.dataset_name, "test_dataset")
+        self.assertEqual(dataset.hldata[0][0], 2.0)
+        self.assertEqual(dataset.hldata[0][1], "h")
+        self.assertEqual(dataset.hldata[0][2], "2.0 h")
+        self.assertEqual(dataset.hldata[-1][0], np.inf)
+        self.assertEqual(dataset.hldata[-1][1], "s")
+        self.assertEqual(dataset.hldata[-1][2], "stable")
+        self.assertEqual(dataset.nuclides[0], "A-2")
+        self.assertEqual(dataset.nuclides[-1], "B-1")
+        self.assertEqual(dataset.nuclide_dict["A-2"], 0)
+        self.assertEqual(dataset.nuclide_dict["B-1"], 1)
+        self.assertEqual(dataset.progeny[0][0], "B-1")
+        self.assertEqual(dataset.bfs[0][0], 1.0)
+        self.assertEqual(dataset.modes[0][0], "\u03b2+")
+        self.assertEqual(dataset.progeny[-1], [])
+        self.assertEqual(dataset.bfs[-1], [])
+        self.assertEqual(dataset.modes[-1], [])
+        self.assertEqual(
+            dataset.float_unit_converter, converters.UnitConverterFloat(365.2422)
+        )
+        self.assertIsNotNone(dataset.float_quantity_converter)
+        self.assertIsNone(dataset.sympy_data)
+        self.assertIsNone(dataset.sympy_unit_converter)
+        self.assertIsNone(dataset.sympy_quantity_converter)
+
+        atomic_masses_sympy = Matrix.zeros(2, 1)
+        decay_consts_sympy = Matrix.zeros(2, 1)
+        matrix_c_sympy = SparseMatrix.zeros(2, 2)
+        matrix_c_sympy[0, 0] = Integer(2)
+        matrix_c_inv_sympy = SparseMatrix.zeros(2, 2)
+        matrix_c_inv_sympy[1, 1] = Integer(3)
+        decay_mats_sympy = decaydata.DecayMatricesSympy(
+            atomic_masses_sympy, decay_consts_sympy, matrix_c_sympy, matrix_c_inv_sympy
+        )
+        sympy_unit_converter = converters.UnitConverterSympy(
+            Integer(3652422) / Integer(1000)
+        )
+
+        dataset = decaydata.DecayData(
+            dataset_name,
+            bfs,
+            hldata,
+            modes,
+            nuclides,
+            progeny,
+            decay_mats,
+            float_unit_converter,
+            decay_mats_sympy,
+            sympy_unit_converter,
+        )
+        self.assertIsNotNone(dataset.sympy_data)
+        self.assertIsNotNone(dataset.sympy_unit_converter)
+        self.assertIsNotNone(dataset.sympy_quantity_converter)
+
+    def test_half_life(self) -> None:
+        """
+        Test DecayData half_life() method.
+        """
+
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        self.assertEqual(data.half_life("H-3"), 388781329.30560005)
+        self.assertEqual(data.half_life("H-3", "y"), 12.32)
+        self.assertEqual(data.half_life("Fm-257", "h"), 2412.0)
+        self.assertEqual(data.half_life("Rn-222", "d"), 3.8235)
+
+        self.assertEqual(data.half_life("H-3", "readable"), "12.32 y")
+        self.assertEqual(data.half_life("Po-213", "readable"), "4.2 μs")
+        self.assertEqual(data.half_life("Ra-219", "readable"), "10 ms")
+        self.assertEqual(data.half_life("Rn-215", "readable"), "2.30 μs")
+        self.assertEqual(data.half_life("U-238", "readable"), "4.468 By")
+
+    def test_branching_fraction(self) -> None:
+        """
+        Test DecayData branching_fraction() method.
+        """
+
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        self.assertEqual(data.branching_fraction("K-40", "Ca-40"), 0.8914)
+        self.assertEqual(data.branching_fraction("K-40", "H-3"), 0.0)
+        self.assertEqual(data.branching_fraction("Cu-64", "Ni-64"), 0.61)
+
+    def test_decay_mode(self) -> None:
+        """
+        Test DecayData decay_mode() method.
+        """
+
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        self.assertEqual(data.decay_mode("K-40", "Ca-40"), "\u03b2-")
+        self.assertEqual(data.decay_mode("K-40", "H-3"), "")
+        self.assertEqual(data.decay_mode("Cu-64", "Ni-64"), "\u03b2+ & EC")
+
+    def test_decaydata___eq__(self) -> None:
+        """
+        Test DecayData equality.
+        """
+
+        data1 = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        data2 = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        self.assertEqual(data1, data2)
+
+        self.assertFalse(data1 == "random object")
+
+    def test_decaydata___ne__(self) -> None:
+        """
+        Test DecayData inequality.
+        """
+
+        data1 = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        data2 = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        data2.dataset_name = "icrp07"
+        self.assertNotEqual(data1, data2)
+
+        self.assertTrue(data1 != "random object")
+
+    def test_decaydata___repr__(self) -> None:
+        """
+        Test DecayData __repr__ strings.
+        """
+
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020")
+        self.assertEqual(
+            data.__repr__(),
+            "Decay dataset: icrp107_ame2020_nubase2020, contains SymPy data: False",
+        )
+
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
+        self.assertEqual(
+            data.__repr__(),
+            "Decay dataset: icrp107_ame2020_nubase2020, contains SymPy data: True",
+        )
+
+
+class TestFileIOFunctions(unittest.TestCase):
+    """
+    Unit tests for the decaydata.py file I/O and dataset loading functions.
+    """
+
+    def test_load_dataset(self) -> None:
+        """
+        Test load_dataset() function.
+        """
+
         # pylint: disable=too-many-statements
 
         # check instantiation from sub-package
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020", load_sympy=False)
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020", load_sympy=False)
         self.assertEqual(data.dataset_name, "icrp107_ame2020_nubase2020")
         self.assertEqual(data.hldata[0][0], 100.5)
         self.assertEqual(data.hldata[0][1], "d")
+        self.assertEqual(data.hldata[0][2], "100.5 d")
         self.assertEqual(data.hldata[-1][0], np.inf)
         self.assertEqual(data.hldata[-1][1], "s")
+        self.assertEqual(data.hldata[-1][2], "stable")
         self.assertEqual(data.nuclides[0], "Fm-257")
         self.assertEqual(data.nuclides[-1], "He-3")
         self.assertEqual(data.nuclide_dict["Fm-257"], 0)
@@ -273,7 +445,7 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(data.sympy_data, None)
 
         # check instantiation with supplied dataset path
-        data = decaydata.DecayData(
+        data = decaydata.load_dataset(
             "icrp107_ame2020_nubase2020_2",
             icrp107_ame2020_nubase2020.__path__[0],
             load_sympy=False,
@@ -281,8 +453,10 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(data.dataset_name, "icrp107_ame2020_nubase2020_2")
         self.assertEqual(data.hldata[0][0], 100.5)
         self.assertEqual(data.hldata[0][1], "d")
+        self.assertEqual(data.hldata[0][2], "100.5 d")
         self.assertEqual(data.hldata[-1][0], np.inf)
         self.assertEqual(data.hldata[-1][1], "s")
+        self.assertEqual(data.hldata[-1][2], "stable")
         self.assertEqual(data.nuclides[0], "Fm-257")
         self.assertEqual(data.nuclides[-1], "He-3")
         self.assertEqual(data.nuclide_dict["Fm-257"], 0)
@@ -310,12 +484,14 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(data.sympy_data, None)
 
         # check instantiation from sub-package with SymPy data
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
+        data = decaydata.load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
         self.assertEqual(data.dataset_name, "icrp107_ame2020_nubase2020")
         self.assertEqual(data.hldata[0][0], 100.5)
         self.assertEqual(data.hldata[0][1], "d")
+        self.assertEqual(data.hldata[0][2], "100.5 d")
         self.assertEqual(data.hldata[-1][0], np.inf)
         self.assertEqual(data.hldata[-1][1], "s")
+        self.assertEqual(data.hldata[-1][2], "stable")
         self.assertEqual(data.nuclides[0], "Fm-257")
         self.assertEqual(data.nuclides[-1], "He-3")
         self.assertEqual(data.nuclide_dict["Fm-257"], 0)
@@ -354,7 +530,7 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(data.sympy_data.vector_n0[0], Integer(0))
 
         # check instantiation with supplied dataset path with SymPy data
-        data = decaydata.DecayData(
+        data = decaydata.load_dataset(
             "icrp107_ame2020_nubase2020_2",
             icrp107_ame2020_nubase2020.__path__[0],
             load_sympy=True,
@@ -362,8 +538,10 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(data.dataset_name, "icrp107_ame2020_nubase2020_2")
         self.assertEqual(data.hldata[0][0], 100.5)
         self.assertEqual(data.hldata[0][1], "d")
+        self.assertEqual(data.hldata[0][2], "100.5 d")
         self.assertEqual(data.hldata[-1][0], np.inf)
         self.assertEqual(data.hldata[-1][1], "s")
+        self.assertEqual(data.hldata[-1][2], "stable")
         self.assertEqual(data.nuclides[0], "Fm-257")
         self.assertEqual(data.nuclides[-1], "He-3")
         self.assertEqual(data.nuclide_dict["Fm-257"], 0)
@@ -400,83 +578,6 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(data.sympy_data.matrix_e.shape, (1498, 1498))
         self.assertEqual(data.sympy_data.matrix_e[0, 0], Integer(0))
         self.assertEqual(data.sympy_data.vector_n0[0], Integer(0))
-
-    def test_half_life(self) -> None:
-        """
-        Test DecayData half_life() method.
-        """
-
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        self.assertEqual(data.half_life("H-3"), 388781329.30560005)
-        self.assertEqual(data.half_life("H-3", "y"), 12.32)
-        self.assertEqual(data.half_life("Fm-257", "h"), 2412.0)
-        self.assertEqual(data.half_life("Rn-222", "d"), 3.8235)
-
-        self.assertEqual(data.half_life("H-3", "readable"), "12.32 y")
-        self.assertEqual(data.half_life("Po-213", "readable"), "4.2 μs")
-        self.assertEqual(data.half_life("Ra-219", "readable"), "10 ms")
-        self.assertEqual(data.half_life("Rn-215", "readable"), "2.30 μs")
-        self.assertEqual(data.half_life("U-238", "readable"), "4.468 By")
-
-    def test_branching_fraction(self) -> None:
-        """
-        Test DecayData branching_fraction() method.
-        """
-
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        self.assertEqual(data.branching_fraction("K-40", "Ca-40"), 0.8914)
-        self.assertEqual(data.branching_fraction("K-40", "H-3"), 0.0)
-        self.assertEqual(data.branching_fraction("Cu-64", "Ni-64"), 0.61)
-
-    def test_decay_mode(self) -> None:
-        """
-        Test DecayData decay_mode() method.
-        """
-
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        self.assertEqual(data.decay_mode("K-40", "Ca-40"), "\u03b2-")
-        self.assertEqual(data.decay_mode("K-40", "H-3"), "")
-        self.assertEqual(data.decay_mode("Cu-64", "Ni-64"), "\u03b2+ & EC")
-
-    def test_decaydata___eq__(self) -> None:
-        """
-        Test DecayData equality.
-        """
-
-        data1 = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        data2 = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        self.assertEqual(data1, data2)
-
-        self.assertFalse(data1 == "random object")
-
-    def test_decaydata___ne__(self) -> None:
-        """
-        Test DecayData inequality.
-        """
-
-        data1 = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        data2 = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        data2.dataset_name = "icrp07"
-        self.assertNotEqual(data1, data2)
-
-        self.assertTrue(data1 != "random object")
-
-    def test_decaydata___repr__(self) -> None:
-        """
-        Test DecayData __repr__ strings.
-        """
-
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020")
-        self.assertEqual(
-            data.__repr__(),
-            "Decay dataset: icrp107_ame2020_nubase2020, contains SymPy data: False",
-        )
-
-        data = decaydata.DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
-        self.assertEqual(
-            data.__repr__(),
-            "Decay dataset: icrp107_ame2020_nubase2020, contains SymPy data: True",
-        )
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ import copy
 import unittest
 from unittest.mock import patch
 from sympy import Integer, log
-from radioactivedecay.decaydata import DecayData, DEFAULTDATA
+from radioactivedecay.decaydata import load_dataset, DEFAULTDATA
 from radioactivedecay.inventory import (
     Inventory,
     InventoryHP,
@@ -622,7 +622,7 @@ class TestInventory(unittest.TestCase):
         inv2 = Inventory({"H3": 10.0})
         self.assertEqual(inv1, inv2)
 
-        decay_data = DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
+        decay_data = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
         inv2 = Inventory({"H-3": 10.0}, decay_data=decay_data)
         self.assertEqual(inv1, inv2)
 

@@ -12,7 +12,7 @@ from radioactivedecay.plots import (
 )
 
 
-class TestPlotsFunctions(unittest.TestCase):
+class TestFunctions(unittest.TestCase):
     """
     Unit tests for plots.py functions.
     """

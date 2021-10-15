@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="radioactivedecay",
-    version="0.4.4",
+    version="0.4.5",
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
     license="MIT, ICRP-07, AMDC",
@@ -25,6 +25,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "License :: Other/Proprietary License",
         "Operating System :: OS Independent",
@@ -46,14 +47,19 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={
         "": [
-            "icrp107_ame2020_nubase2020/atomic_masses_sympy.pickle",
+            "icrp107_ame2020_nubase2020/atomic_masses_sympy_1.8.pickle",
+            "icrp107_ame2020_nubase2020/atomic_masses_sympy_1.9.pickle",
             "icrp107_ame2020_nubase2020/decay_data.npz",
             "icrp107_ame2020_nubase2020/c_scipy.npz",
             "icrp107_ame2020_nubase2020/c_inv_scipy.npz",
-            "icrp107_ame2020_nubase2020/decay_consts_sympy.pickle",
-            "icrp107_ame2020_nubase2020/c_sympy.pickle",
-            "icrp107_ame2020_nubase2020/c_inv_sympy.pickle",
-            "icrp107_ame2020_nubase2020/year_conversion_sympy.pickle",
+            "icrp107_ame2020_nubase2020/decay_consts_sympy_1.8.pickle",
+            "icrp107_ame2020_nubase2020/decay_consts_sympy_1.9.pickle",
+            "icrp107_ame2020_nubase2020/c_sympy_1.8.pickle",
+            "icrp107_ame2020_nubase2020/c_sympy_1.9.pickle",
+            "icrp107_ame2020_nubase2020/c_inv_sympy_1.8.pickle",
+            "icrp107_ame2020_nubase2020/c_inv_sympy_1.9.pickle",
+            "icrp107_ame2020_nubase2020/year_conversion_sympy_1.8.pickle",
+            "icrp107_ame2020_nubase2020/year_conversion_sympy_1.9.pickle",
         ]
     },
 )

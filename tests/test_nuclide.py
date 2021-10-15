@@ -3,7 +3,7 @@ Unit tests for nuclide.py functions, classes and methods.
 """
 
 import unittest
-from radioactivedecay.decaydata import DecayData
+from radioactivedecay.decaydata import load_dataset
 from radioactivedecay.nuclide import Nuclide
 
 
@@ -151,7 +151,7 @@ class TestNuclide(unittest.TestCase):
         self.assertEqual(nuc1, nuc2)
         self.assertEqual(nuc1, nuc3)
 
-        decay_data = DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
+        decay_data = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
         nuc2 = Nuclide("K-40", decay_data)
         self.assertEqual(nuc1, nuc2)
 
@@ -174,7 +174,7 @@ class TestNuclide(unittest.TestCase):
         """
 
         nuc = Nuclide("K-40")
-        decay_data = DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
+        decay_data = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
         self.assertEqual(hash(nuc), hash(("K-40", decay_data.dataset_name)))
 
 

@@ -1,7 +1,10 @@
 """
-The decaydata module defines the ``DecayData`` and ``DecayMatrices`` classes. Instances of
-``DecayData`` initialize by reading in files containing radioactive decay data. The instances then
-store the decay data, and their methods can be used for basic querying of the decay data.
+The decaydata module defines the ``DecayData``, ``DecayMatrices`` and ``DecayMatricesSympy``
+classes. ``DecayMatrices`` and ``DecayMatricesSympy`` instances store data used for decay
+calculations and other inventory transformations (using double-precision floating point and SymPy
+arbitrary precision numbers, respectively). ``DecayData`` instances store ``DecayMatrices``,
+``DecayMatricesSympy`` and unit converter objects, along with other decay data for reporting to
+users (this data is not used for calculations).
 
 The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
 as:
@@ -11,10 +14,11 @@ as:
 
     >>> import radioactivedecay as rd
 
-Attributes
-----------
+Constants
+---------
 DEFAULTDATA : DecayData
-    Default radioactive decay dataset used by ``radioactivedecay``. This is currently ICRP-107.
+    Default radioactive decay dataset used by ``radioactivedecay``. This is currently ICRP-107 for
+    decay data and AME2020 and Nubase2020 for atomic mass data.
 """
 
 from pathlib import Path
@@ -22,7 +26,8 @@ import pickle
 from typing import Any, ContextManager, Optional, Union
 import numpy as np
 from scipy import sparse
-from sympy import log, Matrix
+import sympy
+from sympy import Matrix
 from sympy.matrices import SparseMatrix
 from radioactivedecay.converters import (
     UnitConverterFloat,
@@ -36,50 +41,6 @@ try:
     from importlib import resources
 except ImportError:
     import importlib_resources as resources
-
-
-def _get_package_filepath(subpackage_dir: str, filename: str) -> ContextManager[Path]:
-    """
-    Returns the path to a file which is bundled as a sub-package within the
-    ``radioactivedecay`` package.
-
-    Parameters
-    ----------
-    subpackage_dir : str
-        Name of the sub-package directory.
-    filename : str
-        Name of the file.
-
-    Returns
-    -------
-    ContextManager[Path]
-        A context manager providing a file path object for the decay dataset file.
-    """
-
-    with resources.path(__package__ + "." + subpackage_dir, filename) as package_path:
-        return package_path
-
-
-def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
-    """
-    Returns an object loaded from a pickle file which is bundled as a sub-package within the
-    ``radioactivedecay`` package.
-
-    Parameters
-    ----------
-    subpackage_dir : str
-        Name of the sub-package directory.
-    filename : str
-        Name of pickle file.
-
-    Returns
-    -------
-    Object
-        Object loaded from the pickle file.
-    """
-
-    with resources.open_binary(__package__ + "." + subpackage_dir, filename) as file:
-        return pickle.load(file)
 
 
 def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) -> bool:
@@ -244,7 +205,7 @@ class DecayMatricesSympy(DecayMatrices):
         Column vector of the atomic masses (in g/mol).
     decay_consts : sympy.matrices.dense.MutableDenseMatrix
         Column vector of the decay constants (in s\\ :sup:`-1`).
-    ln2: log
+    ln2: sympy.log
         Constant natural logarithm of 2.
     matrix_c : sympy.matrices.sparse.MutableSparseMatrix
         A precalculated sparse lower triangular matrix used in decay calculations.
@@ -260,12 +221,12 @@ class DecayMatricesSympy(DecayMatrices):
     """
 
     @staticmethod
-    def _setup_ln2() -> log:
+    def _setup_ln2() -> sympy.log:
         """
         Returns SymPy version of ln2.
         """
 
-        return log(2)
+        return sympy.log(2)
 
     @staticmethod
     def _setup_matrix_e(size: int) -> Matrix:
@@ -310,18 +271,37 @@ class DecayMatricesSympy(DecayMatrices):
 
 class DecayData:
     """
-    Instances of DecayData store a complete radioactive decay dataset.
+    Instances of DecayData store a complete radioactive decay dataset. It stores data for decay
+    calculations, inventory transformations and unit conversions using DecayMatrices,
+    UnitConverterFloat, QuantityConverter, DecayMatricesSympy, UnitConverterSympy and
+    QuantityConverterSympy objects. Other decay data which are reported to users but not used in
+    calculations are stored in other instance attributes.
 
     Parameters
     ----------
     dataset_name : str
         Name of the decay dataset.
-    dir_path : str or None, optional
-        Path to the directory containing the decay dataset files. Use None if the data are bundled
-        as a sub-package of ``radioactivedecay`` (default is None).
-    load_sympy : bool, optional
-        Load SymPy version of the decay data for arbitrary-precision decay calculations (default is
-        False).
+    bfs : numpy.ndarray
+        NumPy array of lists with branching fraction data.
+    hldata : numpy.ndarray
+        List of tuples containing half-life floats, time unit strings and readable format half-life
+        strings.
+    modes : numpy.ndarray
+        NumPy array of lists with decay mode data.
+    nuclides : numpy.ndarray
+        NumPy array of nuclides in the dataset (string format is 'H-3', etc.).
+    progeny : numpy.ndarray
+        NumPy array of lists with direct progeny data.
+    scipy_data : DecayMatrices
+        Dataset of double precision decay matrices (SciPy/NumPy objects).
+    float_unit_converter : UnitConverterFloat
+        Convert between units of a single quantity using floating point operations.
+    sympy_data : None or DecayMatricesSympy
+        Dataset of arbitrary-precision decay matrices (SymPy objects). Or None if SymPy
+        functionality is not used. Default is None.
+    sympy_unit_converter : None or UnitConverterSympy
+        Convert between units of a single quantity using SymPy arbitrary precision operations.
+        Default is None.
 
     Attributes
     ----------
@@ -332,7 +312,7 @@ class DecayData:
     float_quantity_converter : QuantityConverter
         Convert between quantities using floating point operations.
     float_unit_converter : UnitConverterFloat
-        Convert within units using floating point operations.
+        Convert between units of a single quantity using floating point operations.
     hldata : numpy.ndarray
         List of tuples containing half-life floats, time unit strings and readable format half-life
         strings.
@@ -352,58 +332,33 @@ class DecayData:
     sympy_quantity_converter : None or QuantityConverterSympy
         Convert between quantities using SymPy arbitrary precision operations.
     sympy_unit_converter : None or UnitConverterSympy
-        Convert within units using SymPy arbitrary precision operations.
+        Convert between units of a single quantity using SymPy arbitrary precision operations.
 
     """
 
     def __init__(
         self,
         dataset_name: str,
-        dir_path: Optional[str] = None,
-        load_sympy: bool = False,
+        bfs: np.ndarray,
+        hldata: np.ndarray,
+        modes: np.ndarray,
+        nuclides: np.ndarray,
+        progeny: np.ndarray,
+        scipy_data: DecayMatrices,
+        float_unit_converter: UnitConverterFloat,
+        sympy_data: Optional[DecayMatricesSympy] = None,
+        sympy_unit_converter: Optional[UnitConverterSympy] = None,
     ) -> None:
 
         self.dataset_name = dataset_name
-
-        if dir_path is None:
-            data = np.load(
-                _get_package_filepath(self.dataset_name, "decay_data.npz"),
-                allow_pickle=True,
-            )
-        else:
-            data = np.load(dir_path + "/decay_data.npz", allow_pickle=True)
-
-        self.float_unit_converter = UnitConverterFloat(data["year_conv"])
-        self.hldata = data["hldata"]
-        self.nuclides = data["nuclides"]
+        self.bfs = bfs
+        self.float_unit_converter = float_unit_converter
+        self.hldata = hldata
+        self.modes = modes
+        self.nuclides = nuclides
         self.nuclide_dict = dict(zip(self.nuclides, list(range(0, self.nuclides.size))))
-        self.progeny = data["progeny"]
-        self.bfs = data["bfs"]
-        self.modes = data["modes"]
-
-        decay_consts = np.array(
-            [
-                np.log(2)
-                / self.float_unit_converter.time_unit_conv(
-                    hl[0], units_from=hl[1], units_to="s"
-                )
-                for hl in self.hldata
-            ]
-        )
-
-        if dir_path is None:
-            matrix_c = sparse.load_npz(
-                _get_package_filepath(self.dataset_name, "c_scipy.npz")
-            )
-            matrix_c_inv = sparse.load_npz(
-                _get_package_filepath(self.dataset_name, "c_inv_scipy.npz")
-            )
-        else:
-            matrix_c = sparse.load_npz(dir_path + "/c_scipy.npz")
-            matrix_c_inv = sparse.load_npz(dir_path + "/c_inv_scipy.npz")
-        self.scipy_data = DecayMatrices(
-            data["masses"], decay_consts, matrix_c, matrix_c_inv
-        )
+        self.progeny = progeny
+        self.scipy_data = scipy_data
 
         self.float_quantity_converter = QuantityConverter(
             self.nuclide_dict,
@@ -411,55 +366,18 @@ class DecayData:
             self.scipy_data.decay_consts,
         )
 
-        if load_sympy:
-            if dir_path is None:
-                atomic_masses = _load_package_pickle_file(
-                    self.dataset_name, "atomic_masses_sympy.pickle"
-                )
-                decay_consts = _load_package_pickle_file(
-                    self.dataset_name, "decay_consts_sympy.pickle"
-                )
-                matrix_c = _load_package_pickle_file(
-                    self.dataset_name, "c_sympy.pickle"
-                )
-                matrix_c_inv = _load_package_pickle_file(
-                    self.dataset_name, "c_inv_sympy.pickle"
-                )
-                year_conv = _load_package_pickle_file(
-                    self.dataset_name, "year_conversion_sympy.pickle"
-                )
-            else:
-                with open(dir_path + "/atomic_masses_sympy.pickle", "rb") as file:
-                    atomic_masses = pickle.load(file)
-                with open(dir_path + "/decay_consts_sympy.pickle", "rb") as file:
-                    decay_consts = pickle.load(file)
-                with open(dir_path + "/c_sympy.pickle", "rb") as file:
-                    matrix_c = pickle.load(file)
-                with open(dir_path + "/c_inv_sympy.pickle", "rb") as file:
-                    matrix_c_inv = pickle.load(file)
-                with open(dir_path + "/year_conversion_sympy.pickle", "rb") as file:
-                    year_conv = pickle.load(file)
+        self.sympy_data: Optional[DecayMatricesSympy] = None
+        self.sympy_unit_converter: Optional[UnitConverterSympy] = None
+        self.sympy_quantity_converter: Optional[QuantityConverterSympy] = None
 
-            self.sympy_data: Optional[DecayMatricesSympy] = DecayMatricesSympy(
-                atomic_masses,
-                decay_consts,
-                matrix_c,
-                matrix_c_inv,
-            )
-            self.sympy_unit_converter: Optional[
-                UnitConverterSympy
-            ] = UnitConverterSympy(year_conv)
-            self.sympy_quantity_converter: Optional[
-                QuantityConverterSympy
-            ] = QuantityConverterSympy(
+        if sympy_data and sympy_unit_converter:
+            self.sympy_data = sympy_data
+            self.sympy_unit_converter = sympy_unit_converter
+            self.sympy_quantity_converter = QuantityConverterSympy(
                 self.nuclide_dict,
                 self.sympy_data.atomic_masses,
                 self.sympy_data.decay_consts,
             )
-        else:
-            self.sympy_data = None
-            self.sympy_unit_converter = None
-            self.sympy_quantity_converter = None
 
     def half_life(self, nuclide: str, units: str = "s") -> Union[float, str]:
         """
@@ -617,4 +535,196 @@ class DecayData:
         )
 
 
-DEFAULTDATA = DecayData("icrp107_ame2020_nubase2020", load_sympy=True)
+def _get_package_filepath(subpackage_dir: str, filename: str) -> ContextManager[Path]:
+    """
+    Returns the path to a file which is bundled as a sub-package within the
+    ``radioactivedecay`` package.
+
+    Parameters
+    ----------
+    subpackage_dir : str
+        Name of the sub-package directory.
+    filename : str
+        Name of the file.
+
+    Returns
+    -------
+    ContextManager[Path]
+        A context manager providing a file path object for the decay dataset file.
+
+    """
+
+    with resources.path(__package__ + "." + subpackage_dir, filename) as package_path:
+        return package_path
+
+
+def _get_filepath(
+    dataset_name: str, dir_path: Union[None, str], filename: str
+) -> Union[str, ContextManager[Path]]:
+    """
+    Returns the path to a decay dataset file (located either within a sub-package of
+    ``radioactivedecay`` or within a local system directory).
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the decay dataset (also sub-package directory).
+    dir_path : None or str
+        Local directory containing dataset files, if not loading from a sub-package.
+    filename : str
+        Name of the file.
+
+    Returns
+    -------
+    str or ContextManager[Path]
+        A string or context manager with the file path for the decay dataset file.
+
+    """
+
+    if dir_path:
+        return f"{dir_path}/{filename}"
+    return _get_package_filepath(dataset_name, filename)
+
+
+def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
+    """
+    Returns an object loaded from a pickle file which is bundled as a sub-package within the
+    ``radioactivedecay`` package.
+
+    Parameters
+    ----------
+    subpackage_dir : str
+        Name of the sub-package directory.
+    filename : str
+        Name of the pickle file.
+
+    Returns
+    -------
+    Object
+        Object loaded from the pickle file.
+
+    """
+
+    with resources.open_binary(__package__ + "." + subpackage_dir, filename) as file:
+        return pickle.load(file)
+
+
+def _load_pickle_file(
+    dataset_name: str, dir_path: Union[None, str], filename: str
+) -> Any:
+    """
+    Load an object from a pickle file which is located either in a sub-package of
+    ``radioactivedecay`` or within a local system directory.
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the decay dataset (also sub-package directory).
+    dir_path : None or str
+        Local directory containing dataset files, if not loading from a sub-package.
+    filename : str
+        Name of the pickle file.
+
+    Returns
+    -------
+    Object
+        Object loaded from the pickle file.
+
+    """
+
+    if dir_path:
+        with open(f"{dir_path}/{filename}", "rb") as file:
+            obj = pickle.load(file)
+        return obj
+    return _load_package_pickle_file(dataset_name, filename)
+
+
+def load_dataset(
+    dataset_name: str, dir_path: Optional[str] = None, load_sympy: bool = False
+) -> DecayData:
+    """
+    Load a decay dataset, either from a set of data files within a sub-packaged of
+    ``radioactivedecay``, or by specifying a local directory containing the data files.
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the decay dataset (or sub-package directory name).
+    dir_path : None or str, optional
+        Path to the directory containing the decay dataset files. Use None to load data that are
+        bundled as a sub-package of ``radioactivedecay`` (dataset_name should match the
+        sub-package name in this case). Default is None.
+    load_sympy : bool, optional
+        Load SymPy version of the decay data for arbitrary-precision decay calculations. Default is
+        False.
+
+    Returns
+    -------
+    DecayData
+        A decay dataset used by ``radioactivedecay``.
+
+    """
+
+    data = np.load(
+        _get_filepath(dataset_name, dir_path, "decay_data.npz"),
+        allow_pickle=True,
+    )
+
+    float_unit_converter = UnitConverterFloat(data["year_conv"])
+    decay_consts = np.array(
+        [
+            np.log(2)
+            / float_unit_converter.time_unit_conv(hl[0], units_from=hl[1], units_to="s")
+            for hl in data["hldata"]
+        ]
+    )
+
+    matrix_c = sparse.load_npz(_get_filepath(dataset_name, dir_path, "c_scipy.npz"))
+    matrix_c_inv = sparse.load_npz(
+        _get_filepath(dataset_name, dir_path, "c_inv_scipy.npz")
+    )
+
+    scipy_data = DecayMatrices(data["masses"], decay_consts, matrix_c, matrix_c_inv)
+
+    sympy_data = None
+    sympy_unit_converter = None
+    if load_sympy:
+        sympy_pickle_version = "1.9" if sympy.__version__ >= "1.9" else "1.8"
+
+        atomic_masses = _load_pickle_file(
+            dataset_name, dir_path, f"atomic_masses_sympy_{sympy_pickle_version}.pickle"
+        )
+        decay_consts = _load_pickle_file(
+            dataset_name, dir_path, f"decay_consts_sympy_{sympy_pickle_version}.pickle"
+        )
+        matrix_c = _load_pickle_file(
+            dataset_name, dir_path, f"c_sympy_{sympy_pickle_version}.pickle"
+        )
+        matrix_c_inv = _load_pickle_file(
+            dataset_name, dir_path, f"c_inv_sympy_{sympy_pickle_version}.pickle"
+        )
+        year_conv_sympy = _load_pickle_file(
+            dataset_name,
+            dir_path,
+            f"year_conversion_sympy_{sympy_pickle_version}.pickle",
+        )
+        sympy_data = DecayMatricesSympy(
+            atomic_masses, decay_consts, matrix_c, matrix_c_inv
+        )
+        sympy_unit_converter = UnitConverterSympy(year_conv_sympy)
+
+    return DecayData(
+        dataset_name,
+        data["bfs"],
+        data["hldata"],
+        data["modes"],
+        data["nuclides"],
+        data["progeny"],
+        scipy_data,
+        float_unit_converter,
+        sympy_data,
+        sympy_unit_converter,
+    )
+
+
+DEFAULTDATA = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
