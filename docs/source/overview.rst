@@ -21,7 +21,7 @@ In order to use ``radioactivedecay``, you will need Python 3.6+ with the
 Matplotlib, NetworkX, NumPy, SciPy and SymPy packages installed. The code is
 platform independent and has been tested on Windows, MacOS and Linux systems.
 
-Quick Start
+Quick start
 -----------
 
 Install ``radioactivedecay`` using ``pip`` by:
@@ -110,20 +110,20 @@ How it works
 ``radioactivedecay`` calculates an analytical solution to the decay chain
 differential equations using matrix and vector multiplications. It implements
 the method described in ref. :ref:`[5] <refs>`.  See the
-`theory docpage <https://alexmalins.com/radioactivedecay/theory.html>`_ for
+:doc:`theory docpage <theory>` for
 more details. It calls NumPy :ref:`[6] <refs>` and SciPy :ref:`[7] <refs>` for
 the matrix operations. There is also a high numerical precision decay
 calculation mode based on SymPy :ref:`[8] <refs>` routines.
 
 The `notebooks directory 
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks>`_ 
+<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks>`_ 
 in the GitHub repository contains some Jupyter Notebooks for creating the 
 `ICRP-107 decay dataset
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
+<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
 for ``radioactivedecay``, and cross-checks against `PyNE
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
+<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
 :ref:`[9] <refs>` and `Radiological Toolbox 
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
+<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
 :ref:`[10] <refs>`.
 
 Limitations
@@ -167,18 +167,18 @@ License
 .. include:: <isonum.txt>
 
 ``radioactivedecay`` is open source software released under the `MIT 
-<https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE>`_ licence.
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE>`_ licence.
 
 The default decay data used by ``radioactivedecay`` is ICRP-107 :ref:`[1] <refs>`, which
 is Copyright |copy| A. Endo and K.F. Eckerman (2008). See `LICENSE.ICRP-07
-<https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE.ICRP-07>`_
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE.ICRP-07>`_
 for more details.
 
 The default atomic mass data is based on the Atomic Mass Data Center (`AMDC
 <https://www-nds.iaea.org/amdc/>`_) AME2020 :ref:`[2] <refs>`,
 :ref:`[3] <refs>` and Nubase2020 :ref:`[4] <refs>` evaluations. See
 `LICENSE.AMDC
-<https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE.AMDC>`_ for
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE.AMDC>`_ for
 more details.
 
 Contributors
@@ -195,17 +195,15 @@ Contributing
 
 Users are welcome to fix bugs, add new features or make feature requests.
 Please read the `contributor guidelines
-<https://github.com/alexmalins/radioactivedecay/blob/master/CONTRIBUTING.md>`_
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/CONTRIBUTING.md>`_
 and open a pull request or issue on the
-`GitHub repository <https://github.com/alexmalins/radioactivedecay>`_.
+`GitHub repository <https://github.com/radioactivedecay/radioactivedecay>`_.
 
-Queries
--------
+Queries and suggestions
+-----------------------
 
-If you have any questions or queries about the functionality and use of this
-package, you are welcome to `email
-<mailto:radioactivedecay@REMOVETHISalexmalins.com>`_ the lead contributor
-(Alex Malins) for support.
+If you have any questions or suggestions, please post on the `Discussions page
+on GitHub <https://github.com/radioactivedecay/radioactivedecay/discussions>`_.
 
 Acknowledgements
 ----------------

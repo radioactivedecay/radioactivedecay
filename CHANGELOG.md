@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.6] - 2021-10-21
+- Projected transferred into radioactivedecay organization on GitHub: updated code & docs
+accordingly.
+- Moved hosting of docs to GitHub Pages (https://radioactivedecay.github.io).
+- Opened forum for project at https://github.com/radioactivedecay/radioactivedecay/discussions
+(uses GitHub Discussions).
+- Only store radioactivedecay version number in radioactivedecay/__init__.py file. Read this file
+to obtain version number in setup.py and docs/source/conf.py.
+
 ## [0.4.5] - 2021-10-15
 - Latest SymPy release (v1.9) changed internals of Rational / Matrix objects. This breaks loading
 of SymPy <=1.8 pickle objects when using SymPy v1.9. `radioactivedecay` now packages SymPy pickle

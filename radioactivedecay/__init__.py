@@ -16,7 +16,7 @@ technicians and researchers who work with and study radioactivity, and for
 educational use.
 """
 
-__version__ = "0.4.5"
+__version__ = "0.4.6"
 
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.inventory import Inventory, InventoryHP

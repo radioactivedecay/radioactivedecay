@@ -35,7 +35,7 @@ Either command will attempt to install the dependencies (Matplotlib, NetworkX,
 NumPy, SciPy & SymPy) if they are not already present in the environment.
 
 It is also possible to clone the GitHub `repository 
-<https://github.com/alexmalins/radioactivedecay>`_ and install from within the
+<https://github.com/radioactivedecay/radioactivedecay>`_ and install from within the
 ``radioactivedecay`` directory using:
 
 .. code-block:: bash
@@ -47,11 +47,11 @@ Testing
 
 ``radioactivedecay`` includes code tests using the unittest framework. To run 
 the tests, first git clone the repository from `GitHub
-<https://github.com/alexmalins/radioactivedecay>`_:
+<https://github.com/radioactivedecay/radioactivedecay>`_:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/alexmalins/radioactivedecay.git
+    $ git clone https://github.com/radioactivedecay/radioactivedecay.git
 
 then execute:
 
