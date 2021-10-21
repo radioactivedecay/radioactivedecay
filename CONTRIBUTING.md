@@ -9,7 +9,7 @@ Below are some general guidelines for requesting changes or submitting a PR.
 
 If you encounter an issue or find a bug in this package, please open an issue
 on the
-[GitHub issues page](https://github.com/alexmalins/radioactivedecay/issues).
+[GitHub issues page](https://github.com/radioactivedecay/radioactivedecay/issues).
 
 When submitting an issue please state the version of ``radioactivedecay`` that
 you are using, and include a minimal example of code or information which
@@ -20,7 +20,7 @@ demonstrates the problem.
 
 If you would like to contribute code, bug fixes or documentation improvements
 to the project, please fork the GitHub repository, make your changes, then
-submit a [pull request](https://github.com/alexmalins/radioactivedecay/pulls).
+submit a [pull request](https://github.com/radioactivedecay/radioactivedecay/pulls).
 
 Below are the code standards used by this project. Note they are not rigid
 requirements, but goals to aim for when submitting a PR. If you are not sure
@@ -66,7 +66,7 @@ The project uses Python's
 [unittest](https://docs.python.org/3/library/unittest.html) framework for
 testing. Please write unit tests for any new functionality you add. The
 tests are stored in the
-[tests](https://github.com/alexmalins/radioactivedecay/tree/main/tests)
+[tests](https://github.com/radioactivedecay/radioactivedecay/tree/main/tests)
 sub-directory.
 
 Run the tests by excecuting the command ``python -m unittest discover`` from
@@ -76,36 +76,36 @@ the base directory.
 ### Docstrings and Documentation
 
 Documentation is handled via the
-[README.md](https://github.com/alexmalins/radioactivedecay/blob/main/README.md)
+[README.md](https://github.com/radioactivedecay/radioactivedecay/blob/main/README.md)
 file and the reStructuredText files in the
-[docs/source](https://github.com/alexmalins/radioactivedecay/tree/main/docs/source/)
+[docs/source](https://github.com/radioactivedecay/radioactivedecay/tree/main/docs/source/)
 sub-directory. [Spinx](http://www.sphinx-doc.org/en/master/) is used for compiling the
 docs (run ``make html`` from within the
-[docs](https://github.com/alexmalins/radioactivedecay/tree/main/docs/)
+[docs](https://github.com/radioactivedecay/radioactivedecay/tree/main/docs/)
  sub-directory).
 
 Code docstrings follow the
 [NumPy format](https://numpydoc.readthedocs.io/en/latest/format.html). Please
 create new or update existing docstrings as appropriate. The doctrings are
 automatically harvested by Sphinx to create the API section of the
-[documentation](https://alexmalins.com/radioactivedecay/api.html).
+[documentation](https://radioactivedecay.github.io/api.html).
 
 
 ## Release Guidelines
 
 These notes describe the steps for cutting a new release:
 
-* Update the version number in setup.py
 * Update the version number in radioactivedecay/__init__.py
-* Update the version number in docs/source/conf.py
 * Make sure
-[CHANGELOG.md](https://github.com/alexmalins/radioactivedecay/blob/main/CHANGELOG.md)
+[CHANGELOG.md](https://github.com/radioactivedecay/radioactivedecay/blob/main/CHANGELOG.md)
 documents the changes
 * Run ``python setup.py sdist bdist_wheel`` to create a new package
 * Run the tests and code coverage calc: ``coverage run -m unittest discover``
 * Upload the code coverage reports to codecov
 * Compile the docs: ``docs/make html``
-* Upload the new docs html files to https://alexmalins.com/radioactivedecay/
+* Commit the new docs html files to the
+[docs repo](https://github.com/radioactivedecay/radioactivedecay.github.io)
+then push to GitHub
 * Create a release on GitHub (attach the ``.tar.gz`` and ``.whl`` distribution
 files)
 * Upload the new version to PyPi

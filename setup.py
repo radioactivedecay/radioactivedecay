@@ -1,22 +1,31 @@
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+project = "radioactivedecay"
+
+with open(f"{project}/__init__.py", "r") as file:
+    for line in file:
+        if line.startswith("__version__"):
+            version = line.strip().split()[-1][1:-1]
+            break
+
+with open("README.md", "r") as file:
+    long_description = file.read()
 
 setuptools.setup(
-    name="radioactivedecay",
-    version="0.4.5",
+    name=project,
+    version=version,
     author="Alex Malins",
     author_email="radioactivedecay@REMOVETHISalexmalins.com",
     license="MIT, ICRP-07, AMDC",
     description="A Python package for radioactive decay modelling that supports 1252 radionuclides, decay chains, branching, and metastable states.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/alexmalins/radioactivedecay",
+    url="https://github.com/radioactivedecay/radioactivedecay",
     project_urls={
-        "Bug Tracker": "https://github.com/alexmalins/radioactivedecay/issues",
-        "Documentation": "https://alexmalins.com/radioactivedecay",
-        "Source Code": "https://github.com/alexmalins/radioactivedecay",
+        "Bug Tracker": "https://github.com/radioactivedecay/radioactivedecay/issues",
+        "Discussions": "https://github.com/radioactivedecay/radioactivedecay/discussions",
+        "Documentation": "https://radioactivedecay.github.io",
+        "Source Code": "https://github.com/radioactivedecay/radioactivedecay",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

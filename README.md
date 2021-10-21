@@ -1,11 +1,11 @@
-﻿<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
+﻿<img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
 ***
 
 [![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Conda](https://img.shields.io/conda/v/conda-forge/radioactivedecay)](https://anaconda.org/conda-forge/radioactivedecay)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
-[![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
+[![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://radioactivedecay.github.io/)
 [![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -26,7 +26,7 @@ technicians and researchers who work with and study radioactivity, and for
 educational use.
 
 - **Full Documentation**: 
-[https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
+[https://radioactivedecay.github.io/](https://radioactivedecay.github.io/)
 
 
 ## Installation
@@ -121,7 +121,7 @@ Use the ``plot()`` method to graph of the decay of an inventory over time:
 >>> mo99_t0.plot(20, 'd', yunits='Bq')
 ```
 
-<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
+<img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
 The graph shows the decay of Mo-99 over 20 days, leading to the ingrowth of
 Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
@@ -170,7 +170,7 @@ diagrams:
 >>> nuc.plot()
 ```
 
-<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
+<img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
 
 These diagrams are drawn using NetworkX and Matplotlib.
 
@@ -214,7 +214,7 @@ differential equations using linear algebra operations. It implements the
 method described in this paper:
 [M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23
 (2010)](https://doi.org/10.1016/j.cpc.2009.08.011). See the
-[theory docpage](https://alexmalins.com/radioactivedecay/theory.html) for more
+[theory docpage](https://radioactivedecay.github.io/theory.html) for more
 details.
 
 It uses NumPy and SciPy routines for standard decay calculations
@@ -228,16 +228,16 @@ data from the [Atomic Mass Data Center](https://www-nds.iaea.org/amdc/)
 (AMDC - AME2020 and Nubase2020 evaluations).
 
 The [notebooks
-directory](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
+directory](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks)
 in the GitHub repository contains Jupyter Notebooks for creating the decay
 datasets that are read in by ``radioactivedecay``, e.g.
 [ICRP
-107](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
+107](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
 It also contains some comparisons against decay calculations made with
-[PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
+[PyNE](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
 and
 [Radiological
-Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
+Toolbox](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
 
 
 ## Tests
@@ -252,19 +252,19 @@ $ python -m unittest discover
 ## License
 
 ``radioactivedecay`` is open source software released under the MIT License.
-See [LICENSE](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE)
+See [LICENSE](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE)
 file for details.
 
 The default decay data used by ``radioactivedecay`` (ICRP-107) is copyright
 2008 A. Endo and K.F. Eckerman and distributed under a separate
-[license](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.ICRP-07).
+[license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.ICRP-07).
 The default atomic mass data is from AMDC
-([license](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE.AMDC)).
+([license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.AMDC)).
 
 
 ## Contributing
 
 Contributors are welcome to fix bugs, add new features or make feature 
 requests. Please open a pull request or a new issue on the
-[GitHub repository](https://github.com/alexmalins/radioactivedecay).
+[GitHub repository](https://github.com/radioactivedecay/radioactivedecay).
 
