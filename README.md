@@ -129,11 +129,11 @@ Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
 
 ### Fetching decay data
 
-The ``Radionuclide`` class can be used to fetch decay information for
+The ``Nuclide`` class can be used to fetch decay information for
 individual radionuclides, e.g. for Rn-222:
 
 ```pycon
->>> nuc = rd.Radionuclide('Rn-222')
+>>> nuc = rd.Nuclide('Rn-222')
 >>> nuc.half_life('s')
 330350.4
 >>> nuc.half_life('readable')
@@ -162,11 +162,11 @@ Likewise similar methods exist for inventory instances:
 
 ### Decay chain diagrams
 
-The ``Radionuclide`` class includes a `plot()` method for drawing decay chain
+The ``Nuclide`` class includes a `plot()` method for drawing decay chain
 diagrams:
 
 ```pycon
->>> nuc = rd.Radionuclide('Mo-99')
+>>> nuc = rd.Nuclide('Mo-99')
 >>> nuc.plot()
 ```
 
