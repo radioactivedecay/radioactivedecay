@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.7] - 2021-11-08
+- Fix old references to `Radionuclide` class in Readme, docs and docstrings (#54 & #55). This class
+was renamed to `Nuclide` from release v0.4.0.
+- Other small rewrites to docs.
+
 ## [0.4.6] - 2021-10-21
 - Projected transferred into radioactivedecay organization on GitHub: updated code & docs
 accordingly.
