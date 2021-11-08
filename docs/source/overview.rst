@@ -85,12 +85,12 @@ Use the ``plot()`` method to show the decay of the inventory over time:
 
 The graph shows the decay of H-3 over a 100 year period.
 
-Use the ``Radionuclide`` class to fetch decay data about a particular
-radionuclide and to draw diagrams of its decay chain:
+Use the ``Nuclide`` class to fetch decay data about a particular radionuclide
+and to draw diagrams of its decay chain:
 
 .. code-block:: python3
 
-    >>> nuc = rd.Radionuclide('H-3')
+    >>> nuc = rd.Nuclide('H-3')
     >>> nuc.half_life('readable')
     '12.32 y'
     >>> nuc.progeny()

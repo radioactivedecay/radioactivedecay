@@ -116,7 +116,7 @@ class Nuclide:
 
     def __eq__(self, other: object) -> bool:
         """
-        Check whether two ``Radionuclide`` instances are equal with ``==`` operator.
+        Check whether two ``Nuclide`` instances are equal with ``==`` operator.
         """
 
         if not isinstance(other, Nuclide):
@@ -125,7 +125,7 @@ class Nuclide:
 
     def __ne__(self, other: object) -> bool:
         """
-        Check whether two ``Radionuclide`` instances are not equal with ``!=`` operator.
+        Check whether two ``Nuclide`` instances are not equal with ``!=`` operator.
         """
 
         if not isinstance(other, Nuclide):
@@ -134,7 +134,7 @@ class Nuclide:
 
     def __hash__(self) -> int:
         """
-        Hash function for ``Radionuclide`` instances.
+        Hash function for ``Nuclide`` instances.
         """
 
         return hash((self.nuclide, self.decay_data.dataset_name))
@@ -156,7 +156,7 @@ class Nuclide:
         Returns
         -------
         float or str
-            Radionuclide half-life.
+            Half-life of the nuclide.
 
         Examples
         --------
@@ -343,8 +343,8 @@ def _build_decay_digraph(
 
     Parameters
     ----------
-    parent : Radionuclide
-        Radionuclide instance of the parent nuclide of the decay chain.
+    parent : Nuclide
+        Nuclide instance of the parent nuclide of the decay chain.
     digraph : networkx.classes.digraph.DiGraph
         DiGraph for the decay chain.
 

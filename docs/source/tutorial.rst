@@ -10,22 +10,22 @@ Import the ``radioactivedecay`` package by:
 
     >>> import radioactivedecay as rd
 
-Creating inventories of radionuclides
--------------------------------------
+Creating inventories of nuclides
+--------------------------------
 
-Create an inventory of radionuclides and associated activities as follows:
+Create an inventory of nuclides as follows:
 
 .. code-block:: python3
 
     >>> inv_t0 = rd.Inventory({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005}, 'mol')
 
-This is an inventory of natural uranium.
+This is an inventory of natural uranium. The amounts of each nuclide were
+specified in moles.
 
-The ``Inventory`` class keeps track of the number of atoms
-of each nuclide. The following commands can be used to convert the contents
-(the nuclides and their respective number of atoms) into activities, numbers,
-masses, or abundances, as well as return the decay data set associated with an
-inventory:
+Within the code, the ``Inventory`` class keeps track of the number of atoms of
+each nuclide it contains. The following commands can be used to show the
+contents in terms of activities, numbers of atoms, moles, masses, or
+abundances:
 
 .. code-block:: python3
 
@@ -46,8 +46,8 @@ inventory:
     >>> inv_t0
     Inventory activities (Bq): {'U-234': 269401605.0086039, 'U-235': 13528246.506057048, 'U-238': 293903005.67125}, decay dataset: icrp107_ame2020_nubase2020
 
-By default the input dictionary to ``Inventory()`` is assumed to contain
-activities in Bq. The user can easily specify different units:
+By default the dictionary passed to the ``Inventory()`` constructor is assumed
+to contain activities in Bq. The user can easily specify different units:
 
 .. code-block:: python3
 
@@ -186,8 +186,8 @@ the next three digits are its atomic mass number, and the last four are for
 specifing its metastability. For nuclides with atomic mass numbers less than 100,
 zeroes must be included as placeholders (ex. aaa = 003 for H-3). 
 
-Metastable states of radionuclides can be inputted by appending \'m\', \'n\',
-etc. to the nuclide string, or 0001, 0002, etc. to the id, for first, second...
+Metastable states of nuclides can be inputted by appending \'m\', \'n\', etc.
+to the nuclide string, or 0001, 0002, etc. to the id, for first, second...
 metastable states, respectively:
 
 .. code-block:: python3
@@ -319,10 +319,10 @@ data in ICRP-107, which is the default dataset in ``radioactivedecay``, by:
     'β-'
 
 
-Adding and removing radionuclides from inventories
---------------------------------------------------
+Adding and removing nuclides from inventories
+---------------------------------------------
 
-It is easy to add radionuclides to an ``Inventory`` using the ``add()`` method:
+It is easy to add nuclides to an ``Inventory`` using the ``add()`` method:
 
 .. code-block:: python3
 
@@ -333,8 +333,8 @@ It is easy to add radionuclides to an ``Inventory`` using the ``add()`` method:
     >>> inv.activities()
     {'Be-10': 2.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 4.0}
 
-Similarly, subtract radionuclides from an ``Inventory`` using the
-``subtract()`` method:
+Similarly, subtract nuclides from an ``Inventory`` using the ``subtract()``
+method:
 
 .. code-block:: python3
 
@@ -342,8 +342,7 @@ Similarly, subtract radionuclides from an ``Inventory`` using the
     >>> inv.activities()
     {'Be-10': 1.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 2.0}
 
-Likewise use ``remove()`` to erase one or more radionuclide from an
-``Inventory``:
+Likewise use ``remove()`` to erase one or more nuclide from an ``Inventory``:
 
 .. code-block:: python3
 
@@ -366,16 +365,16 @@ for inputs other than activities, and mixing input types is allowed:
     >>> inv.activities()
     {'C-14': 1.8233790683016682, 'H-3': 2.3177330463306007}
 
-You can also supply ``Radionuclide`` objects instead of strings to the
+You can also supply ``Nuclide`` objects instead of strings to the
 ``Inventory`` constructor, and the ``add()`` and ``remove()`` methods:
 
 .. code-block:: python3
 
-    >>> H3 = rd.Radionuclide('H-3')
+    >>> H3 = rd.Nuclide('H-3')
     >>> inv = rd.Inventory({H3: 1.0})
     >>> inv.activities()
     {'H-3': 1.0}
-    >>> Be10 = rd.Radionuclide('Be-10')
+    >>> Be10 = rd.Nuclide('Be-10')
     >>> inv.add({Be10: 2.0})
     >>> inv.activities()
     {'Be-10': 2.0, 'H-3': 1.0}
@@ -383,9 +382,9 @@ You can also supply ``Radionuclide`` objects instead of strings to the
     >>> inv.activities()
     {'Be-10': 2.0}
 
-Note if the decay dataset of the ``Radionuclide`` instance is different to that
-of the ``Inventory`` instance, the former will be ignored and the existing
-decay dataset of the ``Inventory`` will be used instead.
+Note if the decay dataset of the ``Nuclide`` instance is different to that of
+the ``Inventory`` instance, the former will be ignored and the existing decay
+dataset of the ``Inventory`` will be used instead.
 
 Inventory arithmetic
 --------------------
@@ -412,8 +411,8 @@ It is also possible to subtract the contents of one inventory from another:
 Multiplication and division on inventories
 ------------------------------------------
 
-You can multiply or divide the activities of all radionuclides in an inventory
-by a constant as follows:
+You can multiply or divide the amounts of all nuclides in an inventory by a
+constant as follows:
 
 .. code-block:: python3
 
