@@ -1,5 +1,9 @@
 # Changelog
 
+## [X.X.X] - XXXX-XX-XX
+- Fix some code bugs in the ReadMe and the Docs (#57).
+- Fix the URL for the codecov badge in the ReadMe (#56).
+
 ## [0.4.7] - 2021-11-08
 - Fix old references to `Radionuclide` class in Readme, docs and docstrings (#54 & #55). This class
 was renamed to `Nuclide` from release v0.4.0.

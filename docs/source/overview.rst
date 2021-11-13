@@ -71,7 +71,7 @@ atoms. Use the ``units`` argument to the ``Inventory()`` constructor, and the
     {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
     >>> inv_mol_t1.numbers()
     {'C-14': 4.181326323680147e+23, 'N-14': 1.840814436319853e+23}
-    >>> inv_mole_t1.mol_fractions()
+    >>> inv_mol_t1.mole_fractions()
     {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 
 Use the ``plot()`` method to show the decay of the inventory over time:
