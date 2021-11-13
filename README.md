@@ -58,7 +58,7 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 ```pycon
 >>> import radioactivedecay as rd
 >>> Mo99_t0 = rd.Inventory({'Mo-99': 2.0}, 'Bq')
->>> Mo99_t1 = inv_t0.decay(20.0, 'h')
+>>> Mo99_t1 = Mo99_t0.decay(20.0, 'h')
 >>> Mo99_t1.activities('Bq')
 {'Mo-99': 1.6207863893776937, 'Ru-99': 0.0,
  'Tc-99': 9.05304236308454e-09, 'Tc-99m': 1.3719829376710406}
@@ -99,17 +99,17 @@ obtain the contents of the inventory in different formats:
 
 ```pycon
 >>> H3_t0 = rd.Inventory({'H-3': 3.0}, 'g')
->>> H3_t1 = tritium_t0.decay(12.32, 'y')
+>>> H3_t1 = H3_t0.decay(12.32, 'y')
 >>> H3_t1.masses('g')
 {'H-3': 1.5, 'He-3': 1.4999900734297729}
 >>> H3_t1.mass_fractions()
 {'H-3': 0.5000016544338455, 'He-3': 0.4999983455661545}
 
 >>> C14_t0 = rd.Inventory({'C-14': 3.2E24}, 'num')
->>> C14_t1 = carbon14_t0.decay(3000, 'y')
+>>> C14_t1 = C14_t0.decay(3000, 'y')
 >>> C14_t1.moles('mol')
 {'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
->>> c14_t1.mole_fractions()
+>>> C14_t1.mole_fractions()
 {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 ```
 
@@ -118,7 +118,7 @@ obtain the contents of the inventory in different formats:
 Use the ``plot()`` method to graph of the decay of an inventory over time:
 
 ```pycon
->>> mo99_t0.plot(20, 'd', yunits='Bq')
+>>> Mo99_t0.plot(20, 'd', yunits='Bq')
 ```
 
 <img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
@@ -181,9 +181,9 @@ precision calculations. This class can give more reliable decay calculation
 results for chains containing long- and short-lived radionuclides:
 
 ```pycon
->>> inv_t0 = rd.InventoryHP({'U-238': 1.0})
->>> inv_t1 = inv_t0.decay(10.0, 'd')
->>> inv_t1.activities()
+>>> U238_t0 = rd.InventoryHP({'U-238': 1.0})
+>>> U238_t1 = U238_t0.decay(10.0, 'd')
+>>> U238_t1.activities()
 {'At-218': 1.4511675857141352e-25,
  'Bi-210': 1.8093327888942224e-26,
  'Bi-214': 7.09819414496093e-22,
