@@ -149,6 +149,7 @@ individual radionuclides, e.g. for Rn-222:
 >>> nuc.A  # nucleon number
 222
 >>> nuc.atomic_mass  # atomic mass in g/mol
+222.01757601699998
 ```
 
 There are similar inventory methods for fetching decay data:
