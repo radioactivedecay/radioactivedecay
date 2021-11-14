@@ -221,20 +221,20 @@ and decay data for radionuclides. They are built similarly to inventories:
     >>> nuc = rd.Nuclide(862220000)
 
 The atomic data for a nuclide can be accessed through the ``Nuclide`` object's
-``Z``, ``A``, ``id`` and ``atomic_mass`` methods:
+``Z``, ``A`` and ``atomic_mass`` methods:
 
 .. code-block:: python3
 
     >>> nuc = rd.Nuclide('K-40')
-    >>> nuc.Z
+    >>> nuc.Z  # proton number
     19
-    >>> nuc.A
+    >>> nuc.A  # nucleon number
     40
-    >>> nuc.atomic_mass
+    >>> nuc.atomic_mass  # atomic mass in g/mol
     39.963998165
     
-Additionally, the canonical id of  nuclide, in zzzaaammmm format, can be retrieved
-using the ``id`` method:
+Additionally, the canonical id of a nuclide, in zzzaaammmm format, can be
+retrieved using the ``id`` method:
 
 .. code-block:: python3
 
@@ -242,8 +242,8 @@ using the ``id`` method:
     >>> nuc.id
     270580001
     
-Decay data for radionuclides can also be accessed using ``Nuclide`` objects. For
-example, to get the half-life of iodine-123:
+Decay data for radionuclides can also be accessed using ``Nuclide`` objects.
+For example, to get the half-life of iodine-123:
 
 .. code-block:: python3
 
