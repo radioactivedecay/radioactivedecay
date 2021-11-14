@@ -144,9 +144,14 @@ individual radionuclides, e.g. for Rn-222:
 [1.0]
 >>> nuc.decay_modes()
 ['α']
+>>> nuc.Z  # proton number
+86
+>>> nuc.A  # nucleon number
+222
+>>> nuc.atomic_mass  # atomic mass in g/mol
 ```
 
-Likewise similar methods exist for inventory instances:
+There are similar inventory methods for fetching decay data:
 
 ```pycon
 >>> Mo99_t1.half_lives('readable')

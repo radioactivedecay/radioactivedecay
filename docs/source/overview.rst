@@ -85,8 +85,8 @@ Use the ``plot()`` method to show the decay of the inventory over time:
 
 The graph shows the decay of H-3 over a 100 year period.
 
-Use the ``Nuclide`` class to fetch decay data about a particular radionuclide
-and to draw diagrams of its decay chain:
+Use the ``Nuclide`` class to fetch decay and atomic data about a particular
+nuclide and to draw diagrams of its decay chain:
 
 .. code-block:: python3
 
@@ -99,6 +99,12 @@ and to draw diagrams of its decay chain:
     ['β-']
     >>> nuc.branching_fractions()
     [1.0]
+    >>> nuc.Z  # proton number
+    1
+    >>> nuc.A  # nucleon number
+    3
+    >>> nuc.atomic_mass  # atomic mass in g/mol
+    3.01604928132
     >>> nuc.plot()
 
 .. image:: images/H-3_chain.png
@@ -188,6 +194,7 @@ List of contributors to ``radioactivedeay``:
 
 * `Alex Malins <https://alexmalins.com>`_
 * `Thom Lemoine <https://github.com/lemointm>`_
+* `Bernardo Gameiro <https://bgameiro.me/>`_
 
 
 Contributing
