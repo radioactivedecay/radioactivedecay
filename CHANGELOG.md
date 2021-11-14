@@ -1,7 +1,7 @@
 # Changelog
 
 ## [X.X.X] - XXXX-XX-XX
-- Fix some code bugs and make other improvements to the ReadMe and the Docs (#57 & #58).
+- Fix some code bugs and make other improvements to the ReadMe and the Docs (#57, #58 & 59).
 - Fix the URL for the codecov badge in the ReadMe (#56).
 
 ## [0.4.7] - 2021-11-08
