@@ -6,8 +6,8 @@ floating-point operations). The corresponding ``InventoryHP`` class performs dec
 with SymPy high numerical precision operations. A ``DecayData`` dataset is associated with
 ``Inventory`` and ``InventoryHP`` instances (default is rd.DEFAULTDATA).
 
-The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
-as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as `rd`:
 
 .. highlight:: python
 .. code-block:: python

@@ -1,8 +1,8 @@
 """
 The converters module contains classes for unit and quantity conversions.
 
-The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
-as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as `rd`:
 
 .. highlight:: python
 .. code-block:: python
@@ -68,13 +68,11 @@ class UnitConverter(ABC):
         Returns mass units dictionary (template).
         """
 
-
     @abstractmethod
     def get_moles_units(self) -> Dict[str, Union[float, Expr]]:
         """
         Returns moles units dictionary (template).
         """
-
 
     def time_unit_conv(
         self, time_period: Union[float, Expr], units_from: str, units_to: str

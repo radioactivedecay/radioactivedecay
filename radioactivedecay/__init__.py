@@ -14,6 +14,15 @@ differences between the half-lives.
 This is free-to-use open source software. It was created for engineers,
 technicians and researchers who work with and study radioactivity, and for
 educational use.
+
+The docstring code examples assume the ``radioactivedecay`` package has been
+imported as:
+
+.. highlight:: python
+.. code-block:: python
+
+    >>> import radioactivedecay as rd
+
 """
 
 __version__ = "0.4.7"

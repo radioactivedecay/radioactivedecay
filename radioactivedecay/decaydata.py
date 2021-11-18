@@ -6,8 +6,8 @@ arbitrary precision numbers, respectively). ``DecayData`` instances store ``Deca
 ``DecayMatricesSympy`` and unit converter objects, along with other decay data for reporting to
 users (this data is not used for calculations).
 
-The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
-as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as `rd`:
 
 .. highlight:: python
 .. code-block:: python
