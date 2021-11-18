@@ -265,7 +265,7 @@ def build_nuclide_string(Z: int, A: int, meta_state: str = "") -> str:
     if Z not in Z_DICT.keys():
         raise ValueError(str(Z) + " is not a valid atomic number")
 
-    return_string = Z_DICT[Z] + "-" + str(A) + meta_state
+    return_string = f"{Z_DICT[Z]}-{A}{meta_state}"
 
     return return_string
 
@@ -314,7 +314,7 @@ def parse_nuclide_str(nuclide: str) -> str:
     for idx in range(1, len(nuclide)):  # Add hyphen e.g. Tc99m to Tc-99m.
         if nuclide[idx].isdigit():
             if nuclide[idx - 1] != "-":
-                nuclide = nuclide[:idx] + "-" + nuclide[idx:]
+                nuclide = f"{nuclide[:idx]}-{nuclide[idx:]}"
             break
 
     return nuclide

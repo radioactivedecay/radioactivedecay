@@ -365,7 +365,7 @@ def _build_decay_digraph(
     generations = deque([0])
     xpositions = deque([0])
     node_label = (
-        _parse_nuclide_label(parent.nuclide) + "\n" + str(parent.half_life("readable"))
+        f"{_parse_nuclide_label(parent.nuclide)}\n{parent.half_life('readable')}"
     )
     digraph.add_node(parent.nuclide, generation=0, xpos=0, label=node_label)
     seen = {parent.nuclide}
@@ -389,9 +389,7 @@ def _build_decay_digraph(
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
                 if prog in parent.decay_data.nuclide_dict:
-                    node_label += "\n" + str(
-                        parent.decay_data.half_life(prog, "readable")
-                    )
+                    node_label += f"\n{parent.decay_data.half_life(prog, 'readable')}"
                     if np.isfinite(parent.decay_data.half_life(prog)):
                         dequeue.append(prog)
                         generations.append(generation)
