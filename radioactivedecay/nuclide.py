@@ -1,15 +1,15 @@
 """
-The nuclide module defines the ``Nuclide`` class. Each ``Nuclide``
-instance represents one nuclide, and can be contructed from a nuclide
-string or `zzzaaassss` canonical id. The class properties provide an
-easy way of extracting atomic number and mass information, as well as a
-clean name string. Furthermore, additional methods provide an access
-point for mass data of nuclides, and the decay data of radionuclides,
-if present in a specified dataset. The default decay dataset used if
-none is supplied to the constructor is rd.DEFAULTDATA.
+The nuclide module defines the ``Nuclide`` class. Each ``Nuclide`` instance
+represents one nuclide, and can be contructed from a nuclide string or
+`zzzaaassss` canonical id. The class properties provide an easy way of
+extracting atomic number and mass information, as well as a clean name string.
+Furthermore, additional methods provide an access point for mass data of
+nuclides, and the decay data of radionuclides, if present in a specified
+dataset. The default decay dataset used if none is supplied to the constructor
+is rd.DEFAULTDATA.
 
-The code examples shown in the docstrings assume the
-``radioactivedecay`` package has been imported as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as `rd`:
 
 .. highlight:: python
 .. code-block:: python
@@ -365,7 +365,7 @@ def _build_decay_digraph(
     generations = deque([0])
     xpositions = deque([0])
     node_label = (
-        _parse_nuclide_label(parent.nuclide) + "\n" + str(parent.half_life("readable"))
+        f"{_parse_nuclide_label(parent.nuclide)}\n{parent.half_life('readable')}"
     )
     digraph.add_node(parent.nuclide, generation=0, xpos=0, label=node_label)
     seen = {parent.nuclide}
@@ -389,9 +389,7 @@ def _build_decay_digraph(
             if prog not in seen:
                 node_label = _parse_nuclide_label(prog)
                 if prog in parent.decay_data.nuclide_dict:
-                    node_label += "\n" + str(
-                        parent.decay_data.half_life(prog, "readable")
-                    )
+                    node_label += f"\n{parent.decay_data.half_life(prog, 'readable')}"
                     if np.isfinite(parent.decay_data.half_life(prog)):
                         dequeue.append(prog)
                         generations.append(generation)

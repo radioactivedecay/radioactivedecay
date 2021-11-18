@@ -6,8 +6,8 @@ arbitrary precision numbers, respectively). ``DecayData`` instances store ``Deca
 ``DecayMatricesSympy`` and unit converter objects, along with other decay data for reporting to
 users (this data is not used for calculations).
 
-The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
-as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as `rd`:
 
 .. highlight:: python
 .. code-block:: python
@@ -40,7 +40,7 @@ from radioactivedecay.utils import parse_nuclide
 try:
     from importlib import resources
 except ImportError:
-    import importlib_resources as resources
+    import importlib_resources as resources  # type:ignore
 
 
 def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) -> bool:
@@ -529,9 +529,8 @@ class DecayData:
 
     def __repr__(self) -> str:
         return (
-            "Decay dataset: " + self.dataset_name + ", contains SymPy data: False"
-            if self.sympy_data is None
-            else "Decay dataset: " + self.dataset_name + ", contains SymPy data: True"
+            f"Decay dataset: {self.dataset_name}, contains SymPy data: "
+            f"{self.sympy_data is not None}"
         )
 
 
@@ -554,7 +553,7 @@ def _get_package_filepath(subpackage_dir: str, filename: str) -> ContextManager[
 
     """
 
-    with resources.path(__package__ + "." + subpackage_dir, filename) as package_path:
+    with resources.path(f"{__package__}.{subpackage_dir}", filename) as package_path:
         return package_path
 
 
@@ -605,7 +604,7 @@ def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
 
     """
 
-    with resources.open_binary(__package__ + "." + subpackage_dir, filename) as file:
+    with resources.open_binary(f"{__package__}.{subpackage_dir}", filename) as file:
         return pickle.load(file)
 
 

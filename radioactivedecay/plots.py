@@ -184,7 +184,7 @@ def _decay_graph(
         if label in display:
             axes.plot(time_points, ydata[idx], label=label, **kwargs)
     axes.legend(loc="upper right")
-    xlabel = "Time (" + xunits + ")"
+    xlabel = f"Time ({xunits})"
     axes.set(
         xlabel=xlabel,
         ylabel=ylabel,

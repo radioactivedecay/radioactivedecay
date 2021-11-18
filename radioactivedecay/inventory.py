@@ -6,8 +6,8 @@ floating-point operations). The corresponding ``InventoryHP`` class performs dec
 with SymPy high numerical precision operations. A ``DecayData`` dataset is associated with
 ``Inventory`` and ``InventoryHP`` instances (default is rd.DEFAULTDATA).
 
-The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
-as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as `rd`:
 
 .. highlight:: python
 .. code-block:: python
@@ -17,7 +17,7 @@ as:
 """
 
 from functools import singledispatch, update_wrapper
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import matplotlib
 import numpy as np
 from scipy import sparse
@@ -48,13 +48,13 @@ from radioactivedecay.utils import (
 # pylint: disable=too-many-arguments, too-many-lines, too-many-locals
 
 
-def _method_dispatch(func):
+def _method_dispatch(func: Callable[..., Any]):
     """Adds singledispatch support for class methods."""
 
     dispatcher = singledispatch(func)
 
-    def wrapper(*args, **kw):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
+    def wrapper(*args, **kwargs):
+        return dispatcher.dispatch(args[1].__class__)(*args, **kwargs)
 
     wrapper.register = dispatcher.register
     update_wrapper(wrapper, func)
@@ -577,7 +577,7 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(int)
+    @remove.register(int)  # type: ignore[no-redef]
     def _(
         self, delete: int
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
@@ -593,7 +593,7 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(Nuclide)
+    @remove.register(Nuclide)  # type: ignore[no-redef]
     def _(
         self, delete: Nuclide
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
@@ -609,7 +609,7 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(list)
+    @remove.register(list)  # type: ignore[no-redef]
     def _(
         self, delete: List[Union[str, int, Nuclide]]
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
