@@ -56,15 +56,11 @@ class UnitConverter(ABC):
         Returns time units dictionary (template).
         """
 
-        pass
-
     @abstractmethod
     def get_activity_units(self) -> Dict[str, Union[float, Expr]]:
         """
         Returns activity units dictionary (template).
         """
-
-        pass
 
     @abstractmethod
     def get_mass_units(self) -> Dict[str, Union[float, Expr]]:
@@ -72,7 +68,6 @@ class UnitConverter(ABC):
         Returns mass units dictionary (template).
         """
 
-        pass
 
     @abstractmethod
     def get_moles_units(self) -> Dict[str, Union[float, Expr]]:
@@ -80,7 +75,6 @@ class UnitConverter(ABC):
         Returns moles units dictionary (template).
         """
 
-        pass
 
     def time_unit_conv(
         self, time_period: Union[float, Expr], units_from: str, units_to: str
