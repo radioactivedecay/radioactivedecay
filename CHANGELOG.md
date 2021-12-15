@@ -1,9 +1,10 @@
 # Changelog
 
-## [X.X.X] - XXXX-XX-XX
+## [0.4.8] - 2021-12-13
 - Fix some code bugs and make other improvements to the ReadMe and the Docs (#57, #58 & #59).
 - Reduce number of mypy errors, use Python f-strings everywhere (#60).
 - Fix the URL for the codecov badge in the ReadMe (#56 & #60).
+- Introduce GitHub Actions for CI/CD. Add Issue & Pull Request templates (#61).
 
 ## [0.4.7] - 2021-11-08
 - Fix old references to `Radionuclide` class in Readme, docs and docstrings (#54 & #55). This class

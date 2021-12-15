@@ -6,8 +6,10 @@
 [![Conda](https://img.shields.io/conda/v/conda-forge/radioactivedecay)](https://anaconda.org/conda-forge/radioactivedecay)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://radioactivedecay.github.io/)
-[![Test Coverage](https://codecov.io/gh/radioactivedecay/radioactivedecay/branch/master/graph/badge.svg?token=RX5HSELRYH)](https://codecov.io/gh/radioactivedecay/radioactivedecay)
-[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml/badge.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml)
+[![Tests Coverage](https://codecov.io/gh/radioactivedecay/radioactivedecay/branch/master/graph/badge.svg?token=RX5HSELRYH)](https://codecov.io/gh/radioactivedecay/radioactivedecay)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/3_code_formatting.yml)
+[![Downloads](https://pepy.tech/badge/radioactivedecay)](https://pepy.tech/project/radioactivedecay)
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching
@@ -270,7 +272,10 @@ The default atomic mass data is from AMDC
 
 ## Contributing
 
-Contributors are welcome to fix bugs, add new features or make feature 
-requests. Please open a pull request or a new issue on the
+Contributors are welcome to fix bugs, add new features or make feature
+requests. Please open an Issue, Pull Request or new Discussions thread at
 [GitHub repository](https://github.com/radioactivedecay/radioactivedecay).
+
+Please read the
+[contribution guidelines](https://github.com/radioactivedecay/radioactivedecay/blob/main/CONTRIBUTING.md).
 
