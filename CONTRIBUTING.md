@@ -7,25 +7,37 @@ Below are some general guidelines for requesting changes or submitting a PR.
 
 ## Reporting Issues
 
-If you encounter an issue or find a bug in this package, please open an issue
+If you encounter a problem or find a bug in this package, please open an Issue
 on the
-[GitHub issues page](https://github.com/radioactivedecay/radioactivedecay/issues).
+[GitHub Issues page](https://github.com/radioactivedecay/radioactivedecay/issues).
 
-When submitting an issue please state the version of ``radioactivedecay`` that
+When submitting an Issue please state the version of ``radioactivedecay`` that
 you are using, and include a minimal example of code or information which
 demonstrates the problem.
+
+
+## Requesting New Features
+
+Anyone is welcome to suggest new features or ideas for this project. Please
+start a new thread over on the
+[Discussions](https://github.com/radioactivedecay/radioactivedecay/discussions)
+page.
 
 
 ## Pull Requests
 
 If you would like to contribute code, bug fixes or documentation improvements
 to the project, please fork the GitHub repository, make your changes, then
-submit a [pull request](https://github.com/radioactivedecay/radioactivedecay/pulls).
+submit a [Pull Request](https://github.com/radioactivedecay/radioactivedecay/pulls).
 
 Below are the code standards used by this project. Note they are not rigid
 requirements, but goals to aim for when submitting a PR. If you are not sure
 how to do something, please feel free to contact one of the existing developers
 for assistance.
+
+The project uses GitHub Actions for CI/CD. Unit tests, code coverage reports,
+Black code formatting checks, and documentation build checks are run
+automatically on each PR. Check your GitHub notifications for the results!
 
 
 ### Code Formatting & Linting
@@ -99,14 +111,8 @@ These notes describe the steps for cutting a new release:
 * Make sure
 [CHANGELOG.md](https://github.com/radioactivedecay/radioactivedecay/blob/main/CHANGELOG.md)
 documents the changes
-* Run ``python setup.py sdist bdist_wheel`` to create a new package
-* Run the tests and code coverage calc: ``coverage run -m unittest discover``
-* Upload the code coverage reports to codecov
-* Compile the docs: ``docs/make html``
-* Commit the new docs html files to the
-[docs repo](https://github.com/radioactivedecay/radioactivedecay.github.io)
-then push to GitHub
-* Create a release on GitHub (attach the ``.tar.gz`` and ``.whl`` distribution
-files)
-* Upload the new version to PyPi
-* Upload the new version to conda-forge
+* Create a new
+[Release](https://github.com/radioactivedecay/radioactivedecay/releases)
+on GitHub. CI/CD Actions workflows will automatically upload the new version to
+[PyPI](https://pypi.org/project/radioactivedecay/) and
+[conda-forge](https://anaconda.org/conda-forge/radioactivedecay).

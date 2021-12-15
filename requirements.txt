@@ -1,0 +1,6 @@
+matplotlib
+networkx
+numpy
+scipy
+sympy
+importlib_resources; python_version<'3.7'
