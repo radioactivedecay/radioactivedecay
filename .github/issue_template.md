@@ -1,24 +1,20 @@
-<!--
-Hi! Thank you for raising an Issue.
-If you have a general question about radioactivedecay or a feature request,
-please use the Discussions tab instead:
-https://github.com/radioactivedecay/radioactivedecay/discussions
--->
+<!-- Hi! Thank you for raising an issue with this package!
+Note if you have a general usage question or feature request, please use the Discussions tab instead. -->
+
 #### What is the issue?
 <!-- Tell us what happens instead of the expected behaviour -->
 
 
-### Steps to reproduce
+#### Steps to reproduce
 <!-- Provide a minimal example that reproduces the problem -->
 
 
 #### Environment
-<!-- Please provide details about your local environment -->
 OS version: <!-- Windows 10/Linux/macOS etc. -->
-Python version:
-radioactivedecay version:
+Python version: <!-- 3.6/3.7/3.8/3.9/3.10 -->
+radioactivedecay version: <!-- ex. 0.4.8 -->
 Installed via: <!-- pip/conda-forge -->
 
 
-### Additional context
+#### Additional context
 <!--- Add any other context about the problem here, screenshots, etc. -->
