@@ -129,7 +129,7 @@ Moreover, computations in the high precision mode are still fast, taking less th
 
 The default dataset supplied with `radioactivedecay` uses decay data from ICRP Publication 107 [@ICRP107] and atomic masses from the Atomic Mass Data Center (AMDC) [@Huang2021; @Wang2021; @Kondev2021].
 @Endo2005 and @Endo2007 describe the development of the ICRP Publication 107 decay dataset.
-Raw data from ICRP 107 and AMDC were converted into dataset files suitable for `radioactivedecay` in a Jupyter [notebook](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
+Raw data from ICRP 107 and AMDC were converted into dataset files suitable for `radioactivedecay` in a Jupyter [notebook](https://github.com/radioactivedecay/datasets).
 Along with `SciPy` and `SymPy` versions of the sparse matrices $C$ and $C^{-1}$, the dataset files contain radionuclide half-lives, decay constants, progeny, branching fractions, decay modes and atomic masses.
 Although there is a default dataset, `radioactivedecay` allows the import and use other decay data.
 
@@ -154,7 +154,7 @@ It has the same API as the `Inventory` class, but uses `SymPy` high numerical pr
 
 # Validation
 
-Decay calculations with `radioactivedecay v0.4.2` were cross-checked against `Radiological Toolbox v3.0.0` [@Hertel2015] and `PyNE v0.7.5` [@Scopatz2012] (see Jupyter [notebooks](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons) in the project repository).
+Decay calculations with `radioactivedecay v0.4.2` were cross-checked against `Radiological Toolbox v3.0.0` [@Hertel2015] and `PyNE v0.7.5` [@Scopatz2012] (see Jupyter notebooks in the [comparisons repository](https://github.com/radioactivedecay/comparisons)).
 `Radiological Toolbox` employs the ICRP Publication 107 decay data.
 Fifty radionuclides were randomly selected and a decay calculation was performed for 1 Bq of each for a random decay time within a factor of $10^{-3}$ to $10^{3}$ of the half-life.
 Differences between decayed activities reported by each code were within 1% of each other in 64% of cases.
