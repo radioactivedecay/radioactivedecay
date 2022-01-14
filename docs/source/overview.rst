@@ -121,16 +121,18 @@ more details. It calls NumPy :ref:`[6] <refs>` and SciPy :ref:`[7] <refs>` for
 the matrix operations. There is also a high numerical precision decay
 calculation mode based on SymPy :ref:`[8] <refs>` routines.
 
-The `notebooks directory 
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks>`_ 
-in the GitHub repository contains some Jupyter Notebooks for creating the 
+The `datasets repo
+<https://github.com/radioactivedecay/datasets>`_ 
+on GitHub contains a Jupyter Notebook for creating the 
 `ICRP-107 decay dataset
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
-for ``radioactivedecay``, and cross-checks against `PyNE
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
+<https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb>`_.
+Notebooks with cross-checks of decay calculation results against
+`PyNE
+<https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb>`_ 
 :ref:`[9] <refs>` and `Radiological Toolbox 
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
-:ref:`[10] <refs>`.
+<https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
+:ref:`[10] <refs>` are held in the `comparisons repo
+<https://github.com/radioactivedecay/comparisons>`_. 
 
 Limitations
 -----------
@@ -190,7 +192,7 @@ more details.
 Contributors
 ------------
 
-List of contributors to ``radioactivedeay``:
+List of contributors to ``radioactivedecay``:
 
 * `Alex Malins <https://alexmalins.com>`_
 * `Thom Lemoine <https://github.com/lemointm>`_
@@ -221,7 +223,9 @@ Special thanks to:
 * `Kenny McKee <https://github.com/Rolleroo>`_
 * `Daniel Jewell <https://github.com/danieldjewell>`_
 * `Ezequiel Pássaro <https://epassaro.github.io/>`_
+* `Kelly Rowland <https://github.com/kellyrowland>`_
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
+* `Madicken Munk <http://munkm.github.io/>`_
 * `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
 * `Hunter Ratliff <https://hratliff.com/>`_
 * `Jayson Vavrek <https://github.com/jvavrek>`_

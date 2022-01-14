@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.X.X] - 20XX-XX-XX
+- Move dataset creation and comparison notebooks to separate repos within the
+radioactivedecay org on GitHub (#63).
+- Tweak GitHub Issue & PR markdown templates (#62).
+
 ## [0.4.8] - 2021-12-13
 - Fix some code bugs and make other improvements to the ReadMe and the Docs (#57, #58 & #59).
 - Reduce number of mypy errors, use Python f-strings everywhere (#60).
