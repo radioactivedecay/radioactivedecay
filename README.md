@@ -235,17 +235,16 @@ By default ``radioactivedecay`` uses decay data from
 data from the [Atomic Mass Data Center](https://www-nds.iaea.org/amdc/)
 (AMDC - AME2020 and Nubase2020 evaluations).
 
-The [notebooks
-directory](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks)
-in the GitHub repository contains Jupyter Notebooks for creating the decay
-datasets that are read in by ``radioactivedecay``, e.g.
-[ICRP
-107](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
-It also contains some comparisons against decay calculations made with
-[PyNE](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
-and
-[Radiological
-Toolbox](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
+The [datasets repo](https://github.com/radioactivedecay/datasets) contains
+Jupyter Notebooks for creating decay datasets that can be used by
+``radioactivedecay``, e.g. [ICRP
+107](https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb).
+
+The [comparisons repo](https://github.com/radioactivedecay/comparisons)
+contains some checks of ``radioactivedecay`` against
+[PyNE](https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb)
+and [Radiological
+Toolbox](https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb).
 
 
 ## Tests
