@@ -92,8 +92,6 @@ class Inventory:
         Float/SciPy version of the DecayMatrices associated with the decay dataset.
     quantity_converter : QuantityConverter
         Float/SciPy version of a convertor between different quantities.
-    unit_converter : UnitConverterFloat
-        Float version of a convertor for within different units.
 
     Examples
     --------
@@ -118,7 +116,6 @@ class Inventory:
         self.decay_data = decay_data
         self.decay_matrices = self._get_decay_matrices()
         self.quantity_converter = self._get_quantity_converter()
-        self.unit_converter = self._get_unit_converter()
 
         if check is True:
             contents_with_parsed_keys: Dict[str, float] = self._parse_nuclides(
@@ -129,7 +126,7 @@ class Inventory:
             contents_with_parsed_keys = contents
         contents_sorted = sort_dictionary_alphabetically(contents_with_parsed_keys)
         self.contents = self._convert_to_number(
-            contents_sorted, units, self.quantity_converter, self.unit_converter
+            contents_sorted, units, self.quantity_converter
         )
 
     @staticmethod
@@ -175,14 +172,18 @@ class Inventory:
     def _get_unit_converter(self) -> UnitConverterFloat:
         """Returns the appropriate UnitConverter instance."""
 
-        return self.decay_data.float_unit_converter
+        return UnitConverterFloat
 
-    @staticmethod
+    def _get_year_conv(self) -> float:
+        """Returns the appropriate number of days in a year."""
+
+        return self.decay_data.float_year_conv
+
     def _convert_to_number(
+        self,
         contents: Dict[str, Union[float, Expr]],
         units: str,
         quantity_converter: QuantityConverter,
-        unit_converter: UnitConverterFloat,
     ) -> Dict[str, Union[float, Expr]]:
         """
         Converts an inventory dictionary where the values are masses, moles or activities to one
@@ -197,8 +198,6 @@ class Inventory:
             Units of the values in the input dictionary.
         quantity_conveter : QuantityConverter
             Convertor between quantities.
-        unit_conveter : UnitConverterFloat
-            Convertor between units of a single quantity.
 
         Returns
         -------
@@ -214,25 +213,25 @@ class Inventory:
 
         if units == "num":
             contents_as_numbers = contents
-        elif units in unit_converter.activity_units:
+        elif units in self._get_unit_converter().activity_units:
             contents_as_numbers = {
                 nuc: quantity_converter.activity_to_number(
-                    nuc, unit_converter.activity_unit_conv(act, units, "Bq")
+                    nuc, self._get_unit_converter().activity_unit_conv(act, units, "Bq")
                 )
                 for nuc, act in contents.items()
             }
-        elif units in unit_converter.moles_units:
+        elif units in self._get_unit_converter().moles_units:
             contents_as_numbers = {
                 nuc: quantity_converter.moles_to_number(
-                    unit_converter.moles_unit_conv(mol, units, "mol")
+                    self._get_unit_converter().moles_unit_conv(mol, units, "mol")
                 )
                 for nuc, mol in contents.items()
             }
-        elif units in unit_converter.mass_units:
+        elif units in self._get_unit_converter().mass_units:
             contents_as_numbers = {
                 nuc: quantity_converter.mass_to_number(
                     nuc,
-                    unit_converter.mass_unit_conv(mass, units, "g"),
+                    self._get_unit_converter().mass_unit_conv(mass, units, "g"),
                 )
                 for nuc, mass in contents.items()
             }
@@ -286,7 +285,7 @@ class Inventory:
         """
 
         activities = {
-            nuc: self.unit_converter.activity_unit_conv(
+            nuc: self._get_unit_converter().activity_unit_conv(
                 self.quantity_converter.number_to_activity(nuc, num),
                 "Bq",
                 units,
@@ -314,7 +313,7 @@ class Inventory:
         """
 
         masses = {
-            nuc: self.unit_converter.mass_unit_conv(
+            nuc: self._get_unit_converter().mass_unit_conv(
                 self.quantity_converter.number_to_mass(nuc, num),
                 "g",
                 units,
@@ -343,7 +342,7 @@ class Inventory:
         """
 
         moles = {
-            nuc: self.unit_converter.moles_unit_conv(
+            nuc: self._get_unit_converter().moles_unit_conv(
                 self.quantity_converter.number_to_moles(num), "mol", units
             )
             for nuc, num in self.contents.items()
@@ -640,7 +639,7 @@ class Inventory:
         Converts a decay time period into seconds.
         """
 
-        return self.unit_converter.time_unit_conv(decay_time, units, "s")
+        return self._get_unit_converter().time_unit_conv(decay_time, units, "s", self._get_year_conv())
 
     def _setup_decay_calc(
         self,
@@ -976,19 +975,19 @@ class Inventory:
             ]
 
         ydata = np.zeros(shape=(npoints, len(display)))
-        if yunits in self.unit_converter.activity_units:
+        if yunits in self._get_unit_converter().activity_units:
             for idx in range(0, npoints):
                 decayed_contents = self.decay(time_points[idx], xunits).activities(
                     yunits
                 )
                 ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Activity ({yunits})"
-        elif yunits in self.unit_converter.moles_units:
+        elif yunits in self._get_unit_converter().moles_units:
             for idx in range(0, npoints):
                 decayed_contents = self.decay(time_points[idx], xunits).moles(yunits)
                 ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Number of moles ({yunits})"
-        elif yunits in self.unit_converter.mass_units:
+        elif yunits in self._get_unit_converter().mass_units:
             for idx in range(0, npoints):
                 decayed_contents = self.decay(time_points[idx], xunits).masses(yunits)
                 ydata[idx] = [decayed_contents[rad] for rad in display]
@@ -1100,9 +1099,9 @@ class InventoryHP(Inventory):
         Number of significant figures for high precision decay calculations and plots. Deafult is
         320.
     quantity_converter : QuantityConverterSympy
-        Float/SciPy version of a convertor between different quantities.
+        SymPy version of a convertor between different quantities.
     unit_converter : UnitConverterSympy
-        Float version of a convertor for within different units.
+        SymPy version of a convertor for within different units.
 
     Examples
     --------
@@ -1155,11 +1154,16 @@ class InventoryHP(Inventory):
         Returns the appropriate UnitConverter instance.
         """
 
-        if self.decay_data.sympy_unit_converter is None:
+        if self.decay_data.sympy_year_conv is None:
             raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain UnitConverterSympy instance."
+                f"{self.decay_data.dataset_name} does not contain SymPy number of days in a year."
             )
-        return self.decay_data.sympy_unit_converter
+        return UnitConverterSympy
+
+    def _get_year_conv(self) -> Expr:
+        """Returns the appropriate number of days in a year."""
+
+        return self.decay_data.sympy_year_conv
 
     def numbers(self) -> Dict[str, float]:
         """
@@ -1191,7 +1195,7 @@ class InventoryHP(Inventory):
 
         activities = {
             nuc: float(
-                self.unit_converter.activity_unit_conv(
+                self._get_unit_converter().activity_unit_conv(
                     self.quantity_converter.number_to_activity(nuc, num),
                     "Bq",
                     units,
@@ -1217,7 +1221,7 @@ class InventoryHP(Inventory):
 
         masses = {
             nuc: float(
-                self.unit_converter.mass_unit_conv(
+                self._get_unit_converter().mass_unit_conv(
                     self.quantity_converter.number_to_mass(nuc, num),
                     "g",
                     units,
@@ -1243,7 +1247,7 @@ class InventoryHP(Inventory):
 
         moles = {
             nuc: float(
-                self.unit_converter.moles_unit_conv(
+                self._get_unit_converter().moles_unit_conv(
                     self.quantity_converter.number_to_moles(num), "mol", units
                 )
             )

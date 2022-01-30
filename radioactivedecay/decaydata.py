@@ -29,6 +29,7 @@ from scipy import sparse
 import sympy
 from sympy import Matrix
 from sympy.matrices import SparseMatrix
+from sympy.core.expr import Expr
 from radioactivedecay.converters import (
     UnitConverterFloat,
     UnitConverterSympy,
@@ -272,10 +273,10 @@ class DecayMatricesSympy(DecayMatrices):
 class DecayData:
     """
     Instances of DecayData store a complete radioactive decay dataset. It stores data for decay
-    calculations, inventory transformations and unit conversions using DecayMatrices,
-    UnitConverterFloat, QuantityConverter, DecayMatricesSympy, UnitConverterSympy and
-    QuantityConverterSympy objects. Other decay data which are reported to users but not used in
-    calculations are stored in other instance attributes.
+    calculations, inventory transformations and quantity conversions using DecayMatrices,
+    QuantityConverter, DecayMatricesSympy, and QuantityConverterSympy objects. Other decay data
+    which are reported to users but not used in calculations are stored in other instance
+    attributes.
 
     Parameters
     ----------
@@ -283,6 +284,8 @@ class DecayData:
         Name of the decay dataset.
     bfs : numpy.ndarray
         NumPy array of lists with branching fraction data.
+    float_year_conv : float
+        Number of days in one year for float time unit conversions.
     hldata : numpy.ndarray
         List of tuples containing half-life floats, time unit strings and readable format half-life
         strings.
@@ -294,14 +297,11 @@ class DecayData:
         NumPy array of lists with direct progeny data.
     scipy_data : DecayMatrices
         Dataset of double precision decay matrices (SciPy/NumPy objects).
-    float_unit_converter : UnitConverterFloat
-        Convert between units of a single quantity using floating point operations.
     sympy_data : None or DecayMatricesSympy
         Dataset of arbitrary-precision decay matrices (SymPy objects). Or None if SymPy
         functionality is not used. Default is None.
-    sympy_unit_converter : None or UnitConverterSympy
-        Convert between units of a single quantity using SymPy arbitrary precision operations.
-        Default is None.
+    sympy_year_conv : None or Expr
+        Number of days in one year for SymPy time unit conversions.
 
     Attributes
     ----------
@@ -311,8 +311,8 @@ class DecayData:
         Name of the decay dataset.
     float_quantity_converter : QuantityConverter
         Convert between quantities using floating point operations.
-    float_unit_converter : UnitConverterFloat
-        Convert between units of a single quantity using floating point operations.
+    float_year_conv : float
+        Number of days in one year for float time unit conversions.
     hldata : numpy.ndarray
         List of tuples containing half-life floats, time unit strings and readable format half-life
         strings.
@@ -331,8 +331,8 @@ class DecayData:
         is not used.
     sympy_quantity_converter : None or QuantityConverterSympy
         Convert between quantities using SymPy arbitrary precision operations.
-    sympy_unit_converter : None or UnitConverterSympy
-        Convert between units of a single quantity using SymPy arbitrary precision operations.
+    sympy_year_conv : None or Expr
+        Number of days in one year for SymPy time unit conversions.
 
     """
 
@@ -340,19 +340,19 @@ class DecayData:
         self,
         dataset_name: str,
         bfs: np.ndarray,
+        float_year_conv: float,
         hldata: np.ndarray,
         modes: np.ndarray,
         nuclides: np.ndarray,
         progeny: np.ndarray,
         scipy_data: DecayMatrices,
-        float_unit_converter: UnitConverterFloat,
         sympy_data: Optional[DecayMatricesSympy] = None,
-        sympy_unit_converter: Optional[UnitConverterSympy] = None,
+        sympy_year_conv: Optional[Expr] = None,
     ) -> None:
 
         self.dataset_name = dataset_name
         self.bfs = bfs
-        self.float_unit_converter = float_unit_converter
+        self.float_year_conv = float_year_conv
         self.hldata = hldata
         self.modes = modes
         self.nuclides = nuclides
@@ -367,17 +367,17 @@ class DecayData:
         )
 
         self.sympy_data: Optional[DecayMatricesSympy] = None
-        self.sympy_unit_converter: Optional[UnitConverterSympy] = None
         self.sympy_quantity_converter: Optional[QuantityConverterSympy] = None
+        self.sympy_year_conv: Optional[Expr] = None
 
-        if sympy_data and sympy_unit_converter:
+        if sympy_data and sympy_year_conv:
             self.sympy_data = sympy_data
-            self.sympy_unit_converter = sympy_unit_converter
             self.sympy_quantity_converter = QuantityConverterSympy(
                 self.nuclide_dict,
                 self.sympy_data.atomic_masses,
                 self.sympy_data.decay_consts,
             )
+            self.sympy_year_conv = sympy_year_conv
 
     def half_life(self, nuclide: str, units: str = "s") -> Union[float, str]:
         """
@@ -425,10 +425,11 @@ class DecayData:
         return (
             half_life
             if unit == units
-            else self.float_unit_converter.time_unit_conv(
+            else UnitConverterFloat.time_unit_conv(
                 half_life,
                 units_from=unit,
                 units_to=units,
+                year_conv=self.float_year_conv
             )
         )
 
@@ -506,7 +507,7 @@ class DecayData:
             return NotImplemented
         return (
             self.dataset_name == other.dataset_name
-            and self.float_unit_converter == other.float_unit_converter
+            and self.float_year_conv == other.float_year_conv
             and np.array_equal(self.hldata, other.hldata)
             and np.array_equal(self.nuclides, other.nuclides)
             and self.nuclide_dict == other.nuclide_dict
@@ -515,7 +516,7 @@ class DecayData:
             and np.array_equal(self.modes, other.modes)
             and self.scipy_data == other.scipy_data
             and self.sympy_data == other.sympy_data
-            and self.sympy_unit_converter == other.sympy_unit_converter
+            and self.sympy_year_conv == other.sympy_year_conv
         )
 
     def __ne__(self, other: object) -> bool:
@@ -669,11 +670,10 @@ def load_dataset(
         allow_pickle=True,
     )
 
-    float_unit_converter = UnitConverterFloat(data["year_conv"])
     decay_consts = np.array(
         [
             np.log(2)
-            / float_unit_converter.time_unit_conv(hl[0], units_from=hl[1], units_to="s")
+            / UnitConverterFloat.time_unit_conv(hl[0], units_from=hl[1], units_to="s", year_conv=data["year_conv"])
             for hl in data["hldata"]
         ]
     )
@@ -686,7 +686,7 @@ def load_dataset(
     scipy_data = DecayMatrices(data["masses"], decay_consts, matrix_c, matrix_c_inv)
 
     sympy_data = None
-    sympy_unit_converter = None
+    sympy_year_conv = None
     if load_sympy:
         sympy_pickle_version = "1.9" if sympy.__version__ >= "1.9" else "1.8"
 
@@ -702,7 +702,7 @@ def load_dataset(
         matrix_c_inv = _load_pickle_file(
             dataset_name, dir_path, f"c_inv_sympy_{sympy_pickle_version}.pickle"
         )
-        year_conv_sympy = _load_pickle_file(
+        sympy_year_conv = _load_pickle_file(
             dataset_name,
             dir_path,
             f"year_conversion_sympy_{sympy_pickle_version}.pickle",
@@ -710,19 +710,18 @@ def load_dataset(
         sympy_data = DecayMatricesSympy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
-        sympy_unit_converter = UnitConverterSympy(year_conv_sympy)
 
     return DecayData(
         dataset_name,
         data["bfs"],
+        data["year_conv"],
         data["hldata"],
         data["modes"],
         data["nuclides"],
         data["progeny"],
         scipy_data,
-        float_unit_converter,
         sympy_data,
-        sympy_unit_converter,
+        sympy_year_conv,
     )
 
 
