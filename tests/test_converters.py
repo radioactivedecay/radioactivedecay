@@ -9,7 +9,7 @@ from radioactivedecay.converters import (
     AVOGADRO,
     UnitConverterFloat,
     UnitConverterSympy,
-    QuantityConverter,
+    QuantityConverterFloat,
     QuantityConverterSympy,
 )
 
@@ -309,6 +309,15 @@ class TestUnitConverterFloat(unittest.TestCase):
         with self.assertRaises(ValueError):
             UnitConverterFloat.moles_unit_conv(1.0, "tmol", 1.0)
 
+    def test___repr__(self) -> None:
+        """
+        Test UnitConverterFloat __repr__ strings.
+        """
+
+        self.assertEqual(
+            UnitConverterFloat.__repr__(), "UnitConverterFloat using double-precision floats."
+        )
+
 
 class TestUnitConverterSympy(unittest.TestCase):
     """
@@ -516,143 +525,83 @@ class TestUnitConverterSympy(unittest.TestCase):
         with self.assertRaises(ValueError):
             UnitConverterSympy.moles_unit_conv(Integer(1), "tmol", Integer(1))
 
-
-class TestQuantityConverter(unittest.TestCase):
-    """
-    Unit tests for the converters.py QuantityConverter class.
-    """
-
-    def test_instantiation(self) -> None:
+    def test___repr__(self) -> None:
         """
-        Test instantiation of QuantityConverter objects.
+        Test UnitConverterSympy __repr__ strings.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-        self.assertEqual(qconv.nuclide_dict["He-3"], 1)
-        self.assertEqual(qconv.atomic_masses[0], 3.01604928132)
-        self.assertEqual(qconv.decay_consts[1], 0)
-        self.assertEqual(qconv.avogadro, 6.02214076e23)
+        self.assertEqual(
+            UnitConverterSympy.__repr__(), "UnitConverterSympy using SymPy arbitrary precision calculations."
+        )
+
+
+class TestQuantityConverterFloat(unittest.TestCase):
+    """
+    Unit tests for the converters.py QuantityConverterFloat class.
+    """
+
+    def test_class_attribute(self) -> None:
+        """
+        Test class attribute of QuantityConverterFloat.
+        """
+
+        self.assertEqual(QuantityConverterFloat.avogadro, 6.02214076e23)
 
     def test_activity_to_number(self) -> None:
         """
         Test the conversion of activity in Bq to number of atoms.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-        self.assertEqual(qconv.activity_to_number("H-3", 1.0), 560892895.7794082)
+        self.assertEqual(QuantityConverterFloat.activity_to_number(1.0, 1.7828715741004621e-09), 560892895.7794082)
 
     def test_mass_to_number(self) -> None:
         """
         Test the conversion of mass in grams to number of atoms.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-
-        self.assertEqual(qconv.mass_to_number("H-3", 1.0), 1.996698395247825e23)
-        self.assertEqual(qconv.mass_to_number("He-3", 1.0), 1.9967116089131645e23)
+        self.assertEqual(QuantityConverterFloat.mass_to_number(1.0, 3.01604928132), 1.996698395247825e23)
+        self.assertEqual(QuantityConverterFloat.mass_to_number(1.0, 3.01602932197), 1.9967116089131645e23)
 
     def test_moles_to_number(self) -> None:
         """
         Test the conversion of number of moles to number of atoms.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-
-        self.assertEqual(qconv.moles_to_number(1.0), 6.02214076e23)
-        self.assertEqual(qconv.moles_to_number(0.0), 0.0)
+        self.assertEqual(QuantityConverterFloat.moles_to_number(1.0), 6.02214076e23)
+        self.assertEqual(QuantityConverterFloat.moles_to_number(0.0), 0.0)
 
     def test_number_to_activity(self) -> None:
         """
         Test the conversion of number of atoms to activity in Bq.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-
-        self.assertEqual(qconv.number_to_activity("H-3", 560892895.7794082), 1.0)
-        self.assertEqual(qconv.number_to_activity("He-3", 1.0), 0.0)
-        self.assertEqual(qconv.number_to_activity("He-3", 0.0), 0.0)
+        self.assertEqual(QuantityConverterFloat.number_to_activity(560892895.7794082, 1.7828715741004621e-09), 1.0)
+        self.assertEqual(QuantityConverterFloat.number_to_activity(1.0, 0.0), 0.0)
+        self.assertEqual(QuantityConverterFloat.number_to_activity(0.0, 0.0), 0.0)
 
     def test_number_to_mass(self) -> None:
         """
         Test the conversion of number of atoms to mass in grams.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-
-        self.assertEqual(qconv.number_to_mass("H-3", 1.996698395247825e23), 1.0)
-        self.assertEqual(qconv.number_to_mass("He-3", 1.9967116089131645e23), 1.0)
+        self.assertEqual(QuantityConverterFloat.number_to_mass(1.996698395247825e23, 3.01604928132), 1.0)
+        self.assertEqual(QuantityConverterFloat.number_to_mass(1.9967116089131645e23, 3.01602932197), 1.0)
 
     def test_number_to_moles(self) -> None:
         """
         Test the conversion of number of atoms to number of moles.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-
-        self.assertEqual(qconv.number_to_moles(6.02214076e23), 1.0)
-        self.assertEqual(qconv.number_to_moles(0.0), 0.0)
-
-    def test___eq__(self) -> None:
-        """
-        Test QuantityConveter equality.
-        """
-
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv1 = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-        qconv2 = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-        self.assertEqual(qconv1, qconv2)
-
-        self.assertFalse(qconv1 == "random object")
-
-    def test___neq__(self) -> None:
-        """
-        Test QuantityConveter inequality.
-        """
-
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv1 = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-        decay_consts = np.array([1.7828715741004621e-09, 0.1])
-        qconv2 = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
-        self.assertNotEqual(qconv1, qconv2)
-
-        self.assertTrue(qconv1 != "random object")
+        self.assertEqual(QuantityConverterFloat.number_to_moles(6.02214076e23), 1.0)
+        self.assertEqual(QuantityConverterFloat.number_to_moles(0.0), 0.0)
 
     def test___repr__(self) -> None:
         """
-        Test QuantityConveter __repr__ strings.
+        Test QuantityConveterFloat __repr__ strings.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = np.array([3.01604928132, 3.01602932197])
-        decay_consts = np.array([1.7828715741004621e-09, 0.0])
-        qconv = QuantityConverter(nuclide_dict, atomic_masses, decay_consts)
         self.assertEqual(
-            qconv.__repr__(), "QuantityConverter using double-precision floats."
+            QuantityConverterFloat.__repr__(), "QuantityConverterFloat using double-precision floats."
         )
 
 
@@ -661,42 +610,20 @@ class TestQuantityConverterSympy(unittest.TestCase):
     Unit tests for the converters.py QuantityConverterSympy class.
     """
 
-    def test_instantiation(self) -> None:
+    def test_class_attribute(self) -> None:
         """
-        Test instantiation of QuantityConverter objects.
+        Test class attribute of QuantityConverterSympy class.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-        self.assertEqual(qcs.nuclide_dict["He-3"], 1)
-        self.assertEqual(
-            qcs.atomic_masses[0],
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-        )
-        self.assertEqual(qcs.decay_consts[1], Integer(0))
-        self.assertEqual(qcs.avogadro, Integer(602214076000000000000000))
+        self.assertEqual(QuantityConverterSympy.avogadro, Integer(602214076000000000000000))
 
     def test_activity_to_number(self) -> None:
         """
         Test the conversion of activity in Bq to number of atoms.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.activity_to_number("H-3", Integer(1)),
+            QuantityConverterSympy.activity_to_number(Integer(1), (Integer(625) * log(2)) / Integer(242988330816)),
             Integer(242988330816) / (Integer(625) * log(2)),
         )
 
@@ -705,22 +632,14 @@ class TestQuantityConverterSympy(unittest.TestCase):
         Test the conversion of mass in grams to number of atoms.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.mass_to_number("H-3", Integer(1)),
+            QuantityConverterSympy.mass_to_number(Integer(1), Integer("15055351900000000000000000000000000") / Integer(75401232033)),
             Integer(75401232033)
             / Integer("15055351900000000000000000000000000")
             * Integer("602214076000000000000000"),
         )
         self.assertEqual(
-            qcs.mass_to_number("He-3", Integer(1)),
+            QuantityConverterSympy.mass_to_number(Integer(1), Integer("60221407600000000000000000000000000") / Integer(301602932197)),
             Integer(301602932197)
             / Integer("60221407600000000000000000000000000")
             * Integer("602214076000000000000000"),
@@ -731,60 +650,36 @@ class TestQuantityConverterSympy(unittest.TestCase):
         Test the conversion of number of moles to number of atoms.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.moles_to_number(Integer(1)), Integer("602214076000000000000000")
+            QuantityConverterSympy.moles_to_number(Integer(1)), Integer("602214076000000000000000")
         )
-        self.assertEqual(qcs.moles_to_number(Integer(0)), Integer(0))
+        self.assertEqual(QuantityConverterSympy.moles_to_number(Integer(0)), Integer(0))
 
     def test_number_to_activity(self) -> None:
         """
         Test the conversion of number of atoms to activity in Bq.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.number_to_activity("H-3", Integer(1)),
-            Integer(625) * log(2) / Integer(242988330816),
+            QuantityConverterSympy.number_to_activity(Integer(1), (Integer(625) * log(2)) / Integer(242988330816)),
+            Integer(625) * log(2) / Integer(242988330816), 
         )
-        self.assertEqual(qcs.number_to_activity("He-3", Integer(0)), Integer(0))
-        self.assertEqual(qcs.number_to_activity("He-3", Integer(0)), Integer(0))
+        self.assertEqual(QuantityConverterSympy.number_to_activity(Integer(0), (Integer(625) * log(2)) / Integer(242988330816)), Integer(0))
+        self.assertEqual(QuantityConverterSympy.number_to_activity(Integer(0), Integer(0)), Integer(0))
 
     def test_number_to_mass(self) -> None:
         """
         Test the conversion of number of atoms to mass in grams.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.number_to_mass("H-3", Integer(1)),
+            QuantityConverterSympy.number_to_mass(Integer(1), Integer("15055351900000000000000000000000000") / Integer(75401232033)),
             Integer("15055351900000000000000000000000000")
             / Integer(75401232033)
             / Integer("602214076000000000000000"),
         )
         self.assertEqual(
-            qcs.number_to_mass("He-3", Integer(1)),
+            QuantityConverterSympy.number_to_mass(Integer(1), Integer("60221407600000000000000000000000000") / Integer(301602932197)),
             Integer("60221407600000000000000000000000000")
             / Integer(301602932197)
             / Integer("602214076000000000000000"),
@@ -795,52 +690,18 @@ class TestQuantityConverterSympy(unittest.TestCase):
         Test the conversion of number of atoms to number of moles.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.number_to_moles(Integer("602214076000000000000000")), Integer(1)
+            QuantityConverterSympy.number_to_moles(Integer("602214076000000000000000")), Integer(1)
         )
-        self.assertEqual(qcs.number_to_moles(Integer(0)), Integer(0))
-
-    def test___eq__(self) -> None:
-        """
-        Test QuantityConveterSympy equality.
-        """
-
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qconv1 = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-        qconv2 = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-        self.assertEqual(qconv1, qconv2)
-
-        self.assertFalse(qconv1 == "random object")
+        self.assertEqual(QuantityConverterSympy.number_to_moles(Integer(0)), Integer(0))
 
     def test___repr__(self) -> None:
         """
         Test QuantityConveterSympy __repr__ strings.
         """
 
-        nuclide_dict = {"H-3": 0, "He-3": 1}
-        atomic_masses = [
-            Integer("15055351900000000000000000000000000") / Integer(75401232033),
-            Integer("60221407600000000000000000000000000") / Integer(301602932197),
-        ]
-        decay_consts = [(Integer(625) * log(2)) / Integer(242988330816), Integer(0)]
-        qcs = QuantityConverterSympy(nuclide_dict, atomic_masses, decay_consts)
-
         self.assertEqual(
-            qcs.__repr__(),
-            "QuantityConverterSympy using SymPy arbitrary precision calculations.",
+            QuantityConverterSympy.__repr__(), "QuantityConverterSympy using SymPy arbitrary precision calculations."
         )
 
 

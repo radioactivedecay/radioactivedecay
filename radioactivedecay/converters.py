@@ -102,10 +102,13 @@ class UnitConverter(ABC):
                 str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
             )
 
-        result = time_period * cls.time_units[units_from] / cls.time_units[units_to]
-        if units_from in cls.year_units: result *= year_conv
-        if units_to in cls.year_units: result /= year_conv
-        return result
+        factor_from = cls.time_units[units_from]
+        factor_to = cls.time_units[units_to]
+        if units_from in cls.year_units:
+            factor_from *= year_conv
+        if units_to in cls.year_units:
+            factor_to *= year_conv
+        return time_period * factor_from / factor_to
 
     @classmethod
     def activity_unit_conv(
@@ -315,6 +318,10 @@ class UnitConverterFloat(UnitConverter):
         "Mmol": 1.0e6,
     }
 
+    @classmethod
+    def __repr__(cls) -> str:
+        return f"{cls.__name__} using double-precision floats."
+
 
 class UnitConverterSympy(UnitConverter):
     """
@@ -403,58 +410,41 @@ class UnitConverterSympy(UnitConverter):
         "Mmol": Integer(1000000),
     }
 
+    @classmethod
+    def __repr__(cls) -> str:
+        return f"{cls.__name__} using SymPy arbitrary precision calculations."
 
 
-class QuantityConverter:
+class QuantityConverter(ABC):
     """
-    Converts activity in Bq, mass in g and moles in mol to number of atoms, and vice versa.
-    Supports both Exprs or SymPy quantities.
+    Template class for quantity converters using either floats or SymPy arithmetic. Converts
+    activity in Bq, mass in g and moles in mol to number of atoms, and vice versa.
 
-    Parameters
+    Class Attributes
     ----------
-    atomic_masses : numpy.ndarray
-        Column vector of the atomic masses (in g/mol).
-    decay_consts : numpy.ndarray
-        Column vector of the decay constants (in s\\ :sup:`-1`).
-    nuclide_dict : dict
-        Dictionary containing nuclide strings as keys and positions in the matrices as values.
-
-    Attributes
-    ----------
-    atomic_masses : numpy.ndarray
-        Column vector of the atomic masses (in g/mol).
-    avogadro : float
+    avogadro : float or Expr
         Avogadro constant (number of atoms/mol).
-    decay_consts : numpy.ndarray
-        Column vector of the decay constants (in s\\ :sup:`-1`).
-    nuclide_dict : dict
-        Dictionary containing nuclide strings as keys and positions in the matrices as values.
 
     """
 
-    def __init__(
-        self,
-        nuclide_dict: Dict[str, int],
-        atomic_masses: np.ndarray,
-        decay_consts: np.ndarray,
-    ) -> None:
-        self.nuclide_dict = nuclide_dict
-        self.atomic_masses = atomic_masses
-        self.decay_consts = decay_consts
-        self.avogadro = AVOGADRO
+    @property
+    @abstractmethod
+    def time_units(self):
+        pass
 
+    @staticmethod
     def activity_to_number(
-        self, nuclide: str, activity: Union[float, Expr]
+       activity: Union[float, Expr], decay_const: Union[float, Expr]
     ) -> Union[float, Expr]:
         """
         Converts an activity in Bq to the number of atoms.
 
         Parameters
         ----------
-        nuclide : str
-            Nuclide string.
         activity : float or sympy.core.expr.Expr
             The activity in Bq of the nuclide to be converted.
+        decay_const : float or sympy.core.expr.Expr
+            Decay constant of the nuclide in s^-1.
 
         Returns
         -------
@@ -463,20 +453,21 @@ class QuantityConverter:
 
         """
 
-        return activity / self.decay_consts[self.nuclide_dict[nuclide]]
+        return activity / decay_const
 
+    @classmethod
     def mass_to_number(
-        self, nuclide: str, mass: Union[float, Expr]
+        cls, mass: Union[float, Expr], atomic_mass: Union[float, Expr]
     ) -> Union[float, Expr]:
         """
         Converts a mass in grams to number of atoms.
 
         Parameters
         ----------
-        nuclide : str
-            Nuclide string.
         mass : float or sympy.core.expr.Expr
             The mass of the nuclide to be converted in grams.
+        atomic_mass : float or sympy.core.expr.Expr
+            Atomic mass of the nuclide in g/mol.
 
         Returns
         -------
@@ -485,9 +476,10 @@ class QuantityConverter:
 
         """
 
-        return mass / self.atomic_masses[self.nuclide_dict[nuclide]] * self.avogadro
+        return mass / atomic_mass * cls.avogadro
 
-    def moles_to_number(self, moles: Union[float, Expr]) -> Union[float, Expr]:
+    @classmethod
+    def moles_to_number(cls, moles: Union[float, Expr]) -> Union[float, Expr]:
         """
         Converts number of moles to number of atoms.
 
@@ -503,20 +495,21 @@ class QuantityConverter:
 
         """
 
-        return moles * self.avogadro
+        return moles * cls.avogadro
 
+    @staticmethod
     def number_to_activity(
-        self, nuclide: str, number: Union[float, Expr]
+        number: Union[float, Expr], decay_const: Union[float, Expr]
     ) -> Union[float, Expr]:
         """
         Converts number of atoms to activity in Bq.
 
         Parameters
         ----------
-        nuclide : str
-            Nuclide string.
         number : float or sympy.core.expr.Expr
             The number of atoms of nuclide to be converted.
+        decay_const : float or sympy.core.expr.Expr
+            Decay constant of the nuclide in s^-1.
 
         Returns
         -------
@@ -525,20 +518,21 @@ class QuantityConverter:
 
         """
 
-        return number * self.decay_consts[self.nuclide_dict[nuclide]]
+        return number * decay_const
 
+    @classmethod
     def number_to_mass(
-        self, nuclide: str, number: Union[float, Expr]
+        cls, number: Union[float, Expr], atomic_mass: Union[float, Expr]
     ) -> Union[float, Expr]:
         """
         Converts number of atoms to mass in grams. Supports both Exprs or SymPy quantities.
 
         Parameters
         ----------
-        nuclide : str
-            Nuclide string.
         number : float or sympy.core.expr.Expr
             The number of atoms of the nuclide to be converted.
+        atomic_mass : float or sympy.core.expr.Expr
+            Atomic mass of the nuclide in g/mol.
 
         Returns
         -------
@@ -547,9 +541,10 @@ class QuantityConverter:
 
         """
 
-        return number / self.avogadro * self.atomic_masses[self.nuclide_dict[nuclide]]
+        return number / cls.avogadro * atomic_mass
 
-    def number_to_moles(self, number: Union[float, Expr]) -> Union[float, Expr]:
+    @classmethod
+    def number_to_moles(cls, number: Union[float, Expr]) -> Union[float, Expr]:
         """
         Converts number of atoms to moles of nuclide.
 
@@ -565,83 +560,27 @@ class QuantityConverter:
 
         """
 
-        return number / self.avogadro
+        return number / cls.avogadro
 
-    def __eq__(self, other: object) -> bool:
-        """
-        Check whether two ``QuantityConverter`` instances are equal with ``==`` operator.
-        """
+class QuantityConverterFloat(QuantityConverter):
+    """
+    Quantity converter using SymPy arbitrary precision operations.
+    """
 
-        if not isinstance(other, QuantityConverter):
-            return NotImplemented
-        return (
-            (self.atomic_masses == other.atomic_masses).all()
-            and self.avogadro == other.avogadro
-            and (self.decay_consts == other.decay_consts).all()
-            and self.nuclide_dict == other.nuclide_dict
-        )
+    avogadro = AVOGADRO
 
-    def __ne__(self, other: object) -> bool:
-        """
-        Check whether two ``QuantityConverter`` instances are not equal with ``!=`` operator.
-        """
-
-        if not isinstance(other, QuantityConverter):
-            return NotImplemented
-        return not self.__eq__(other)
-
-    def __repr__(self) -> str:
-        return "QuantityConverter using double-precision floats."
+    @classmethod
+    def __repr__(cls) -> str:
+        return f"{cls.__name__} using double-precision floats."
 
 
 class QuantityConverterSympy(QuantityConverter):
     """
-    Unit converter using SymPy arbitrary precision operations.
-
-    Parameters
-    ----------
-    atomic_masses : sympy.matrices.dense.MutableDenseMatrix
-        Column vector of the atomic masses (in g/mol).
-    decay_consts : sympy.matrices.dense.MutableDenseMatrix
-        Column vector of the decay constants (in s\\ :sup:`-1`).
-    nuclide_dict : dict
-        Dictionary containing nuclide strings as keys and positions in the matrices as values.
-
-    Attributes
-    ----------
-    atomic_masses : sympy.matrices.dense.MutableDenseMatrix
-        Column vector of the atomic masses (in g/mol).
-    avogadro : sympy.core.numbers.Integer
-        Avogadro constant (number of atoms/mol).
-    decay_consts : sympy.matrices.dense.MutableDenseMatrix
-        Column vector of the decay constants (in s\\ :sup:`-1`).
-    nuclide_dict : dict
-        Dictionary containing nuclide strings as keys and positions in the matrices as values.
-
+    Quantity converter using SymPy arbitrary precision operations.
     """
 
-    def __init__(
-        self,
-        nuclide_dict: Dict[str, int],
-        atomic_masses: Matrix,
-        decay_consts: Matrix,
-    ) -> None:
-        super().__init__(nuclide_dict, atomic_masses, decay_consts)
-        self.avogadro = nsimplify(self.avogadro)
+    avogadro = nsimplify(AVOGADRO)
 
-    def __eq__(self, other: object) -> bool:
-        """
-        Check whether two ``QuantityConverterSympy`` instances are equal with ``==`` operator.
-        """
-
-        if not isinstance(other, QuantityConverterSympy):
-            return NotImplemented
-        return (
-            self.atomic_masses == other.atomic_masses
-            and self.avogadro == other.avogadro
-            and self.decay_consts == other.decay_consts
-            and self.nuclide_dict == other.nuclide_dict
-        )
-
-    def __repr__(self) -> str:
-        return "QuantityConverterSympy using SymPy arbitrary precision calculations."
+    @classmethod
+    def __repr__(cls) -> str:
+        return f"{cls.__name__} using SymPy arbitrary precision calculations."
