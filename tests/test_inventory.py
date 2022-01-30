@@ -35,7 +35,6 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inv.contents, {"H-3": 1})
         self.assertEqual(inv.decay_data, DEFAULTDATA)
         self.assertEqual(inv.decay_matrices, DEFAULTDATA.scipy_data)
-        self.assertEqual(inv.quantity_converter, DEFAULTDATA.float_quantity_converter)
 
         # check instantiation using Nuclide instance
         tritium = Nuclide("H3")
@@ -101,31 +100,30 @@ class TestInventory(unittest.TestCase):
         """
 
         inv = Inventory({"H3": 1}, "num", True)
-        qconv = DEFAULTDATA.float_quantity_converter
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "num", qconv),
+            inv._convert_to_number({"H-3": 1.0}, "num"),
             {"H-3": 1.0},
         )
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "Bq", qconv),
+            inv._convert_to_number({"H-3": 1.0}, "Bq"),
             {"H-3": 560892895.7794082},
         )
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "mBq", qconv),
+            inv._convert_to_number({"H-3": 1.0}, "mBq"),
             {"H-3": 560892.8957794083},
         )
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "mol", qconv),
+            inv._convert_to_number({"H-3": 1.0}, "mol"),
             {"H-3": 6.02214076e23},
         )
         self.assertEqual(
-            inv._convert_to_number({"He-3": 1.0}, "kg", qconv),
+            inv._convert_to_number({"He-3": 1.0}, "kg"),
             {"He-3": 1.9967116089131648e26},
         )
 
         # check catch of incorrect units
         with self.assertRaises(ValueError):
-            inv._convert_to_number({"H-3": 1.0}, "xyz", qconv)
+            inv._convert_to_number({"H-3": 1.0}, "xyz")
 
     def test_nuclides(self) -> None:
         """
@@ -674,13 +672,9 @@ class TestInventoryHP(unittest.TestCase):
         )
         self.assertEqual(inv.decay_data, DEFAULTDATA)
         self.assertEqual(inv.decay_matrices, DEFAULTDATA.sympy_data)
-        self.assertEqual(inv.quantity_converter, DEFAULTDATA.sympy_quantity_converter)
 
         temp_data = copy.deepcopy(DEFAULTDATA)
         temp_data.sympy_year_conv = None
-        with self.assertRaises(ValueError):
-            InventoryHP({"H3": 1}, "Bq", True, temp_data)
-        temp_data.sympy_quantity_converter = None
         with self.assertRaises(ValueError):
             InventoryHP({"H3": 1}, "Bq", True, temp_data)
         temp_data.sympy_data = None

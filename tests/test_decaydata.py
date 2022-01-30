@@ -7,7 +7,7 @@ import numpy as np
 from scipy import sparse
 from sympy import Integer, log, Matrix
 from sympy.matrices import SparseMatrix
-from radioactivedecay import converters, decaydata, icrp107_ame2020_nubase2020
+from radioactivedecay import decaydata, icrp107_ame2020_nubase2020
 
 
 class TestFunctions(unittest.TestCase):
@@ -283,10 +283,8 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(dataset.bfs[-1], [])
         self.assertEqual(dataset.modes[-1], [])
         self.assertEqual(dataset.float_year_conv, 365.2422)
-        self.assertIsNotNone(dataset.float_quantity_converter)
         self.assertIsNone(dataset.sympy_data)
         self.assertIsNone(dataset.sympy_year_conv)
-        self.assertIsNone(dataset.sympy_quantity_converter)
 
         atomic_masses_sympy = Matrix.zeros(2, 1)
         decay_consts_sympy = Matrix.zeros(2, 1)
@@ -313,7 +311,6 @@ class TestDecayData(unittest.TestCase):
         )
         self.assertIsNotNone(dataset.sympy_data)
         self.assertIsNotNone(dataset.sympy_year_conv)
-        self.assertIsNotNone(dataset.sympy_quantity_converter)
 
     def test_half_life(self) -> None:
         """

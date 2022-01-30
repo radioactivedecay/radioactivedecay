@@ -24,7 +24,7 @@ from scipy import sparse
 from sympy import exp, Integer, Matrix, nsimplify
 from sympy.core.expr import Expr
 from radioactivedecay.converters import (
-    QuantityConverter,
+    QuantityConverterFloat,
     QuantityConverterSympy,
     UnitConverterFloat,
     UnitConverterSympy,
@@ -90,8 +90,6 @@ class Inventory:
         Decay dataset.
     decay_matrices : DecayMatrices
         Float/SciPy version of the DecayMatrices associated with the decay dataset.
-    quantity_converter : QuantityConverter
-        Float/SciPy version of a convertor between different quantities.
 
     Examples
     --------
@@ -115,7 +113,6 @@ class Inventory:
 
         self.decay_data = decay_data
         self.decay_matrices = self._get_decay_matrices()
-        self.quantity_converter = self._get_quantity_converter()
 
         if check is True:
             contents_with_parsed_keys: Dict[str, float] = self._parse_nuclides(
@@ -126,7 +123,7 @@ class Inventory:
             contents_with_parsed_keys = contents
         contents_sorted = sort_dictionary_alphabetically(contents_with_parsed_keys)
         self.contents = self._convert_to_number(
-            contents_sorted, units, self.quantity_converter
+            contents_sorted, units
         )
 
     @staticmethod
@@ -159,15 +156,25 @@ class Inventory:
                     continue
             raise ValueError(f"{inp} is not a valid quantity of nuclide {nuc}.")
 
+    def _get_atomic_mass(self, nuc: str) -> float:
+        """Returns the appropriate atomic mass."""
+
+        return self.decay_matrices.atomic_masses[self.decay_data.nuclide_dict[nuc]]
+
+    def _get_decay_const(self, nuc: str) -> float:
+        """Returns the appropriate atomic mass."""
+
+        return self.decay_matrices.decay_consts[self.decay_data.nuclide_dict[nuc]]
+
     def _get_decay_matrices(self) -> DecayMatrices:
         """Returns the appropriate DecayMatrices instance."""
 
         return self.decay_data.scipy_data
 
-    def _get_quantity_converter(self) -> QuantityConverter:
+    def _get_quantity_converter(self) -> QuantityConverterFloat:
         """Returns the appropriate QuantityConverter instance."""
 
-        return self.decay_data.float_quantity_converter
+        return QuantityConverterFloat
 
     def _get_unit_converter(self) -> UnitConverterFloat:
         """Returns the appropriate UnitConverter instance."""
@@ -183,7 +190,6 @@ class Inventory:
         self,
         contents: Dict[str, Union[float, Expr]],
         units: str,
-        quantity_converter: QuantityConverter,
     ) -> Dict[str, Union[float, Expr]]:
         """
         Converts an inventory dictionary where the values are masses, moles or activities to one
@@ -196,8 +202,6 @@ class Inventory:
             moles, or activities as values.
         units : str
             Units of the values in the input dictionary.
-        quantity_conveter : QuantityConverter
-            Convertor between quantities.
 
         Returns
         -------
@@ -215,23 +219,24 @@ class Inventory:
             contents_as_numbers = contents
         elif units in self._get_unit_converter().activity_units:
             contents_as_numbers = {
-                nuc: quantity_converter.activity_to_number(
-                    nuc, self._get_unit_converter().activity_unit_conv(act, units, "Bq")
+                nuc: self._get_quantity_converter().activity_to_number(
+                    self._get_unit_converter().activity_unit_conv(act, units, "Bq"),
+                    self._get_decay_const(nuc)
                 )
                 for nuc, act in contents.items()
             }
         elif units in self._get_unit_converter().moles_units:
             contents_as_numbers = {
-                nuc: quantity_converter.moles_to_number(
+                nuc: self._get_quantity_converter().moles_to_number(
                     self._get_unit_converter().moles_unit_conv(mol, units, "mol")
                 )
                 for nuc, mol in contents.items()
             }
         elif units in self._get_unit_converter().mass_units:
             contents_as_numbers = {
-                nuc: quantity_converter.mass_to_number(
-                    nuc,
+                nuc: self._get_quantity_converter().mass_to_number(
                     self._get_unit_converter().mass_unit_conv(mass, units, "g"),
+                    self._get_atomic_mass(nuc)
                 )
                 for nuc, mass in contents.items()
             }
@@ -286,7 +291,7 @@ class Inventory:
 
         activities = {
             nuc: self._get_unit_converter().activity_unit_conv(
-                self.quantity_converter.number_to_activity(nuc, num),
+                self._get_quantity_converter().number_to_activity(num, self._get_decay_const(nuc)),
                 "Bq",
                 units,
             )
@@ -314,7 +319,7 @@ class Inventory:
 
         masses = {
             nuc: self._get_unit_converter().mass_unit_conv(
-                self.quantity_converter.number_to_mass(nuc, num),
+                self._get_quantity_converter().number_to_mass(num, self._get_atomic_mass(nuc)),
                 "g",
                 units,
             )
@@ -343,7 +348,7 @@ class Inventory:
 
         moles = {
             nuc: self._get_unit_converter().moles_unit_conv(
-                self.quantity_converter.number_to_moles(num), "mol", units
+                self._get_quantity_converter().number_to_moles(num), "mol", units
             )
             for nuc, num in self.contents.items()
         }
@@ -1098,8 +1103,6 @@ class InventoryHP(Inventory):
     sig_fig: int
         Number of significant figures for high precision decay calculations and plots. Deafult is
         320.
-    quantity_converter : QuantityConverterSympy
-        SymPy version of a convertor between different quantities.
     unit_converter : UnitConverterSympy
         SymPy version of a convertor for within different units.
 
@@ -1143,11 +1146,8 @@ class InventoryHP(Inventory):
         """
         Returns the appropriate QuantityConverter instance.
         """
-        if self.decay_data.sympy_quantity_converter is None:
-            raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain QuantityConverterSympy instance."
-            )
-        return self.decay_data.sympy_quantity_converter
+
+        return QuantityConverterSympy
 
     def _get_unit_converter(self) -> UnitConverterSympy:
         """
@@ -1196,7 +1196,7 @@ class InventoryHP(Inventory):
         activities = {
             nuc: float(
                 self._get_unit_converter().activity_unit_conv(
-                    self.quantity_converter.number_to_activity(nuc, num),
+                    self._get_quantity_converter().number_to_activity(num, self._get_decay_const(nuc)),
                     "Bq",
                     units,
                 )
@@ -1222,7 +1222,7 @@ class InventoryHP(Inventory):
         masses = {
             nuc: float(
                 self._get_unit_converter().mass_unit_conv(
-                    self.quantity_converter.number_to_mass(nuc, num),
+                    self._get_quantity_converter().number_to_mass(num, self._get_atomic_mass(nuc)),
                     "g",
                     units,
                 )
@@ -1248,7 +1248,7 @@ class InventoryHP(Inventory):
         moles = {
             nuc: float(
                 self._get_unit_converter().moles_unit_conv(
-                    self.quantity_converter.number_to_moles(num), "mol", units
+                    self._get_quantity_converter().number_to_moles(num), "mol", units
                 )
             )
             for nuc, num in self.contents.items()

@@ -42,24 +42,24 @@ class UnitConverter(ABC):
 
     @property
     @abstractmethod
-    def time_units(self):
+    def time_units(self) -> Dict[str, Union[float, Expr]]:
         pass
 
     year_units = {"y", "yr", "year", "years", "ky", "My", "By", "Gy", "Ty", "Py"}
 
     @property
     @abstractmethod
-    def activity_units(self):
+    def activity_units(self) -> Dict[str, Union[float, Expr]]:
         pass
 
     @property
     @abstractmethod
-    def mass_units(self):
+    def mass_units(self) -> Dict[str, Union[float, Expr]]:
         pass
 
     @property
     @abstractmethod
-    def mole_units(self):
+    def mole_units(self) -> Dict[str, Union[float, Expr]]:
         pass
 
     @classmethod
@@ -429,7 +429,7 @@ class QuantityConverter(ABC):
 
     @property
     @abstractmethod
-    def time_units(self):
+    def avogadro(self) -> Union[float, Expr]:
         pass
 
     @staticmethod
