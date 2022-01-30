@@ -43,24 +43,34 @@ class UnitConverter(ABC):
     @property
     @abstractmethod
     def time_units(self) -> Dict[str, Union[float, Expr]]:
-        pass
+        """
+        Returns dictionary containing numbers of each time unit per second.
+        Note: year units do not contain days in year conversion.
+        """
 
     year_units = {"y", "yr", "year", "years", "ky", "My", "By", "Gy", "Ty", "Py"}
+    """Set containing year units. Used to pick up where days in year conversion is needed."""
 
     @property
     @abstractmethod
     def activity_units(self) -> Dict[str, Union[float, Expr]]:
-        pass
+        """
+        Dictionary containing amounts of each activity unit per Bq.
+        """
 
     @property
     @abstractmethod
     def mass_units(self) -> Dict[str, Union[float, Expr]]:
-        pass
+        """
+        Dictionary containing amounts of each mass unit per g.
+        """
 
     @property
     @abstractmethod
     def mole_units(self) -> Dict[str, Union[float, Expr]]:
-        pass
+        """
+        Dictionary containing amounts of each mole unit per mol.
+        """
 
     @classmethod
     def time_unit_conv(
@@ -430,7 +440,9 @@ class QuantityConverter(ABC):
     @property
     @abstractmethod
     def avogadro(self) -> Union[float, Expr]:
-        pass
+        """
+        Avogadro constant (number of atoms/mol).
+        """
 
     @staticmethod
     def activity_to_number(
