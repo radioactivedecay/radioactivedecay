@@ -6,10 +6,6 @@ import copy
 import unittest
 from unittest.mock import patch
 from sympy import Integer, log
-from radioactivedecay.converters import (
-    UnitConverterFloat,
-    UnitConverterSympy
-)
 from radioactivedecay.decaydata import load_dataset, DEFAULTDATA
 from radioactivedecay.inventory import (
     Inventory,

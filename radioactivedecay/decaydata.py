@@ -406,7 +406,7 @@ class DecayData:
                 half_life,
                 units_from=unit,
                 units_to=units,
-                year_conv=self.float_year_conv
+                year_conv=self.float_year_conv,
             )
         )
 
@@ -650,7 +650,9 @@ def load_dataset(
     decay_consts = np.array(
         [
             np.log(2)
-            / UnitConverterFloat.time_unit_conv(hl[0], units_from=hl[1], units_to="s", year_conv=data["year_conv"])
+            / UnitConverterFloat.time_unit_conv(
+                hl[0], units_from=hl[1], units_to="s", year_conv=data["year_conv"]
+            )
             for hl in data["hldata"]
         ]
     )

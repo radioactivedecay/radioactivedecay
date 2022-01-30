@@ -3,7 +3,6 @@ Unit tests for converts.py classes and methods.
 """
 
 import unittest
-import numpy as np
 from sympy import Integer, log
 from radioactivedecay.converters import (
     AVOGADRO,
@@ -50,37 +49,75 @@ class TestUnitConverterFloat(unittest.TestCase):
 
         year_conv = 365.2422
 
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "s", year_conv), 1.0e0)
-        self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "s", "ps", year_conv), 1.0e12, places=(15 - 12)
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "s", year_conv), 1.0e0
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "s", "ns", year_conv), 1.0e9, places=(15 - 9)
+            UnitConverterFloat.time_unit_conv(1.0, "s", "ps", year_conv),
+            1.0e12,
+            places=(15 - 12),
         )
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "μs", year_conv), 1.0e6)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "us", year_conv), 1.0e6)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "ms", year_conv), 1.0e3)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "m", year_conv), 1.0 / 60.0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "h", year_conv), 1.0 / (60.0 ** 2))
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "d", year_conv), 1.0 / (60.0 ** 2 * 24.0))
+        self.assertAlmostEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "ns", year_conv),
+            1.0e9,
+            places=(15 - 9),
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "μs", year_conv), 1.0e6
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "us", year_conv), 1.0e6
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "ms", year_conv), 1.0e3
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "m", year_conv), 1.0 / 60.0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "h", year_conv),
+            1.0 / (60.0 ** 2),
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "d", year_conv),
+            1.0 / (60.0 ** 2 * 24.0),
+        )
         self.assertEqual(
             UnitConverterFloat.time_unit_conv(1.0, "s", "y", year_conv),
             1.0 / (60.0 ** 2 * 24.0 * year_conv),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "ps", "s", year_conv), 1.0e-12, places=(12 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "ps", "s", year_conv),
+            1.0e-12,
+            places=(12 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "ns", "s", year_conv), 1.0e-9, places=(9 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "ns", "s", year_conv),
+            1.0e-9,
+            places=(9 + 15),
         )
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "μs", "s", year_conv), 1.0e-6)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "us", "s", year_conv), 1.0e-6)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "ms", "s", year_conv), 1.0e-3)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "m", "s", year_conv), 60.0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "h", "s", year_conv), (60.0 ** 2))
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "d", "s", year_conv), (60.0 ** 2 * 24.0))
         self.assertEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "s", year_conv), (60.0 ** 2 * 24.0 * year_conv)
+            UnitConverterFloat.time_unit_conv(1.0, "μs", "s", year_conv), 1.0e-6
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "us", "s", year_conv), 1.0e-6
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "ms", "s", year_conv), 1.0e-3
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "m", "s", year_conv), 60.0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "h", "s", year_conv), (60.0 ** 2)
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "d", "s", year_conv),
+            (60.0 ** 2 * 24.0),
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "y", "s", year_conv),
+            (60.0 ** 2 * 24.0 * year_conv),
         )
 
         # Catch some incorrect time units
@@ -98,28 +135,72 @@ class TestUnitConverterFloat(unittest.TestCase):
 
         year_conv = 365.2422
 
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "sec", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "second", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "s", "seconds", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "h", "hr", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "h", "hour", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "h", "hours", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "d", "day", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "d", "days", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "y", "yr", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "y", "year", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "y", "years", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "sec", "s", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "second", "s", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "seconds", "s", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "hr", "h", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "hour", "h", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "hours", "h", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "day", "d", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "days", "d", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "yr", "y", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "year", "y", year_conv), 1.0e0)
-        self.assertEqual(UnitConverterFloat.time_unit_conv(1.0, "years", "y", year_conv), 1.0e0)
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "sec", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "second", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "s", "seconds", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "h", "hr", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "h", "hour", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "h", "hours", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "d", "day", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "d", "days", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "y", "yr", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "y", "year", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "y", "years", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "sec", "s", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "second", "s", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "seconds", "s", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "hr", "h", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "hour", "h", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "hours", "h", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "day", "d", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "days", "d", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "yr", "y", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "year", "y", year_conv), 1.0e0
+        )
+        self.assertEqual(
+            UnitConverterFloat.time_unit_conv(1.0, "years", "y", year_conv), 1.0e0
+        )
 
     def test_time_unit_conv_year_prefixes(self) -> None:
         """
@@ -129,37 +210,59 @@ class TestUnitConverterFloat(unittest.TestCase):
         year_conv = 365.2422
 
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "ky", year_conv), 1.0e-3, places=(3 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "y", "ky", year_conv),
+            1.0e-3,
+            places=(3 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "My", year_conv), 1.0e-6, places=(6 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "y", "My", year_conv),
+            1.0e-6,
+            places=(6 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "By", year_conv), 1.0e-9, places=(9 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "y", "By", year_conv),
+            1.0e-9,
+            places=(9 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "Gy", year_conv), 1.0e-9, places=(9 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "y", "Gy", year_conv),
+            1.0e-9,
+            places=(9 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "Ty", year_conv), 1.0e-12, places=(12 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "y", "Ty", year_conv),
+            1.0e-12,
+            places=(12 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "y", "Py", year_conv), 1.0e-15, places=(15 + 15)
+            UnitConverterFloat.time_unit_conv(1.0, "y", "Py", year_conv),
+            1.0e-15,
+            places=(15 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "ky", "y", year_conv), 1.0e3, places=(15 - 3)
+            UnitConverterFloat.time_unit_conv(1.0, "ky", "y", year_conv),
+            1.0e3,
+            places=(15 - 3),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "My", "y", year_conv), 1.0e6, places=(15 - 6)
+            UnitConverterFloat.time_unit_conv(1.0, "My", "y", year_conv),
+            1.0e6,
+            places=(15 - 6),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "Gy", "y", year_conv), 1.0e9, places=(15 - 9)
+            UnitConverterFloat.time_unit_conv(1.0, "Gy", "y", year_conv),
+            1.0e9,
+            places=(15 - 9),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "Ty", "y", year_conv), 1.0e12, places=(15 - 12)
+            UnitConverterFloat.time_unit_conv(1.0, "Ty", "y", year_conv),
+            1.0e12,
+            places=(15 - 12),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "Py", "y", year_conv), 1.0e15, places=(15 - 15)
+            UnitConverterFloat.time_unit_conv(1.0, "Py", "y", year_conv),
+            1.0e15,
+            places=(15 - 15),
         )
 
     def test_activity_unit_conv(self) -> None:
@@ -169,31 +272,47 @@ class TestUnitConverterFloat(unittest.TestCase):
 
         self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "Bq"), 1.0e0)
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "pBq"), 1.0e12, places=(15 - 12)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "pBq"),
+            1.0e12,
+            places=(15 - 12),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "nBq"), 1.0e9, places=(15 - 9)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "nBq"),
+            1.0e9,
+            places=(15 - 9),
         )
         self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "μBq"), 1.0e6)
         self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "uBq"), 1.0e6)
         self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "mBq"), 1.0e3)
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "kBq"), 1.0e-3, places=(3 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "kBq"),
+            1.0e-3,
+            places=(3 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "MBq"), 1.0e-6, places=(6 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "MBq"),
+            1.0e-6,
+            places=(6 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "GBq"), 1.0e-9, places=(9 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "GBq"),
+            1.0e-9,
+            places=(9 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "TBq"), 1.0e-12, places=(12 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "TBq"),
+            1.0e-12,
+            places=(12 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "PBq"), 1.0e-15, places=(15 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "PBq"),
+            1.0e-15,
+            places=(15 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "EBq"), 1.0e-18, places=(18 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "EBq"),
+            1.0e-18,
+            places=(18 + 15),
         )
 
         self.assertAlmostEqual(
@@ -202,20 +321,36 @@ class TestUnitConverterFloat(unittest.TestCase):
             places=(15 - 12),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "nCi"), 1.0e9 / 3.7e10, places=(15 - 9)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "nCi"),
+            1.0e9 / 3.7e10,
+            places=(15 - 9),
         )
-        self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "μCi"), 1.0e6 / 3.7e10)
-        self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "uCi"), 1.0e6 / 3.7e10)
-        self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "mCi"), 1.0e3 / 3.7e10)
-        self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "Ci"), 1.0 / 3.7e10)
-        self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "kCi"), 1.0e-3 / 3.7e10, places=(3 + 15)
+        self.assertEqual(
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "μCi"), 1.0e6 / 3.7e10
+        )
+        self.assertEqual(
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "uCi"), 1.0e6 / 3.7e10
+        )
+        self.assertEqual(
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "mCi"), 1.0e3 / 3.7e10
+        )
+        self.assertEqual(
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "Ci"), 1.0 / 3.7e10
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "MCi"), 1.0e-6 / 3.7e10, places=(6 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "kCi"),
+            1.0e-3 / 3.7e10,
+            places=(3 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "GCi"), 1.0e-9 / 3.7e10, places=(9 + 15)
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "MCi"),
+            1.0e-6 / 3.7e10,
+            places=(6 + 15),
+        )
+        self.assertAlmostEqual(
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "GCi"),
+            1.0e-9 / 3.7e10,
+            places=(9 + 15),
         )
         self.assertAlmostEqual(
             UnitConverterFloat.activity_unit_conv(1.0, "Bq", "TCi"),
@@ -233,7 +368,9 @@ class TestUnitConverterFloat(unittest.TestCase):
             places=(18 + 15),
         )
 
-        self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "dpm"), 1.0 / 60.0)
+        self.assertEqual(
+            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "dpm"), 1.0 / 60.0
+        )
 
         # Catch some incorrect activity units
         with self.assertRaises(ValueError):
@@ -286,19 +423,27 @@ class TestUnitConverterFloat(unittest.TestCase):
 
         self.assertEqual(UnitConverterFloat.moles_unit_conv(1.0, "mol", "mol"), 1.0e0)
         self.assertAlmostEqual(
-            UnitConverterFloat.moles_unit_conv(1.0, "mol", "pmol"), 1.0e12, places=(15 - 12)
+            UnitConverterFloat.moles_unit_conv(1.0, "mol", "pmol"),
+            1.0e12,
+            places=(15 - 12),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.moles_unit_conv(1.0, "mol", "nmol"), 1.0e9, places=(15 - 9)
+            UnitConverterFloat.moles_unit_conv(1.0, "mol", "nmol"),
+            1.0e9,
+            places=(15 - 9),
         )
         self.assertEqual(UnitConverterFloat.moles_unit_conv(1.0, "mol", "μmol"), 1.0e6)
         self.assertEqual(UnitConverterFloat.moles_unit_conv(1.0, "mol", "umol"), 1.0e6)
         self.assertEqual(UnitConverterFloat.moles_unit_conv(1.0, "mol", "mmol"), 1.0e3)
         self.assertAlmostEqual(
-            UnitConverterFloat.moles_unit_conv(1.0, "mol", "kmol"), 1.0e-3, places=(3 + 15)
+            UnitConverterFloat.moles_unit_conv(1.0, "mol", "kmol"),
+            1.0e-3,
+            places=(3 + 15),
         )
         self.assertAlmostEqual(
-            UnitConverterFloat.moles_unit_conv(1.0, "mol", "Mmol"), 1.0e-6, places=(6 + 15)
+            UnitConverterFloat.moles_unit_conv(1.0, "mol", "Mmol"),
+            1.0e-6,
+            places=(6 + 15),
         )
 
         # Catch some incorrect activity units
@@ -315,7 +460,8 @@ class TestUnitConverterFloat(unittest.TestCase):
         """
 
         self.assertEqual(
-            UnitConverterFloat.__repr__(), "UnitConverterFloat using double-precision floats."
+            UnitConverterFloat.__repr__(),
+            "UnitConverterFloat using double-precision floats.",
         )
 
 
@@ -342,43 +488,135 @@ class TestUnitConverterSympy(unittest.TestCase):
 
         year_conv = Integer(3652422) / 10000
 
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ps", "ns", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ns", "us", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "μs", "ms", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "us", "ms", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ms", "s", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "s", "m", year_conv), 1 / Integer(60))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "m", "h", year_conv), 1 / Integer(60))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "h", "d", year_conv), 1 / Integer(24))
         self.assertEqual(
-            UnitConverterSympy.time_unit_conv(Integer(1), "d", "y", year_conv), 10000 / Integer(3652422)
+            UnitConverterSympy.time_unit_conv(Integer(1), "ps", "ns", year_conv),
+            1 / Integer(1000),
         )
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "y", "ky", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ky", "My", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "My", "By", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "My", "Gy", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "By", "Ty", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "Gy", "Ty", year_conv), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "Ty", "Py", year_conv), 1 / Integer(1000))
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "ns", "us", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "μs", "ms", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "us", "ms", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "ms", "s", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "s", "m", year_conv),
+            1 / Integer(60),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "m", "h", year_conv),
+            1 / Integer(60),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "h", "d", year_conv),
+            1 / Integer(24),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "d", "y", year_conv),
+            10000 / Integer(3652422),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "y", "ky", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "ky", "My", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "My", "By", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "My", "Gy", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "By", "Ty", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "Gy", "Ty", year_conv),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "Ty", "Py", year_conv),
+            1 / Integer(1000),
+        )
 
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ns", "ps", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "μs", "ns", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "us", "ns", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ms", "us", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "s", "ms", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "m", "s", year_conv), Integer(60))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "h", "m", year_conv), Integer(60))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "d", "h", year_conv), Integer(24))
         self.assertEqual(
-            UnitConverterSympy.time_unit_conv(Integer(1), "y", "d", year_conv), Integer(3652422) / 10000
+            UnitConverterSympy.time_unit_conv(Integer(1), "ns", "ps", year_conv),
+            Integer(1000),
         )
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "ky", "y", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "My", "ky", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "By", "My", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "Gy", "My", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "Ty", "By", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "Ty", "Gy", year_conv), Integer(1000))
-        self.assertEqual(UnitConverterSympy.time_unit_conv(Integer(1), "Py", "Ty", year_conv), Integer(1000))
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "μs", "ns", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "us", "ns", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "ms", "us", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "s", "ms", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "m", "s", year_conv),
+            Integer(60),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "h", "m", year_conv),
+            Integer(60),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "d", "h", year_conv),
+            Integer(24),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "y", "d", year_conv),
+            Integer(3652422) / 10000,
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "ky", "y", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "My", "ky", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "By", "My", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "Gy", "My", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "Ty", "By", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "Ty", "Gy", year_conv),
+            Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.time_unit_conv(Integer(1), "Py", "Ty", year_conv),
+            Integer(1000),
+        )
 
         # Catch some incorrect time units
         with self.assertRaises(ValueError):
@@ -394,71 +632,96 @@ class TestUnitConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "pBq", "nBq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "pBq", "nBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "nBq", "μBq"), 1 / Integer(1000)
-        )
-        self.assertEqual(UnitConverterSympy.activity_unit_conv(Integer(1), "μBq", "uBq"), Integer(1))
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "uBq", "mBq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "nBq", "μBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "mBq", "Bq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "μBq", "uBq"), Integer(1)
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "Bq", "kBq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "uBq", "mBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "kBq", "MBq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "mBq", "Bq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "MBq", "GBq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "Bq", "kBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "GBq", "TBq"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "kBq", "MBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "TBq", "PBq"), 1 / Integer(1000)
-        )
-
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "pBq", "pCi"), 1 / Integer(37000000000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "MBq", "GBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "pCi", "nCi"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "GBq", "TBq"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "nCi", "μCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(UnitConverterSympy.activity_unit_conv(Integer(1), "μCi", "uCi"), Integer(1))
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "uCi", "mCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "mCi", "Ci"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "Ci", "kCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "kCi", "MCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "MCi", "GCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "GCi", "TCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "TCi", "PCi"), 1 / Integer(1000)
-        )
-        self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "PCi", "ECi"), 1 / Integer(1000)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "TBq", "PBq"),
+            1 / Integer(1000),
         )
 
         self.assertEqual(
-            UnitConverterSympy.activity_unit_conv(Integer(1), "Bq", "dpm"), 1 / Integer(60)
+            UnitConverterSympy.activity_unit_conv(Integer(1), "pBq", "pCi"),
+            1 / Integer(37000000000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "pCi", "nCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "nCi", "μCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "μCi", "uCi"), Integer(1)
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "uCi", "mCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "mCi", "Ci"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "Ci", "kCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "kCi", "MCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "MCi", "GCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "GCi", "TCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "TCi", "PCi"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "PCi", "ECi"),
+            1 / Integer(1000),
+        )
+
+        self.assertEqual(
+            UnitConverterSympy.activity_unit_conv(Integer(1), "Bq", "dpm"),
+            1 / Integer(60),
         )
 
         # Catch some incorrect activity units
@@ -474,15 +737,33 @@ class TestUnitConverterSympy(unittest.TestCase):
         Test of the SymPy version of mass_unit_conv().
         """
 
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "pg", "ng"), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "ng", "μg"), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "μg", "ug"), Integer(1))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "ug", "mg"), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "mg", "g"), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "g", "kg"), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "kg", "Mg"), 1 / Integer(1000))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "Mg", "t"), Integer(1))
-        self.assertEqual(UnitConverterSympy.mass_unit_conv(Integer(1), "Mg", "ton"), Integer(1))
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "pg", "ng"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "ng", "μg"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "μg", "ug"), Integer(1)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "ug", "mg"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "mg", "g"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "g", "kg"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "kg", "Mg"), 1 / Integer(1000)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "Mg", "t"), Integer(1)
+        )
+        self.assertEqual(
+            UnitConverterSympy.mass_unit_conv(Integer(1), "Mg", "ton"), Integer(1)
+        )
 
         # Catch some incorrect activity units
         with self.assertRaises(ValueError):
@@ -498,23 +779,31 @@ class TestUnitConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            UnitConverterSympy.moles_unit_conv(Integer(1), "pmol", "nmol"), 1 / Integer(1000)
+            UnitConverterSympy.moles_unit_conv(Integer(1), "pmol", "nmol"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.moles_unit_conv(Integer(1), "nmol", "μmol"), 1 / Integer(1000)
-        )
-        self.assertEqual(UnitConverterSympy.moles_unit_conv(Integer(1), "μmol", "umol"), Integer(1))
-        self.assertEqual(
-            UnitConverterSympy.moles_unit_conv(Integer(1), "umol", "mmol"), 1 / Integer(1000)
+            UnitConverterSympy.moles_unit_conv(Integer(1), "nmol", "μmol"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.moles_unit_conv(Integer(1), "mmol", "mol"), 1 / Integer(1000)
+            UnitConverterSympy.moles_unit_conv(Integer(1), "μmol", "umol"), Integer(1)
         )
         self.assertEqual(
-            UnitConverterSympy.moles_unit_conv(Integer(1), "mol", "kmol"), 1 / Integer(1000)
+            UnitConverterSympy.moles_unit_conv(Integer(1), "umol", "mmol"),
+            1 / Integer(1000),
         )
         self.assertEqual(
-            UnitConverterSympy.moles_unit_conv(Integer(1), "kmol", "Mmol"), 1 / Integer(1000)
+            UnitConverterSympy.moles_unit_conv(Integer(1), "mmol", "mol"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.moles_unit_conv(Integer(1), "mol", "kmol"),
+            1 / Integer(1000),
+        )
+        self.assertEqual(
+            UnitConverterSympy.moles_unit_conv(Integer(1), "kmol", "Mmol"),
+            1 / Integer(1000),
         )
 
         # Catch some incorrect activity units
@@ -531,7 +820,8 @@ class TestUnitConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            UnitConverterSympy.__repr__(), "UnitConverterSympy using SymPy arbitrary precision calculations."
+            UnitConverterSympy.__repr__(),
+            "UnitConverterSympy using SymPy arbitrary precision calculations.",
         )
 
 
@@ -552,15 +842,24 @@ class TestQuantityConverterFloat(unittest.TestCase):
         Test the conversion of activity in Bq to number of atoms.
         """
 
-        self.assertEqual(QuantityConverterFloat.activity_to_number(1.0, 1.7828715741004621e-09), 560892895.7794082)
+        self.assertEqual(
+            QuantityConverterFloat.activity_to_number(1.0, 1.7828715741004621e-09),
+            560892895.7794082,
+        )
 
     def test_mass_to_number(self) -> None:
         """
         Test the conversion of mass in grams to number of atoms.
         """
 
-        self.assertEqual(QuantityConverterFloat.mass_to_number(1.0, 3.01604928132), 1.996698395247825e23)
-        self.assertEqual(QuantityConverterFloat.mass_to_number(1.0, 3.01602932197), 1.9967116089131645e23)
+        self.assertEqual(
+            QuantityConverterFloat.mass_to_number(1.0, 3.01604928132),
+            1.996698395247825e23,
+        )
+        self.assertEqual(
+            QuantityConverterFloat.mass_to_number(1.0, 3.01602932197),
+            1.9967116089131645e23,
+        )
 
     def test_moles_to_number(self) -> None:
         """
@@ -575,7 +874,12 @@ class TestQuantityConverterFloat(unittest.TestCase):
         Test the conversion of number of atoms to activity in Bq.
         """
 
-        self.assertEqual(QuantityConverterFloat.number_to_activity(560892895.7794082, 1.7828715741004621e-09), 1.0)
+        self.assertEqual(
+            QuantityConverterFloat.number_to_activity(
+                560892895.7794082, 1.7828715741004621e-09
+            ),
+            1.0,
+        )
         self.assertEqual(QuantityConverterFloat.number_to_activity(1.0, 0.0), 0.0)
         self.assertEqual(QuantityConverterFloat.number_to_activity(0.0, 0.0), 0.0)
 
@@ -584,8 +888,14 @@ class TestQuantityConverterFloat(unittest.TestCase):
         Test the conversion of number of atoms to mass in grams.
         """
 
-        self.assertEqual(QuantityConverterFloat.number_to_mass(1.996698395247825e23, 3.01604928132), 1.0)
-        self.assertEqual(QuantityConverterFloat.number_to_mass(1.9967116089131645e23, 3.01602932197), 1.0)
+        self.assertEqual(
+            QuantityConverterFloat.number_to_mass(1.996698395247825e23, 3.01604928132),
+            1.0,
+        )
+        self.assertEqual(
+            QuantityConverterFloat.number_to_mass(1.9967116089131645e23, 3.01602932197),
+            1.0,
+        )
 
     def test_number_to_moles(self) -> None:
         """
@@ -601,7 +911,8 @@ class TestQuantityConverterFloat(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterFloat.__repr__(), "QuantityConverterFloat using double-precision floats."
+            QuantityConverterFloat.__repr__(),
+            "QuantityConverterFloat using double-precision floats.",
         )
 
 
@@ -615,7 +926,9 @@ class TestQuantityConverterSympy(unittest.TestCase):
         Test class attribute of QuantityConverterSympy class.
         """
 
-        self.assertEqual(QuantityConverterSympy.avogadro, Integer(602214076000000000000000))
+        self.assertEqual(
+            QuantityConverterSympy.avogadro, Integer(602214076000000000000000)
+        )
 
     def test_activity_to_number(self) -> None:
         """
@@ -623,7 +936,9 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.activity_to_number(Integer(1), (Integer(625) * log(2)) / Integer(242988330816)),
+            QuantityConverterSympy.activity_to_number(
+                Integer(1), (Integer(625) * log(2)) / Integer(242988330816)
+            ),
             Integer(242988330816) / (Integer(625) * log(2)),
         )
 
@@ -633,13 +948,19 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.mass_to_number(Integer(1), Integer("15055351900000000000000000000000000") / Integer(75401232033)),
+            QuantityConverterSympy.mass_to_number(
+                Integer(1),
+                Integer("15055351900000000000000000000000000") / Integer(75401232033),
+            ),
             Integer(75401232033)
             / Integer("15055351900000000000000000000000000")
             * Integer("602214076000000000000000"),
         )
         self.assertEqual(
-            QuantityConverterSympy.mass_to_number(Integer(1), Integer("60221407600000000000000000000000000") / Integer(301602932197)),
+            QuantityConverterSympy.mass_to_number(
+                Integer(1),
+                Integer("60221407600000000000000000000000000") / Integer(301602932197),
+            ),
             Integer(301602932197)
             / Integer("60221407600000000000000000000000000")
             * Integer("602214076000000000000000"),
@@ -651,7 +972,8 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.moles_to_number(Integer(1)), Integer("602214076000000000000000")
+            QuantityConverterSympy.moles_to_number(Integer(1)),
+            Integer("602214076000000000000000"),
         )
         self.assertEqual(QuantityConverterSympy.moles_to_number(Integer(0)), Integer(0))
 
@@ -661,11 +983,21 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.number_to_activity(Integer(1), (Integer(625) * log(2)) / Integer(242988330816)),
-            Integer(625) * log(2) / Integer(242988330816), 
+            QuantityConverterSympy.number_to_activity(
+                Integer(1), (Integer(625) * log(2)) / Integer(242988330816)
+            ),
+            Integer(625) * log(2) / Integer(242988330816),
         )
-        self.assertEqual(QuantityConverterSympy.number_to_activity(Integer(0), (Integer(625) * log(2)) / Integer(242988330816)), Integer(0))
-        self.assertEqual(QuantityConverterSympy.number_to_activity(Integer(0), Integer(0)), Integer(0))
+        self.assertEqual(
+            QuantityConverterSympy.number_to_activity(
+                Integer(0), (Integer(625) * log(2)) / Integer(242988330816)
+            ),
+            Integer(0),
+        )
+        self.assertEqual(
+            QuantityConverterSympy.number_to_activity(Integer(0), Integer(0)),
+            Integer(0),
+        )
 
     def test_number_to_mass(self) -> None:
         """
@@ -673,13 +1005,19 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.number_to_mass(Integer(1), Integer("15055351900000000000000000000000000") / Integer(75401232033)),
+            QuantityConverterSympy.number_to_mass(
+                Integer(1),
+                Integer("15055351900000000000000000000000000") / Integer(75401232033),
+            ),
             Integer("15055351900000000000000000000000000")
             / Integer(75401232033)
             / Integer("602214076000000000000000"),
         )
         self.assertEqual(
-            QuantityConverterSympy.number_to_mass(Integer(1), Integer("60221407600000000000000000000000000") / Integer(301602932197)),
+            QuantityConverterSympy.number_to_mass(
+                Integer(1),
+                Integer("60221407600000000000000000000000000") / Integer(301602932197),
+            ),
             Integer("60221407600000000000000000000000000")
             / Integer(301602932197)
             / Integer("602214076000000000000000"),
@@ -691,7 +1029,8 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.number_to_moles(Integer("602214076000000000000000")), Integer(1)
+            QuantityConverterSympy.number_to_moles(Integer("602214076000000000000000")),
+            Integer(1),
         )
         self.assertEqual(QuantityConverterSympy.number_to_moles(Integer(0)), Integer(0))
 
@@ -701,7 +1040,8 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.__repr__(), "QuantityConverterSympy using SymPy arbitrary precision calculations."
+            QuantityConverterSympy.__repr__(),
+            "QuantityConverterSympy using SymPy arbitrary precision calculations.",
         )
 
 

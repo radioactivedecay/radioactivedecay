@@ -13,8 +13,7 @@ as `rd`:
 
 from abc import ABC, abstractmethod
 from typing import Dict, Union
-import numpy as np
-from sympy import Integer, Matrix, nsimplify, Rational
+from sympy import Integer, nsimplify
 from sympy.core.expr import Expr
 
 AVOGADRO = 6.02214076e23
@@ -67,14 +66,18 @@ class UnitConverter(ABC):
 
     @property
     @abstractmethod
-    def mole_units(self) -> Dict[str, Union[float, Expr]]:
+    def moles_units(self) -> Dict[str, Union[float, Expr]]:
         """
         Dictionary containing amounts of each mole unit per mol.
         """
 
     @classmethod
     def time_unit_conv(
-        cls, time_period: Union[float, Expr], units_from: str, units_to: str, year_conv: Union[float, Expr]
+        cls,
+        time_period: Union[float, Expr],
+        units_from: str,
+        units_to: str,
+        year_conv: Union[float, Expr],
     ) -> Union[float, Expr]:
         """
         Converts a time period from one time unit to another.
@@ -158,9 +161,7 @@ class UnitConverter(ABC):
                 str(units_to) + ' is not a activitiy unit, e.g. "Bq", "kBq", "Ci"...'
             )
 
-        return (
-            activity * cls.activity_units[units_from] / cls.activity_units[units_to]
-        )
+        return activity * cls.activity_units[units_from] / cls.activity_units[units_to]
 
     @classmethod
     def mass_unit_conv(
@@ -246,7 +247,7 @@ class UnitConverterFloat(UnitConverter):
     Unit converter using floats.
     """
 
-    time_units = {
+    time_units: Dict[str, float] = {
         "ps": 1.0e-12,
         "ns": 1.0e-9,
         "μs": 1.0e-6,
@@ -276,7 +277,7 @@ class UnitConverterFloat(UnitConverter):
         "Py": 86400.0 * 1.0e15,
     }
 
-    activity_units = {
+    activity_units: Dict[str, float] = {
         "pBq": 1.0e-12,
         "nBq": 1.0e-9,
         "μBq": 1.0e-6,
@@ -304,7 +305,7 @@ class UnitConverterFloat(UnitConverter):
         "dpm": 60.0,
     }
 
-    mass_units = {
+    mass_units: Dict[str, float] = {
         "pg": 1.0e-12,
         "ng": 1.0e-9,
         "μg": 1.0e-6,
@@ -317,7 +318,7 @@ class UnitConverterFloat(UnitConverter):
         "ton": 1.0e6,
     }
 
-    moles_units = {
+    moles_units: Dict[str, float] = {
         "pmol": 1.0e-12,
         "nmol": 1.0e-9,
         "μmol": 1.0e-6,
@@ -338,7 +339,7 @@ class UnitConverterSympy(UnitConverter):
     Unit converter using SymPy arbitrary precision operations.
     """
 
-    time_units = {
+    time_units: Dict[str, Expr] = {
         "ps": Integer(1) / 1000000000000,
         "ns": Integer(1) / 1000000000,
         "μs": Integer(1) / 1000000,
@@ -368,7 +369,7 @@ class UnitConverterSympy(UnitConverter):
         "Py": Integer(86400) * 1000000000000000,
     }
 
-    activity_units = {
+    activity_units: Dict[str, Expr] = {
         "pBq": Integer(1) / 1000000000000,
         "nBq": Integer(1) / 1000000000,
         "μBq": Integer(1) / 1000000,
@@ -396,7 +397,7 @@ class UnitConverterSympy(UnitConverter):
         "dpm": Integer(60),
     }
 
-    mass_units = {
+    mass_units: Dict[str, Expr] = {
         "pg": Integer(1) / 1000000000000,
         "ng": Integer(1) / 1000000000,
         "μg": Integer(1) / 1000000,
@@ -409,7 +410,7 @@ class UnitConverterSympy(UnitConverter):
         "ton": Integer(1000000),
     }
 
-    moles_units= {
+    moles_units: Dict[str, Expr] = {
         "pmol": Integer(1) / 1000000000000,
         "nmol": Integer(1) / 1000000000,
         "μmol": Integer(1) / 1000000,
@@ -446,7 +447,7 @@ class QuantityConverter(ABC):
 
     @staticmethod
     def activity_to_number(
-       activity: Union[float, Expr], decay_const: Union[float, Expr]
+        activity: Union[float, Expr], decay_const: Union[float, Expr]
     ) -> Union[float, Expr]:
         """
         Converts an activity in Bq to the number of atoms.
@@ -574,12 +575,13 @@ class QuantityConverter(ABC):
 
         return number / cls.avogadro
 
+
 class QuantityConverterFloat(QuantityConverter):
     """
     Quantity converter using SymPy arbitrary precision operations.
     """
 
-    avogadro = AVOGADRO
+    avogadro: float = AVOGADRO
 
     @classmethod
     def __repr__(cls) -> str:
@@ -591,7 +593,7 @@ class QuantityConverterSympy(QuantityConverter):
     Quantity converter using SymPy arbitrary precision operations.
     """
 
-    avogadro = nsimplify(AVOGADRO)
+    avogadro: Expr = nsimplify(AVOGADRO)
 
     @classmethod
     def __repr__(cls) -> str:

@@ -122,9 +122,7 @@ class Inventory:
         else:
             contents_with_parsed_keys = contents
         contents_sorted = sort_dictionary_alphabetically(contents_with_parsed_keys)
-        self.contents = self._convert_to_number(
-            contents_sorted, units
-        )
+        self.contents = self._convert_to_number(contents_sorted, units)
 
     @staticmethod
     def _parse_nuclides(
@@ -171,12 +169,14 @@ class Inventory:
 
         return self.decay_data.scipy_data
 
-    def _get_quantity_converter(self) -> QuantityConverterFloat:
+    @staticmethod
+    def _get_quantity_converter() -> QuantityConverterFloat:
         """Returns the appropriate QuantityConverter instance."""
 
         return QuantityConverterFloat
 
-    def _get_unit_converter(self) -> UnitConverterFloat:
+    @staticmethod
+    def _get_unit_converter() -> UnitConverterFloat:
         """Returns the appropriate UnitConverter instance."""
 
         return UnitConverterFloat
@@ -221,7 +221,7 @@ class Inventory:
             contents_as_numbers = {
                 nuc: self._get_quantity_converter().activity_to_number(
                     self._get_unit_converter().activity_unit_conv(act, units, "Bq"),
-                    self._get_decay_const(nuc)
+                    self._get_decay_const(nuc),
                 )
                 for nuc, act in contents.items()
             }
@@ -236,7 +236,7 @@ class Inventory:
             contents_as_numbers = {
                 nuc: self._get_quantity_converter().mass_to_number(
                     self._get_unit_converter().mass_unit_conv(mass, units, "g"),
-                    self._get_atomic_mass(nuc)
+                    self._get_atomic_mass(nuc),
                 )
                 for nuc, mass in contents.items()
             }
@@ -291,7 +291,9 @@ class Inventory:
 
         activities = {
             nuc: self._get_unit_converter().activity_unit_conv(
-                self._get_quantity_converter().number_to_activity(num, self._get_decay_const(nuc)),
+                self._get_quantity_converter().number_to_activity(
+                    num, self._get_decay_const(nuc)
+                ),
                 "Bq",
                 units,
             )
@@ -319,7 +321,9 @@ class Inventory:
 
         masses = {
             nuc: self._get_unit_converter().mass_unit_conv(
-                self._get_quantity_converter().number_to_mass(num, self._get_atomic_mass(nuc)),
+                self._get_quantity_converter().number_to_mass(
+                    num, self._get_atomic_mass(nuc)
+                ),
                 "g",
                 units,
             )
@@ -644,7 +648,9 @@ class Inventory:
         Converts a decay time period into seconds.
         """
 
-        return self._get_unit_converter().time_unit_conv(decay_time, units, "s", self._get_year_conv())
+        return self._get_unit_converter().time_unit_conv(
+            decay_time, units, "s", self._get_year_conv()
+        )
 
     def _setup_decay_calc(
         self,
@@ -1142,7 +1148,8 @@ class InventoryHP(Inventory):
             )
         return self.decay_data.sympy_data
 
-    def _get_quantity_converter(self) -> QuantityConverterSympy:
+    @staticmethod
+    def _get_quantity_converter() -> QuantityConverterSympy:
         """
         Returns the appropriate QuantityConverter instance.
         """
@@ -1196,7 +1203,9 @@ class InventoryHP(Inventory):
         activities = {
             nuc: float(
                 self._get_unit_converter().activity_unit_conv(
-                    self._get_quantity_converter().number_to_activity(num, self._get_decay_const(nuc)),
+                    self._get_quantity_converter().number_to_activity(
+                        num, self._get_decay_const(nuc)
+                    ),
                     "Bq",
                     units,
                 )
@@ -1222,7 +1231,9 @@ class InventoryHP(Inventory):
         masses = {
             nuc: float(
                 self._get_unit_converter().mass_unit_conv(
-                    self._get_quantity_converter().number_to_mass(num, self._get_atomic_mass(nuc)),
+                    self._get_quantity_converter().number_to_mass(
+                        num, self._get_atomic_mass(nuc)
+                    ),
                     "g",
                     units,
                 )

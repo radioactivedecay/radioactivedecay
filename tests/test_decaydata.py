@@ -307,7 +307,7 @@ class TestDecayData(unittest.TestCase):
             progeny,
             decay_mats,
             decay_mats_sympy,
-            sympy_year_conv
+            sympy_year_conv,
         )
         self.assertIsNotNone(dataset.sympy_data)
         self.assertIsNotNone(dataset.sympy_year_conv)
