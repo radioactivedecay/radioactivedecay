@@ -24,15 +24,13 @@ class UnitConverter(ABC):
     """
     Template class for unit converters using either floats or SymPy arithmetic.
 
-    Parameters
-    ----------
-    year_conv : float or Rational
-        Conversion factor for number of days in a year.
 
-    Attributes
+    Class Attributes
     ----------
     time_units : dict
         Dictionary containing numbers of each time unit per second.
+    year_units : set
+        Set containing all year units.
     activity_units : dict
         Dictionary containing amounts of each activity unit per Bq.
     mass_units : dict
@@ -42,40 +40,31 @@ class UnitConverter(ABC):
 
     """
 
-    def __init__(self, year_conv: Union[float, Rational]):
-        self.time_units = self.get_time_units(year_conv)
-        self.activity_units = self.get_activity_units()
-        self.mass_units = self.get_mass_units()
-        self.moles_units = self.get_moles_units()
-
+    @property
     @abstractmethod
-    def get_time_units(
-        self, year_conv: Union[float, Rational]
-    ) -> Dict[str, Union[float, Expr]]:
-        """
-        Returns time units dictionary (template).
-        """
+    def time_units(self):
+        pass
 
+    year_units = {"y", "yr", "year", "years", "ky", "My", "By", "Gy", "Ty", "Py"}
+
+    @property
     @abstractmethod
-    def get_activity_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Returns activity units dictionary (template).
-        """
+    def activity_units(self):
+        pass
 
+    @property
     @abstractmethod
-    def get_mass_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Returns mass units dictionary (template).
-        """
+    def mass_units(self):
+        pass
 
+    @property
     @abstractmethod
-    def get_moles_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Returns moles units dictionary (template).
-        """
+    def mole_units(self):
+        pass
 
+    @classmethod
     def time_unit_conv(
-        self, time_period: Union[float, Expr], units_from: str, units_to: str
+        cls, time_period: Union[float, Expr], units_from: str, units_to: str, year_conv: Union[float, Expr]
     ) -> Union[float, Expr]:
         """
         Converts a time period from one time unit to another.
@@ -85,13 +74,15 @@ class UnitConverter(ABC):
         time_period : float or Expr
             Time period before conversion.
         units_from : str
-            Time unit before conversion
+            Time unit before conversion.
         units_to : str
-            Time unit after conversion
+            Time unit after conversion.
+        year_conv : Union[float, Expr]
+            Number of days in one year.
 
         Returns
         -------
-        Expr
+        float or Expr
             Time period in new units.
 
         Raises
@@ -101,20 +92,24 @@ class UnitConverter(ABC):
 
         """
 
-        if units_from not in self.time_units:
+        if units_from not in cls.time_units:
             raise ValueError(
                 str(units_from)
                 + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
             )
-        if units_to not in self.time_units:
+        if units_to not in cls.time_units:
             raise ValueError(
                 str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
             )
 
-        return time_period * self.time_units[units_from] / self.time_units[units_to]
+        result = time_period * cls.time_units[units_from] / cls.time_units[units_to]
+        if units_from in cls.year_units: result *= year_conv
+        if units_to in cls.year_units: result /= year_conv
+        return result
 
+    @classmethod
     def activity_unit_conv(
-        self, activity: Union[float, Expr], units_from: str, units_to: str
+        cls, activity: Union[float, Expr], units_from: str, units_to: str
     ) -> Union[float, Expr]:
         """
         Converts an activity from one unit to another.
@@ -124,13 +119,13 @@ class UnitConverter(ABC):
         activity : float or Expr
             Activity before conversion.
         units_from : str
-            Activity unit before conversion
+            Activity unit before conversion.
         units_to : str
-            Activity unit after conversion
+            Activity unit after conversion.
 
         Returns
         -------
-        Expr
+        float or Expr
             Activity in new units.
 
         Raises
@@ -140,22 +135,23 @@ class UnitConverter(ABC):
 
         """
 
-        if units_from not in self.activity_units:
+        if units_from not in cls.activity_units:
             raise ValueError(
                 str(units_from)
                 + ' is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
             )
-        if units_to not in self.activity_units:
+        if units_to not in cls.activity_units:
             raise ValueError(
                 str(units_to) + ' is not a activitiy unit, e.g. "Bq", "kBq", "Ci"...'
             )
 
         return (
-            activity * self.activity_units[units_from] / self.activity_units[units_to]
+            activity * cls.activity_units[units_from] / cls.activity_units[units_to]
         )
 
+    @classmethod
     def mass_unit_conv(
-        self, mass: Union[float, Expr], units_from: str, units_to: str
+        cls, mass: Union[float, Expr], units_from: str, units_to: str
     ) -> Union[float, Expr]:
         """
         Converts a mass from one unit to another.
@@ -165,13 +161,13 @@ class UnitConverter(ABC):
         mass : float or Expr
             Mass before conversion.
         units_from : str
-            Mass unit before conversion
+            Mass unit before conversion.
         units_to : str
-            Mass unit after conversion
+            Mass unit after conversion.
 
         Returns
         -------
-        Expr
+        float or Expr
             Mass in new units.
 
         Raises
@@ -181,19 +177,20 @@ class UnitConverter(ABC):
 
         """
 
-        if units_from not in self.mass_units:
+        if units_from not in cls.mass_units:
             raise ValueError(
                 str(units_from) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
             )
-        if units_to not in self.mass_units:
+        if units_to not in cls.mass_units:
             raise ValueError(
                 str(units_to) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
             )
 
-        return mass * self.mass_units[units_from] / self.mass_units[units_to]
+        return mass * cls.mass_units[units_from] / cls.mass_units[units_to]
 
+    @classmethod
     def moles_unit_conv(
-        self, moles: Union[float, Expr], units_from: str, units_to: str
+        cls, moles: Union[float, Expr], units_from: str, units_to: str
     ) -> Union[float, Expr]:
         """
         Converts a number of moles from one order of magnitude to another.
@@ -209,7 +206,7 @@ class UnitConverter(ABC):
 
         Returns
         -------
-        Expr
+        float or Expr
             Result in chosen units.
 
         Raises
@@ -219,295 +216,193 @@ class UnitConverter(ABC):
 
         """
 
-        if units_from not in self.moles_units:
+        if units_from not in cls.moles_units:
             raise ValueError(
                 str(units_from) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
             )
-        if units_to not in self.moles_units:
+        if units_to not in cls.moles_units:
             raise ValueError(
                 str(units_to) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
             )
 
-        return moles * self.moles_units[units_from] / self.moles_units[units_to]
-
-    def __eq__(self, other: object) -> bool:
-        """
-        Check whether two ``UnitConverter`` instances are equal with ``==`` operator.
-        """
-
-        if not isinstance(other, UnitConverter):
-            return NotImplemented
-        return (
-            self.time_units == other.time_units
-            and self.activity_units == other.activity_units
-            and self.mass_units == other.mass_units
-            and self.moles_units == other.moles_units
-        )
-
-    def __ne__(self, other: object) -> bool:
-        """
-        Check whether two ``UnitConverter`` instances are not equal with ``!=`` operator.
-        """
-
-        if not isinstance(other, UnitConverter):
-            return NotImplemented
-        return not self.__eq__(other)
+        return moles * cls.moles_units[units_from] / cls.moles_units[units_to]
 
 
 class UnitConverterFloat(UnitConverter):
     """
     Unit converter using floats.
-
-    Parameters
-    ----------
-    year_conv : float
-        Conversion factor for number of days in a year.
-
-    Attributes
-    ----------
-    time_units : dict
-        Dictionary containing numbers of each time unit per second.
-    activity_units : dict
-        Dictionary containing amounts of each activity unit per Bq.
-    mass_units : dict
-        Dictionary containing amounts of each mass unit per g.
-    moles_units : dict
-        Dictionary containing amounts of each mole unit per mol.
-
     """
 
-    def get_time_units(self, year_conv: float) -> Dict[str, float]:
-        """
-        Get time units defined using floats.
-        """
+    time_units = {
+        "ps": 1.0e-12,
+        "ns": 1.0e-9,
+        "μs": 1.0e-6,
+        "us": 1.0e-6,
+        "ms": 1.0e-3,
+        "s": 1.0,
+        "m": 60.0,
+        "h": 3600.0,
+        "d": 86400.0,
+        "y": 86400.0,
+        "sec": 1,
+        "second": 1,
+        "seconds": 1,
+        "hr": 3600.0,
+        "hour": 3600.0,
+        "hours": 3600.0,
+        "day": 86400.0,
+        "days": 86400.0,
+        "yr": 86400.0,
+        "year": 86400.0,
+        "years": 86400.0,
+        "ky": 86400.0 * 1.0e3,
+        "My": 86400.0 * 1.0e6,
+        "By": 86400.0 * 1.0e9,
+        "Gy": 86400.0 * 1.0e9,
+        "Ty": 86400.0 * 1.0e12,
+        "Py": 86400.0 * 1.0e15,
+    }
 
-        return {
-            "ps": 1.0e-12,
-            "ns": 1.0e-9,
-            "μs": 1.0e-6,
-            "us": 1.0e-6,
-            "ms": 1.0e-3,
-            "s": 1.0,
-            "m": 60.0,
-            "h": 3600.0,
-            "d": 86400.0,
-            "y": 86400.0 * year_conv,
-            "sec": 1,
-            "second": 1,
-            "seconds": 1,
-            "hr": 3600.0,
-            "hour": 3600.0,
-            "hours": 3600.0,
-            "day": 86400.0,
-            "days": 86400.0,
-            "yr": 86400.0 * year_conv,
-            "year": 86400.0 * year_conv,
-            "years": 86400.0 * year_conv,
-            "ky": 86400.0 * year_conv * 1.0e3,
-            "My": 86400.0 * year_conv * 1.0e6,
-            "By": 86400.0 * year_conv * 1.0e9,
-            "Gy": 86400.0 * year_conv * 1.0e9,
-            "Ty": 86400.0 * year_conv * 1.0e12,
-            "Py": 86400.0 * year_conv * 1.0e15,
-        }
+    activity_units = {
+        "pBq": 1.0e-12,
+        "nBq": 1.0e-9,
+        "μBq": 1.0e-6,
+        "uBq": 1.0e-6,
+        "mBq": 1.0e-3,
+        "Bq": 1.0,
+        "kBq": 1.0e3,
+        "MBq": 1.0e6,
+        "GBq": 1.0e9,
+        "TBq": 1.0e12,
+        "PBq": 1.0e15,
+        "EBq": 1.0e18,
+        "pCi": 1.0e-12 * 3.7e10,
+        "nCi": 1.0e-9 * 3.7e10,
+        "μCi": 1.0e-6 * 3.7e10,
+        "uCi": 1.0e-6 * 3.7e10,
+        "mCi": 1.0e-3 * 3.7e10,
+        "Ci": 1.0 * 3.7e10,
+        "kCi": 1.0e3 * 3.7e10,
+        "MCi": 1.0e6 * 3.7e10,
+        "GCi": 1.0e9 * 3.7e10,
+        "TCi": 1.0e12 * 3.7e10,
+        "PCi": 1.0e15 * 3.7e10,
+        "ECi": 1.0e18 * 3.7e10,
+        "dpm": 60.0,
+    }
 
-    def get_activity_units(self) -> Dict[str, float]:
-        """
-        Get activity units defined using floats.
-        """
+    mass_units = {
+        "pg": 1.0e-12,
+        "ng": 1.0e-9,
+        "μg": 1.0e-6,
+        "ug": 1.0e-6,
+        "mg": 1.0e-3,
+        "g": 1.0,
+        "kg": 1.0e3,
+        "Mg": 1.0e6,
+        "t": 1.0e6,
+        "ton": 1.0e6,
+    }
 
-        return {
-            "pBq": 1.0e-12,
-            "nBq": 1.0e-9,
-            "μBq": 1.0e-6,
-            "uBq": 1.0e-6,
-            "mBq": 1.0e-3,
-            "Bq": 1.0,
-            "kBq": 1.0e3,
-            "MBq": 1.0e6,
-            "GBq": 1.0e9,
-            "TBq": 1.0e12,
-            "PBq": 1.0e15,
-            "EBq": 1.0e18,
-            "pCi": 1.0e-12 * 3.7e10,
-            "nCi": 1.0e-9 * 3.7e10,
-            "μCi": 1.0e-6 * 3.7e10,
-            "uCi": 1.0e-6 * 3.7e10,
-            "mCi": 1.0e-3 * 3.7e10,
-            "Ci": 1.0 * 3.7e10,
-            "kCi": 1.0e3 * 3.7e10,
-            "MCi": 1.0e6 * 3.7e10,
-            "GCi": 1.0e9 * 3.7e10,
-            "TCi": 1.0e12 * 3.7e10,
-            "PCi": 1.0e15 * 3.7e10,
-            "ECi": 1.0e18 * 3.7e10,
-            "dpm": 60.0,
-        }
-
-    def get_mass_units(self) -> Dict[str, float]:
-        """
-        Get mass units defined using floats.
-        """
-
-        return {
-            "pg": 1.0e-12,
-            "ng": 1.0e-9,
-            "μg": 1.0e-6,
-            "ug": 1.0e-6,
-            "mg": 1.0e-3,
-            "g": 1.0,
-            "kg": 1.0e3,
-            "Mg": 1.0e6,
-            "t": 1.0e6,
-            "ton": 1.0e6,
-        }
-
-    def get_moles_units(self) -> Dict[str, float]:
-        """
-        Get moles units definted using floats.
-        """
-
-        return {
-            "pmol": 1.0e-12,
-            "nmol": 1.0e-9,
-            "μmol": 1.0e-6,
-            "umol": 1.0e-6,
-            "mmol": 1.0e-3,
-            "mol": 1.0,
-            "kmol": 1.0e3,
-            "Mmol": 1.0e6,
-        }
-
-    def __repr__(self) -> str:
-        return f"UnitConverterFloat using {self.time_unit_conv(1, 'y', 'd')} days in a year."
+    moles_units = {
+        "pmol": 1.0e-12,
+        "nmol": 1.0e-9,
+        "μmol": 1.0e-6,
+        "umol": 1.0e-6,
+        "mmol": 1.0e-3,
+        "mol": 1.0,
+        "kmol": 1.0e3,
+        "Mmol": 1.0e6,
+    }
 
 
 class UnitConverterSympy(UnitConverter):
     """
     Unit converter using SymPy arbitrary precision operations.
-
-    Parameters
-    ----------
-    year_conv : sympy.core.numbers.Rational
-        Conversion factor for number of days in a year.
-
-    Attributes
-    ----------
-    time_units : dict
-        Dictionary containing numbers of each time unit per second.
-    activity_units : dict
-        Dictionary containing amounts of each activity unit per Bq.
-    mass_units : dict
-        Dictionary containing amounts of each mass unit per g.
-    moles_units : dict
-        Dictionary containing amounts of each mole unit per mol.
-
     """
 
-    def get_time_units(self, year_conv: Rational) -> Dict[str, Expr]:
-        """
-        Get time units definted using Sympy Expressions.
-        """
+    time_units = {
+        "ps": Integer(1) / 1000000000000,
+        "ns": Integer(1) / 1000000000,
+        "μs": Integer(1) / 1000000,
+        "us": Integer(1) / 1000000,
+        "ms": Integer(1) / 1000,
+        "s": Integer(1),
+        "m": Integer(60),
+        "h": Integer(3600),
+        "d": Integer(86400),
+        "y": Integer(86400),
+        "sec": Integer(1),
+        "second": Integer(1),
+        "seconds": Integer(1),
+        "hr": Integer(3600),
+        "hour": Integer(3600),
+        "hours": Integer(3600),
+        "day": Integer(86400),
+        "days": Integer(86400),
+        "yr": Integer(86400),
+        "year": Integer(86400),
+        "years": Integer(86400),
+        "ky": Integer(86400) * 1000,
+        "My": Integer(86400) * 1000000,
+        "By": Integer(86400) * 1000000000,
+        "Gy": Integer(86400) * 1000000000,
+        "Ty": Integer(86400) * 1000000000000,
+        "Py": Integer(86400) * 1000000000000000,
+    }
 
-        return {
-            "ps": Integer(1) / 1000000000000,
-            "ns": Integer(1) / 1000000000,
-            "μs": Integer(1) / 1000000,
-            "us": Integer(1) / 1000000,
-            "ms": Integer(1) / 1000,
-            "s": Integer(1),
-            "m": Integer(60),
-            "h": Integer(3600),
-            "d": Integer(86400),
-            "y": Integer(86400) * year_conv,
-            "sec": Integer(1),
-            "second": Integer(1),
-            "seconds": Integer(1),
-            "hr": Integer(3600),
-            "hour": Integer(3600),
-            "hours": Integer(3600),
-            "day": Integer(86400),
-            "days": Integer(86400),
-            "yr": Integer(86400) * year_conv,
-            "year": Integer(86400) * year_conv,
-            "years": Integer(86400) * year_conv,
-            "ky": Integer(86400) * year_conv * 1000,
-            "My": Integer(86400) * year_conv * 1000000,
-            "By": Integer(86400) * year_conv * 1000000000,
-            "Gy": Integer(86400) * year_conv * 1000000000,
-            "Ty": Integer(86400) * year_conv * 1000000000000,
-            "Py": Integer(86400) * year_conv * 1000000000000000,
-        }
+    activity_units = {
+        "pBq": Integer(1) / 1000000000000,
+        "nBq": Integer(1) / 1000000000,
+        "μBq": Integer(1) / 1000000,
+        "uBq": Integer(1) / 1000000,
+        "mBq": Integer(1) / 1000,
+        "Bq": Integer(1),
+        "kBq": Integer(1000),
+        "MBq": Integer(1000000),
+        "GBq": Integer(1000000000),
+        "TBq": Integer(1000000000000),
+        "PBq": Integer(1000000000000000),
+        "EBq": Integer(1000000000000000000),
+        "pCi": Integer(1) / 1000000000000 * 37000000000,
+        "nCi": Integer(1) / 1000000000 * 37000000000,
+        "μCi": Integer(1) / 1000000 * 37000000000,
+        "uCi": Integer(1) / 1000000 * 37000000000,
+        "mCi": Integer(1) / 1000 * 37000000000,
+        "Ci": Integer(1) * 37000000000,
+        "kCi": Integer(1000) * 37000000000,
+        "MCi": Integer(1000000) * 37000000000,
+        "GCi": Integer(1000000000) * 37000000000,
+        "TCi": Integer(1000000000000) * 37000000000,
+        "PCi": Integer(1000000000000000) * 37000000000,
+        "ECi": Integer(1000000000000000000) * 37000000000,
+        "dpm": Integer(60),
+    }
 
-    def get_activity_units(self) -> Dict[str, Expr]:
-        """
-        Get activity units definted using Sympy Expressions.
-        """
+    mass_units = {
+        "pg": Integer(1) / 1000000000000,
+        "ng": Integer(1) / 1000000000,
+        "μg": Integer(1) / 1000000,
+        "ug": Integer(1) / 1000000,
+        "mg": Integer(1) / 1000,
+        "g": Integer(1),
+        "kg": Integer(1000),
+        "Mg": Integer(1000000),
+        "t": Integer(1000000),
+        "ton": Integer(1000000),
+    }
 
-        return {
-            "pBq": Integer(1) / 1000000000000,
-            "nBq": Integer(1) / 1000000000,
-            "μBq": Integer(1) / 1000000,
-            "uBq": Integer(1) / 1000000,
-            "mBq": Integer(1) / 1000,
-            "Bq": Integer(1),
-            "kBq": Integer(1000),
-            "MBq": Integer(1000000),
-            "GBq": Integer(1000000000),
-            "TBq": Integer(1000000000000),
-            "PBq": Integer(1000000000000000),
-            "EBq": Integer(1000000000000000000),
-            "pCi": Integer(1) / 1000000000000 * 37000000000,
-            "nCi": Integer(1) / 1000000000 * 37000000000,
-            "μCi": Integer(1) / 1000000 * 37000000000,
-            "uCi": Integer(1) / 1000000 * 37000000000,
-            "mCi": Integer(1) / 1000 * 37000000000,
-            "Ci": Integer(1) * 37000000000,
-            "kCi": Integer(1000) * 37000000000,
-            "MCi": Integer(1000000) * 37000000000,
-            "GCi": Integer(1000000000) * 37000000000,
-            "TCi": Integer(1000000000000) * 37000000000,
-            "PCi": Integer(1000000000000000) * 37000000000,
-            "ECi": Integer(1000000000000000000) * 37000000000,
-            "dpm": Integer(60),
-        }
+    moles_units= {
+        "pmol": Integer(1) / 1000000000000,
+        "nmol": Integer(1) / 1000000000,
+        "μmol": Integer(1) / 1000000,
+        "umol": Integer(1) / 1000000,
+        "mmol": Integer(1) / 1000,
+        "mol": Integer(1),
+        "kmol": Integer(1000),
+        "Mmol": Integer(1000000),
+    }
 
-    def get_mass_units(self) -> Dict[str, Expr]:
-        """
-        Get mass units definted using Sympy Expressions.
-        """
-
-        return {
-            "pg": Integer(1) / 1000000000000,
-            "ng": Integer(1) / 1000000000,
-            "μg": Integer(1) / 1000000,
-            "ug": Integer(1) / 1000000,
-            "mg": Integer(1) / 1000,
-            "g": Integer(1),
-            "kg": Integer(1000),
-            "Mg": Integer(1000000),
-            "t": Integer(1000000),
-            "ton": Integer(1000000),
-        }
-
-    def get_moles_units(self) -> Dict[str, Expr]:
-        """
-        Get mole units definted using Sympy Expressions.
-        """
-
-        return {
-            "pmol": Integer(1) / 1000000000000,
-            "nmol": Integer(1) / 1000000000,
-            "μmol": Integer(1) / 1000000,
-            "umol": Integer(1) / 1000000,
-            "mmol": Integer(1) / 1000,
-            "mol": Integer(1),
-            "kmol": Integer(1000),
-            "Mmol": Integer(1000000),
-        }
-
-    def __repr__(self) -> str:
-        return f"UnitConverterSympy using {self.time_unit_conv(1, 'y', 'd')} days in a year."
 
 
 class QuantityConverter:
