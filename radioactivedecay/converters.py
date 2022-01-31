@@ -11,7 +11,7 @@ as `rd`:
 
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Dict, Union
 from sympy import Integer, nsimplify
 from sympy.core.expr import Expr
@@ -28,48 +28,22 @@ class UnitConverter(ABC):
     ----------
     time_units : dict
         Dictionary containing numbers of each time unit per second.
-    year_units : set
-        Set containing all year units.
     activity_units : dict
         Dictionary containing amounts of each activity unit per Bq.
     mass_units : dict
         Dictionary containing amounts of each mass unit per g.
     moles_units : dict
         Dictionary containing amounts of each mole unit per mol.
+    year_units : set
+        Set containing all year units. Used to pick up where days in year conversion is needed.
 
     """
 
-    @property
-    @abstractmethod
-    def time_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Returns dictionary containing numbers of each time unit per second.
-        Note: year units do not contain days in year conversion.
-        """
-
+    time_units: Dict[str, Union[float, Expr]]
+    activity_units: Dict[str, Union[float, Expr]]
+    mass_units: Dict[str, Union[float, Expr]]
+    moles_units: Dict[str, Union[float, Expr]]
     year_units = {"y", "yr", "year", "years", "ky", "My", "By", "Gy", "Ty", "Py"}
-    """Set containing year units. Used to pick up where days in year conversion is needed."""
-
-    @property
-    @abstractmethod
-    def activity_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Dictionary containing amounts of each activity unit per Bq.
-        """
-
-    @property
-    @abstractmethod
-    def mass_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Dictionary containing amounts of each mass unit per g.
-        """
-
-    @property
-    @abstractmethod
-    def moles_units(self) -> Dict[str, Union[float, Expr]]:
-        """
-        Dictionary containing amounts of each mole unit per mol.
-        """
 
     @classmethod
     def time_unit_conv(
@@ -438,12 +412,7 @@ class QuantityConverter(ABC):
 
     """
 
-    @property
-    @abstractmethod
-    def avogadro(self) -> Union[float, Expr]:
-        """
-        Avogadro constant (number of atoms/mol).
-        """
+    avogadro: Union[float, Expr]
 
     @staticmethod
     def activity_to_number(
