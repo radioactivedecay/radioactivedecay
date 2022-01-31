@@ -210,6 +210,8 @@ class Nuclide:
         >>> K40 = rd.Nuclide('K-40')
         >>> K40.half_life('y')
         1251000000.0
+        >>> K40.half_life('readable')
+        '1.251 By'
         >>> Fe56 = rd.Nuclide('Fe-56')
         >>> Fe56.half_life('readable')
         'stable'
