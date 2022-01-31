@@ -17,7 +17,7 @@ as `rd`:
 """
 
 from functools import singledispatch, update_wrapper
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 import matplotlib
 import numpy as np
 from scipy import sparse
@@ -170,13 +170,13 @@ class Inventory:
         return self.decay_data.scipy_data
 
     @staticmethod
-    def _get_quantity_converter() -> QuantityConverterFloat:
+    def _get_quantity_converter() -> Type[QuantityConverterFloat]:
         """Returns the appropriate QuantityConverter instance."""
 
         return QuantityConverterFloat
 
     @staticmethod
-    def _get_unit_converter() -> UnitConverterFloat:
+    def _get_unit_converter() -> Type[UnitConverterFloat]:
         """Returns the appropriate UnitConverter instance."""
 
         return UnitConverterFloat
@@ -585,7 +585,7 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(int)  # type: ignore[no-redef]
+    @remove.register(int)
     def _(
         self, delete: int
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
@@ -601,7 +601,7 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(Nuclide)  # type: ignore[no-redef]
+    @remove.register(Nuclide)
     def _(
         self, delete: Nuclide
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
@@ -617,7 +617,7 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(list)  # type: ignore[no-redef]
+    @remove.register(list)
     def _(
         self, delete: List[Union[str, int, Nuclide]]
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
@@ -1149,14 +1149,14 @@ class InventoryHP(Inventory):
         return self.decay_data.sympy_data
 
     @staticmethod
-    def _get_quantity_converter() -> QuantityConverterSympy:
+    def _get_quantity_converter() -> Type[QuantityConverterSympy]:
         """
         Returns the appropriate QuantityConverter instance.
         """
 
         return QuantityConverterSympy
 
-    def _get_unit_converter(self) -> UnitConverterSympy:
+    def _get_unit_converter(self) -> Type[UnitConverterSympy]:
         """
         Returns the appropriate UnitConverter instance.
         """
