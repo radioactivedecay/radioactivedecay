@@ -268,7 +268,8 @@ class DecayMatricesSympy(DecayMatrices):
 class DecayData:
     """
     Instances of DecayData store a complete radioactive decay dataset. It stores data for decay
-    calculations using DecayMatrices.
+    calculations and inventory transformations using DecayMatrices attributes. Other decay data
+    which are reported to users but not used incalculations are stored in other instance
     attributes.
 
     Parameters

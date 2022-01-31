@@ -1,8 +1,13 @@
 # Changelog
 
 ## [0.X.X] - 20XX-XX-XX
-- Move dataset creation and comparison notebooks to separate repos within the
-radioactivedecay org on GitHub (#63).
+- Code refactoring: reduce coupling between modules by refactoring Converter & Nuclide classes to
+not store duplicate data, but to receive needed data only via their API calls. DecayData objects no
+longer need to store Converter objects. Continuing to reduce pylint/mypy errors/warnings, however
+will need to wait to bump requirement to Python 3.7+ to improve type hinting of NumPy/SciPy arrays
+(requires NumPy 1.21+, holding off for now to maintain Python 3.6 support) (#64).
+- Move dataset creation and comparison notebooks to separate repos within the radioactivedecay org
+on GitHub (#63).
 - Tweak GitHub Issue & PR markdown templates (#62).
 
 ## [0.4.8] - 2021-12-13
