@@ -7,7 +7,7 @@ import numpy as np
 from scipy import sparse
 from sympy import Integer, log, Matrix
 from sympy.matrices import SparseMatrix
-from radioactivedecay import converters, decaydata, icrp107_ame2020_nubase2020
+from radioactivedecay import decaydata, icrp107_ame2020_nubase2020
 
 
 class TestFunctions(unittest.TestCase):
@@ -244,7 +244,7 @@ class TestDecayData(unittest.TestCase):
         modes = np.array([["\u03b2+"], []], dtype=object)
         nuclides = np.array(["A-2", "B-1"])
         progeny = np.array([["B-1"], []], dtype=object)
-        float_unit_converter = converters.UnitConverterFloat(365.2422)
+        float_year_conv = 365.2422
 
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
@@ -257,12 +257,12 @@ class TestDecayData(unittest.TestCase):
         dataset = decaydata.DecayData(
             dataset_name,
             bfs,
+            float_year_conv,
             hldata,
             modes,
             nuclides,
             progeny,
             decay_mats,
-            float_unit_converter,
         )
 
         self.assertEqual(dataset.dataset_name, "test_dataset")
@@ -282,13 +282,9 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(dataset.progeny[-1], [])
         self.assertEqual(dataset.bfs[-1], [])
         self.assertEqual(dataset.modes[-1], [])
-        self.assertEqual(
-            dataset.float_unit_converter, converters.UnitConverterFloat(365.2422)
-        )
-        self.assertIsNotNone(dataset.float_quantity_converter)
+        self.assertEqual(dataset.float_year_conv, 365.2422)
         self.assertIsNone(dataset.sympy_data)
-        self.assertIsNone(dataset.sympy_unit_converter)
-        self.assertIsNone(dataset.sympy_quantity_converter)
+        self.assertIsNone(dataset.sympy_year_conv)
 
         atomic_masses_sympy = Matrix.zeros(2, 1)
         decay_consts_sympy = Matrix.zeros(2, 1)
@@ -299,25 +295,22 @@ class TestDecayData(unittest.TestCase):
         decay_mats_sympy = decaydata.DecayMatricesSympy(
             atomic_masses_sympy, decay_consts_sympy, matrix_c_sympy, matrix_c_inv_sympy
         )
-        sympy_unit_converter = converters.UnitConverterSympy(
-            Integer(3652422) / Integer(1000)
-        )
+        sympy_year_conv = Integer(3652422) / Integer(1000)
 
         dataset = decaydata.DecayData(
             dataset_name,
             bfs,
+            float_year_conv,
             hldata,
             modes,
             nuclides,
             progeny,
             decay_mats,
-            float_unit_converter,
             decay_mats_sympy,
-            sympy_unit_converter,
+            sympy_year_conv,
         )
         self.assertIsNotNone(dataset.sympy_data)
-        self.assertIsNotNone(dataset.sympy_unit_converter)
-        self.assertIsNotNone(dataset.sympy_quantity_converter)
+        self.assertIsNotNone(dataset.sympy_year_conv)
 
     def test_half_life(self) -> None:
         """

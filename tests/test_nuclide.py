@@ -16,28 +16,21 @@ class TestNuclide(unittest.TestCase):
         """
         Test instantiation of Nuclide objects.
         """
+        decay_data = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
 
         nuc = Nuclide("Rn-222")
         self.assertEqual(nuc.nuclide, "Rn-222")
-        self.assertEqual(nuc.prog, ["Po-218"])
-        self.assertEqual(nuc.bfs, [1.0])
-        self.assertEqual(nuc.modes, ["\u03b1"])
+        self.assertEqual(nuc.decay_data, decay_data)
 
         nuc = Nuclide("222Rn")
         self.assertEqual(nuc.nuclide, "Rn-222")
-        self.assertEqual(nuc.prog, ["Po-218"])
-        self.assertEqual(nuc.bfs, [1.0])
-        self.assertEqual(nuc.modes, ["\u03b1"])
 
         nuc = Nuclide(611450000)
         self.assertEqual(nuc.nuclide, "Pm-145")
-        self.assertEqual(nuc.prog, ["Nd-145", "Pr-141"])
-        self.assertEqual(nuc.bfs, [1.0, 2.8e-09])
-        self.assertEqual(nuc.modes, ["EC", "\u03b1"])
 
     def test_nuclide_Z(self) -> None:
         """
-        Test Nuclide Z attribute.
+        Test Nuclide Z property.
         """
 
         nuc = Nuclide("H-3")
@@ -45,15 +38,29 @@ class TestNuclide(unittest.TestCase):
 
     def test_nuclide_A(self) -> None:
         """
-        Test Nuclide A attribute.
+        Test Nuclide A property.
         """
 
         nuc = Nuclide("H-3")
         self.assertEqual(nuc.A, 3)
 
+    def test_nuclide_state(self) -> None:
+        """
+        Test Nuclide state property.
+        """
+
+        nuc = Nuclide("H-3")
+        self.assertEqual(nuc.state, "")
+
+        nuc = Nuclide("Ba-137m")
+        self.assertEqual(nuc.state, "m")
+
+        nuc = Nuclide("Ir-192n")
+        self.assertEqual(nuc.state, "n")
+
     def test_nuclide_id(self) -> None:
         """
-        Test Nuclide id attribute.
+        Test Nuclide id property.
         """
 
         nuc = Nuclide("H-3")
@@ -65,7 +72,15 @@ class TestNuclide(unittest.TestCase):
         nuc = Nuclide(190400000)
         self.assertEqual(nuc.id, 190400000)
 
-    def test_radionuclide_half_life(self) -> None:
+    def test_nuclide_atomic_mass(self) -> None:
+        """
+        Test Nuclide atomic_mass property.
+        """
+
+        nuc = Nuclide("H-3")
+        self.assertEqual(nuc.atomic_mass, 3.01604928132)
+
+    def test_nuclide_half_life(self) -> None:
         """
         Test Nuclide half_life() method.
         """
@@ -75,16 +90,16 @@ class TestNuclide(unittest.TestCase):
         self.assertEqual(nuc.half_life("y"), 12.32)
         self.assertEqual(nuc.half_life("readable"), "12.32 y")
 
-    def test_radionuclide_progeny(self) -> None:
+    def test_nuclide_progeny(self) -> None:
         """
-        Test Nuclide half_life() method.
+        Test Nuclide progeny() method.
         """
 
         nuc = Nuclide("K-40")
         self.assertEqual(nuc.progeny()[0], "Ca-40")
         self.assertEqual(nuc.progeny()[1], "Ar-40")
 
-    def test_radionuclide_branching_fractions(self) -> None:
+    def test_nuclide_branching_fractions(self) -> None:
         """
         Test Nuclide branching_fractions() method.
         """
@@ -93,7 +108,7 @@ class TestNuclide(unittest.TestCase):
         self.assertEqual(nuc.branching_fractions()[0], 0.8914)
         self.assertEqual(nuc.branching_fractions()[1], 0.1086)
 
-    def test_radionuclide_decay_modes(self) -> None:
+    def test_nuclide_decay_modes(self) -> None:
         """
         Test Nuclide decay_modes() method.
         """
@@ -102,7 +117,7 @@ class TestNuclide(unittest.TestCase):
         self.assertEqual(nuc.decay_modes()[0], "\u03b2-")
         self.assertEqual(nuc.decay_modes()[1], "\u03b2+ & EC")
 
-    def test_radionuclide_plot(self) -> None:
+    def test_nuclide_plot(self) -> None:
         """
         Test Nuclide plot() method.
 
@@ -129,7 +144,7 @@ class TestNuclide(unittest.TestCase):
         self.assertEqual(axes.get_xlim(), (-0.3, 1.3))
         self.assertEqual(axes.get_ylim(), (-1.3, 0.3))
 
-    def test_radionuclide___repr__(self) -> None:
+    def test_nuclide___repr__(self) -> None:
         """
         Test Nuclide __repr__ strings.
         """
@@ -157,7 +172,7 @@ class TestNuclide(unittest.TestCase):
 
         self.assertFalse(nuc1 == "random object")
 
-    def test_radionuclide___ne__(self) -> None:
+    def test_nuclide___ne__(self) -> None:
         """
         Test Nuclide inequality.
         """
@@ -168,7 +183,7 @@ class TestNuclide(unittest.TestCase):
 
         self.assertTrue(nuc1 != "random object")
 
-    def test_radionuclide___hash__(self) -> None:
+    def test_nuclide___hash__(self) -> None:
         """
         Test Nuclide hash function.
         """
