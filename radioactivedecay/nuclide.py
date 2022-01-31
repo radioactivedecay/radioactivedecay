@@ -39,9 +39,9 @@ class Nuclide:
 
     Parameters
     ----------
-    input_nuclide : str or int
-        Input value for instantiation. Can be nuclide string in name
-        format (with or without hyphen), or canonical id (zzzaaassss).
+    nuclide : str or int
+        Specify the nuclide with either a name string (e.g. 'H-3', 'H3' or '3H') or a canonical id
+        (zzzaaassss format).
     decay_data : DecayData, optional
         Decay dataset (default is the ICRP-107 dataset).
 
@@ -55,28 +55,40 @@ class Nuclide:
     Examples
     --------
     >>> rd.Nuclide('K-40')
-    Nuclide: K-40
+    Nuclide: K-40, decay dataset: icrp107_ame2020_nubase2020
     >>> rd.Nuclide('K40')
-    Nuclide: K-40
+    Nuclide: K-40, decay dataset: icrp107_ame2020_nubase2020
     >>> rd.Nuclide(190400000)
-    Nuclide: K-40
+    Nuclide: K-40, decay dataset: icrp107_ame2020_nubase2020
     >>> rd.Nuclide(280560001)
-    Nuclide: Ni-56m
+    Nuclide: Ni-56m, decay dataset: icrp107_ame2020_nubase2020
 
     """
 
     def __init__(
-        self, input_nuclide: Union[str, int], decay_data: DecayData = DEFAULTDATA
+        self, nuclide: Union[str, int], decay_data: DecayData = DEFAULTDATA
     ) -> None:
         self.decay_data = decay_data
         self.nuclide = parse_nuclide(
-            input_nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
+            nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
         )
 
     @property
     def Z(self) -> int:
         """
         Returns the atomic number of the nuclide.
+
+        Returns
+        -------
+        int
+            Atomic number of the nuclide.
+
+        Examples
+        --------
+        >>> H3 = rd.Nuclide('H-3')
+        >>> H3.Z
+        1
+
         """
 
         return elem_to_Z(self.nuclide.split("-")[0])
@@ -84,7 +96,19 @@ class Nuclide:
     @property
     def A(self) -> int:
         """
-        Returns the atomic mass number of the nuclide.
+        Returns the mass number of the nuclide.
+
+        Returns
+        -------
+        int
+            Mass number of the nuclide.
+
+        Examples
+        --------
+        >>> H3 = rd.Nuclide('H-3')
+        >>> H3.A
+        3
+
         """
 
         return int(self.nuclide.split("-")[1].strip("mn"))
@@ -92,8 +116,23 @@ class Nuclide:
     @property
     def state(self) -> str:
         """
-        Returns the excited state letter. '' for ground state, 'm' for first excited state, 'n' for
-        second excited state, etc.
+        Returns the metastable state character, i.e. '' for ground state, 'm' for first metastable
+        state, 'n' for second metastable state, etc..
+
+        Returns
+        -------
+        str
+            Metastable state character.
+
+        Examples
+        --------
+        >>> H3 = rd.Nuclide('H-3')
+        >>> H3.state
+        ''
+        >>> Ba137m = rd.Nuclide('Ba-137m')
+        >>> Ba137m.state
+        'm'
+
         """
 
         return self.nuclide.split("-")[1].strip("0123456789")
@@ -103,6 +142,21 @@ class Nuclide:
         """
         Returns the canonical nuclide id, in zzzaaassss form. Ground state is 0000, first excited
         state ("m") is 0001, second ("n") is 0002, etc.
+
+        Returns
+        -------
+        int
+            Canonical id of the nuclide.
+
+        Examples
+        --------
+        >>> H3 = rd.Nuclide('H-3')
+        >>> H3.id
+        10030000
+        >>> Ba137m = rd.Nuclide('Ba-137m')
+        >>> Ba137m.id
+        561370001
+
         """
 
         return build_id(self.Z, self.A, self.state)
@@ -111,6 +165,21 @@ class Nuclide:
     def atomic_mass(self) -> float:
         """
         Returns the atomic mass of the nuclide, in g/mol.
+
+        Returns
+        -------
+        float
+            Atomic mass of the nuclide in g/mol.
+
+        Examples
+        --------
+        >>> H3 = rd.Nuclide('H-3')
+        >>> H3.atomic_mass
+        3.01604928132
+        >>> Ba137m = rd.Nuclide('Ba-137m')
+        >>> Ba137m.atomic_mass
+        136.9065375271172
+
         """
 
         return self.decay_data.scipy_data.atomic_masses[
