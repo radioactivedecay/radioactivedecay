@@ -262,7 +262,7 @@ def build_nuclide_string(Z: int, A: int, meta_state: str = "") -> str:
 
     """
 
-    if Z not in Z_DICT.keys():
+    if Z not in Z_DICT:
         raise ValueError(str(Z) + " is not a valid atomic number")
 
     return_string = f"{Z_DICT[Z]}-{A}{meta_state}"
