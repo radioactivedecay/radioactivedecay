@@ -76,15 +76,15 @@ class TestUnitConverterFloat(unittest.TestCase):
         )
         self.assertEqual(
             UnitConverterFloat.time_unit_conv(1.0, "s", "h", year_conv),
-            1.0 / (60.0 ** 2),
+            1.0 / (60.0**2),
         )
         self.assertEqual(
             UnitConverterFloat.time_unit_conv(1.0, "s", "d", year_conv),
-            1.0 / (60.0 ** 2 * 24.0),
+            1.0 / (60.0**2 * 24.0),
         )
         self.assertEqual(
             UnitConverterFloat.time_unit_conv(1.0, "s", "y", year_conv),
-            1.0 / (60.0 ** 2 * 24.0 * year_conv),
+            1.0 / (60.0**2 * 24.0 * year_conv),
         )
         self.assertAlmostEqual(
             UnitConverterFloat.time_unit_conv(1.0, "ps", "s", year_conv),
@@ -109,15 +109,15 @@ class TestUnitConverterFloat(unittest.TestCase):
             UnitConverterFloat.time_unit_conv(1.0, "m", "s", year_conv), 60.0
         )
         self.assertEqual(
-            UnitConverterFloat.time_unit_conv(1.0, "h", "s", year_conv), (60.0 ** 2)
+            UnitConverterFloat.time_unit_conv(1.0, "h", "s", year_conv), (60.0**2)
         )
         self.assertEqual(
             UnitConverterFloat.time_unit_conv(1.0, "d", "s", year_conv),
-            (60.0 ** 2 * 24.0),
+            (60.0**2 * 24.0),
         )
         self.assertEqual(
             UnitConverterFloat.time_unit_conv(1.0, "y", "s", year_conv),
-            (60.0 ** 2 * 24.0 * year_conv),
+            (60.0**2 * 24.0 * year_conv),
         )
 
         # Catch some incorrect time units
