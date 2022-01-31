@@ -49,23 +49,8 @@ class Nuclide:
     ----------
     nuclide: str
         Nuclide name string.
-    Z : int
-        Atomic number.
-    A : int
-        Atomic mass number.
-    id : int
-        Canonical nuclide id, in zzzaaassss form. Ground state is 0000,
-        first excited state ("m") is 0001, second ("n") is 0002, etc.
     decay_data : DecayData
         Decay dataset.
-    atomic_mass : float
-        Atomic weight of the nuclide, in g/mol.
-    prog : list
-        List of direct progeny of this nuclide.
-    bfs : list
-        List of branching fractions to direct progeny of this nuclide.
-    modes : list
-        List of modes to direct progeny of this nuclide.
 
     Examples
     --------
@@ -84,60 +69,53 @@ class Nuclide:
         self, input_nuclide: Union[str, int], decay_data: DecayData = DEFAULTDATA
     ) -> None:
         self.decay_data = decay_data
-        self.parse_name(input_nuclide)
-        idx = decay_data.nuclide_dict[self.nuclide]
-        self.atomic_mass = decay_data.scipy_data.atomic_masses[idx]
-        self.prog: List[str] = decay_data.progeny[idx]
-        self.bfs: List[float] = decay_data.bfs[idx]
-        self.modes: List[str] = decay_data.modes[idx]
-
-    def parse_name(self, input_nuclide: Union[str, int]) -> None:
-        """
-        Parse input and set atomic data attributes.
-        """
-
         self.nuclide = parse_nuclide(
             input_nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
         )
-        self.Z = elem_to_Z(self.nuclide.split("-")[0])
-        self.A = int(self.nuclide.split("-")[1].strip("mn"))
-        self.state = self.nuclide.split("-")[1].strip("0123456789")
-        self.id = build_id(self.Z, self.A, self.state)
 
-    def __repr__(self) -> str:
-        rep = (
-            "Nuclide: "
-            + self.nuclide
-            + ", decay dataset: "
-            + self.decay_data.dataset_name
-        )
-
-        return rep
-
-    def __eq__(self, other: object) -> bool:
+    @property
+    def Z(self) -> int:
         """
-        Check whether two ``Nuclide`` instances are equal with ``==`` operator.
+        Returns the atomic number of the nuclide.
         """
 
-        if not isinstance(other, Nuclide):
-            return NotImplemented
-        return self.nuclide == other.nuclide and self.decay_data == other.decay_data
+        return elem_to_Z(self.nuclide.split("-")[0])
 
-    def __ne__(self, other: object) -> bool:
+    @property
+    def A(self) -> int:
         """
-        Check whether two ``Nuclide`` instances are not equal with ``!=`` operator.
-        """
-
-        if not isinstance(other, Nuclide):
-            return NotImplemented
-        return not self.__eq__(other)
-
-    def __hash__(self) -> int:
-        """
-        Hash function for ``Nuclide`` instances.
+        Returns the atomic mass number of the nuclide.
         """
 
-        return hash((self.nuclide, self.decay_data.dataset_name))
+        return int(self.nuclide.split("-")[1].strip("mn"))
+
+    @property
+    def state(self) -> str:
+        """
+        Returns the excited state letter. '' for ground state, 'm' for first excited state, 'n' for
+        second excited state, etc.
+        """
+
+        return self.nuclide.split("-")[1].strip("0123456789")
+
+    @property
+    def id(self) -> int:
+        """
+        Returns the canonical nuclide id, in zzzaaassss form. Ground state is 0000, first excited
+        state ("m") is 0001, second ("n") is 0002, etc.
+        """
+
+        return build_id(self.Z, self.A, self.state)
+
+    @property
+    def atomic_mass(self) -> float:
+        """
+        Returns the atomic mass of the nuclide, in g/mol.
+        """
+
+        return self.decay_data.scipy_data.atomic_masses[
+            self.decay_data.nuclide_dict[self.nuclide]
+        ]
 
     def half_life(self, units: str = "s") -> Union[float, str]:
         """
@@ -173,13 +151,12 @@ class Nuclide:
 
     def progeny(self) -> List[str]:
         """
-        Returns the direct progeny of a radionuclide.
+        Returns list of the direct progeny of the nuclide.
 
         Returns
         -------
         list
-            List of the direct progeny of the radionuclide, ordered by
-            decreasing branching fraction.
+            List of the direct progeny of the nuclide, ordered by decreasing branching fraction.
 
         Examples
         --------
@@ -189,7 +166,7 @@ class Nuclide:
 
         """
 
-        return self.prog
+        return self.decay_data.progeny[self.decay_data.nuclide_dict[self.nuclide]]
 
     def branching_fractions(self) -> List[float]:
         """
@@ -209,7 +186,7 @@ class Nuclide:
 
         """
 
-        return self.bfs
+        return self.decay_data.bfs[self.decay_data.nuclide_dict[self.nuclide]]
 
     def decay_modes(self) -> List[str]:
         """
@@ -233,7 +210,7 @@ class Nuclide:
 
         """
 
-        return self.modes
+        return self.decay_data.modes[self.decay_data.nuclide_dict[self.nuclide]]
 
     def plot(
         self,
@@ -332,6 +309,41 @@ class Nuclide:
         axes.set_ylim(-max_generation - 0.3, 0.3)
 
         return fig, axes
+
+    def __repr__(self) -> str:
+        rep = (
+            "Nuclide: "
+            + self.nuclide
+            + ", decay dataset: "
+            + self.decay_data.dataset_name
+        )
+
+        return rep
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Check whether two ``Nuclide`` instances are equal with ``==`` operator.
+        """
+
+        if not isinstance(other, Nuclide):
+            return NotImplemented
+        return self.nuclide == other.nuclide and self.decay_data == other.decay_data
+
+    def __ne__(self, other: object) -> bool:
+        """
+        Check whether two ``Nuclide`` instances are not equal with ``!=`` operator.
+        """
+
+        if not isinstance(other, Nuclide):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        """
+        Hash function for ``Nuclide`` instances.
+        """
+
+        return hash((self.nuclide, self.decay_data.dataset_name))
 
 
 def _build_decay_digraph(
