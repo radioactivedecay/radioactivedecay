@@ -82,7 +82,7 @@ def _parse_decay_mode_label(mode: str) -> str:
     return mode
 
 
-def _check_fig_axes(
+def _check_fig_axes(  # type: ignore
     fig_in: Optional[matplotlib.figure.Figure],
     axes_in: Optional[matplotlib.axes.Axes],
     **kwargs,
@@ -124,7 +124,7 @@ def _check_fig_axes(
     return fig, axes
 
 
-def _decay_graph(
+def decay_graph(  # type: ignore
     time_points: np.ndarray,
     ydata: np.ndarray,
     nuclides: List[str],

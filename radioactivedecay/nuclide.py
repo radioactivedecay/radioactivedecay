@@ -9,7 +9,7 @@ dataset. The default decay dataset used if none is supplied to the constructor
 is rd.DEFAULTDATA.
 
 The docstring code examples assume that ``radioactivedecay`` has been imported
-as `rd`:
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python

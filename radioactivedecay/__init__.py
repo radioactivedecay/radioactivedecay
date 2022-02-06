@@ -16,7 +16,7 @@ technicians and researchers who work with radioactivity, and for
 educational use.
 
 The docstring code examples assume the ``radioactivedecay`` package has been
-imported as:
+imported as ``rd``:
 
 .. highlight:: python
 .. code-block:: python

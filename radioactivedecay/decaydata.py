@@ -7,7 +7,7 @@ arbitrary precision numbers, respectively). ``DecayData`` instances store ``Deca
 users (this data is not used for calculations).
 
 The docstring code examples assume that ``radioactivedecay`` has been imported
-as `rd`:
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
@@ -648,7 +648,7 @@ def load_dataset(
         allow_pickle=True,
     )
 
-    decay_consts = np.array(
+    decay_consts: np.ndarray = np.array(
         [
             np.log(2)
             / UnitConverterFloat.time_unit_conv(

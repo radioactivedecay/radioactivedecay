@@ -2,7 +2,7 @@
 The utils module contains functions to parse nuclide strings and manipulate lists and dictionaries.
 
 The docstring code examples assume that ``radioactivedecay`` has been imported
-as `rd`:
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
