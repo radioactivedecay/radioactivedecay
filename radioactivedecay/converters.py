@@ -2,7 +2,7 @@
 The converters module contains classes for unit and quantity conversions.
 
 The docstring code examples assume that ``radioactivedecay`` has been imported
-as `rd`:
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python

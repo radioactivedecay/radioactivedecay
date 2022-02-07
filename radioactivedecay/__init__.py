@@ -16,7 +16,7 @@ technicians and researchers who work with radioactivity, and for
 educational use.
 
 The docstring code examples assume the ``radioactivedecay`` package has been
-imported as:
+imported as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
@@ -25,7 +25,7 @@ imported as:
 
 """
 
-__version__ = "0.4.8"
+__version__ = "0.4.9"
 
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.inventory import Inventory, InventoryHP

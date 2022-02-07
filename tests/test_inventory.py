@@ -670,10 +670,12 @@ class TestInventoryHP(unittest.TestCase):
         self.assertEqual(inv.decay_matrices, DEFAULTDATA.sympy_data)
 
         temp_data = copy.deepcopy(DEFAULTDATA)
-        temp_data.sympy_year_conv = None
+        backup_year_conv = temp_data._sympy_year_conv
+        temp_data._sympy_year_conv = None
         with self.assertRaises(ValueError):
             InventoryHP({"H3": 1}, "Bq", True, temp_data)
-        temp_data.sympy_data = None
+        temp_data._sympy_year_conv = backup_year_conv
+        temp_data._sympy_data = None
         with self.assertRaises(ValueError):
             InventoryHP({"H3": 1}, "Bq", True, temp_data)
 

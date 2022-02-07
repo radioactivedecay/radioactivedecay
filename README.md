@@ -126,7 +126,9 @@ Use the ``plot()`` method to graph of the decay of an inventory over time:
 <img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
 The graph shows the decay of Mo-99 over 20 days, leading to the ingrowth of
-Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
+Tc-99m and a trace quantity of Tc-99. The activity of Ru-99 is strictly zero as
+it is the stable nuclide at the end of the decay chain. Graphs are drawn using
+Matplotlib.
 
 
 ### Fetching decay data
