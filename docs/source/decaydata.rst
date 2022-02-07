@@ -9,10 +9,10 @@ DecayData
 .. autoclass:: radioactivedecay.decaydata.DecayData
    :members:
 
-DecayMatrices
--------------
+DecayMatricesScipy
+------------------
 
-.. autoclass:: radioactivedecay.decaydata.DecayMatrices
+.. autoclass:: radioactivedecay.decaydata.DecayMatricesScipy
    :show-inheritance:
    :members:
    :inherited-members:

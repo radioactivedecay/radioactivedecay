@@ -34,6 +34,7 @@ from radioactivedecay.converters import (
 from radioactivedecay.decaydata import (
     DecayData,
     DecayMatrices,
+    DecayMatricesScipy,
     DecayMatricesSympy,
     DEFAULTDATA,
 )
@@ -99,7 +100,7 @@ class AbstractInventory(ABC):
     decay_data : DecayData
         Decay dataset.
     decay_matrices : DecayMatrices
-        Float/SciPy version of the DecayMatrices associated with the decay dataset.
+        SciPy or SymPy version of a DecayMatrices instance associated with the decay dataset.
 
     """
 
@@ -1018,7 +1019,7 @@ class Inventory(AbstractInventory):
         values. Nuclides are sorted alphabetically in this dictionary.
     decay_data : DecayData
         Decay dataset.
-    decay_matrices : DecayMatrices
+    decay_matrices : DecayMatricesScipy
         Float/SciPy version of the DecayMatrices associated with the decay dataset.
 
     Examples
@@ -1034,7 +1035,7 @@ class Inventory(AbstractInventory):
     """
     # pylint: enable=line-too-long
 
-    def _get_decay_matrices(self) -> DecayMatrices:
+    def _get_decay_matrices(self) -> DecayMatricesScipy:
         """Returns the appropriate DecayMatrices instance."""
 
         return self.decay_data.scipy_data
@@ -1173,7 +1174,8 @@ class InventoryHP(AbstractInventory):
         Units of the values in the contents dictionary e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol',
         'num'... (default is 'Bq').
     check : bool, optional
-        Check for the validity of contents (default is True).
+        Check for the validity of contents and that the supplied decay dataset contains SymPy data
+        (default is True).
     data : DecayData, optional
         Decay dataset (default is the ICRP-107 dataset).
     sympy_contents : dict, optional
@@ -1217,7 +1219,16 @@ class InventoryHP(AbstractInventory):
     ) -> None:
 
         if check is True:
+            try:
+                assert decay_data.sympy_data
+                assert decay_data.sympy_year_conv
+            except ValueError:
+                raise ValueError(
+                    f"Decay dataset supplied to {self.__class__.__name__} constructor does not "
+                    "contain SymPy data."
+                ) from None
             contents = {nuc: nsimplify(val) for nuc, val in contents.items()}
+
         self.sig_fig = 320
         super().__init__(contents, units, check, decay_data)
 
@@ -1226,10 +1237,6 @@ class InventoryHP(AbstractInventory):
         Returns the appropriate DecayMatrices instance.
         """
 
-        if self.decay_data.sympy_data is None:
-            raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain DecayMatricesSymPy instance."
-            )
         return self.decay_data.sympy_data
 
     @staticmethod
@@ -1245,10 +1252,6 @@ class InventoryHP(AbstractInventory):
         Returns the appropriate UnitConverter instance.
         """
 
-        if self.decay_data.sympy_year_conv is None:
-            raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain SymPy number of days in a year."
-            )
         return UnitConverterSympy
 
     def _get_year_conv(self) -> Expr:

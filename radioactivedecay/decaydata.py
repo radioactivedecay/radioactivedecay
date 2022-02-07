@@ -1,8 +1,8 @@
 """
-The decaydata module defines the ``DecayData``, ``DecayMatrices`` and ``DecayMatricesSympy``
-classes. ``DecayMatrices`` and ``DecayMatricesSympy`` instances store data used for decay
+The decaydata module defines the ``DecayData``, ``DecayMatricesScipy`` and ``DecayMatricesSympy``
+classes. ``DecayMatricesScipy`` and ``DecayMatricesSympy`` instances store data used for decay
 calculations and other inventory transformations (using double-precision floating point and SymPy
-arbitrary precision numbers, respectively). ``DecayData`` instances store ``DecayMatrices``,
+arbitrary precision numbers, respectively). ``DecayData`` instances store ``DecayMatricesScipy``,
 ``DecayMatricesSympy`` and unit converter objects, along with other decay data for reporting to
 users (this data is not used for calculations).
 
@@ -21,6 +21,7 @@ DEFAULTDATA : DecayData
     decay data and AME2020 and Nubase2020 for atomic mass data.
 """
 
+from abc import ABC, abstractmethod
 from pathlib import Path
 import pickle
 from typing import Any, ContextManager, Optional, Union
@@ -33,6 +34,10 @@ from sympy.core.expr import Expr
 from radioactivedecay.converters import UnitConverterFloat
 from radioactivedecay.utils import parse_nuclide
 
+
+# importlib.resources is new in Python version 3.7
+# this block adds support using a backport for Python <3.7
+# the except block and dependency can be removed once min required Python version is 3.7
 try:
     from importlib import resources
 except ImportError:
@@ -41,8 +46,8 @@ except ImportError:
 
 def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) -> bool:
     """
-    Checks whether two SciPy Compressed Sparse Row (CSR) matrices are equal (i.e. they have the
-    same elements and all elements are equal).
+    Utility function checking whether two SciPy Compressed Sparse Row (CSR) matrices are equal
+    (i.e. they have the same elements and all elements are equal).
 
     Parameters
     ----------
@@ -64,10 +69,101 @@ def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) 
     )
 
 
-class DecayMatrices:
+class DecayMatrices(ABC):
     """
-    Instances of DecayMatrices store vectors with fundamental decay/atomic data and matrices used
-    for decay calculations.
+    Template class for for SciPy (float) or SymPy DecayMatrices classes. Instances of these classes
+    store vectors and matrices of data used for decay calculations.
+
+    Parameters
+    ----------
+    atomic_masses : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    matrix_c : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
+        A pre-calculated sparse lower traingular matrix used in decay calculations.
+    matrix_c_inv : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
+        The inverse of matrix_c, also used in decay calculations.
+
+    Attributes
+    ----------
+    atomic_masses : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    ln2: float or sympy.log
+        Constant natural logarithm of 2.
+    matrix_c : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
+        A precalculated sparse lower triangular matrix used in decay calculations.
+    matrix_c_inv : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
+        The inverse of matrix_c, also used in decay calculations.
+    matrix_e : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
+        The matrix exponential that is used in radioactive decay calculations. It is a diagonal
+        matrix that is pre-allocted for performance reasons.
+    vector_n0 : numpy.ndarray or sympy.matrices.dense.MutableDenseMatrix
+        Column vector for the number of atoms of each nuclide. It is pre-allocted here to improve
+        the performance of decay calculations.
+
+    """
+
+    def __init__(
+        self,
+        atomic_masses: Union[np.ndarray, Matrix],
+        decay_consts: Union[np.ndarray, Matrix],
+        matrix_c: Union[sparse.csr_matrix, Matrix],
+        matrix_c_inv: Union[sparse.csr_matrix, Matrix],
+    ) -> None:
+        self.atomic_masses = atomic_masses
+        self.decay_consts = decay_consts
+        self.ln2 = self._setup_ln2()
+        self.matrix_c = matrix_c
+        self.matrix_c_inv = matrix_c_inv
+        self.matrix_e = self._setup_matrix_e(matrix_c.shape[0])
+        self.vector_n0 = self._setup_vector_n0(matrix_c.shape[0])
+
+    @staticmethod
+    @abstractmethod
+    def _setup_ln2() -> float:
+        """
+        Set up natural log of 2 (ln(2)).
+        """
+
+    @staticmethod
+    @abstractmethod
+    def _setup_matrix_e(size: int) -> Union[sparse.csr_matrix, Matrix]:
+        """
+        Set up sparse matrix_e (created here rather than at decay calculation time
+        for performance reasons).
+        """
+
+    @staticmethod
+    @abstractmethod
+    def _setup_vector_n0(size: int) -> Union[np.ndarray, Matrix]:
+        """
+        Set up vector_n0 (created here rather than at decay calculation time for performance
+        reasons).
+        """
+
+    @abstractmethod
+    def __eq__(self, other: object) -> bool:
+        """
+        Check whether two ``DecayMatrices`` instances are equal with ``==`` operator.
+        """
+
+    def __ne__(self, other: object) -> bool:
+        """
+        Check whether two ``DecayMatrices`` instances are not equal with ``!=`` operator.
+        """
+
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return not self.__eq__(other)
+
+
+class DecayMatricesScipy(DecayMatrices):
+    """
+    Version of DecayMatrices with data for SciPy double-precision floating point decay
+    calculations.
 
     Parameters
     ----------
@@ -101,25 +197,10 @@ class DecayMatrices:
 
     """
 
-    def __init__(
-        self,
-        atomic_masses: np.ndarray,
-        decay_consts: np.ndarray,
-        matrix_c: sparse.csr_matrix,
-        matrix_c_inv: sparse.csr_matrix,
-    ) -> None:
-        self.atomic_masses = atomic_masses
-        self.decay_consts = decay_consts
-        self.ln2 = self._setup_ln2()
-        self.matrix_c = matrix_c
-        self.matrix_c_inv = matrix_c_inv
-        self.matrix_e = self._setup_matrix_e(matrix_c.shape[0])
-        self.vector_n0 = self._setup_vector_n0(matrix_c.shape[0])
-
     @staticmethod
     def _setup_ln2() -> float:
         """
-        Returns NumPy ln2.
+        Set up natural log of 2 (ln(2)).
         """
 
         log2: float = np.log(2)
@@ -128,7 +209,8 @@ class DecayMatrices:
     @staticmethod
     def _setup_matrix_e(size: int) -> sparse.csr_matrix:
         """
-        Returns SciPy CSR sparse matrix template for matrix_e.
+        Set up sparse matrix_e (created here rather than at decay calculation time
+        for performance reasons).
         """
 
         return sparse.csr_matrix(
@@ -141,17 +223,18 @@ class DecayMatrices:
     @staticmethod
     def _setup_vector_n0(size: int) -> np.ndarray:
         """
-        Returns NumPy array template for vector_n0.
+        Set up vector_n0 (created here rather than at decay calculation time for performance
+        reasons).
         """
 
         return np.zeros([size], dtype=np.float64)
 
     def __eq__(self, other: object) -> bool:
         """
-        Check whether two ``DecayMatrices`` instances are equal with ``==`` operator.
+        Check whether two ``DecayMatricesScipy`` instances are equal with ``==`` operator.
         """
 
-        if not isinstance(other, DecayMatrices):
+        if not isinstance(other, self.__class__):
             return NotImplemented
         return (
             np.array_equal(self.atomic_masses, other.atomic_masses)
@@ -163,26 +246,17 @@ class DecayMatrices:
             and np.array_equal(self.vector_n0, other.vector_n0)
         )
 
-    def __ne__(self, other: object) -> bool:
-        """
-        Check whether two ``DecayMatrices`` instances are not equal with ``!=`` operator.
-        """
-
-        if not isinstance(other, DecayMatrices):
-            return NotImplemented
-        return not self.__eq__(other)
-
     def __repr__(self) -> str:
 
         return (
-            "DecayMatrices: data stored in SciPy/NumPy objects for double precision "
+            "DecayMatricesScipy: data stored in SciPy/NumPy objects for double precision "
             "calculations."
         )
 
 
 class DecayMatricesSympy(DecayMatrices):
     """
-    Version of DecayMatrices using SymPy arbitrary precision operations.
+    Version of DecayMatrices with data for SymPy arbitrary precision decay calculations.
 
     Parameters
     ----------
@@ -289,7 +363,7 @@ class DecayData:
         NumPy array of nuclides in the dataset (string format is 'H-3', etc.).
     progeny : numpy.ndarray
         NumPy array of lists with direct progeny data.
-    scipy_data : DecayMatrices
+    scipy_data : DecayMatricesScipy
         Dataset of double precision decay matrices (SciPy/NumPy objects).
     sympy_data : None or DecayMatricesSympy
         Dataset of arbitrary-precision decay matrices (SymPy objects). Or None if SymPy
@@ -316,12 +390,9 @@ class DecayData:
         Dictionary containing nuclide strings as keys and positions in the matrices as values.
     progeny : numpy.ndarray
         NumPy array of lists with direct progeny data.
-    scipy_data : DecayMatrices
+    _scipy_data : DecayMatricesScipy
         Dataset of double precision decay matrices (SciPy/NumPy objects).
-    sympy_data : None or DecayMatricesSympy
-        Dataset of arbitrary-precision decay matrices (SymPy objects). Or None if this functionality
-        is not used.
-    sympy_year_conv : None or Expr
+    _sympy_year_conv : None or Expr
         Number of days in one year for SymPy time unit conversions.
 
     """
@@ -335,7 +406,7 @@ class DecayData:
         modes: np.ndarray,
         nuclides: np.ndarray,
         progeny: np.ndarray,
-        scipy_data: DecayMatrices,
+        scipy_data: DecayMatricesScipy,
         sympy_data: Optional[DecayMatricesSympy] = None,
         sympy_year_conv: Optional[Expr] = None,
     ) -> None:
@@ -350,12 +421,34 @@ class DecayData:
         self.progeny = progeny
         self.scipy_data = scipy_data
 
-        self.sympy_data: Optional[DecayMatricesSympy] = None
-        self.sympy_year_conv: Optional[Expr] = None
+        self._sympy_data: Optional[DecayMatricesSympy] = None
+        self._sympy_year_conv: Optional[Expr] = None
 
         if sympy_data and sympy_year_conv:
-            self.sympy_data = sympy_data
-            self.sympy_year_conv = sympy_year_conv
+            self._sympy_data = sympy_data
+            self._sympy_year_conv = sympy_year_conv
+
+    @property
+    def sympy_data(self) -> DecayMatricesSympy:
+        """
+        Property to return DecayMatricesSympy instance if it exists, or raise an error if the
+        dataset does not contain SymPy data.
+        """
+
+        if self._sympy_data is None:
+            raise ValueError(f"{self.dataset_name} does not contain SymPy data.")
+        return self._sympy_data
+
+    @property
+    def sympy_year_conv(self) -> Expr:
+        """
+        Property to return SymPy number of days in one year if it exists, or raise an error if the
+        dataset does not contain SymPy data.
+        """
+
+        if self._sympy_year_conv is None:
+            raise ValueError(f"{self.dataset_name} does not contain SymPy data.")
+        return self._sympy_year_conv
 
     def half_life(self, nuclide: str, units: str = "s") -> Union[float, str]:
         """
@@ -493,8 +586,8 @@ class DecayData:
             and np.array_equal(self.bfs, other.bfs)
             and np.array_equal(self.modes, other.modes)
             and self.scipy_data == other.scipy_data
-            and self.sympy_data == other.sympy_data
-            and self.sympy_year_conv == other.sympy_year_conv
+            and self._sympy_data == other._sympy_data
+            and self._sympy_year_conv == other._sympy_year_conv
         )
 
     def __ne__(self, other: object) -> bool:
@@ -509,7 +602,7 @@ class DecayData:
     def __repr__(self) -> str:
         return (
             f"Decay dataset: {self.dataset_name}, contains SymPy data: "
-            f"{self.sympy_data is not None}"
+            f"{self._sympy_data is not None}"
         )
 
 
@@ -663,7 +756,9 @@ def load_dataset(
         _get_filepath(dataset_name, dir_path, "c_inv_scipy.npz")
     )
 
-    scipy_data = DecayMatrices(data["masses"], decay_consts, matrix_c, matrix_c_inv)
+    scipy_data = DecayMatricesScipy(
+        data["masses"], decay_consts, matrix_c, matrix_c_inv
+    )
 
     sympy_data = None
     sympy_year_conv = None
