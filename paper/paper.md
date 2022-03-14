@@ -22,8 +22,6 @@ date: XX April 2021
 bibliography: paper.bib
 ---
 
-\def\varLambda{\mathit{\Lambda}}
-
 # Summary
 
 `radioactivedecay` is a Python package for radioactive decay modelling.
@@ -56,14 +54,14 @@ Note metastable nuclear isomers have distinct indices from their ground states i
 The radioactive decay chain differential equations expressed in matrix form are:
 
 \begin{equation}
-\frac{\mathrm{d}\mathbf{N}}{\mathrm{d}t} = \varLambda \mathbf{N}.
+\frac{\mathrm{d}\mathbf{N}}{\mathrm{d}t} = \Lambda \mathbf{N}.
 \label{eq:diff_eq}
 \end{equation}
 
-$\varLambda$ is a lower triangular matrix with elements:
+$\Lambda$ is a lower triangular matrix with elements:
 
 \begin{equation}
-\varLambda_{ij} =
+\Lambda_{ij} =
 \begin{cases}
 0 & \textrm{for }  i < j,\\
 -\lambda_{j} & \textrm{for }  i = j,\\
@@ -72,14 +70,14 @@ b_{ji}\lambda_{j} & \textrm{for }  i > j.
 \end{equation}
 
 $\lambda_{j}$ is the decay constant of radionuclide $j$, and $b_{ji}$ is the branching fraction from radionuclide $j$ to $i$.
-$\varLambda$ is diagonalizable so its eigendecomposition can be used to rewrite \autoref{eq:diff_eq} as:
+$\Lambda$ is diagonalizable so its eigendecomposition can be used to rewrite \autoref{eq:diff_eq} as:
 
 \begin{equation}
-\frac{\mathrm{d}\mathbf{N}}{\mathrm{d}t} = C \varLambda_d C^{-1} \mathbf{N}.
+\frac{\mathrm{d}\mathbf{N}}{\mathrm{d}t} = C \Lambda_d C^{-1} \mathbf{N}.
 \label{eq:diff_eq_rewrite}
 \end{equation}
 
-$\varLambda_d$ is a diagonal matrix whose elements are the negative decay constants, i.e. $\varLambda_{dii} = -\lambda_{i}$.
+$\Lambda_d$ is a diagonal matrix whose elements are the negative decay constants, i.e. $\Lambda_{dii} = -\lambda_{i}$.
 Matrix $C$ and its inverse $C^{-1}$ are both lower triangular matrices that are calculated as:
 
 \begin{equation}
@@ -87,7 +85,7 @@ C_{ij} =
 \begin{cases}
 0 & \text{for }  i < j,\\
 1 & \text{for }  i = j,\\
-\frac{\sum_{k=j}^{i-1}\varLambda_{ik}C_{kj}}{\varLambda_{jj} - \varLambda_{ii}} & \text{for }  i > j,
+\frac{\sum_{k=j}^{i-1}\Lambda_{ik}C_{kj}}{\Lambda_{jj} - \Lambda_{ii}} & \text{for }  i > j,
 \end{cases}
 \quad\text{and}\quad 
 C^{-1}_{ij} =
@@ -102,11 +100,11 @@ C^{-1}_{ij} =
 The analytical solution to \autoref{eq:diff_eq_rewrite} given an initial condition of $\mathbf{N}(0)$ at $t=0$ is:
 
 \begin{equation}
-\mathbf{N}(t) = C e^{\varLambda_{d} t} C^{-1} \mathbf{N}(0).
+\mathbf{N}(t) = C e^{\Lambda_{d} t} C^{-1} \mathbf{N}(0).
 \label{eq:solution}
 \end{equation}
 
-$e^{\varLambda_{d} t}$ is a diagonal matrix with elements $e^{\varLambda_{d} t}_{ii} = e^{-\lambda_i t}$.
+$e^{\Lambda_{d} t}$ is a diagonal matrix with elements $e^{\Lambda_{d} t}_{ii} = e^{-\lambda_i t}$.
 `radioactivedecay` evaluates \autoref{eq:solution} upon each call for a decay calculation.
 
 Matrices $C$ and $C^{-1}$ are independent of time so they are pre-calculated and imported from files into `radioactivedecay`.
