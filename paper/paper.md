@@ -22,6 +22,7 @@ date: XX April 2021
 bibliography: paper.bib
 ---
 
+\def\varLambda{\mathit{\Lambda}}
 
 # Summary
 
@@ -183,8 +184,8 @@ More details on limitations are available in the [documentation](https://radioac
 
 # Acknowledgements
 
-We thank Mitsuhiro Itakura, Kazuyuki Sakuma, colleagues in JAEA's Center for Computational Science &amp; Systems, &amp; Wolfgang Kerzendorf for their support for this project.
-We thank Kenny McKee, Daniel Jewell &amp; Ezequiel P&aacute;ssaro for helpful suggestions, and Bj&ouml;rn Dahlgren, Anthony Scopatz &amp; Jonathan Morrell for their work on radioactive decay calculation software.
+We thank Mitsuhiro Itakura, Kazuyuki Sakuma, colleagues in JAEA's Center for Computational Science &amp; Systems, Wolfgang Kerzendorf &amp; Bernardo Gameiro for their support for this project.
+We thank Kenny McKee, Daniel Jewell, Ezequiel P&aacute;ssaro, Hunter Ratliff &amp; Jayson Vavrek for helpful suggestions, and Bj&ouml;rn Dahlgren, Anthony Scopatz &amp; Jonathan Morrell for their work on radioactive decay calculation software.
 We also thank the editors and reviewers at the Journal of Open Source software for constructive comments.
 
 
