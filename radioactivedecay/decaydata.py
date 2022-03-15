@@ -26,6 +26,7 @@ from pathlib import Path
 import pickle
 from typing import Any, ContextManager, Optional, Union
 import numpy as np
+import pkg_resources
 from scipy import sparse
 import sympy
 from sympy import Matrix
@@ -763,7 +764,12 @@ def load_dataset(
     sympy_data = None
     sympy_year_conv = None
     if load_sympy:
-        sympy_pickle_version = "1.9" if sympy.__version__ >= "1.9" else "1.8"
+        sympy_pickle_version = (
+            "1.8"
+            if pkg_resources.parse_version(sympy.__version__)
+            < pkg_resources.parse_version("1.9")
+            else "1.9"
+        )
 
         atomic_masses = _load_pickle_file(
             dataset_name, dir_path, f"atomic_masses_sympy_{sympy_pickle_version}.pickle"
