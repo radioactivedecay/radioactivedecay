@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.10] - 2022-03-15
+- Fix incorrect parsing of SymPy version string (#67, #68). This bug meant radioactivedecay import
+failed if using SymPy >=1.10. The fix makes Setuptools an explicit dependency.
+
 ## [0.4.9] - 2022-02-07
 - Code refactoring: reduce coupling between modules by refactoring Converter, Nuclide & Inventory
 classes to not store duplicate data, but to receive data when needed via their API calls. DecayData objects

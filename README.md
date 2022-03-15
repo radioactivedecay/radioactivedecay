@@ -48,7 +48,8 @@ $ conda install -c conda-forge radioactivedecay
 ```
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
-NumPy, SciPy & SymPy) if they are not already present in the environment.
+NumPy, SciPy, Setuptools & SymPy) if they are not already present in the
+environment.
 
 
 ## Usage
