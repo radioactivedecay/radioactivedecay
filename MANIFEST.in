@@ -1,0 +1,9 @@
+include CHANGELOG.md
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
+include LICENSE
+include LICENSE.AMDC
+include LICENSE.ICRP-07
+include requirements_dev.txt
+include requirements_docs.txt
+include requirements.txt

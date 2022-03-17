@@ -1,86 +1,54 @@
 """
-The decaydata module defines the ``DecayData`` and ``DecayMatrices`` classes. Instances of
-``DecayData`` initialize by reading in files containing radioactive decay data. The instances then
-store the decay data, and their methods can be used for basic querying of the decay data.
+The decaydata module defines the ``DecayData``, ``DecayMatricesScipy`` and ``DecayMatricesSympy``
+classes. ``DecayMatricesScipy`` and ``DecayMatricesSympy`` instances store data used for decay
+calculations and other inventory transformations (using double-precision floating point and SymPy
+arbitrary precision numbers, respectively). ``DecayData`` instances store ``DecayMatricesScipy``,
+``DecayMatricesSympy`` and unit converter objects, along with other decay data for reporting to
+users (this data is not used for calculations).
 
-The code examples shown in the docstrings assume the ``radioactivedecay`` package has been imported
-as:
+The docstring code examples assume that ``radioactivedecay`` has been imported
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
 
     >>> import radioactivedecay as rd
 
-Attributes
-----------
+Constants
+---------
 DEFAULTDATA : DecayData
-    Default radioactive decay dataset used by ``radioactivedecay``. This is currently ICRP-107.
+    Default radioactive decay dataset used by ``radioactivedecay``. This is currently ICRP-107 for
+    decay data and AME2020 and Nubase2020 for atomic mass data.
 """
 
+from abc import ABC, abstractmethod
 from pathlib import Path
 import pickle
-from typing import ContextManager, Union
+from typing import Any, ContextManager, Optional, Union
 import numpy as np
+import pkg_resources
 from scipy import sparse
-from sympy import log, Matrix
-from sympy.core.numbers import Rational
+import sympy
+from sympy import Matrix
 from sympy.matrices import SparseMatrix
-from radioactivedecay.utils import parse_nuclide, parse_radionuclide, time_unit_conv
+from sympy.core.expr import Expr
+from radioactivedecay.converters import UnitConverterFloat
+from radioactivedecay.utils import parse_nuclide
 
+
+# importlib.resources is new in Python version 3.7
+# this block adds support using a backport for Python <3.7
+# the except block and dependency can be removed once min required Python version is 3.7
 try:
     from importlib import resources
 except ImportError:
-    import importlib_resources as resources
-
-
-def _get_package_filepath(dataset: str, filename: str) -> ContextManager[Path]:
-    """
-    Returns the path to a decay dataset file which is bundled as a sub-package within the
-    ``radioactivedecay`` package.
-
-    Parameters
-    ----------
-    dataset : str
-        Name of the decay dataset.
-    filename : str
-        Name of the file.
-
-    Returns
-    -------
-    ContextManager[Path]
-        A context manager providing a file path object for the decay dataset file.
-    """
-
-    with resources.path(__package__ + "." + dataset, filename) as package_path:
-        return package_path
-
-
-def _get_package_pickle(dataset: str, filename: str) -> Union[Matrix, SparseMatrix]:
-    """
-    Returns an object loaded from a decay dataset file which is bundled as a sub-package within the
-    ``radioactivedecay`` package.
-
-    Parameters
-    ----------
-    dataset : str
-        Name of the decay dataset.
-    filename : str
-        Name of the file.
-
-    Returns
-    -------
-    Matrix or SparseMatrix
-        A SymPy dense or sparse matrix loaded from the decay dataset pickle file.
-    """
-
-    with resources.open_binary(__package__ + "." + dataset, filename) as file:
-        return pickle.load(file)
+    import importlib_resources as resources  # type:ignore
 
 
 def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) -> bool:
     """
-    Checks whether two SciPy Compressed Sparse Row (CSR) matrices have the same elements and that
-    all the elements are equal.
+    Utility function checking whether two SciPy Compressed Sparse Row (CSR) matrices are equal
+    (i.e. they have the same elements and all elements are equal).
 
     Parameters
     ----------
@@ -92,7 +60,7 @@ def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) 
     Returns
     -------
     bool
-        True if both CSR matrices have the same elements and they are all equal, False otherwise.
+        True if both sparse matrices are equal, False otherwise.
     """
 
     return (
@@ -102,237 +70,396 @@ def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) 
     )
 
 
-class DecayMatrices:
+class DecayMatrices(ABC):
     """
-    Instances of DecayMatrices store matrices and vectors used for decay calculations, and the
-    conversion for the number of days in a year which is specific to the decay dataset.
-    DecayMatrices instances store data in either double precision SciPy/NumPy objects or
-    arbitrary-precision SymPy objects.
+    Template class for for SciPy (float) or SymPy DecayMatrices classes. Instances of these classes
+    store vectors and matrices of data used for decay calculations.
 
     Parameters
     ----------
-    decay_consts : numpy.ndarray or sympy.matrices.dense.MutableDenseMatrix
-        Column vector of the decay constants (s\\ :sup:`-1`).
-    matrix_c : scipy.sparse.csr.csr_matrix or sympy.matrices.sparse.MutableSparseMatrix
+    atomic_masses : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    matrix_c : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
         A pre-calculated sparse lower traingular matrix used in decay calculations.
-    matrix_c_inv : scipy.sparse.csr.csr_matrix or sympy.matrices.sparse.MutableSparseMatrix
+    matrix_c_inv : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
         The inverse of matrix_c, also used in decay calculations.
-    year_conv : float or sympy.core.numbers.Rational
-        Conversion factor for number of days in one year.
 
     Attributes
     ----------
-    decay_consts : numpy.ndarray or sympy.matrices.dense.MutableDenseMatrix
-        Column vector of the decay constants (s\\ :sup:`-1`).
-    ln2: float or log
+    atomic_masses : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : numpy.ndarray or sympy.matrices.dense.MutableSparseMatrix
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    ln2: float or sympy.log
         Constant natural logarithm of 2.
-    matrix_c : scipy.sparse.csr.csr_matrix or sympy.matrices.sparse.MutableSparseMatrix
+    matrix_c : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
         A precalculated sparse lower triangular matrix used in decay calculations.
-    matrix_c_inv : scipy.sparse.csr.csr_matrix or sympy.matrices.sparse.MutableSparseMatrix
+    matrix_c_inv : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
         The inverse of matrix_c, also used in decay calculations.
-    matrix_e : scipy.sparse.csr.csr_matrix or sympy.matrices.sparse.MutableSparseMatrix
+    matrix_e : scipy.sparse.csr.csr_matrix or sympy.matrices.dense.MutableSparseMatrix
         The matrix exponential that is used in radioactive decay calculations. It is a diagonal
         matrix that is pre-allocted for performance reasons.
     vector_n0 : numpy.ndarray or sympy.matrices.dense.MutableDenseMatrix
-        Column vector for the number of atoms of each radionuclide. It is pre-allocted for
-        performance reasons.
-    year_conv : float or sympy.core.numbers.Rational
-        Conversion factor for number of days in one year.
+        Column vector for the number of atoms of each nuclide. It is pre-allocted here to improve
+        the performance of decay calculations.
 
     """
 
     def __init__(
         self,
+        atomic_masses: Union[np.ndarray, Matrix],
         decay_consts: Union[np.ndarray, Matrix],
-        matrix_c: Union[sparse.csr_matrix, SparseMatrix],
-        matrix_c_inv: Union[sparse.csr_matrix, SparseMatrix],
-        year_conv: Union[float, Rational],
+        matrix_c: Union[sparse.csr_matrix, Matrix],
+        matrix_c_inv: Union[sparse.csr_matrix, Matrix],
     ) -> None:
+        self.atomic_masses = atomic_masses
         self.decay_consts = decay_consts
+        self.ln2 = self._setup_ln2()
         self.matrix_c = matrix_c
         self.matrix_c_inv = matrix_c_inv
-        self.year_conv = year_conv
+        self.matrix_e = self._setup_matrix_e(matrix_c.shape[0])
+        self.vector_n0 = self._setup_vector_n0(matrix_c.shape[0])
 
-        if isinstance(self.matrix_c, sparse.csr.csr_matrix):
-            self.ln2 = np.log(2)
-            self.matrix_e = sparse.csr_matrix(
-                (
-                    np.zeros(matrix_c.shape[0]),
-                    (np.arange(matrix_c.shape[0]), np.arange(matrix_c.shape[1])),
-                )
-            )
-            self.vector_n0 = np.zeros([matrix_c.shape[0]], dtype=np.float64)
-        else:
-            self.ln2 = log(2)
-            self.matrix_e = SparseMatrix.zeros(matrix_c.shape[0], matrix_c.shape[1])
-            self.vector_n0 = Matrix.zeros(matrix_c.shape[0], 1)
+    @staticmethod
+    @abstractmethod
+    def _setup_ln2() -> float:
+        """
+        Set up natural log of 2 (ln(2)).
+        """
 
-    def __eq__(self, other) -> bool:
+    @staticmethod
+    @abstractmethod
+    def _setup_matrix_e(size: int) -> Union[sparse.csr_matrix, Matrix]:
+        """
+        Set up sparse matrix_e (created here rather than at decay calculation time
+        for performance reasons).
+        """
+
+    @staticmethod
+    @abstractmethod
+    def _setup_vector_n0(size: int) -> Union[np.ndarray, Matrix]:
+        """
+        Set up vector_n0 (created here rather than at decay calculation time for performance
+        reasons).
+        """
+
+    @abstractmethod
+    def __eq__(self, other: object) -> bool:
         """
         Check whether two ``DecayMatrices`` instances are equal with ``==`` operator.
         """
 
-        if isinstance(self.matrix_c, sparse.csr.csr_matrix):
-            return (
-                (self.decay_consts == other.decay_consts).all()
-                and self.ln2 == other.ln2
-                and _csr_matrix_equal(self.matrix_c, other.matrix_c)
-                and _csr_matrix_equal(self.matrix_c_inv, other.matrix_c_inv)
-                and _csr_matrix_equal(self.matrix_e, other.matrix_e)
-                and (self.vector_n0 == other.vector_n0).all()
-                and self.year_conv == other.year_conv
+    def __ne__(self, other: object) -> bool:
+        """
+        Check whether two ``DecayMatrices`` instances are not equal with ``!=`` operator.
+        """
+
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return not self.__eq__(other)
+
+
+class DecayMatricesScipy(DecayMatrices):
+    """
+    Version of DecayMatrices with data for SciPy double-precision floating point decay
+    calculations.
+
+    Parameters
+    ----------
+    atomic_masses : numpy.ndarray
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : numpy.ndarray
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    matrix_c : scipy.sparse.csr.csr_matrix
+        A pre-calculated sparse lower traingular matrix used in decay calculations.
+    matrix_c_inv : scipy.sparse.csr.csr_matrix
+        The inverse of matrix_c, also used in decay calculations.
+
+    Attributes
+    ----------
+    atomic_masses : numpy.ndarray
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : numpy.ndarray
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    ln2: float
+        Constant natural logarithm of 2.
+    matrix_c : scipy.sparse.csr.csr_matrix
+        A precalculated sparse lower triangular matrix used in decay calculations.
+    matrix_c_inv : scipy.sparse.csr.csr_matrix
+        The inverse of matrix_c, also used in decay calculations.
+    matrix_e : scipy.sparse.csr.csr_matrix
+        The matrix exponential that is used in radioactive decay calculations. It is a diagonal
+        matrix that is pre-allocted for performance reasons.
+    vector_n0 : numpy.ndarray
+        Column vector for the number of atoms of each nuclide. It is pre-allocted here to improve
+        the performance of decay calculations.
+
+    """
+
+    @staticmethod
+    def _setup_ln2() -> float:
+        """
+        Set up natural log of 2 (ln(2)).
+        """
+
+        log2: float = np.log(2)
+        return log2
+
+    @staticmethod
+    def _setup_matrix_e(size: int) -> sparse.csr_matrix:
+        """
+        Set up sparse matrix_e (created here rather than at decay calculation time
+        for performance reasons).
+        """
+
+        return sparse.csr_matrix(
+            (
+                np.zeros(size),
+                (np.arange(size), np.arange(size)),
             )
+        )
+
+    @staticmethod
+    def _setup_vector_n0(size: int) -> np.ndarray:
+        """
+        Set up vector_n0 (created here rather than at decay calculation time for performance
+        reasons).
+        """
+
+        return np.zeros([size], dtype=np.float64)
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Check whether two ``DecayMatricesScipy`` instances are equal with ``==`` operator.
+        """
+
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return (
+            np.array_equal(self.atomic_masses, other.atomic_masses)
+            and np.array_equal(self.decay_consts, other.decay_consts)
+            and self.ln2 == other.ln2
+            and _csr_matrix_equal(self.matrix_c, other.matrix_c)
+            and _csr_matrix_equal(self.matrix_c_inv, other.matrix_c_inv)
+            and _csr_matrix_equal(self.matrix_e, other.matrix_e)
+            and np.array_equal(self.vector_n0, other.vector_n0)
+        )
+
+    def __repr__(self) -> str:
 
         return (
-            self.decay_consts == other.decay_consts
+            "DecayMatricesScipy: data stored in SciPy/NumPy objects for double precision "
+            "calculations."
+        )
+
+
+class DecayMatricesSympy(DecayMatrices):
+    """
+    Version of DecayMatrices with data for SymPy arbitrary precision decay calculations.
+
+    Parameters
+    ----------
+    atomic_masses : sympy.matrices.dense.MutableDenseMatrix
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : sympy.matrices.dense.MutableDenseMatrix
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    matrix_c : sympy.matrices.sparse.MutableSparseMatrix
+        A pre-calculated sparse lower traingular matrix used in decay calculations.
+    matrix_c_inv : sympy.matrices.sparse.MutableSparseMatrix
+        The inverse of matrix_c, also used in decay calculations.
+
+    Attributes
+    ----------
+    atomic_masses : sympy.matrices.dense.MutableDenseMatrix
+        Column vector of the atomic masses (in g/mol).
+    decay_consts : sympy.matrices.dense.MutableDenseMatrix
+        Column vector of the decay constants (in s\\ :sup:`-1`).
+    ln2: sympy.log
+        Constant natural logarithm of 2.
+    matrix_c : sympy.matrices.sparse.MutableSparseMatrix
+        A precalculated sparse lower triangular matrix used in decay calculations.
+    matrix_c_inv : sympy.matrices.sparse.MutableSparseMatrix
+        The inverse of matrix_c, also used in decay calculations.
+    matrix_e : sympy.matrices.sparse.MutableSparseMatrix
+        The matrix exponential that is used in radioactive decay calculations. It is a diagonal
+        matrix that is pre-allocted for performance reasons.
+    vector_n0 : sympy.matrices.dense.MutableDenseMatrix
+        Column vector for the number of atoms of each nuclide. It is pre-allocted here to improve
+        the performance of decay calculations.
+
+    """
+
+    @staticmethod
+    def _setup_ln2() -> sympy.log:
+        """
+        Returns SymPy version of ln2.
+        """
+
+        return sympy.log(2)
+
+    @staticmethod
+    def _setup_matrix_e(size: int) -> Matrix:
+        """
+        Returns template for SymPy version of matrix_e.
+        """
+
+        return SparseMatrix.zeros(size, size)
+
+    @staticmethod
+    def _setup_vector_n0(size: int) -> Matrix:
+        """
+        Returns template for SymPy version of vector_n0.
+        """
+
+        return Matrix.zeros(size, 1)
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Check whether two ``DecayMatricesSympy`` instances are equal with ``==`` operator.
+        """
+
+        if not isinstance(other, DecayMatricesSympy):
+            return NotImplemented
+        return (
+            self.atomic_masses == other.atomic_masses
+            and self.decay_consts == other.decay_consts
             and self.ln2 == other.ln2
             and self.matrix_c == other.matrix_c
             and self.matrix_c_inv == other.matrix_c_inv
             and self.matrix_e == other.matrix_e
             and self.vector_n0 == other.vector_n0
-            and self.year_conv == other.year_conv
         )
-
-    def __ne__(self, other) -> bool:
-        """
-        Check whether two ``DecayMatrices`` instances are not equal with ``!=`` operator.
-        """
-
-        return not self.__eq__(other)
 
     def __repr__(self) -> str:
 
-        if isinstance(self.matrix_c, sparse.csr.csr_matrix):
-            return (
-                "DecayMatrices: data stored in SciPy/NumPy objects for double precision "
-                "calculations."
-            )
-
-        return "DecayMatrices: data stored in SymPy objects for arbitrary-precision calculations."
+        return (
+            "DecayMatricesSympy: data stored in SymPy objects for arbitrary-precision "
+            "calculations."
+        )
 
 
 class DecayData:
     """
-    Instances of DecayData store a complete radioactive decay dataset.
+    Instances of DecayData store a complete radioactive decay dataset. It stores data for decay
+    calculations and inventory transformations using DecayMatrices attributes. Other decay data
+    which are reported to users but not used incalculations are stored in other instance
+    attributes.
 
     Parameters
     ----------
-    dataset : str
+    dataset_name : str
         Name of the decay dataset.
-    dir_path : str or None, optional
-        Path to the directory containing the decay dataset files. Use None if the data are bundled
-        as a sub-package of ``radioactivedecay`` (default is None).
-    load_sympy : bool, optional
-        Load SymPy version of the decay data for arbitrary-precision decay calculations (default is
-        False).
+    bfs : numpy.ndarray
+        NumPy array of lists with branching fraction data.
+    float_year_conv : float
+        Number of days in one year for float time unit conversions.
+    hldata : numpy.ndarray
+        List of tuples containing half-life floats, time unit strings and readable format half-life
+        strings.
+    modes : numpy.ndarray
+        NumPy array of lists with decay mode data.
+    nuclides : numpy.ndarray
+        NumPy array of nuclides in the dataset (string format is 'H-3', etc.).
+    progeny : numpy.ndarray
+        NumPy array of lists with direct progeny data.
+    scipy_data : DecayMatricesScipy
+        Dataset of double precision decay matrices (SciPy/NumPy objects).
+    sympy_data : None or DecayMatricesSympy
+        Dataset of arbitrary-precision decay matrices (SymPy objects). Or None if SymPy
+        functionality is not used. Default is None.
+    sympy_year_conv : None or Expr
+        Number of days in one year for SymPy time unit conversions.
 
     Attributes
     ----------
-    dataset : str
+    bfs : numpy.ndarray
+        NumPy array of lists with branching fraction data.
+    dataset_name : str
         Name of the decay dataset.
+    float_year_conv : float
+        Number of days in one year for float time unit conversions.
     hldata : numpy.ndarray
-        List of tuples containing half-life floats and time unit strings.
-    num_radionuclides : int
-        Number of radionuclides in the dataset.
-    radionuclides : numpy.ndarray
-        NumPy array of radionuclides in the dataset (string format is 'H-3', etc.).
-    radionuclide_dict : dict
-        Dictionary containing radionuclide strings as keys and positions in the matrices as values.
-    prog_bfs_modes : numpy.ndarray
-        NumPy array of dictionaries with direct progeny as keys and lists with branching fraction
-        and decay mode data as values.
-    scipy_data : DecayMatrices
+        List of tuples containing half-life floats, time unit strings and readable format half-life
+        strings.
+    modes : numpy.ndarray
+        NumPy array of lists with decay mode data.
+    nuclides : numpy.ndarray
+        NumPy array of nuclides in the dataset (string format is 'H-3', etc.).
+    nuclide_dict : dict
+        Dictionary containing nuclide strings as keys and positions in the matrices as values.
+    progeny : numpy.ndarray
+        NumPy array of lists with direct progeny data.
+    _scipy_data : DecayMatricesScipy
         Dataset of double precision decay matrices (SciPy/NumPy objects).
-    sympy_data : None or DecayMatrices
-        Dataset of arbitrary-precision decay matrices (SymPy objects). Or None if this functionality
-        is not used.
+    _sympy_year_conv : None or Expr
+        Number of days in one year for SymPy time unit conversions.
 
     """
 
-    # pylint: disable=too-many-instance-attributes
-
     def __init__(
-        self, dataset: str, dir_path: Union[str, None] = None, load_sympy: bool = False,
+        self,
+        dataset_name: str,
+        bfs: np.ndarray,
+        float_year_conv: float,
+        hldata: np.ndarray,
+        modes: np.ndarray,
+        nuclides: np.ndarray,
+        progeny: np.ndarray,
+        scipy_data: DecayMatricesScipy,
+        sympy_data: Optional[DecayMatricesSympy] = None,
+        sympy_year_conv: Optional[Expr] = None,
     ) -> None:
 
-        self.dataset = dataset
+        self.dataset_name = dataset_name
+        self.bfs = bfs
+        self.float_year_conv = float_year_conv
+        self.hldata = hldata
+        self.modes = modes
+        self.nuclides = nuclides
+        self.nuclide_dict = dict(zip(self.nuclides, list(range(0, self.nuclides.size))))
+        self.progeny = progeny
+        self.scipy_data = scipy_data
 
-        if dir_path is None:
-            data = np.load(
-                _get_package_filepath(self.dataset, "decay_data.npz"),
-                allow_pickle=True,
-            )
-        else:
-            data = np.load(dir_path + "/decay_data.npz", allow_pickle=True)
+        self._sympy_data: Optional[DecayMatricesSympy] = None
+        self._sympy_year_conv: Optional[Expr] = None
 
-        self.radionuclides = data["radionuclides"]
-        self.hldata = data["hldata"]
-        self.prog_bfs_modes = data["prog_bfs_modes"]
+        if sympy_data and sympy_year_conv:
+            self._sympy_data = sympy_data
+            self._sympy_year_conv = sympy_year_conv
 
-        self.num_radionuclides = self.radionuclides.size
-        self.radionuclide_dict = dict(
-            zip(self.radionuclides, list(range(0, self.num_radionuclides)))
-        )
-
-        decay_consts = np.array(
-            [
-                np.log(2)
-                / time_unit_conv(
-                    hl[0], units_from=hl[1], units_to="s", year_conv=data["year_conv"]
-                )
-                for hl in self.hldata
-            ]
-        )
-
-        if dir_path is None:
-            matrix_c = sparse.load_npz(
-                _get_package_filepath(self.dataset, "c_scipy.npz")
-            )
-            matrix_c_inv = sparse.load_npz(
-                _get_package_filepath(self.dataset, "c_inv_scipy.npz")
-            )
-        else:
-            matrix_c = sparse.load_npz(dir_path + "/c_scipy.npz")
-            matrix_c_inv = sparse.load_npz(dir_path + "/c_inv_scipy.npz")
-        self.scipy_data = DecayMatrices(
-            decay_consts, matrix_c, matrix_c_inv, data["year_conv"]
-        )
-
-        if load_sympy:
-            if dir_path is None:
-                decay_consts = _get_package_pickle(
-                    self.dataset, "decay_consts_sympy.pickle"
-                )
-                matrix_c = _get_package_pickle(self.dataset, "c_sympy.pickle")
-                matrix_c_inv = _get_package_pickle(self.dataset, "c_inv_sympy.pickle")
-                year_conv = _get_package_pickle(
-                    self.dataset, "year_conversion_sympy.pickle"
-                )
-            else:
-                with open(dir_path + "/decay_consts_sympy.pickle", "rb") as file:
-                    decay_consts = pickle.load(file)
-                with open(dir_path + "/c_sympy.pickle", "rb") as file:
-                    matrix_c = pickle.load(file)
-                with open(dir_path + "/c_inv_sympy.pickle", "rb") as file:
-                    matrix_c_inv = pickle.load(file)
-                with open(dir_path + "/year_conversion_sympy.pickle", "rb") as file:
-                    year_conv = pickle.load(file)
-
-            self.sympy_data: Union[None, DecayMatrices] = DecayMatrices(
-                decay_consts, matrix_c, matrix_c_inv, year_conv
-            )
-        else:
-            self.sympy_data = None
-
-    def half_life(self, radionuclide: str, units: str = "s") -> Union[float, str]:
+    @property
+    def sympy_data(self) -> DecayMatricesSympy:
         """
-        Returns the half-life of the radionuclide as a float in your chosen units, or as
+        Property to return DecayMatricesSympy instance if it exists, or raise an error if the
+        dataset does not contain SymPy data.
+        """
+
+        if self._sympy_data is None:
+            raise ValueError(f"{self.dataset_name} does not contain SymPy data.")
+        return self._sympy_data
+
+    @property
+    def sympy_year_conv(self) -> Expr:
+        """
+        Property to return SymPy number of days in one year if it exists, or raise an error if the
+        dataset does not contain SymPy data.
+        """
+
+        if self._sympy_year_conv is None:
+            raise ValueError(f"{self.dataset_name} does not contain SymPy data.")
+        return self._sympy_year_conv
+
+    def half_life(self, nuclide: str, units: str = "s") -> Union[float, str]:
+        """
+        Returns the half-life of the nuclide as a float in your chosen units, or as
         a human-readable string with appropriate units.
 
         Parameters
         ----------
-        radionuclide : str
-            Radionuclide string.
+        nuclide : str
+            Nuclide string.
         units : str, optional
             Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
@@ -341,7 +468,7 @@ class DecayData:
         Returns
         -------
         float or str
-            Radionuclide half-life.
+            Nuclide half-life.
 
         Examples
         --------
@@ -351,15 +478,18 @@ class DecayData:
         388781329.30560005
         >>> rd.DEFAULTDATA.half_life('H-3', 'readable')
         '12.32 y'
+        >>> rd.DEFAULTDATA.half_life('He-3')
+        inf
+        >>> rd.DEFAULTDATA.half_life('He-3', 'readable')
+        'stable'
 
         """
 
-        radionuclide = parse_radionuclide(
-            radionuclide, self.radionuclides, self.dataset
-        )
-        half_life, unit, readable_str = self.hldata[
-            self.radionuclide_dict[radionuclide]
-        ]
+        nuclide = parse_nuclide(nuclide, self.nuclides, self.dataset_name)
+        half_life: float
+        unit: str
+        readable_str: str
+        half_life, unit, readable_str = self.hldata[self.nuclide_dict[nuclide]]
 
         if units == "readable":
             return readable_str
@@ -367,11 +497,11 @@ class DecayData:
         return (
             half_life
             if unit == units
-            else time_unit_conv(
+            else UnitConverterFloat.time_unit_conv(
                 half_life,
                 units_from=unit,
                 units_to=units,
-                year_conv=self.scipy_data.year_conv,
+                year_conv=self.float_year_conv,
             )
         )
 
@@ -382,7 +512,7 @@ class DecayData:
         Parameters
         ----------
         parent : str
-            Radionuclide string of the parent.
+            Nuclide string of the parent.
         progeny : str
             Nuclide string of the progeny (can be stable or radioactive nuclide).
 
@@ -398,11 +528,12 @@ class DecayData:
 
         """
 
-        parent = parse_radionuclide(parent, self.radionuclides, self.dataset)
-        progeny = parse_nuclide(progeny)
-        if progeny in self.prog_bfs_modes[self.radionuclide_dict[parent]]:
-            return self.prog_bfs_modes[self.radionuclide_dict[parent]][progeny][0]
-
+        parent = parse_nuclide(parent, self.nuclides, self.dataset_name)
+        progeny = parse_nuclide(progeny, self.nuclides, self.dataset_name)
+        for idx, prog in enumerate(self.progeny[self.nuclide_dict[parent]]):
+            if prog == progeny:
+                branching_fraction: float = self.bfs[self.nuclide_dict[parent]][idx]
+                return branching_fraction
         return 0.0
 
     def decay_mode(self, parent: str, progeny: str) -> str:
@@ -415,9 +546,9 @@ class DecayData:
         Parameters
         ----------
         parent : str
-            Radionuclide string of the parent.
+            Nuclide string of the parent.
         progeny : str
-            Nuclide string of the progeny (can be stable or radioactive nuclide).
+            Nuclide string of the progeny.
 
         Returns
         -------
@@ -431,42 +562,248 @@ class DecayData:
 
         """
 
-        parent = parse_radionuclide(parent, self.radionuclides, self.dataset)
-        progeny = parse_nuclide(progeny)
-        if progeny in self.prog_bfs_modes[self.radionuclide_dict[parent]]:
-            return self.prog_bfs_modes[self.radionuclide_dict[parent]][progeny][1]
-
+        parent = parse_nuclide(parent, self.nuclides, self.dataset_name)
+        progeny = parse_nuclide(progeny, self.nuclides, self.dataset_name)
+        for idx, prog in enumerate(self.progeny[self.nuclide_dict[parent]]):
+            if prog == progeny:
+                decay_mode: str = self.modes[self.nuclide_dict[parent]][idx]
+                return decay_mode
         return ""
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Check whether two ``DecayData`` instances are equal with ``==`` operator.
         """
 
+        if not isinstance(other, DecayData):
+            return NotImplemented
         return (
-            self.dataset == other.dataset
-            and (self.hldata == other.hldata).all()
-            and self.num_radionuclides == other.num_radionuclides
-            and (self.radionuclides == other.radionuclides).all()
-            and self.radionuclide_dict == other.radionuclide_dict
-            and (self.prog_bfs_modes == other.prog_bfs_modes).all()
+            self.dataset_name == other.dataset_name
+            and self.float_year_conv == other.float_year_conv
+            and np.array_equal(self.hldata, other.hldata)
+            and np.array_equal(self.nuclides, other.nuclides)
+            and self.nuclide_dict == other.nuclide_dict
+            and np.array_equal(self.progeny, other.progeny)
+            and np.array_equal(self.bfs, other.bfs)
+            and np.array_equal(self.modes, other.modes)
             and self.scipy_data == other.scipy_data
-            and self.sympy_data == other.sympy_data
+            and self._sympy_data == other._sympy_data
+            and self._sympy_year_conv == other._sympy_year_conv
         )
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: object) -> bool:
         """
         Check whether two ``DecayData`` instances are not equal with ``!=`` operator.
         """
 
+        if not isinstance(other, DecayData):
+            return NotImplemented
         return not self.__eq__(other)
 
     def __repr__(self) -> str:
         return (
-            "Decay dataset: " + self.dataset + ", contains SymPy data: False"
-            if self.sympy_data is None
-            else "Decay dataset: " + self.dataset + ", contains SymPy data: True"
+            f"Decay dataset: {self.dataset_name}, contains SymPy data: "
+            f"{self._sympy_data is not None}"
         )
 
 
-DEFAULTDATA = DecayData("icrp107", load_sympy=True)
+def _get_package_filepath(subpackage_dir: str, filename: str) -> ContextManager[Path]:
+    """
+    Returns the path to a file which is bundled as a sub-package within the
+    ``radioactivedecay`` package.
+
+    Parameters
+    ----------
+    subpackage_dir : str
+        Name of the sub-package directory.
+    filename : str
+        Name of the file.
+
+    Returns
+    -------
+    ContextManager[Path]
+        A context manager providing a file path object for the decay dataset file.
+
+    """
+
+    with resources.path(f"{__package__}.{subpackage_dir}", filename) as package_path:
+        return package_path
+
+
+def _get_filepath(
+    dataset_name: str, dir_path: Union[None, str], filename: str
+) -> Union[str, ContextManager[Path]]:
+    """
+    Returns the path to a decay dataset file (located either within a sub-package of
+    ``radioactivedecay`` or within a local system directory).
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the decay dataset (also sub-package directory).
+    dir_path : None or str
+        Local directory containing dataset files, if not loading from a sub-package.
+    filename : str
+        Name of the file.
+
+    Returns
+    -------
+    str or ContextManager[Path]
+        A string or context manager with the file path for the decay dataset file.
+
+    """
+
+    if dir_path:
+        return f"{dir_path}/{filename}"
+    return _get_package_filepath(dataset_name, filename)
+
+
+def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
+    """
+    Returns an object loaded from a pickle file which is bundled as a sub-package within the
+    ``radioactivedecay`` package.
+
+    Parameters
+    ----------
+    subpackage_dir : str
+        Name of the sub-package directory.
+    filename : str
+        Name of the pickle file.
+
+    Returns
+    -------
+    Object
+        Object loaded from the pickle file.
+
+    """
+
+    with resources.open_binary(f"{__package__}.{subpackage_dir}", filename) as file:
+        return pickle.load(file)
+
+
+def _load_pickle_file(
+    dataset_name: str, dir_path: Union[None, str], filename: str
+) -> Any:
+    """
+    Load an object from a pickle file which is located either in a sub-package of
+    ``radioactivedecay`` or within a local system directory.
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the decay dataset (also sub-package directory).
+    dir_path : None or str
+        Local directory containing dataset files, if not loading from a sub-package.
+    filename : str
+        Name of the pickle file.
+
+    Returns
+    -------
+    Object
+        Object loaded from the pickle file.
+
+    """
+
+    if dir_path:
+        with open(f"{dir_path}/{filename}", "rb") as file:
+            obj = pickle.load(file)
+        return obj
+    return _load_package_pickle_file(dataset_name, filename)
+
+
+def load_dataset(
+    dataset_name: str, dir_path: Optional[str] = None, load_sympy: bool = False
+) -> DecayData:
+    """
+    Load a decay dataset, either from a set of data files within a sub-packaged of
+    ``radioactivedecay``, or by specifying a local directory containing the data files.
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the decay dataset (or sub-package directory name).
+    dir_path : None or str, optional
+        Path to the directory containing the decay dataset files. Use None to load data that are
+        bundled as a sub-package of ``radioactivedecay`` (dataset_name should match the
+        sub-package name in this case). Default is None.
+    load_sympy : bool, optional
+        Load SymPy version of the decay data for arbitrary-precision decay calculations. Default is
+        False.
+
+    Returns
+    -------
+    DecayData
+        A decay dataset used by ``radioactivedecay``.
+
+    """
+
+    data = np.load(
+        _get_filepath(dataset_name, dir_path, "decay_data.npz"),
+        allow_pickle=True,
+    )
+
+    decay_consts: np.ndarray = np.array(
+        [
+            np.log(2)
+            / UnitConverterFloat.time_unit_conv(
+                hl[0], units_from=hl[1], units_to="s", year_conv=data["year_conv"]
+            )
+            for hl in data["hldata"]
+        ]
+    )
+
+    matrix_c = sparse.load_npz(_get_filepath(dataset_name, dir_path, "c_scipy.npz"))
+    matrix_c_inv = sparse.load_npz(
+        _get_filepath(dataset_name, dir_path, "c_inv_scipy.npz")
+    )
+
+    scipy_data = DecayMatricesScipy(
+        data["masses"], decay_consts, matrix_c, matrix_c_inv
+    )
+
+    sympy_data = None
+    sympy_year_conv = None
+    if load_sympy:
+        sympy_pickle_version = (
+            "1.8"
+            if pkg_resources.parse_version(sympy.__version__)
+            < pkg_resources.parse_version("1.9")
+            else "1.9"
+        )
+
+        atomic_masses = _load_pickle_file(
+            dataset_name, dir_path, f"atomic_masses_sympy_{sympy_pickle_version}.pickle"
+        )
+        decay_consts = _load_pickle_file(
+            dataset_name, dir_path, f"decay_consts_sympy_{sympy_pickle_version}.pickle"
+        )
+        matrix_c = _load_pickle_file(
+            dataset_name, dir_path, f"c_sympy_{sympy_pickle_version}.pickle"
+        )
+        matrix_c_inv = _load_pickle_file(
+            dataset_name, dir_path, f"c_inv_sympy_{sympy_pickle_version}.pickle"
+        )
+        sympy_year_conv = _load_pickle_file(
+            dataset_name,
+            dir_path,
+            f"year_conversion_sympy_{sympy_pickle_version}.pickle",
+        )
+        sympy_data = DecayMatricesSympy(
+            atomic_masses, decay_consts, matrix_c, matrix_c_inv
+        )
+
+    return DecayData(
+        dataset_name,
+        data["bfs"],
+        data["year_conv"],
+        data["hldata"],
+        data["modes"],
+        data["nuclides"],
+        data["progeny"],
+        scipy_data,
+        sympy_data,
+        sympy_year_conv,
+    )
+
+
+DEFAULTDATA = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)

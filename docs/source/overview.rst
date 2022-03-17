@@ -10,45 +10,71 @@ decay calculations, and output decay data for radionuclides and decay chains.
 
 The original goal was to create a light-weight Python package for radioactive
 decay calculations, with full support for branching decays, multi-step decay
-chains, and metastable states. ``radioactivedecay`` uses the decay data from
-ICRP Publication 107 :ref:`[1] <refs>` by default. It solves the radioactive
+chains, and metastable states. By default ``radioactivedecay`` uses decay data
+from ICRP Publication 107 :ref:`[1] <refs>` and atomic mass data from the
+Atomic Mass Data Center (AME2020 and Nubase 2020 evaluations)
+:ref:`[2] <refs>`, :ref:`[3] <refs>` and :ref:`[4] <refs>`. It solves the radioactive
 decay differential equations analytically using basic linear algebra operations
-:ref:`[2] <refs>`.
+:ref:`[5] <refs>`.
 
 In order to use ``radioactivedecay``, you will need Python 3.6+ with the
-Matplotlib, NetworkX, NumPy, SciPy and SymPy packages installed. The code is
-platform independent and has been tested on Windows, MacOS and Linux systems.
+Matplotlib, NetworkX, NumPy, SciPy, Setuptools and SymPy packages installed.
+The code is platform independent and has been tested on Windows, MacOS and
+Linux systems.
 
-Quick Start
+Quick start
 -----------
 
-Install ``radioactivedecay`` via the command:
+Install ``radioactivedecay`` using ``pip`` by:
 
 .. code-block:: bash
 
     $ pip install radioactivedecay
-    
-This command will also attempt to install Matplotlib, NetworkX, NumPy, SciPy
-and SymPy if they are not already present in your environment.
+
+or using ``conda`` by:
+
+.. code-block:: bash
+
+    $ conda install -c conda-forge radioactivedecay
+
+Either command will attempt to install the dependencies (Matplotlib, NetworkX,
+NumPy, SciPy, Setuptooks & SymPy) if they are not already present in the
+environment.
 
 Import the ``radioactivedecay`` package and decay a simple inventory using:
 
 .. code-block:: python3
 
     >>> import radioactivedecay as rd
-    >>> inv_t0 = rd.Inventory({'H-3': 10.0})
+    >>> inv_t0 = rd.Inventory({'H-3': 10.0}, 'Bq')
     >>> inv_t1 = inv_t0.decay(12.32, 'y')
-    >>> inv_t1.contents
+    >>> inv_t1.activities()
     {'H-3': 5.0}
 
-Here we created an inventory of 10.0 units of tritium (:sup:`3`\H) and decayed
-it for 12.32 years. The activity reduced by a factor of two, i.e. to 5.0 units,
+Here we created an inventory of 10.0 Bq of tritium (:sup:`3`\H) and decayed
+it for 12.32 years. The activity reduced by a factor of two, i.e. to 5.0 Bq,
 as 12.32 years is the half-life of tritium.
 
-``radioactivedecay`` is agnostic to activity units: the output units are the
-same as the input units. The above example could therefore represent 10.0 Bq of
-tritium decaying to 5.0 Bq, or 10.0 Ci to 5.0 Ci, or whichever activity unit
-you prefer.
+Additional options for inputs and outputs include masses, moles and numbers of
+atoms. Use the ``units`` argument to the ``Inventory()`` constructor, and the
+``masses()``, ``moles()``, ``numbers()``, ``mass_fractions()``, and
+``mole_fractions()`` methods to obtain results. 
+
+.. code-block:: python3
+
+    >>> inv_mass_t0 = rd.Inventory({'H-3': 3.2}, 'g')
+    >>> inv_mass_t1 = inv_mass_t0.decay(12.32, 'y')
+    >>> inv_mass_t1.masses('g')
+    {'H-3': 1.6000000000000003, 'He-3': 1.5999894116584246}
+
+    >>> inv_mol_t0 = rd.Inventory({'C-14': 1.0}, 'mol')
+    >>> inv_mol_t1 = inv_mol_t0.decay(3000.0, 'y')
+    >>> inv_mol_t1.moles('mol')
+    {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
+    >>> inv_mol_t1.numbers()
+    {'C-14': 4.181326323680147e+23, 'N-14': 1.840814436319853e+23}
+    >>> inv_mol_t1.mole_fractions()
+    {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 
 Use the ``plot()`` method to show the decay of the inventory over time:
 
@@ -61,12 +87,12 @@ Use the ``plot()`` method to show the decay of the inventory over time:
 
 The graph shows the decay of H-3 over a 100 year period.
 
-Use the ``Radionuclide`` class to fetch decay data about a particular
-radionuclide and to draw diagrams of its decay chain:
+Use the ``Nuclide`` class to fetch decay and atomic data about a particular
+nuclide and to draw diagrams of its decay chain:
 
 .. code-block:: python3
 
-    >>> nuc = rd.Radionuclide('H-3')
+    >>> nuc = rd.Nuclide('H-3')
     >>> nuc.half_life('readable')
     '12.32 y'
     >>> nuc.progeny()
@@ -75,6 +101,12 @@ radionuclide and to draw diagrams of its decay chain:
     ['β-']
     >>> nuc.branching_fractions()
     [1.0]
+    >>> nuc.Z  # proton number
+    1
+    >>> nuc.A  # nucleon number
+    3
+    >>> nuc.atomic_mass  # atomic mass in g/mol
+    3.01604928132
     >>> nuc.plot()
 
 .. image:: images/H-3_chain.png
@@ -85,22 +117,24 @@ How it works
 
 ``radioactivedecay`` calculates an analytical solution to the decay chain
 differential equations using matrix and vector multiplications. It implements
-the method described in ref. :ref:`[2] <refs>`.  See the
-`theory docpage <https://alexmalins.com/radioactivedecay/theory.html>`_ for
-more details. It calls NumPy :ref:`[3] <refs>` and SciPy :ref:`[4] <refs>` for
+the method described in ref. :ref:`[5] <refs>`.  See the
+:doc:`theory docpage <theory>` for
+more details. It calls NumPy :ref:`[6] <refs>` and SciPy :ref:`[7] <refs>` for
 the matrix operations. There is also a high numerical precision decay
-calculation mode based on SymPy :ref:`[5] <refs>` routines.
+calculation mode based on SymPy :ref:`[8] <refs>` routines.
 
-The `notebooks folder 
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks>`_ 
-in the GitHub repository contains some Jupyter Notebooks for creating the 
+The `datasets repo
+<https://github.com/radioactivedecay/datasets>`_ 
+on GitHub contains a Jupyter Notebook for creating the 
 `ICRP-107 decay dataset
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
-for ``radioactivedecay``, and cross-checks against `PyNE
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
-:ref:`[6] <refs>` and `Radiological Toolbox 
-<https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
-:ref:`[7] <refs>`.
+<https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb>`_.
+Notebooks with cross-checks of decay calculation results against
+`PyNE
+<https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb>`_ 
+:ref:`[9] <refs>` and `Radiological Toolbox 
+<https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
+:ref:`[10] <refs>` are held in the `comparisons repo
+<https://github.com/radioactivedecay/comparisons>`_. 
 
 Limitations
 -----------
@@ -112,15 +146,16 @@ At present ``radioactivedecay`` has the following limitations:
 * It cannot model temporal sources of external radioactivity input or removal
   from an inventory over time.
 * Care is needed when decaying backwards in time, i.e. supplying a negative
-  argument to the ``decay()`` and ``decay_high_precision()`` methods, as this
-  can result in numerical instabilities and nonsensical results.
+  argument to the ``Inventory.decay()`` method, as this can result in numerical
+  instabilities and nonsensical results. The high precision
+  ``InventoryHP.decay()`` is more robust to these instabilities, but not immune
+  from them.
 
 There are also some limitations associated with the ICRP-107 decay dataset:
 
 * ICRP-107 does not contain data on branching fractions for radionuclides
-  produced from spontaneous fission decays. Thus ``decay()`` and
-  ``decay_high_precision()`` do not calculate activities for spontaneous
-  fission progeny.
+  produced from spontaneous fission decays. Thus the ``decay()`` methods do not
+  calculate activities for spontaneous fission progeny.
 * Decay data is quoted in ICRP-107 with up to 5 significant figures of
   precision. The results of decay calculations will therefore in theory never
   be more precise than this level of precision.
@@ -133,13 +168,8 @@ There are also some limitations associated with the ICRP-107 decay dataset:
 * There are a few instances where minor decay pathways were not included in
   ICRP-107, e.g. the decay pathways for At-219-> Rn-219 (|beta| ~3%), Es-250 ->
   Bk-246 (|alpha| ~1.5%), and U-228 -> Pa-228 (|epsilon| ~2.5%). For more
-  details see refs. :ref:`[8] <refs>` and :ref:`[9] <refs>` on the creation of
+  details see refs. :ref:`[11] <refs>` and :ref:`[12] <refs>` on the creation of
   the ICRP-107 dataset.
-* Radioactive progeny resulting from some decay pathways present in ICRP-107
-  are not themselves included in the publication. The missing radionuclides all
-  have extremely long half-lives and can be considered as practically stable,
-  e.g. Os-184, which results from the decay of Ir-184, has a half-life of over
-  56,000 billion years.
 
 License
 -------
@@ -147,36 +177,70 @@ License
 .. include:: <isonum.txt>
 
 ``radioactivedecay`` is open source software released under the `MIT 
-<https://github.com/alexmalins/radioactivedecay/blob/master/LICENSE>`_ licence.
-It uses a processed version of the ICRP-107 decay data :ref:`[1] <refs>`, which
-is originally Copyright |copy| 2008 A. Endo and K.F. Eckerman.
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE>`_ licence.
 
-Contributors & Contributing
----------------------------
+The default decay data used by ``radioactivedecay`` is ICRP-107 :ref:`[1] <refs>`, which
+is Copyright |copy| A. Endo and K.F. Eckerman (2008). See `LICENSE.ICRP-07
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE.ICRP-07>`_
+for more details.
+
+The default atomic mass data is based on the Atomic Mass Data Center (`AMDC
+<https://www-nds.iaea.org/amdc/>`_) AME2020 :ref:`[2] <refs>`,
+:ref:`[3] <refs>` and Nubase2020 :ref:`[4] <refs>` evaluations. See
+`LICENSE.AMDC
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE.AMDC>`_ for
+more details.
+
+Contributors
+------------
+
+List of contributors to ``radioactivedecay``:
 
 * `Alex Malins <https://alexmalins.com>`_
+* `Thom Lemoine <https://github.com/lemointm>`_
+* `Bernardo Gameiro <https://bgameiro.me/>`_
+
+
+Contributing
+------------
 
 Users are welcome to fix bugs, add new features or make feature requests.
-Please open a pull request or a new issue on the
-`GitHub repository <https://github.com/alexmalins/radioactivedecay>`_.
+Please read the `contributor guidelines
+<https://github.com/radioactivedecay/radioactivedecay/blob/master/CONTRIBUTING.md>`_
+and open a pull request or issue on the
+`GitHub repository <https://github.com/radioactivedecay/radioactivedecay>`_.
+
+Queries and suggestions
+-----------------------
+
+If you have any questions or suggestions, please post on the `Discussions page
+on GitHub <https://github.com/radioactivedecay/radioactivedecay/discussions>`_.
 
 Acknowledgements
 ----------------
 
 Special thanks to:
 
-* `Center for Computational Science & e-Systems <https://ccse.jaea.go.jp/index_eng.html>`_, JAEA.
+* `Center for Computational Science & e-Systems, JAEA <https://ccse.jaea.go.jp/index_eng.html>`_
 * `Kenny McKee <https://github.com/Rolleroo>`_
 * `Daniel Jewell <https://github.com/danieldjewell>`_
+* `Ezequiel Pássaro <https://epassaro.github.io/>`_
+* `Kelly Rowland <https://github.com/kellyrowland>`_
+* `Shyam Dwaraknath <https://github.com/shyamd>`_
+* `Madicken Munk <http://munkm.github.io/>`_
+* `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
+* `Hunter Ratliff <https://hratliff.com/>`_
+* `Jayson Vavrek <https://github.com/jvavrek>`_
+* `radioactivedecay-github <https://github.com/radioactivedecay-github>`_
 
-for their support and assistance to this project.
+for suggestions, support and assistance to this project.
 
 Thanks also to:
 
 * `Björn Dahlgren <https://github.com/bjodah>`_ (creator of the batemaneq
-  Python package :ref:`[10] <refs>`)
+  Python package :ref:`[13] <refs>`)
 * `Anthony Scopatz <https://github.com/scopatz>`_ and the PyNE project
-  :ref:`[6] <refs>`
+  :ref:`[9] <refs>`
 * `Jonathan Morrell <https://github.com/jtmorrell>`_ (creator of the `NPAT
   <https://github.com/jtmorrell/npat>`_ and `Curie
   <https://github.com/jtmorrell/npat>`_ packages)
@@ -189,15 +253,18 @@ References
 ----------
 
 1. ICRP Publication 107: Nuclear Decay Data for Dosimetric Calculations. Ann. ICRP 38 (3), 1-96 (2008). `PDF <https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3>`_
-2. M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
-3. CR Harris et al. Nat. 585, 357-362 (2020). DOI: `10.1038/s41586-020-2649-2 <https://doi.org/10.1038/s41586-020-2649-2>`_
-4. P Virtanen et al. Nat. Methods 17, 261-272 (2020). DOI: `10.1038/s41592-019-0686-2 <https://doi.org/10.1038/s41592-019-0686-2>`_
-5. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_
-6. PyNE: The Nuclear Engineering Toolkit. `https://pyne.io/ <https://pyne.io/>`_
-7. KF Eckerman, AL Sjoreen & C Sun, Radiological Toolbox, Oak Ridge National Laboratory. `https://www.ornl.gov/crpk/software <https://www.ornl.gov/crpk/software>`_
-8. A Endo, Y Yamaguchi & KF Eckerman, JAERI 1347 (2005). DOI: `10.11484/jaeri-1347 <https://doi.org/10.11484/jaeri-1347>`_
-9. A Endo & KF Eckerman, JAEA-Data/Code 2007-021 (2007). DOI: `10.11484/jaea-data-code-2007-021 <https://doi.org/10.11484/jaea-data-code-2007-021>`_
-10. B Dahlgren, batemaneq:  a C++ implementation of the Bateman equation, and a Python binding thereof. `https://github.com/bjodah/batemaneq <https://github.com/bjodah/batemaneq>`_
+2. W.J. Huang et al. Chinese Phys. C 45, 030002 (2021). DOI: `10.1088/1674-1137/abddb0 <https://doi.org/10.1088/1674-1137/abddb0>`_
+3. Meng Wang et al. Chinese Phys. C 45, 030003 (2021). DOI: `10.1088/1674-1137/abddaf <https://doi.org/10.1088/1674-1137/abddaf>`_
+4. F.G. Kondev et al. Chinese Phys. C 45, 030001 (2021). DOI: `10.1088/1674-1137/abddae <https://doi.org/10.1088/1674-1137/abddae>`_
+5. M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
+6. CR Harris et al. Nat. 585, 357-362 (2020). DOI: `10.1038/s41586-020-2649-2 <https://doi.org/10.1038/s41586-020-2649-2>`_
+7. P Virtanen et al. Nat. Methods 17, 261-272 (2020). DOI: `10.1038/s41592-019-0686-2 <https://doi.org/10.1038/s41592-019-0686-2>`_
+8. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_
+9. PyNE: The Nuclear Engineering Toolkit. `https://pyne.io/ <https://pyne.io/>`_
+10. KF Eckerman, AL Sjoreen & C Sun, Radiological Toolbox, Oak Ridge National Laboratory. `https://www.ornl.gov/crpk/software <https://www.ornl.gov/crpk/software>`_
+11. A Endo, Y Yamaguchi & KF Eckerman, JAERI 1347 (2005). DOI: `10.11484/jaeri-1347 <https://doi.org/10.11484/jaeri-1347>`_
+12. A Endo & KF Eckerman, JAEA-Data/Code 2007-021 (2007). DOI: `10.11484/jaea-data-code-2007-021 <https://doi.org/10.11484/jaea-data-code-2007-021>`_
+13. B Dahlgren, batemaneq:  a C++ implementation of the Bateman equation, and a Python binding thereof. `https://github.com/bjodah/batemaneq <https://github.com/bjodah/batemaneq>`_
 
 .. |alpha| unicode:: U+03B1 .. lower case alpha
 .. |beta| unicode:: U+03B2 .. lower case beta

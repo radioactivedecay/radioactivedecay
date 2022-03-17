@@ -76,10 +76,17 @@ to ``decay()``. :math:`e^{\varLambda_{d} t}` is the matrix exponential of
 :math:`\varLambda_{d} t`. It is a diagonal matrix with elements
 :math:`e^{\varLambda_{d} t}_{ii} = e^{-\lambda_i t}`. 
 
-The final equation that is needed is the conversion between the activity
-(:math:`\mathbf{A}`) and number of atoms (:math:`\mathbf{N}`) vectors.
-:math:`\mathbf{A}` is just an element-wise multiplication of the decay constants
-and the number of atoms:
+The final equations that are needed are for converting between various
+quantities. Converting between mass (:math:`\mathbf{M}`, in grams) and
+number of atoms (:math:`\mathbf{N}`) uses the vector of atomic masses
+(:math:`\mathbf{M_u}`) and the Avogadro constant (:math:`N_a`):
+
+.. math::
+    M_i =  \frac{M_{ui} N_i}{N_a}.
+
+Converting between activity (:math:`\mathbf{A}`) and number of atoms
+(:math:`\mathbf{N}`) uses the vector of decay constants
+(:math:`\mathbf{\lambda}`):
 
 .. math::
     A_i = \lambda_i N_i.
@@ -91,8 +98,8 @@ As matrices :math:`C` and :math:`C^{-1}` are independent of time, they can be
 pre-calculated and imported into ``radioactivedecay`` as part of a radioactive
 decay dataset.  :math:`C` and :math:`C^{-1}`  are pre-calculated for the
 ICRP-107 :ref:`[2] <refs>` dataset in
-`this Jupter notebook <https://github.com/alexmalins/radioactivedecay/notebooks/tree/main/icrp107_dataset/icrp107_dataset.ipynb>`_
-held in the GitHub repository.
+`this Jupyter notebook
+<https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb>`_.
 
 Note that :math:`C`, :math:`C^{-1}` and :math:`e^{\varLambda_{d} t}` are sparse
 matrices. Storing the matrices in a sparse matrix format greatly reduces the
@@ -102,86 +109,62 @@ multiplications in each decay calculation.
 Notes on computation and numerical precision
 --------------------------------------------
 
-Numerical issues arise when double-precision floating-point numbers are used
-to compute solutions for some decay calculations. For example, the Es-254 decay
-chain contains U-238 (half-life 4.468 billion years) and Po-214 (half-life
-164.3 microseconds), which is a 20 orders of magnitude difference in half-life.
-Round-off errors and loss of significance can occur causing unphysical results,
-e.g.
+Numerical issues can arise when using double-precision floating-point numbers
+to compute decays for some chains :ref:`[3] <refs>`. For example, the Es-254
+decay chain contains U-238 (half-life 4.468 billion years) and Po-214
+(half-life 164.3 microseconds), which is a 20 orders of magnitude difference in
+half-life. Round-off errors and loss of significance can occur causing
+unphysical results, e.g.
 
 .. code-block:: python3
 
     >>> inv = rd.Inventory({'Es-254': 1.0})
-    >>> inv.decay(0.0).contents
-    {'At-218': -8.24439035981494e-30,
-    'Bi-210': 2.5308844932098316e-26,
-    'Bi-214': -4.256549745172888e-26,
-    'Bk-250': 0.0,
-    'Cf-250': 0.0,
-    'Cm-246': 8.802967479989175e-21,
-    'Es-254': 1.0,
-    'Fm-254': 0.0,
-    'Hg-206': -3.4696439711117526e-34,
-    'Pa-234': 2.330729590281097e-29,
-    'Pa-234m': -1.5696690930108473e-26,
-    'Pb-210': 2.673060958594837e-26,
-    'Pb-214': -7.310828272597407e-27,
-    'Po-210': -1.048466176320909e-27,
-    'Po-214': 2.3260114484256133e-26,
-    'Po-218': -1.1433437709020225e-26,
-    'Pu-242': 1.3827905917787723e-22,
-    'Ra-226': -1.0811575068833228e-26,
-    'Rn-218': -1.618765025703667e-33,
-    'Rn-222': -1.581593359682259e-26,
-    'Th-230': -1.2628442466252288e-26,
-    'Th-234': -2.6140879622245746e-27,
-    'Tl-206': -4.332210492987691e-34,
-    'Tl-210': 2.2028710112960294e-31,
-    'U-234': -1.0389580591195201e-26,
-    'U-238': -8.466705440297454e-27}
+    >>> inv.decay(0.0).activities()
+    {'At-218': -8.24439035981494e-30, 'Bi-210': 2.5308844932098316e-26,
+     'Bi-214': -4.256549745172888e-26, 'Bk-250': 0.0,
+     'Cf-250': 0.0, 'Cm-246': 8.802967479989175e-21,
+     'Es-254': 1.0, 'Fm-254': 0.0,
+     'Hg-206': -3.4696439711117526e-34, 'Pa-234': 2.330729590281097e-29,
+     'Pa-234m': -1.5696690930108473e-26, 'Pb-206': 0.0,
+     'Pb-210': 2.673060958594837e-26, 'Pb-214': -7.310828272597407e-27,
+     'Po-210': -1.048466176320909e-27, 'Po-214': 2.3260114484256133e-26,
+     'Po-218': -1.1433437709020225e-26, 'Pu-242': 1.3827905917787723e-22,
+     'Ra-226': -1.0811575068833228e-26, 'Rn-218': -1.618765025703667e-33,
+     'Rn-222': -1.581593359682259e-26, 'Th-230': -1.2628442466252288e-26,
+     'Th-234': -2.6140879622245746e-27, 'Tl-206': -4.332210492987691e-34,
+     'Tl-210': 2.2028710112960294e-31, 'U-234': -1.0389580591195201e-26,
+     'U-238': -8.466705440297454e-27}
 
 All the progeny of Es-254 should have an activity of exactly zero for this
 calculation.
 
-``radioactivedecay`` thus offers a second decay calculation mode using SymPy
-:ref:`[3] <refs>` arbitrary precision computation routines for when high
+``radioactivedecay`` thus offers a decay calculation mode using SymPy
+:ref:`[4] <refs>` arbitrary precision computation routines for when high
 numerical precision is needed:
 
 .. code-block:: python3
 
-    >>> inv = rd.Inventory({'Es-254': 1.0})
-    >>> inv.decay_high_precision(0.0).contents
-    {'At-218': 0.0,
-    'Bi-210': 0.0,
-    'Bi-214': 0.0,
-    'Bk-250': 0.0,
-    'Cf-250': 0.0,
-    'Cm-246': 0.0,
-    'Es-254': 1.0,
-    'Fm-254': 0.0,
-    'Hg-206': 0.0,
-    'Pa-234': 0.0,
-    'Pa-234m': 0.0,
-    'Pb-210': 0.0,
-    'Pb-214': 0.0,
-    'Po-210': 0.0,
-    'Po-214': 0.0,
-    'Po-218': 0.0,
-    'Pu-242': 0.0,
-    'Ra-226': 0.0,
-    'Rn-218': 0.0,
-    'Rn-222': 0.0,
-    'Th-230': 0.0,
-    'Th-234': 0.0,
-    'Tl-206': 0.0,
-    'Tl-210': 0.0,
-    'U-234': 0.0,
-    'U-238': 0.0}
+    >>> inv = rd.InventoryHP({'Es-254': 1.0})
+    >>> inv.activities()
+    {'At-218': 0.0, 'Bi-210': 0.0,
+     'Bi-214': 0.0, 'Bk-250': 0.0,
+     'Cf-250': 0.0, 'Cm-246': 0.0,
+     'Es-254': 1.0, 'Fm-254': 0.0,
+     'Hg-206': 0.0, 'Pa-234': 0.0,
+     'Pa-234m': 0.0, 'Pb-206': 0.0,
+     'Pb-210': 0.0, 'Pb-214': 0.0,
+     'Po-210': 0.0, 'Po-214': 0.0,
+     'Po-218': 0.0, 'Pu-242': 0.0,
+     'Ra-226': 0.0, 'Rn-218': 0.0,
+     'Rn-222': 0.0, 'Th-230': 0.0,
+     'Th-234': 0.0, 'Tl-206': 0.0,
+     'Tl-210': 0.0, 'U-234': 0.0,
+     'U-238': 0.0}
 
-The ``decay_high_precision()`` method carries exact SymPy expressions through
-decay calculations as far as is practicable. At the final step, the decayed
-activity for each radionuclide is evaluated to high numerical precision and
-cast to a double-precision float to return the decayed ``Inventory``.
+The ``InventoryHP`` class ``decay()`` method carries exact SymPy expressions
+through decay calculations as far as is practicable. At the final step, the
+decayed activity for each radionuclide is evaluated to high numerical precision
+and cast to a double-precision float to return the decayed ``Inventory``.
 
 In practice using SymPy to exactly evaluate the exponential terms in the above
 analytical solution to the radionuclide decay equations can be very time
@@ -191,11 +174,13 @@ was found to give results for a range of test decay calculations, i.e. using a
 higher number of significant figures offered no improvement in the numerical
 accuracy of the results after the outputs are cast to double-precision floats.
 You can also select your own number of significant figures for the calculation
-by supplying ``sig_fig=...`` to the ``decay()`` method.
+by setting the ``InventoryHP.sig_fig`` attribute of the ``InventoryHP``
+instance.
 
 References
 ----------
 
 1. M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
 2. ICRP Publication 107: Nuclear Decay Data for Dosimetric Calculations. Ann. ICRP 38 (3), 1-96 (2008). `PDF <https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3>`_
-3. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_
+3. RI Balkin et al. Atomic Energy 123, 406-411 (2018). `10.1007/s10512-018-0360-2 <https://doi.org/10.1007/s10512-018-0360-2>`_
+4. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_

@@ -1,22 +1,34 @@
-﻿[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
-[![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
-[![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://alexmalins.com/radioactivedecay/)
-[![Test Coverage](https://codecov.io/gh/alexmalins/radioactivedecay/branch/master/graph/badge.svg)](https://codecov.io/gh/alexmalins/radioactivedecay)
+﻿<img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
 
-<img src="https://raw.githubusercontent.com/alexmalins/radioactivedecay/main/docs/source/images/radioactivedecay.png" alt="radioactivedecay logo" width="500"/>
+***
+
+[![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
+[![Conda](https://img.shields.io/conda/v/conda-forge/radioactivedecay)](https://anaconda.org/conda-forge/radioactivedecay)
+[![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
+[![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://radioactivedecay.github.io/)
+[![Tests](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml/badge.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml)
+[![Tests Coverage](https://codecov.io/gh/radioactivedecay/radioactivedecay/branch/master/graph/badge.svg?token=RX5HSELRYH)](https://codecov.io/gh/radioactivedecay/radioactivedecay)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/3_code_formatting.yml)
+[![Downloads](https://pepy.tech/badge/radioactivedecay)](https://pepy.tech/project/radioactivedecay)
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching
 decays. By default it uses the decay data from ICRP Publication 107, which
-contains 1252 radionuclides of 97 elements.
+contains 1252 radionuclides of 97 elements, and atomic mass data from the
+Atomic Mass Data Center.
 
-It solves the radioactive decay differential equations analytically using NumPy
-and SciPy linear algebra routines. There is also a high numerical precision
-decay mode using SymPy routines, useful for when there are orders of magnitude
-differences between half-lives of radionuclides in the same decay chain.
+The code solves the radioactive decay differential equations analytically using
+NumPy and SciPy linear algebra routines. There is also a high numerical
+precision calculation mode employing SymPy routines. This gives more accurate
+results for decay chains containing radionuclides with orders of magnitude
+differences between the half-lives.
+
+This is free-to-use open source software. It was created for engineers,
+technicians and researchers who work with radioactivity, and for
+educational use.
 
 - **Full Documentation**: 
-[https://alexmalins.com/radioactivedecay](https://alexmalins.com/radioactivedecay/)
+[https://radioactivedecay.github.io/](https://radioactivedecay.github.io/)
 
 
 ## Installation
@@ -29,8 +41,15 @@ the [Python Package Index](https://pypi.org/project/radioactivedecay/) using
 $ pip install radioactivedecay
 ```
 
-This command will also install the dependencies (Matplotlib, NetworkX, NumPy,
-SciPy & SymPy) if they are not already present in the environment.
+or from [conda-forge](https://anaconda.org/conda-forge/radioactivedecay):
+
+```console
+$ conda install -c conda-forge radioactivedecay
+```
+
+Either command will attempt to install the dependencies (Matplotlib, NetworkX,
+NumPy, SciPy, Setuptools & SymPy) if they are not already present in the
+environment.
 
 
 ## Usage
@@ -41,125 +60,162 @@ Create an ``Inventory`` of radionuclides and decay it as follows:
 
 ```pycon
 >>> import radioactivedecay as rd
->>> inv_t0 = rd.Inventory({'Mo-99': 2.0})
->>> inv_t1 = inv_t0.decay(20.0, 'h')
->>> inv_t1.contents
-{'Mo-99': 1.6207863893776937,
-'Tc-99': 9.05304236308454e-09,
-'Tc-99m': 1.3719829376710406}
+>>> Mo99_t0 = rd.Inventory({'Mo-99': 2.0}, 'Bq')
+>>> Mo99_t1 = Mo99_t0.decay(20.0, 'h')
+>>> Mo99_t1.activities('Bq')
+{'Mo-99': 1.6207863893776937, 'Ru-99': 0.0,
+ 'Tc-99': 9.05304236308454e-09, 'Tc-99m': 1.3719829376710406}
 ```
 
 An ``Inventory`` of 2.0 Bq of Mo-99 was decayed for 20 hours, producing the
-radioactive progeny Tc-99m and Tc-99.
-
-Note we did not have to specify the units of the initial Mo-99 activity. This
-is because the output activity units are the same as the input units. So the
-above calculation could have represented the decay of 2.0 Ci of Mo-99, or of
-2.0 dpm, 2.0 kBq, etc.
+radioactive progeny Tc-99m and Tc-99, and the stable nuclide Ru-99.
 
 We supplied ``'h'`` as an argument to ``decay()`` to specify the decay time
 period had units of hours. Supported time units include ``'μs'``, ``'ms'``,
 ``'s'``, ``'m'``, ``'h'``, ``'d'``, ``'y'`` etc. Note seconds (``'s'``) is the
 default if no unit is supplied to ``decay()``.
 
-Radionuclides can be specified in three equivalent ways in
-``radioactivedecay``. The strings
+Use `cumulative_decays()` to calculate the total number of atoms of each
+radionuclide that decay over the decay time period:
 
-* ``'Rn-222'``, ``'Rn222'`` or ``'222Rn'``,
-* ``'Ir-192n'``, ``'Ir192n'`` or ``'192nIr'``
+```pycon
+>>> Mo99_t0.cumulative_decays(20.0, 'h')
+{'Mo-99': 129870.3165339939, 'Tc-99m': 71074.31925850797,
+'Tc-99': 0.0002724635511147602}
+```
 
-are all equivalent ways of specifying <sup>222</sup>Rn or <sup>192n</sup>Ir.
+Radionuclides can be specified in four equivalent ways in ``radioactivedecay``:
+three variations of nuclide strings or by
+[canonical ids](https://pyne.io/usersguide/nucname.html). For example, the
+following are equivalent ways of specifying <sup>222</sup>Rn and
+<sup>192n</sup>Ir:
 
+* ``'Rn-222'``, ``'Rn222'``, ``'222Rn'``, ``862220000``,
+* ``'Ir-192n'``, ``'Ir192n'``, ``'192nIr'``, ``771920002``.
+
+Inventories can be created by supplying activity (``'Bq'``, ``'Ci'``,
+``'dpm'``...), mass (``'g'``, ``'kg'``...), mole (``'mol'``, ``'kmol'``...)
+units, or numbers of nuclei (``'num'``) to the ``Inventory()`` constructor. Use
+the methods ``activities()``, ``masses()``, ``moles()``, ``numbers()``,
+``activity_fractions()``, ``mass_fractions()`` and ``mole_fractions()`` to
+obtain the contents of the inventory in different formats:
+
+```pycon
+>>> H3_t0 = rd.Inventory({'H-3': 3.0}, 'g')
+>>> H3_t1 = H3_t0.decay(12.32, 'y')
+>>> H3_t1.masses('g')
+{'H-3': 1.5, 'He-3': 1.4999900734297729}
+>>> H3_t1.mass_fractions()
+{'H-3': 0.5000016544338455, 'He-3': 0.4999983455661545}
+
+>>> C14_t0 = rd.Inventory({'C-14': 3.2E24}, 'num')
+>>> C14_t1 = C14_t0.decay(3000, 'y')
+>>> C14_t1.moles('mol')
+{'C-14': 3.6894551567795797, 'N-14': 1.6242698581767292}
+>>> C14_t1.mole_fractions()
+{'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
+```
 
 ### Plotting decay graphs
 
-Use the ``plot()`` method to graph of the decay of an ``Inventory`` over time:
+Use the ``plot()`` method to graph of the decay of an inventory over time:
 
 ```pycon
->>> inv_t0.plot(20, 'd')
+>>> Mo99_t0.plot(20, 'd', yunits='Bq')
 ```
 
-<img src="https://alexmalins.com/radioactivedecay/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
+<img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
 The graph shows the decay of Mo-99 over 20 days, leading to the ingrowth of
-Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
+Tc-99m and a trace quantity of Tc-99. The activity of Ru-99 is strictly zero as
+it is the stable nuclide at the end of the decay chain. Graphs are drawn using
+Matplotlib.
 
 
 ### Fetching decay data
 
-The ``Radionuclide`` class can be used to fetch decay information for
+The ``Nuclide`` class can be used to fetch decay information for
 individual radionuclides, e.g. for Rn-222:
 
 ```pycon
->>> nuc = rd.Radionuclide('Rn-222')
->>> nuc.half_life('d')
-3.8235
+>>> nuc = rd.Nuclide('Rn-222')
+>>> nuc.half_life('s')
+330350.4
+>>> nuc.half_life('readable')
+'3.8235 d'
 >>> nuc.progeny()
 ['Po-218']
 >>> nuc.branching_fractions()
 [1.0]
 >>> nuc.decay_modes()
 ['α']
+>>> nuc.Z  # proton number
+86
+>>> nuc.A  # nucleon number
+222
+>>> nuc.atomic_mass  # atomic mass in g/mol
+222.01757601699998
 ```
 
-Likewise similar methods exist for ``Inventory`` instances:
+There are similar inventory methods for fetching decay data:
 
 ```pycon
->>> inv_t1.half_lives('readable')
-{'Mo-99': '65.94 h', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
->>> inv_t1.progeny()
-{'Mo-99': ['Tc-99m', 'Tc-99'], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
->>> inv_t1.branching_fractions()
-{'Mo-99': [0.8773, 0.1227], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
->>> inv_t1.decay_modes()
-{'Mo-99': ['β-', 'β-'], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
+>>> Mo99_t1.half_lives('readable')
+{'Mo-99': '65.94 h', 'Ru-99': 'stable', 'Tc-99': '0.2111 My', 'Tc-99m': '6.015 h'}
+>>> Mo99_t1.progeny()
+{'Mo-99': ['Tc-99m', 'Tc-99'], 'Ru-99': [], 'Tc-99': ['Ru-99'], 'Tc-99m': ['Tc-99', 'Ru-99']}
+>>> Mo99_t1.branching_fractions()
+{'Mo-99': [0.8773, 0.1227], 'Ru-99': [], 'Tc-99': [1.0], 'Tc-99m': [0.99996, 3.7e-05]}
+>>> Mo99_t1.decay_modes()
+{'Mo-99': ['β-', 'β-'], 'Ru-99': [], 'Tc-99': ['β-'], 'Tc-99m': ['IT', 'β-']}
 ```
 
 
 ### Decay chain diagrams
 
-The ``Radionuclide`` class includes a `plot()` method for drawing decay chain
+The ``Nuclide`` class includes a `plot()` method for drawing decay chain
 diagrams:
 
 ```pycon
->>> nuc = rd.Radionuclide('Mo-99')
+>>> nuc = rd.Nuclide('Mo-99')
 >>> nuc.plot()
 ```
 
-<img src="https://alexmalins.com/radioactivedecay/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
+<img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_chain.png" alt="Mo-99 decay chain" width="300"/>
 
 These diagrams are drawn using NetworkX and Matplotlib.
 
 ### High numerical precision decay calculations
 
-``radioactivedecay`` includes a high numerical precision decay mode. This can
-give more reliable results for decay chains containing both long- and
-short-lived radionuclides:
+``radioactivedecay`` includes an ``InventoryHP`` class for high numerical
+precision calculations. This class can give more reliable decay calculation
+results for chains containing long- and short-lived radionuclides:
 
 ```pycon
->>> inv_t0 = rd.Inventory({'U-238': 1.0})
->>> inv_t1 = inv_t0.decay_high_precision(10.0, 'd')
->>> inv_t1.contents
+>>> U238_t0 = rd.InventoryHP({'U-238': 1.0})
+>>> U238_t1 = U238_t0.decay(10.0, 'd')
+>>> U238_t1.activities()
 {'At-218': 1.4511675857141352e-25,
-'Bi-210': 1.8093327888942224e-26,
-'Bi-214': 7.09819414496093e-22,
-'Hg-206': 1.9873081129046843e-33,
-'Pa-234': 0.00038581180879502017,
-'Pa-234m': 0.24992285949158477,
-'Pb-210': 1.0508864357335218e-25,
-'Pb-214': 7.163682655782086e-22,
-'Po-210': 1.171277829871092e-28,
-'Po-214': 7.096704966148592e-22,
-'Po-218': 7.255923469955255e-22,
-'Ra-226': 2.6127168262000313e-21,
-'Rn-218': 1.4511671865210924e-28,
-'Rn-222': 7.266530698712501e-22,
-'Th-230': 8.690585458641225e-16,
-'Th-234': 0.2499481473619856,
-'Tl-206': 2.579902288672889e-32,
-'Tl-210': 1.4897029111914831e-25,
-'U-234': 1.0119788393651999e-08,
-'U-238': 0.9999999999957525}
+ 'Bi-210': 1.8093327888942224e-26,
+ 'Bi-214': 7.09819414496093e-22,
+ 'Hg-206': 1.9873081129046843e-33,
+ 'Pa-234': 0.00038581180879502017,
+ 'Pa-234m': 0.24992285949158477,
+ 'Pb-206': 0.0,
+ 'Pb-210': 1.0508864357335218e-25,
+ 'Pb-214': 7.163682655782086e-22,
+ 'Po-210': 1.171277829871092e-28,
+ 'Po-214': 7.096704966148592e-22,
+ 'Po-218': 7.255923469955255e-22,
+ 'Ra-226': 2.6127168262000313e-21,
+ 'Rn-218': 1.4511671865210924e-28,
+ 'Rn-222': 7.266530698712501e-22,
+ 'Th-230': 8.690585458641225e-16,
+ 'Th-234': 0.2499481473619856,
+ 'Tl-206': 2.579902288672889e-32,
+ 'Tl-210': 1.4897029111914831e-25,
+ 'U-234': 1.0119788393651999e-08,
+ 'U-238': 0.9999999999957525}
 ```
 
 ## How radioactivedecay works
@@ -169,7 +225,7 @@ differential equations using linear algebra operations. It implements the
 method described in this paper:
 [M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23
 (2010)](https://doi.org/10.1016/j.cpc.2009.08.011). See the
-[theory docpage](https://alexmalins.com/radioactivedecay/theory.html) for more
+[theory docpage](https://radioactivedecay.github.io/theory.html) for more
 details.
 
 It uses NumPy and SciPy routines for standard decay calculations
@@ -178,19 +234,20 @@ precision calculations.
 
 By default ``radioactivedecay`` uses decay data from
 [ICRP Publication 107
-(2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3).
+(2008)](https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3) and atomic mass
+data from the [Atomic Mass Data Center](https://www-nds.iaea.org/amdc/)
+(AMDC - AME2020 and Nubase2020 evaluations).
 
-The [notebooks
-folder](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks)
-in the GitHub repository contains Jupyter Notebooks for creating the decay
-datasets that are read in by ``radioactivedecay``, e.g.
-[ICRP
-107](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
-It also contains some comparisons against decay calculations made with
-[PyNE](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
-and
-[Radiological
-Toolbox](https://github.com/alexmalins/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
+The [datasets repo](https://github.com/radioactivedecay/datasets) contains
+Jupyter Notebooks for creating decay datasets that can be used by
+``radioactivedecay``, e.g. [ICRP
+107](https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb).
+
+The [comparisons repo](https://github.com/radioactivedecay/comparisons)
+contains some checks of ``radioactivedecay`` against
+[PyNE](https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb)
+and [Radiological
+Toolbox](https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb).
 
 
 ## Tests
@@ -204,15 +261,23 @@ $ python -m unittest discover
 
 ## License
 
-``radioactivedecay`` is open source software released under the MIT License. The
-ICRP-107 decay data is copyright 2008 A. Endo and K.F. Eckerman. See
-[LICENSE](https://github.com/alexmalins/radioactivedecay/blob/main/LICENSE) for
-details. 
+``radioactivedecay`` is open source software released under the MIT License.
+See [LICENSE](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE)
+file for details.
+
+The default decay data used by ``radioactivedecay`` (ICRP-107) is copyright
+2008 A. Endo and K.F. Eckerman and distributed under a separate
+[license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.ICRP-07).
+The default atomic mass data is from AMDC
+([license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.AMDC)).
 
 
 ## Contributing
 
-Contributors are welcome to fix bugs, add new features or make feature 
-requests. Please open a pull request or a new issue on the
-[GitHub repository](https://github.com/alexmalins/radioactivedecay).
+Contributors are welcome to fix bugs, add new features or make feature
+requests. Please open an Issue, Pull Request or new Discussions thread at
+[GitHub repository](https://github.com/radioactivedecay/radioactivedecay).
+
+Please read the
+[contribution guidelines](https://github.com/radioactivedecay/radioactivedecay/blob/main/CONTRIBUTING.md).
 

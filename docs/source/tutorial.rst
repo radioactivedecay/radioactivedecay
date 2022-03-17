@@ -10,30 +10,61 @@ Import the ``radioactivedecay`` package by:
 
     >>> import radioactivedecay as rd
 
-Creating inventories of radionuclides
--------------------------------------
+Creating inventories of nuclides
+--------------------------------
 
-Create an inventory of radionuclides and associated activities as follows:
-
-.. code-block:: python3
-
-    >>> inv_t0 = rd.Inventory({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005})
-
-This is an inventory of natural uranium.
-
-The following commands can be used to view the contents (the radionuclides and
-their activities) and decay data set associated with an inventory:
+Create an inventory of nuclides as follows:
 
 .. code-block:: python3
 
-    >>> inv_t0.contents
-    {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}
-    >>> inv_t0.radionuclides
+    >>> inv_t0 = rd.Inventory({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005}, 'mol')
+
+This is an inventory of natural uranium. The amounts of each nuclide were
+specified in moles.
+
+Within the code, the ``Inventory`` class keeps track of the number of atoms of
+each nuclide it contains. The following commands can be used to show the
+contents in terms of activities, numbers of atoms, moles, masses, or
+abundances:
+
+.. code-block:: python3
+
+    >>> inv_t0.activities('MBq')
+    {'U-234': 269.4016050086039, 'U-235': 13.528246506057048, 'U-238': 293.90300567125}
+    >>> inv_t0.nuclides
     ['U-234', 'U-235', 'U-238']
-    >>> inv_t0.activities
-    [0.005, 0.72, 99.274]
+    >>> inv_t0.numbers()
+    {'U-234': 3.01107038e+21, 'U-235': 4.3359413471999995e+23, 'U-238': 5.9784200180824e+25}
+    >>> inv_t0.masses('g')
+    {'U-234': 1.17020475148, 'U-235': 169.23162824424, 'U-238': 23632.253822284463}
+    >>> inv_t0.mass_fractions()
+    {'U-234': 4.916278117985593e-05, 'U-235': 0.007109779290811992, 'U-238': 0.992841057928008}
+    >>> inv_t0.moles()
+    {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}
+    >>> inv_t0.mole_fractions()
+    {'U-234': 5.000050000500006e-05, 'U-235': 0.0072000720007200075, 'U-238': 0.992749927499275}
     >>> inv_t0
-    Inventory: {'U-234': 0.005, 'U-235': 0.72, 'U-238': 99.274}, decay dataset: icrp107
+    Inventory activities (Bq): {'U-234': 269401605.0086039, 'U-235': 13528246.506057048, 'U-238': 293903005.67125}, decay dataset: icrp107_ame2020_nubase2020
+
+By default the dictionary passed to the ``Inventory()`` constructor is assumed
+to contain activities in Bq. The user can easily specify different units:
+
+.. code-block:: python3
+
+    # initialize an inventory using activities:
+    >>> inv = rd.Inventory({'C-14': 5.0, 'H-3': 2.0})
+    >>> inv.activities('Bq')
+    {'C-14': 5.0, 'H-3': 2.0}
+    >>> inv.numbers()
+    {'C-14': 1297520091697.4946, 'H-3': 1121785791.5588164}
+    
+    # initialize an inventory using number of atoms:
+    >>> inv = rd.Inventory({'U-238': 2000.0, 'U-235': 3000.0, 'U-234': 1500.0}, 'num')
+    >>> inv.activities('Bq')
+    {'U-234': 1.3420556696283726e-10, 'U-235': 9.360075764027427e-14, 'U-238': 9.832129719300668e-15}
+    >>> inv.numbers()
+    {'U-234': 1500.0, 'U-235': 3000.0, 'U-238': 2000.0}
+
 
 Radioactive decay calculations
 ------------------------------
@@ -44,26 +75,27 @@ uranium inventory:
 .. code-block:: python3
 
     >>> inv_t1 = inv_t0.decay(1E9, 'y')
-    >>> inv_t1.contents
-    {'Ac-227': 0.2690006281740556, 'At-218': 0.017002868638497183,
-     'At-219': 2.227325201281319e-07, 'Bi-210': 85.01434361515662,
-     'Bi-211': 0.26900084425585846, 'Bi-214': 85.01432618961896,
-     'Bi-215': 2.1605054452429237e-07, 'Fr-223': 0.0037122086688021884,
-     'Hg-206': 1.6152725286830197e-06, 'Pa-231': 0.2690006198549055,
-     'Pa-234': 0.13601313171698984, 'Pa-234m': 85.00820732310412,
-     'Pb-210': 85.01434361489548, 'Pb-211': 0.2690008442558569,
-     'Pb-214': 84.99734032384839, 'Po-210': 85.01434362236536,
-     'Po-211': 0.0007424423301461693, 'Po-214': 84.99649018398776,
-     'Po-215': 0.26900084425583065, 'Po-218': 85.01434319248591,
-     'Ra-223': 0.26900062820528614, 'Ra-226': 85.01434319228659,
-     'Rn-218': 1.7002868638497185e-05, 'Rn-219': 0.26900062820528614,
-     'Rn-222': 85.0143431924858, 'Th-227': 0.2652884195245263,
-     'Th-230': 85.01431274847525, 'Th-231': 0.26898810215560653,
-     'Th-234': 85.00820732310407, 'Tl-206': 0.00011383420610068998,
-     'Tl-207': 0.26825840192571576, 'Tl-210': 0.01785300849981999,
-     'U-234': 85.01287846492669, 'U-235': 0.2689881021544942,
-     'U-238': 85.00820732184867}
-    
+    >>> inv_t1.activities('Bq')
+    {'Ac-227': 5054315.0114205815, 'At-218': 50337.39144073731,
+     'At-219': 4.184972829456502, 'Bi-210': 251686958.45501313,
+     'Bi-211': 5054319.0714315465, 'Bi-214': 251686906.8663001,
+     'Bi-215': 4.059423644572891, 'Fr-223': 69749.54715760818,
+     'Hg-206': 4.782052210630576, 'Pa-231': 5054314.855110146,
+     'Pa-234': 402670.06690959306, 'Pa-234m': 251668791.81845263,
+     'Pb-206': 0.0, 'Pb-207': 0.0,
+     'Pb-210': 251686958.45423996, 'Pb-211': 5054319.071431517,
+     'Pb-214': 251636619.8122487, 'Po-210': 251686958.47635475,
+     'Po-211': 13949.920637151068, 'Po-214': 251634102.95324954,
+     'Po-215': 5054319.071431024, 'Po-218': 251686957.20368654,
+     'Ra-223': 5054315.01200738, 'Ra-226': 251686957.20309648,
+     'Rn-218': 50.33739144073732, 'Rn-219': 5054315.01200738,
+     'Rn-222': 251686957.20368624, 'Th-227': 4984565.464625097,
+     'Th-230': 251686867.07347885, 'Th-231': 5054079.657163195,
+     'Th-234': 251668791.81845245, 'Tl-206': 337.00883737124855,
+     'Tl-207': 5040369.15079446, 'Tl-210': 52854.250441923046,
+     'U-234': 251682620.8433893, 'U-235': 5054079.657142295,
+     'U-238': 251668791.8147358}
+        
 The ``decay()`` method takes two arguments: the decay time period and its
 units. Units can be entered using :code:`'ps'`, :code:`'ns'`, :code:`'us'`,
 :code:`'ms'`, :code:`'s'`, :code:`'m'`, :code:`'h'`, :code:`'d'`, :code:`'y'`,
@@ -75,40 +107,70 @@ respectively. In the above case we decayed for one billion years.
 High numerical precision radioactive decay calculations
 -------------------------------------------------------
 
-The ``decay_high_precision()`` method calculates radioactive decays with high
-numerical precision, based on SymPy arbitrary-precision routines. This method
-method can give more accurate results for decay chains containing radionuclides
-with both very long and very short half-lives, or when extremely long or short
-decay times are required. Note computation times can be slightly longer than
-with the ``decay()`` method.
+The ``InventoryHP`` class can be used for high numerical precision
+calculations. This class uses SymPy arbitrary-precision numerical calculation
+routines. The ``InventoryHP.decay()`` method can give more accurate decay
+calculation results for chains containing radionuclides with long and short
+half-lives, or when extremely long or short decay times are required. Note
+computation times are longer when using the ``InventoryHP`` class as compared
+to the ``Inventory`` class.
 
 .. code-block:: python3
 
-    >>> inv_t1 = inv_t0.decay_high_precision(1E9, 'y')
-    >>> inv_t1.contents
-    {'Ac-227': 0.26900062817405557, 'At-218': 0.01700286863849718,
-    'At-219': 2.227325201281318e-07, 'Bi-210': 85.01434361515662,
-    'Bi-211': 0.2690008442558584, 'Bi-214': 85.01432618961894,
-    'Bi-215': 2.1605054452429227e-07, 'Fr-223': 0.003712208668802187,
-    'Hg-206': 1.6152725286830195e-06, 'Pa-231': 0.2690006198549054,
-    'Pa-234': 0.13601313171698984, 'Pa-234m': 85.00820732310412,
-    'Pb-210': 85.01434361489547, 'Pb-211': 0.26900084425585685,
-    'Pb-214': 84.99734032384836, 'Po-210': 85.01434362236536,
-    'Po-211': 0.0007424423301461693, 'Po-214': 84.99649018398776,
-    'Po-215': 0.26900084425583065, 'Po-218': 85.0143431924859,
-    'Ra-223': 0.2690006282052861, 'Ra-226': 85.0143431922866,
-    'Rn-218': 1.7002868638497178e-05, 'Rn-219': 0.26900062820528614,
-    'Rn-222': 85.01434319248578, 'Th-227': 0.26528841952452625,
-    'Th-230': 85.01431274847525, 'Th-231': 0.26898810215560653,
-    'Th-234': 85.00820732310407, 'Tl-206': 0.00011383420610068996,
-    'Tl-207': 0.2682584019257157, 'Tl-210': 0.017853008499819988,
-    'U-234': 85.01287846492669, 'U-235': 0.26898810215449415,
-    'U-238': 85.00820732184867}
+    >>> high_precision_inv_t0 = rd.InventoryHP({'U-238': 99.274, 'U-235': 0.720, 'U-234': 0.005}, 'mol')
+    >>> high_precision_inv_t1 = high_precision_inv_t0.decay(1E9, 'y')
+    >>> high_precision_inv_t1.activities()
+    {'Ac-227': 5054315.0114205815, 'At-218': 50337.391440737316,
+     'At-219': 4.184972829456501, 'Bi-210': 251686958.4550132,
+     'Bi-211': 5054319.071431547, 'Bi-214': 251686906.86630014,
+     'Bi-215': 4.059423644572889, 'Fr-223': 69749.54715760818,
+     'Hg-206': 4.782052210630577, 'Pa-231': 5054314.855110147,
+     'Pa-234': 402670.0669095932, 'Pa-234m': 251668791.81845266,
+     'Pb-206': 0.0, 'Pb-207': 0.0,
+     'Pb-210': 251686958.45424002, 'Pb-211': 5054319.071431518,
+     'Pb-214': 251636619.8122487, 'Po-210': 251686958.4763548,
+     'Po-211': 13949.92063715107, 'Po-214': 251634102.95324966,
+     'Po-215': 5054319.071431025, 'Po-218': 251686957.2036866,
+     'Ra-223': 5054315.01200738, 'Ra-226': 251686957.20309657,
+     'Rn-218': 50.33739144073732, 'Rn-219': 5054315.012007381,
+     'Rn-222': 251686957.20368624, 'Th-227': 4984565.464625096,
+     'Th-230': 251686867.07347894, 'Th-231': 5054079.657163196,
+     'Th-234': 251668791.81845254, 'Tl-206': 337.0088373712486,
+     'Tl-207': 5040369.150794461, 'Tl-210': 52854.25044192306,
+     'U-234': 251682620.84338942, 'U-235': 5054079.6571422955,
+     'U-238': 251668791.8147359}
 
-Radionuclide name formatting and metastable states
+Calculating total number of decays
+----------------------------------
+
+The ``cumulative_decays()`` method can be used to calculate the total number
+of decays that occur for each radionuclide over a decay period. With a normal
+precision ``Inventory``:
+
+.. code-block:: python3
+
+    >>> inv = rd.Inventory({'Sr-90': 10.0}, 'num')
+    >>> inv.cumulative_decays(1.0 'My')
+    {'Sr-90': 10.0, 'Y-90': 10.000000000000002}
+
+So in this calculation, 10 atoms of strontium-90 and 10 atoms of its progeny,
+yttrium-90, decayed over the million year time period.
+
+Using a high precision inventory fixes the floating-point rounding error:
+
+.. code-block:: python3
+
+    >>> inv = rd.InventoryHP({'Sr-90': 10.0}, 'num')
+    >>> inv.cumulative_decays(1.0 'My')
+    {'Sr-90': 10.0, 'Y-90': 10.0}
+
+Note the ``cumulative_decays()`` method does not report the total number of
+decays of stable nuclides (as these are all zero).
+
+Nuclide name formatting and metastable states
 --------------------------------------------------
 
-Radionuclides can be specified in three equivalent ways. These are all
+Nuclides can be specified in four equivalent ways. These are all
 equivalent ways of creating an inventory of radon-222:
 
 .. code-block:: python3
@@ -116,28 +178,76 @@ equivalent ways of creating an inventory of radon-222:
     >>> inv = rd.Inventory({'Rn-222': 1.0})
     >>> inv = rd.Inventory({'Rn222': 1.0})
     >>> inv = rd.Inventory({'222Rn': 1.0})
+    >>> inv = rd.Inventory({862220000: 1.0})
 
-Metastable states of radionuclides can be inputted by appending \'m\', \'n\',
-etc. for first, second... metastable states, respectively:
+For the last instance, the 'canonical id' of the nuclide was used. This number is
+in zzzaaammmm format, where the leftmost digits are the atomic number of radon,
+the next three digits are its atomic mass number, and the last four are for
+specifing its metastability. For nuclides with atomic mass numbers less than 100,
+zeroes must be included as placeholders (ex. aaa = 003 for H-3). 
+
+Metastable states of nuclides can be inputted by appending \'m\', \'n\', etc.
+to the nuclide string, or 0001, 0002, etc. to the id, for first, second...
+metastable states, respectively:
 
 .. code-block:: python3
 
-    >>> inv1 = rd.Inventory({'Ir-192m': 1.0})
-    >>> inv2 = rd.Inventory({'Ir-192n': 1.0})
+    # using nuclide strings:
+    >>> inv = rd.Inventory({'Ir-192m': 1.0})
+    >>> inv = rd.Inventory({'Ir-192n': 1.0})
+
+    # or, equivalently, using canonical ids:
+    >>> inv = rd.Inventory({771920001: 1.0})
+    >>> inv = rd.Inventory({771920002: 1.0})
 
 Equivalently we could have specified these metastable states using
-:code:`'Ir192m'` or :code:`'192mIr'` for the former, or :code:`'Ir192n'` or
-:code:`'192nIr'` for the latter.
+:code:`'Ir192m'` or :code:`'192mIr'` for Ir-192m, or :code:`'Ir192n'` or
+:code:`'192nIr'` for Ir-192n.
 
-Fetching decay data
--------------------
+Note canonical ids are also used by `PyNE
+<https://pyne.io/usersguide/nucname.html>`_.
 
-The ``Radionuclide`` class can be used to obtain decay data for individual
-radionuclides. For example, to get the half-life of iodine-123:
+Fetching atomic and decay data
+------------------------------
+
+The ``Nuclide`` class can be used to obtain atomic data for any specific nuclide,
+and decay data for radionuclides. They are built similarly to inventories:
 
 .. code-block:: python3
 
-    >>> nuc = rd.Radionuclide('I123')
+    >>> nuc = rd.Nuclide('Rn-222')
+    >>> nuc = rd.Nuclide('Rn222')
+    >>> nuc = rd.Nuclide('222Rn')
+    >>> nuc = rd.Nuclide(862220000)
+
+The atomic data for a nuclide can be accessed through the ``Nuclide`` object's
+``Z``, ``A`` and ``atomic_mass`` methods:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Nuclide('K-40')
+    >>> nuc.Z  # proton number
+    19
+    >>> nuc.A  # nucleon number
+    40
+    >>> nuc.atomic_mass  # atomic mass in g/mol
+    39.963998165
+    
+Additionally, the canonical id of a nuclide, in zzzaaammmm format, can be
+retrieved using the ``id`` method:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Nuclide('Co-58m')
+    >>> nuc.id
+    270580001
+    
+Decay data for radionuclides can also be accessed using ``Nuclide`` objects.
+For example, to get the half-life of iodine-123:
+
+.. code-block:: python3
+
+    >>> nuc = rd.Nuclide('I123')
     >>> nuc.half_life()
     47772.0
 
@@ -154,7 +264,7 @@ with the half-life and time unit is returned:
     '13.27 h'
 
 Use the ``progeny()``, ``branching_fractions()`` and ``decay_modes()`` methods
-to obtain the progeny, branching fractions and decay modes of the radionuclide:
+to obtain the progeny, branching fractions and decay modes of a radionuclide:
 
 .. code-block:: python3
 
@@ -178,8 +288,8 @@ gamma rays, x-rays, decay electrons and Auger electrons, may also be released
 due to various nuclear and atomic relaxation processes that follow α, β-, β+
 etc. decays.
 
-Decay data can be accessed for all radionuclides in an ``Inventory``
-by using the ``half_lives()``, ``progeny()``, ``branching_fractions()`` and
+Decay data can be accessed for all nuclides in an ``Inventory`` by using the
+``half_lives()``, ``progeny()``, ``branching_fractions()`` and
 ``decay_modes()`` methods:
 
 .. code-block:: python3
@@ -199,8 +309,8 @@ data in ICRP-107, which is the default dataset in ``radioactivedecay``, by:
 
 .. code-block:: python3
 
-    >>> rd.DEFAULTDATA.dataset
-    'icrp107'
+    >>> rd.DEFAULTDATA.dataset_name
+    'icrp107_ame2020_nubase2020'
     >>> rd.DEFAULTDATA.half_life('Cs-137', 'y')
     30.1671
     >>> rd.DEFAULTDATA.branching_fraction('Cs-137', 'Ba-137m')
@@ -209,52 +319,72 @@ data in ICRP-107, which is the default dataset in ``radioactivedecay``, by:
     'β-'
 
 
-Adding and removing radionuclides from inventories
---------------------------------------------------
+Adding and removing nuclides from inventories
+---------------------------------------------
 
-It is easy to add radionuclides to an ``Inventory`` using the ``add()`` method:
+It is easy to add nuclides to an ``Inventory`` using the ``add()`` method:
 
 .. code-block:: python3
 
     >>> inv = rd.Inventory({'H-3': 1.0, 'Be-10': 2.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0, 'H-3': 1.0}
     >>> inv.add({'C-14': 3.0, 'K-40': 4.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 4.0}
 
-Likewise use ``remove()`` to erase one or more radionuclide from an
-``Inventory``:
+Similarly, subtract nuclides from an ``Inventory`` using the ``subtract()``
+method:
+
+.. code-block:: python3
+
+    >>> inv.subtract({'Be-10': 1.0, 'K-40': 2.0})
+    >>> inv.activities()
+    {'Be-10': 1.0, 'C-14': 3.0, 'H-3': 1.0, 'K-40': 2.0}
+
+Likewise use ``remove()`` to erase one or more nuclide from an ``Inventory``:
 
 .. code-block:: python3
 
     >>> inv.remove('H-3')
-    >>> inv.contents
-    {'Be-10': 2.0, 'C-14': 3.0, 'K-40': 4.0}
+    >>> inv.activities()
+    {'Be-10': 1.0, 'C-14': 3.0, 'K-40': 2.0}
     >>> inv.remove(['Be-10', 'K-40'])
-    >>> inv.contents
+    >>> inv.activities()
     {'C-14': 3.0}
 
-You can also supply ``Radionuclide`` objects instead of strings to the
+The ``add()`` and ``subtract()`` methods also accept the ``'unit'`` argument
+for inputs other than activities, and mixing input types is allowed:
+
+.. code-block:: python3
+
+    >>> inv.add({'H-3': 1.3E9}, 'num')
+    >>> inv.activities()
+    {'C-14': 3.0, 'H-3': 2.3177330463306007}
+    >>> inv.subtract({'C-14': 7.1E-12}, 'g')
+    >>> inv.activities()
+    {'C-14': 1.8233790683016682, 'H-3': 2.3177330463306007}
+
+You can also supply ``Nuclide`` objects instead of strings to the
 ``Inventory`` constructor, and the ``add()`` and ``remove()`` methods:
 
 .. code-block:: python3
 
-    >>> H3 = rd.Radionuclide('H-3')
+    >>> H3 = rd.Nuclide('H-3')
     >>> inv = rd.Inventory({H3: 1.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'H-3': 1.0}
-    >>> Be10 = rd.Radionuclide('Be-10')
+    >>> Be10 = rd.Nuclide('Be-10')
     >>> inv.add({Be10: 2.0})
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0, 'H-3': 1.0}
     >>> inv.remove(H3)
-    >>> inv.contents
+    >>> inv.activities()
     {'Be-10': 2.0}
 
-Note if the decay dataset of the ``Radionuclide`` instance is different to that
-of the ``Inventory`` instance, the former will be ignored and the existing
-decay dataset of the ``Inventory`` will be used instead.
+Note if the decay dataset of the ``Nuclide`` instance is different to that of
+the ``Inventory`` instance, the former will be ignored and the existing decay
+dataset of the ``Inventory`` will be used instead.
 
 Inventory arithmetic
 --------------------
@@ -264,10 +394,10 @@ inventory:
 
 .. code-block:: python3
 
-    >>> inv1 = rd.Inventory({'H-3': 1.0})
-    >>> inv2 = rd.Inventory({'C-14': 1.0})
+    >>> inv1 = rd.Inventory({'H-3': 1.0}, 'g')
+    >>> inv2 = rd.Inventory({'C-14': 1.0}, 'g')
     >>> inv = inv1 + inv2
-    >>> inv.contents
+    >>> inv.masses()
     {'C-14': 1.0, 'H-3': 1.0}
 
 It is also possible to subtract the contents of one inventory from another:
@@ -275,22 +405,22 @@ It is also possible to subtract the contents of one inventory from another:
 .. code-block:: python3
 
     >>> inv = inv - inv1
-    >>> inv.contents
+    >>> inv.masses()
     {'C-14': 1.0, 'H-3': 0.0}
 
 Multiplication and division on inventories
 ------------------------------------------
 
-You can multiply or divide the activities of all radionuclides in an inventory
-by a constant as follows:
+You can multiply or divide the amounts of all nuclides in an inventory by a
+constant as follows:
 
 .. code-block:: python3
 
-    >>> inv = rd.Inventory({'Sr-90': 1.0, 'Cs-137': 1.0})
-    >>> inv = inv * 2
-    >>> inv.contents
+    >>> inv = rd.Inventory({'Sr-90': 1.0, 'Cs-137': 1.0}, 'num')
+    >>> inv = 2*inv
+    >>> inv.numbers()
     {'Sr-90': 2.0, 'Cs-137': 2.0}
     >>> inv = inv / 2
-    >>> inv.contents
+    >>> inv.numbers()
     {'Sr-90': 1.0, 'Cs-137': 1.0} 
 

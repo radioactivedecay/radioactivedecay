@@ -20,11 +20,16 @@ sys.setrecursionlimit(1500)
 # -- Project information -----------------------------------------------------
 
 project = "radioactivedecay"
-copyright = "2021, Alex Malins"
+copyright = "2022, JAEA"
 author = "Alex Malins"
 
 # The full version, including alpha/beta/rc tags
-release = "0.3.2"
+with open(f"../../{project}/__init__.py", "r") as file:
+    for line in file:
+        if line.startswith("__version__"):
+            version = line.strip().split()[-1][1:-1]
+            break
+release = version
 
 
 # -- General configuration ---------------------------------------------------

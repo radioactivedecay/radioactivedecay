@@ -1,7 +1,103 @@
 # Changelog
 
-## [#.#.#] - ####-##-##
+## [0.4.10] - 2022-03-15
+- Fix incorrect parsing of SymPy version string (#67, #68). This bug meant radioactivedecay import
+failed if using SymPy >=1.10. The fix makes Setuptools an explicit dependency.
+
+## [0.4.9] - 2022-02-07
+- Code refactoring: reduce coupling between modules by refactoring Converter, Nuclide & Inventory
+classes to not store duplicate data, but to receive data when needed via their API calls. DecayData objects
+no longer store Converter objects. Continuing to reduce pylint/mypy errors/warnings, however will
+need to wait to bump requirement to Python 3.7+ to improve type hinting of NumPy/SciPy arrays
+(requires NumPy 1.20+, holding off for now to maintain Python 3.6 support) (#64, #66).
+- Improve API documentation table of contents & README fix (#66).
+- Better unit tests for DecayData class and error handling is instance does not contain SymPy data
+(#66).
+- Move dataset creation and comparison notebooks to separate repos within the radioactivedecay org
+on GitHub (#63).
+- Tweak GitHub Issue & PR markdown templates (#62).
+
+## [0.4.8] - 2021-12-13
+- Fix some code bugs and make other improvements to the ReadMe and the Docs (#57, #58 & #59).
+- Reduce number of mypy errors, use Python f-strings everywhere (#60).
+- Fix the URL for the codecov badge in the ReadMe (#56 & #60).
+- Introduce GitHub Actions for CI/CD. Add Issue & Pull Request templates (#61).
+
+## [0.4.7] - 2021-11-08
+- Fix old references to `Radionuclide` class in Readme, docs and docstrings (#54 & #55). This class
+was renamed to `Nuclide` from release v0.4.0.
+- Other small rewrites to docs.
+
+## [0.4.6] - 2021-10-21
+- Projected transferred into radioactivedecay organization on GitHub: updated code & docs
+accordingly.
+- Moved hosting of docs to GitHub Pages (https://radioactivedecay.github.io).
+- Opened forum for project at https://github.com/radioactivedecay/radioactivedecay/discussions
+(uses GitHub Discussions).
+- Only store radioactivedecay version number in radioactivedecay/__init__.py file. Read this file
+to obtain version number in setup.py and docs/source/conf.py.
+
+## [0.4.5] - 2021-10-15
+- Latest SymPy release (v1.9) changed internals of Rational / Matrix objects. This breaks loading
+of SymPy <=1.8 pickle objects when using SymPy v1.9. `radioactivedecay` now packages SymPy pickle
+files appropriate for SymPy <=1.8 and for SymPy >=1.9. It checks which SymPy version is in the
+local environment before choosing the correct files to load (fixes issue #50 and failure of
+`radioactivedecay` v0.4.4 to build on the conda-forge feedstock).
+- Added support for Python v3.10 (PyPI only, not yet available via conda-forge).
+- Move responsibility for file I/O from `DecayData` class initiator into separate function called
+`load_dataset()`.
+
+## [0.4.4] - 2021-10-08
+- Fix docstring typo, Inventory `plot()` method (#48).
+
+## [0.4.3] - 2021-10-01
+- Refactored DecayData class to store progeny, branching fractions and decay modes data in
+separate numpy arrays.
+- Use np.array_equal() for checking equality of numpy arrays.
+- Fix bug which caused scipy C and C^-1 matrices to be unnecessarily large.
+- Added tests to check shape of scipy C and C^-1 matrices from icrp107_ame2020_nubase2020 dataset.
+- Use idx as variable name for index of for loops.
+
+## [0.4.2] - 2021-09-15
+- Fixed bug in `InventoryHP` meaning `decay()` gave some incorrect results.
+- Hard-coded Avogadro's constant to avoid tests failing with older versions of SciPy.
+- Updated notebooks to be consistent with v0.4.0+.
+
+## [0.4.1] - 2021-09-07
+- Added ICRP-07 and AMDC license files into MANIFEST.in. Includes these files in PyPI package.
+
+## [0.4.0] - 2021-09-06
+- Release 0.4.0 is a large update to `radioactivedecay`. It adds functionality to supply nuclide
+masses, moles and numbers of atoms when creating inventories, and also methods so inventories can
+report their contents in terms of these quantities, as well as mass or atom fractions (#35). Mass
+conversions use atomic mass data from the Atomic Mass Data Center (AMDC) by default.
+- To enable SymPy high precision calculations throughout unit and quantity conversions, there is a
+new `InventoryHP` class (high-precision inventory class). This behaves the same as the normal
+precision `Inventory` class. The old `Inventory.decay_high_precision()` method is now deprecated -
+use `InventoryHP.decay()` instead for high-precision decay calculations.
+The number of significant figures for high precision decay calculations is now specified via the
+`InventoryHP.sig_fig` attribute (default is 320) rather than as a parameter to the `InventoryHP`
+`decay()` and `plot()` methods.
+- Added new `cumulative_decays()` method to the inventory classes. This calculates the total number
+of atoms of each radionuclide that decay over the decay time period.
+- Added support to specify nuclides using canonical ids (#36).
+- Documentation updates for all new and modified functionality.
+- LICENSE file split into separate files for `radioactivedecay`, ICRP-107 decay data, and AMDC
+atomic mass data (#38).
+- Added parsing of AME2020 and NuBase2020 atomic mass and isomer excitation energy data to ICRP-107
+dataset Jupyter notebook. Added stable nuclides to decaydata.npz file, C and C_inv matrix SciPy
+and SymPy files in ICRP-107 (#33 & #34).
+
+## [0.3.4] - 2021-06-21
+- Fix bug in decay chain plots which caused overlaps of some radionuclides in complicated chains.
+- Document method for installing via conda.
+- Improve clarity of matplotlib imports.
+- Correct a DecayData attribute docstring entry.
+
+## [0.3.3] - 2021-05-14
 - Improve readme and fix typo.
+- Add MANIFEST.in so LICENSE and markdown files get packaged.
+- Update year in LICENSE file.
 
 ## [0.3.2] - 2021-04-14
 - Allow specification of `sig_fig` as a parameter to the `decay_high_precision()` method.
