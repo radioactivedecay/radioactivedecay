@@ -9,6 +9,7 @@
 [![Tests](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml/badge.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml)
 [![Tests Coverage](https://codecov.io/gh/radioactivedecay/radioactivedecay/branch/master/graph/badge.svg?token=RX5HSELRYH)](https://codecov.io/gh/radioactivedecay/radioactivedecay)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/3_code_formatting.yml)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.03318/status.svg)](https://doi.org/10.21105/joss.03318)
 [![Downloads](https://pepy.tech/badge/radioactivedecay)](https://pepy.tech/project/radioactivedecay)
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
@@ -116,6 +117,7 @@ obtain the contents of the inventory in different formats:
 {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 ```
 
+
 ### Plotting decay graphs
 
 Use the ``plot()`` method to graph of the decay of an inventory over time:
@@ -185,6 +187,7 @@ diagrams:
 
 These diagrams are drawn using NetworkX and Matplotlib.
 
+
 ### High numerical precision decay calculations
 
 ``radioactivedecay`` includes an ``InventoryHP`` class for high numerical
@@ -217,6 +220,7 @@ results for chains containing long- and short-lived radionuclides:
  'U-234': 1.0119788393651999e-08,
  'U-238': 0.9999999999957525}
 ```
+
 
 ## How radioactivedecay works
 
@@ -270,6 +274,17 @@ The default decay data used by ``radioactivedecay`` (ICRP-107) is copyright
 [license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.ICRP-07).
 The default atomic mass data is from AMDC
 ([license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.AMDC)).
+
+
+## Citation
+
+If you find this package useful for your research, please consider citing the
+paper on ``radioactivedecay`` published in the
+[Journal of Open Source Software](https://doi.org/10.21105/joss.03318):
+
+> Alex Malins & Thom Lemoine, *radioactivedecay: A Python package for radioactive decay
+calculations*. Journal of Open Source Software, **7** (71), 3318 (2022). DOI:
+[10.21105/joss.03318](https://doi.org/10.21105/joss.03318).
 
 
 ## Contributing

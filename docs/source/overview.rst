@@ -191,6 +191,17 @@ The default atomic mass data is based on the Atomic Mass Data Center (`AMDC
 <https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE.AMDC>`_ for
 more details.
 
+Citation
+--------
+
+If you find this package useful for your research, please consider citing the
+paper on ``radioactivedecay`` published in the
+`Journal of Open Source Software <https://doi.org/10.21105/joss.03318>`_:
+
+  A. Malins & T. Lemoine, radioactivedecay: A Python package for radioactive decay
+  calculations. *Journal of Open Source Software*, **7** (71), 3318 (2022). DOI:
+  `10.21105/joss.03318 <https://doi.org/10.21105/joss.03318>`_.
+
 Contributors
 ------------
 
@@ -228,6 +239,7 @@ Special thanks to:
 * `Kelly Rowland <https://github.com/kellyrowland>`_
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
 * `Madicken Munk <http://munkm.github.io/>`_
+* `Kristen Thyng <http://kristenthyng.com/>`_
 * `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
 * `Hunter Ratliff <https://hratliff.com/>`_
 * `Jayson Vavrek <https://github.com/jvavrek>`_
@@ -253,9 +265,9 @@ References
 ----------
 
 1. ICRP Publication 107: Nuclear Decay Data for Dosimetric Calculations. Ann. ICRP 38 (3), 1-96 (2008). `PDF <https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3>`_
-2. W.J. Huang et al. Chinese Phys. C 45, 030002 (2021). DOI: `10.1088/1674-1137/abddb0 <https://doi.org/10.1088/1674-1137/abddb0>`_
+2. WJ Huang et al. Chinese Phys. C 45, 030002 (2021). DOI: `10.1088/1674-1137/abddb0 <https://doi.org/10.1088/1674-1137/abddb0>`_
 3. Meng Wang et al. Chinese Phys. C 45, 030003 (2021). DOI: `10.1088/1674-1137/abddaf <https://doi.org/10.1088/1674-1137/abddaf>`_
-4. F.G. Kondev et al. Chinese Phys. C 45, 030001 (2021). DOI: `10.1088/1674-1137/abddae <https://doi.org/10.1088/1674-1137/abddae>`_
+4. FG Kondev et al. Chinese Phys. C 45, 030001 (2021). DOI: `10.1088/1674-1137/abddae <https://doi.org/10.1088/1674-1137/abddae>`_
 5. M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
 6. CR Harris et al. Nat. 585, 357-362 (2020). DOI: `10.1038/s41586-020-2649-2 <https://doi.org/10.1038/s41586-020-2649-2>`_
 7. P Virtanen et al. Nat. Methods 17, 261-272 (2020). DOI: `10.1038/s41592-019-0686-2 <https://doi.org/10.1038/s41592-019-0686-2>`_
