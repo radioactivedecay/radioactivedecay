@@ -2,6 +2,7 @@ decaydata
 =========
 
 .. automodule:: radioactivedecay.decaydata
+   :members: load_dataset
 
 DecayData
 ---------
