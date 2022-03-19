@@ -715,8 +715,8 @@ def load_dataset(
     dataset_name: str, dir_path: Optional[str] = None, load_sympy: bool = False
 ) -> DecayData:
     """
-    Load a decay dataset, either from a set of data files within a sub-packaged of
-    ``radioactivedecay``, or by specifying a local directory containing the data files.
+    Load a decay dataset, either from a set of data files packaged within ``radioactivedecay``,
+    or by specifying a local directory containing the data files.
 
     Parameters
     ----------
