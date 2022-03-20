@@ -243,7 +243,9 @@ Special thanks to:
 * `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
 * `Hunter Ratliff <https://hratliff.com/>`_
 * `Jayson Vavrek <https://github.com/jvavrek>`_
+* `Jonathan Wing <https://github.com/JWingUtk>`_
 * `radioactivedecay-github <https://github.com/radioactivedecay-github>`_
+* `Christian Schreinemachers <https://github.com/Cs137>`_
 
 for suggestions, support and assistance to this project.
 
