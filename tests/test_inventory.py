@@ -863,7 +863,7 @@ class TestInventoryHP(unittest.TestCase):
         self.assertEqual(axes.get_xlabel(), "Time (s)")
         self.assertEqual(axes.get_ylabel(), "Number of moles (mmol)")
         self.assertEqual(axes.get_xlim()[0], 0.0707945784384138)
-        self.assertEqual(axes.get_ylim(), (0.1, 2100.0))
+        self.assertEqual(axes.get_ylim(), (949.999999633917, 2100.0))
         self.assertEqual(axes.get_legend_handles_labels()[-1], ["K-40", "C-14"])
 
     def test___repr__(self) -> None:

@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.X.X] - 20XX-XX-XX
+## [0.4.11] - 2022-03-20
+- Default `ymin` for Inventory `plot()` method is now 0.95x the minimum quantity that occurs over
+the decay period when `yscale='log'` (#70 & #72).
+- Improved nuclide string parsing: robust to nuclide strings containing whitespaces and some
+incorrect capitalizations of the element / metastable state chars (#65 & #72).
 - Fix `load_dataset()` docstring not showing in decaydata API docpage (#71).
 
 ## [0.4.10] - 2022-03-15
