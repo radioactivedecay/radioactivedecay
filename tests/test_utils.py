@@ -104,7 +104,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(parse_nuclide_str("iR192N"), "Ir-192n")
         # Note following test won't work as need to metastable char to be lower case for it to be
         # identified as a metastable char not an element char:
-        #self.assertEqual(parse_nuclide_str("192NiR"), "Ir-192n")
+        # self.assertEqual(parse_nuclide_str("192NiR"), "Ir-192n")
 
     def test_parse_nuclide(self) -> None:
         """
