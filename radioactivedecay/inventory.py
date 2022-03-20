@@ -837,7 +837,8 @@ class AbstractInventory(ABC):
         yscale : str, optional
             The y-axis scale type to apply ('linear' or 'log', default is 'linear').
         ymin : float, optional
-            Minimum value for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
+            Minimum value for the y-axis (default is 0.0 for ``yscale='linear'``, or 0.95x the
+            minimum quantity that occurs over the decay period for ``yscale='log'``).
         ymax : None or float, optional
             Maximum value for the y-axis. Default is None, which sets the limit to 1.05x the
             maximum quantity that occurs over the decay period.
@@ -851,9 +852,9 @@ class AbstractInventory(ABC):
             Default is 'all', which displays all nuclides present upon decay of the inventory.
         order : str, optional
             Order to display the nuclide decay curves on the graph if you do not specify the
-            order via the display parameter. Default order is by "dataset", which follows the order
+            order via the display parameter. Default order is by 'dataset', which follows the order
             of the nuclides in the decay dataset (highest to lowest nuclides in the decay
-            chains). Use "alphabetical" if you want the nuclides to be ordered alphabetically.
+            chains). Use 'alphabetical' if you want the nuclides to be ordered alphabetically.
         npoints : None or int, optional
             Number of time points used to plot graph (default is 501 for normal precision decay
             calculations, or 51 for high precision decay calculations).
@@ -952,7 +953,7 @@ class AbstractInventory(ABC):
             raise ValueError(f"{yunits} is not a supported y-axes unit.")
 
         if yscale == "log" and ymin == 0.0:
-            ymin = 0.1
+            ymin = 0.95 * ydata.min()
         ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * ydata.max()]
 
         fig, axes = decay_graph(
@@ -1527,13 +1528,14 @@ class InventoryHP(AbstractInventory):
         yscale : str, optional
             The y-axis scale type to apply ('linear' or 'log', default is 'linear').
         ymin : float, optional
-            Minimum value for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
+            Minimum value for the y-axis (default is 0.0 for ``yscale='linear'``, or 0.95x the
+            minimum quantity that occurs over the decay period for ``yscale='log'``).
         ymax : None or float, optional
             Maximum value for the y-axis. Default is None, which sets the limit to 1.05x the
             maximum quantity that occurs over the decay period.
         yunits : str, optional
             Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
-            'mass_frac', 'mol_frac'. Default is 'Bq'.
+            'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
         display : str or list, optional
             Only display the nuclides within this list on the graph. Use this parameter when
             you want to choose specific nuclide decay curves shown on the graph, either by
@@ -1541,9 +1543,9 @@ class InventoryHP(AbstractInventory):
             Default is 'all', which displays all nuclides present upon decay of the inventory.
         order : str, optional
             Order to display the nuclide decay curves on the graph if you do not specify the
-            order via the display parameter. Default order is by "dataset", which follows the order
+            order via the display parameter. Default order is by 'dataset', which follows the order
             of the nuclides in the decay dataset (highest to lowest nuclides in the decay
-            chains). Use "alphabetical" if you want the nuclides to be ordered alphabetically.
+            chains). Use 'alphabetical' if you want the nuclides to be ordered alphabetically.
         npoints : None or int, optional
             Number of time points used to plot graph. Default is 51.
         fig : None or matplotlib.figure.Figure, optional
