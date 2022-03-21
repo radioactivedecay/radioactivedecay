@@ -258,6 +258,11 @@ Thanks also to:
 * `Jonathan Morrell <https://github.com/jtmorrell>`_ (creator of the `NPAT
   <https://github.com/jtmorrell/npat>`_ and `Curie
   <https://github.com/jtmorrell/npat>`_ packages)
+* `Austin Ladshaw <https://www.researchgate.net/profile/Austin-Ladshaw>`_ &
+  collaborators (creators of `IBIS
+  <https://bitbucket.org/gitecosystem/ecosystem>`_ :ref:`[14] <refs>`)
+* `Will Johnson <https://github.com/wcjohns>`_ & collaborators (creators of
+  `SandiaDecay <https://github.com/sandialabs/SandiaDecay>`_)
 
 for their work on open source radioactive decay calculation software.
 
@@ -270,7 +275,7 @@ References
 2. WJ Huang et al. Chinese Phys. C 45, 030002 (2021). DOI: `10.1088/1674-1137/abddb0 <https://doi.org/10.1088/1674-1137/abddb0>`_
 3. Meng Wang et al. Chinese Phys. C 45, 030003 (2021). DOI: `10.1088/1674-1137/abddaf <https://doi.org/10.1088/1674-1137/abddaf>`_
 4. FG Kondev et al. Chinese Phys. C 45, 030001 (2021). DOI: `10.1088/1674-1137/abddae <https://doi.org/10.1088/1674-1137/abddae>`_
-5. M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
+5. M Amaku, PR Pascholati & VR Vanin, Comput. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
 6. CR Harris et al. Nat. 585, 357-362 (2020). DOI: `10.1038/s41586-020-2649-2 <https://doi.org/10.1038/s41586-020-2649-2>`_
 7. P Virtanen et al. Nat. Methods 17, 261-272 (2020). DOI: `10.1038/s41592-019-0686-2 <https://doi.org/10.1038/s41592-019-0686-2>`_
 8. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_
@@ -279,6 +284,7 @@ References
 11. A Endo, Y Yamaguchi & KF Eckerman, JAERI 1347 (2005). DOI: `10.11484/jaeri-1347 <https://doi.org/10.11484/jaeri-1347>`_
 12. A Endo & KF Eckerman, JAEA-Data/Code 2007-021 (2007). DOI: `10.11484/jaea-data-code-2007-021 <https://doi.org/10.11484/jaea-data-code-2007-021>`_
 13. B Dahlgren, batemaneq:  a C++ implementation of the Bateman equation, and a Python binding thereof. `https://github.com/bjodah/batemaneq <https://github.com/bjodah/batemaneq>`_
+14. A Ladshaw et al. Comput. Phys. Comm. 246, 106907 (2020). DOI: `10.1016/j.cpc.2019.106907 <https://doi.org/10.1016/j.cpc.2019.106907>`_
 
 .. |alpha| unicode:: U+03B1 .. lower case alpha
 .. |beta| unicode:: U+03B2 .. lower case beta
