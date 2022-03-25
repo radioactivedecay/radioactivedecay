@@ -9,6 +9,7 @@
 [![Tests](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml/badge.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml)
 [![Tests Coverage](https://codecov.io/gh/radioactivedecay/radioactivedecay/branch/master/graph/badge.svg?token=RX5HSELRYH)](https://codecov.io/gh/radioactivedecay/radioactivedecay)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/3_code_formatting.yml)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.03318/status.svg)](https://doi.org/10.21105/joss.03318)
 [![Downloads](https://pepy.tech/badge/radioactivedecay)](https://pepy.tech/project/radioactivedecay)
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
@@ -24,7 +25,7 @@ results for decay chains containing radionuclides with orders of magnitude
 differences between the half-lives.
 
 This is free-to-use open source software. It was created for engineers,
-technicians and researchers who work with and study radioactivity, and for
+technicians and researchers who work with radioactivity, and for
 educational use.
 
 - **Full Documentation**: 
@@ -48,7 +49,8 @@ $ conda install -c conda-forge radioactivedecay
 ```
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
-NumPy, SciPy & SymPy) if they are not already present in the environment.
+NumPy, SciPy, Setuptools & SymPy) if they are not already present in the
+environment.
 
 
 ## Usage
@@ -115,6 +117,7 @@ obtain the contents of the inventory in different formats:
 {'C-14': 0.6943255713073281, 'N-14': 0.3056744286926719}
 ```
 
+
 ### Plotting decay graphs
 
 Use the ``plot()`` method to graph of the decay of an inventory over time:
@@ -126,7 +129,9 @@ Use the ``plot()`` method to graph of the decay of an inventory over time:
 <img src="https://raw.githubusercontent.com/radioactivedecay/radioactivedecay/main/docs/source/images/Mo-99_decay.png" alt="Mo-99 decay graph" width="450"/>
 
 The graph shows the decay of Mo-99 over 20 days, leading to the ingrowth of
-Tc-99m and a trace quantity of Tc-99. Graphs are drawn using Matplotlib.
+Tc-99m and a trace quantity of Tc-99. The activity of Ru-99 is strictly zero as
+it is the stable nuclide at the end of the decay chain. Graphs are drawn using
+Matplotlib.
 
 
 ### Fetching decay data
@@ -182,6 +187,7 @@ diagrams:
 
 These diagrams are drawn using NetworkX and Matplotlib.
 
+
 ### High numerical precision decay calculations
 
 ``radioactivedecay`` includes an ``InventoryHP`` class for high numerical
@@ -215,6 +221,7 @@ results for chains containing long- and short-lived radionuclides:
  'U-238': 0.9999999999957525}
 ```
 
+
 ## How radioactivedecay works
 
 ``radioactivedecay`` calculates an analytical solution to the radioactive decay
@@ -235,17 +242,16 @@ By default ``radioactivedecay`` uses decay data from
 data from the [Atomic Mass Data Center](https://www-nds.iaea.org/amdc/)
 (AMDC - AME2020 and Nubase2020 evaluations).
 
-The [notebooks
-directory](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks)
-in the GitHub repository contains Jupyter Notebooks for creating the decay
-datasets that are read in by ``radioactivedecay``, e.g.
-[ICRP
-107](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb).
-It also contains some comparisons against decay calculations made with
-[PyNE](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb)
-and
-[Radiological
-Toolbox](https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb).
+The [datasets repo](https://github.com/radioactivedecay/datasets) contains
+Jupyter Notebooks for creating decay datasets that can be used by
+``radioactivedecay``, e.g. [ICRP
+107](https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb).
+
+The [comparisons repo](https://github.com/radioactivedecay/comparisons)
+contains some checks of ``radioactivedecay`` against
+[PyNE](https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb)
+and [Radiological
+Toolbox](https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb).
 
 
 ## Tests
@@ -268,6 +274,17 @@ The default decay data used by ``radioactivedecay`` (ICRP-107) is copyright
 [license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.ICRP-07).
 The default atomic mass data is from AMDC
 ([license](https://github.com/radioactivedecay/radioactivedecay/blob/main/LICENSE.AMDC)).
+
+
+## Citation
+
+If you find this package useful for your research, please consider citing the
+paper on ``radioactivedecay`` published in the
+[Journal of Open Source Software](https://doi.org/10.21105/joss.03318):
+
+> Alex Malins & Thom Lemoine, *radioactivedecay: A Python package for radioactive decay
+calculations*. Journal of Open Source Software, **7** (71), 3318 (2022). DOI:
+[10.21105/joss.03318](https://doi.org/10.21105/joss.03318).
 
 
 ## Contributing

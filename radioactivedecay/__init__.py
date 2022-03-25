@@ -12,11 +12,11 @@ results for decay chains containing radionuclides with orders of magnitude
 differences between the half-lives.
 
 This is free-to-use open source software. It was created for engineers,
-technicians and researchers who work with and study radioactivity, and for
+technicians and researchers who work with radioactivity, and for
 educational use.
 
 The docstring code examples assume the ``radioactivedecay`` package has been
-imported as:
+imported as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
@@ -25,7 +25,7 @@ imported as:
 
 """
 
-__version__ = "0.4.9"
+__version__ = "0.4.12"
 
 from radioactivedecay.decaydata import DecayData, DEFAULTDATA
 from radioactivedecay.inventory import Inventory, InventoryHP

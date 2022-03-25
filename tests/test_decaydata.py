@@ -7,7 +7,7 @@ import numpy as np
 from scipy import sparse
 from sympy import Integer, log, Matrix
 from sympy.matrices import SparseMatrix
-from radioactivedecay import converters, decaydata, icrp107_ame2020_nubase2020
+from radioactivedecay import decaydata, icrp107_ame2020_nubase2020
 
 
 class TestFunctions(unittest.TestCase):
@@ -29,21 +29,21 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(decaydata._csr_matrix_equal(matrix_a, matrix_c), False)
 
 
-class TestDecayMatrices(unittest.TestCase):
+class TestDecayMatricesScipy(unittest.TestCase):
     """
-    Unit tests for the decaydata.py DecayMatrices class.
+    Unit tests for the decaydata.py DecayMatricesScipy class.
     """
 
     def test_instantiation(self) -> None:
         """
-        Test instantiation of DecayMatrices objects.
+        Test instantiation of DecayMatricesScipy objects.
         """
 
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([1.0], ([1], [1])), shape=(2, 2))
-        decay_mats = decaydata.DecayMatrices(
+        decay_mats = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         self.assertEqual(decay_mats.atomic_masses[0], 0.0)
@@ -58,67 +58,68 @@ class TestDecayMatrices(unittest.TestCase):
         self.assertEqual(decay_mats.vector_n0[0], 0.0)
         self.assertEqual(decay_mats.vector_n0[1], 0.0)
 
-    def test_decaymatrices___eq__(self) -> None:
+    def test___eq__(self) -> None:
         """
-        Test DecayMatrices equality.
+        Test DecayMatricesScipy equality.
         """
 
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
-        decay_mats_a = decaydata.DecayMatrices(
+        decay_mats_a = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
-        decay_mats_b = decaydata.DecayMatrices(
+        decay_mats_b = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         self.assertEqual(decay_mats_a, decay_mats_b)
 
         self.assertFalse(decay_mats_a == "random object")
 
-    def test_decaymatrices___ne__(self) -> None:
+    def test___ne__(self) -> None:
         """
-        Test DecayMatrices inequal.
+        Test DecayMatricesScipy inequal.
         """
 
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
-        decay_mats_a = decaydata.DecayMatrices(
+        decay_mats_a = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([2.0], ([0], [0])), shape=(2, 2))
-        decay_mats_b = decaydata.DecayMatrices(
+        decay_mats_b = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         self.assertNotEqual(decay_mats_a, decay_mats_b)
 
         self.assertTrue(decay_mats_a != "random object")
 
-    def test_decaymatrices___repr__(self) -> None:
+    def test___repr__(self) -> None:
         """
-        Test DecayMatrices __repr__ strings.
+        Test DecayMatricesScipy __repr__ strings.
         """
 
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([1.0], ([1], [1])), shape=(2, 2))
-        decay_mats = decaydata.DecayMatrices(
+        decay_mats = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         self.assertEqual(
             decay_mats.__repr__(),
-            "DecayMatrices: data stored in SciPy/NumPy objects for double precision calculations.",
+            "DecayMatricesScipy: data stored in SciPy/NumPy objects for double precision "
+            "calculations.",
         )
 
 
@@ -244,25 +245,25 @@ class TestDecayData(unittest.TestCase):
         modes = np.array([["\u03b2+"], []], dtype=object)
         nuclides = np.array(["A-2", "B-1"])
         progeny = np.array([["B-1"], []], dtype=object)
-        float_unit_converter = converters.UnitConverterFloat(365.2422)
+        float_year_conv = 365.2422
 
         atomic_masses = np.array([0.0] * 2)
         decay_consts = np.array([0.0] * 2)
         matrix_c = sparse.csr_matrix(([1.0], ([0], [0])), shape=(2, 2))
         matrix_c_inv = sparse.csr_matrix(([1.0], ([1], [1])), shape=(2, 2))
-        decay_mats = decaydata.DecayMatrices(
+        decay_mats = decaydata.DecayMatricesScipy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
 
         dataset = decaydata.DecayData(
             dataset_name,
             bfs,
+            float_year_conv,
             hldata,
             modes,
             nuclides,
             progeny,
             decay_mats,
-            float_unit_converter,
         )
 
         self.assertEqual(dataset.dataset_name, "test_dataset")
@@ -282,13 +283,11 @@ class TestDecayData(unittest.TestCase):
         self.assertEqual(dataset.progeny[-1], [])
         self.assertEqual(dataset.bfs[-1], [])
         self.assertEqual(dataset.modes[-1], [])
-        self.assertEqual(
-            dataset.float_unit_converter, converters.UnitConverterFloat(365.2422)
-        )
-        self.assertIsNotNone(dataset.float_quantity_converter)
-        self.assertIsNone(dataset.sympy_data)
-        self.assertIsNone(dataset.sympy_unit_converter)
-        self.assertIsNone(dataset.sympy_quantity_converter)
+        self.assertEqual(dataset.float_year_conv, 365.2422)
+        with self.assertRaises(ValueError):
+            assert dataset.sympy_data
+        with self.assertRaises(ValueError):
+            assert dataset.sympy_year_conv
 
         atomic_masses_sympy = Matrix.zeros(2, 1)
         decay_consts_sympy = Matrix.zeros(2, 1)
@@ -299,25 +298,22 @@ class TestDecayData(unittest.TestCase):
         decay_mats_sympy = decaydata.DecayMatricesSympy(
             atomic_masses_sympy, decay_consts_sympy, matrix_c_sympy, matrix_c_inv_sympy
         )
-        sympy_unit_converter = converters.UnitConverterSympy(
-            Integer(3652422) / Integer(1000)
-        )
+        sympy_year_conv = Integer(3652422) / Integer(10000)
 
         dataset = decaydata.DecayData(
             dataset_name,
             bfs,
+            float_year_conv,
             hldata,
             modes,
             nuclides,
             progeny,
             decay_mats,
-            float_unit_converter,
             decay_mats_sympy,
-            sympy_unit_converter,
+            sympy_year_conv,
         )
         self.assertIsNotNone(dataset.sympy_data)
-        self.assertIsNotNone(dataset.sympy_unit_converter)
-        self.assertIsNotNone(dataset.sympy_quantity_converter)
+        self.assertIsNotNone(dataset.sympy_year_conv)
 
     def test_half_life(self) -> None:
         """
@@ -445,7 +441,10 @@ class TestFileIOFunctions(unittest.TestCase):
         self.assertEqual(data.scipy_data.matrix_e.shape, (1512, 1512))
         self.assertEqual(data.scipy_data.matrix_e[0, 0], 0.0)
         self.assertEqual(data.scipy_data.vector_n0[0], 0.0)
-        self.assertEqual(data.sympy_data, None)
+        with self.assertRaises(ValueError):
+            assert data.sympy_data
+        with self.assertRaises(ValueError):
+            assert data.sympy_year_conv
 
         # check instantiation with supplied dataset path
         data = decaydata.load_dataset(
@@ -487,7 +486,10 @@ class TestFileIOFunctions(unittest.TestCase):
         self.assertEqual(data.scipy_data.matrix_e.shape, (1512, 1512))
         self.assertEqual(data.scipy_data.matrix_e[0, 0], 0.0)
         self.assertEqual(data.scipy_data.vector_n0[0], 0.0)
-        self.assertEqual(data.sympy_data, None)
+        with self.assertRaises(ValueError):
+            assert data.sympy_data
+        with self.assertRaises(ValueError):
+            assert data.sympy_year_conv
 
         # check instantiation from sub-package with SymPy data
         data = decaydata.load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
@@ -537,6 +539,7 @@ class TestFileIOFunctions(unittest.TestCase):
         self.assertEqual(data.sympy_data.matrix_e.shape, (1512, 1512))
         self.assertEqual(data.sympy_data.matrix_e[0, 0], Integer(0))
         self.assertEqual(data.sympy_data.vector_n0[0], Integer(0))
+        self.assertEqual(data.sympy_year_conv, Integer(3652422) / Integer(10000))
 
         # check instantiation with supplied dataset path with SymPy data
         data = decaydata.load_dataset(
@@ -590,6 +593,7 @@ class TestFileIOFunctions(unittest.TestCase):
         self.assertEqual(data.sympy_data.matrix_e.shape, (1512, 1512))
         self.assertEqual(data.sympy_data.matrix_e[0, 0], Integer(0))
         self.assertEqual(data.sympy_data.vector_n0[0], Integer(0))
+        self.assertEqual(data.sympy_year_conv, Integer(3652422) / Integer(10000))
 
 
 if __name__ == "__main__":

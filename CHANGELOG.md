@@ -1,7 +1,31 @@
 # Changelog
 
-## [0.4.9] - 2022-3-24
+## [0.4.12] - 2022-3-24
 - Added stable spontaneous fission products to the default ICRP-107 dataset (#75).
+
+## [0.4.11] - 2022-03-20
+- Default `ymin` for Inventory `plot()` method is now 0.95x the minimum quantity that occurs over
+the decay period when `yscale='log'` (#70 & #72).
+- Improved nuclide string parsing: robust to nuclide strings containing whitespaces and some
+incorrect capitalizations of the element / metastable state chars (#65 & #72).
+- Fix `load_dataset()` docstring not showing in decaydata API docpage (#71).
+
+## [0.4.10] - 2022-03-15
+- Fix incorrect parsing of SymPy version string (#67, #68). This bug meant radioactivedecay import
+failed if using SymPy >=1.10. The fix makes Setuptools an explicit dependency.
+
+## [0.4.9] - 2022-02-07
+- Code refactoring: reduce coupling between modules by refactoring Converter, Nuclide & Inventory
+classes to not store duplicate data, but to receive data when needed via their API calls. DecayData objects
+no longer store Converter objects. Continuing to reduce pylint/mypy errors/warnings, however will
+need to wait to bump requirement to Python 3.7+ to improve type hinting of NumPy/SciPy arrays
+(requires NumPy 1.20+, holding off for now to maintain Python 3.6 support) (#64, #66).
+- Improve API documentation table of contents & README fix (#66).
+- Better unit tests for DecayData class and error handling is instance does not contain SymPy data
+(#66).
+- Move dataset creation and comparison notebooks to separate repos within the radioactivedecay org
+on GitHub (#63).
+- Tweak GitHub Issue & PR markdown templates (#62).
 
 ## [0.4.8] - 2021-12-13
 - Fix some code bugs and make other improvements to the ReadMe and the Docs (#57, #58 & #59).

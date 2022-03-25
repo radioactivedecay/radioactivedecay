@@ -18,8 +18,9 @@ decay differential equations analytically using basic linear algebra operations
 :ref:`[5] <refs>`.
 
 In order to use ``radioactivedecay``, you will need Python 3.6+ with the
-Matplotlib, NetworkX, NumPy, SciPy and SymPy packages installed. The code is
-platform independent and has been tested on Windows, MacOS and Linux systems.
+Matplotlib, NetworkX, NumPy, SciPy, Setuptools and SymPy packages installed.
+The code is platform independent and has been tested on Windows, MacOS and
+Linux systems.
 
 Quick start
 -----------
@@ -37,7 +38,8 @@ or using ``conda`` by:
     $ conda install -c conda-forge radioactivedecay
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
-NumPy, SciPy & SymPy) if they are not already present in the environment.
+NumPy, SciPy, Setuptooks & SymPy) if they are not already present in the
+environment.
 
 Import the ``radioactivedecay`` package and decay a simple inventory using:
 
@@ -121,16 +123,18 @@ more details. It calls NumPy :ref:`[6] <refs>` and SciPy :ref:`[7] <refs>` for
 the matrix operations. There is also a high numerical precision decay
 calculation mode based on SymPy :ref:`[8] <refs>` routines.
 
-The `notebooks directory 
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks>`_ 
-in the GitHub repository contains some Jupyter Notebooks for creating the 
+The `datasets repo
+<https://github.com/radioactivedecay/datasets>`_ 
+on GitHub contains a Jupyter Notebook for creating the 
 `ICRP-107 decay dataset
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/icrp107_dataset/icrp107_dataset.ipynb>`_
-for ``radioactivedecay``, and cross-checks against `PyNE
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/pyne/rd_pyne_truncated_compare.ipynb>`_ 
+<https://github.com/radioactivedecay/datasets/blob/main/icrp107_ame2020_nubase2020/icrp107_dataset.ipynb>`_.
+Notebooks with cross-checks of decay calculation results against
+`PyNE
+<https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb>`_ 
 :ref:`[9] <refs>` and `Radiological Toolbox 
-<https://github.com/radioactivedecay/radioactivedecay/tree/main/notebooks/comparisons/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
-:ref:`[10] <refs>`.
+<https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
+:ref:`[10] <refs>` are held in the `comparisons repo
+<https://github.com/radioactivedecay/comparisons>`_. 
 
 Limitations
 -----------
@@ -187,10 +191,21 @@ The default atomic mass data is based on the Atomic Mass Data Center (`AMDC
 <https://github.com/radioactivedecay/radioactivedecay/blob/master/LICENSE.AMDC>`_ for
 more details.
 
+Citation
+--------
+
+If you find this package useful for your research, please consider citing the
+paper on ``radioactivedecay`` published in the
+`Journal of Open Source Software <https://doi.org/10.21105/joss.03318>`_:
+
+  A. Malins & T. Lemoine, radioactivedecay: A Python package for radioactive decay
+  calculations. *Journal of Open Source Software*, **7** (71), 3318 (2022). DOI:
+  `10.21105/joss.03318 <https://doi.org/10.21105/joss.03318>`_.
+
 Contributors
 ------------
 
-List of contributors to ``radioactivedeay``:
+List of contributors to ``radioactivedecay``:
 
 * `Alex Malins <https://alexmalins.com>`_
 * `Thom Lemoine <https://github.com/lemointm>`_
@@ -221,10 +236,16 @@ Special thanks to:
 * `Kenny McKee <https://github.com/Rolleroo>`_
 * `Daniel Jewell <https://github.com/danieldjewell>`_
 * `Ezequiel Pássaro <https://epassaro.github.io/>`_
+* `Kelly Rowland <https://github.com/kellyrowland>`_
 * `Shyam Dwaraknath <https://github.com/shyamd>`_
+* `Madicken Munk <http://munkm.github.io/>`_
+* `Kristen Thyng <http://kristenthyng.com/>`_
 * `Wolfgang Kerzendorf <https://wkerzendorf.github.io/>`_
 * `Hunter Ratliff <https://hratliff.com/>`_
 * `Jayson Vavrek <https://github.com/jvavrek>`_
+* `Jonathan Wing <https://github.com/JWingUtk>`_
+* `radioactivedecay-github <https://github.com/radioactivedecay-github>`_
+* `Christian Schreinemachers <https://github.com/Cs137>`_
 
 for suggestions, support and assistance to this project.
 
@@ -237,6 +258,11 @@ Thanks also to:
 * `Jonathan Morrell <https://github.com/jtmorrell>`_ (creator of the `NPAT
   <https://github.com/jtmorrell/npat>`_ and `Curie
   <https://github.com/jtmorrell/npat>`_ packages)
+* `Austin Ladshaw <https://www.researchgate.net/profile/Austin-Ladshaw>`_ &
+  collaborators (creators of `IBIS
+  <https://bitbucket.org/gitecosystem/ecosystem>`_ :ref:`[14] <refs>`)
+* `Will Johnson <https://github.com/wcjohns>`_ & collaborators (creators of
+  `SandiaDecay <https://github.com/sandialabs/SandiaDecay>`_)
 
 for their work on open source radioactive decay calculation software.
 
@@ -246,10 +272,10 @@ References
 ----------
 
 1. ICRP Publication 107: Nuclear Decay Data for Dosimetric Calculations. Ann. ICRP 38 (3), 1-96 (2008). `PDF <https://journals.sagepub.com/doi/pdf/10.1177/ANIB_38_3>`_
-2. W.J. Huang et al. Chinese Phys. C 45, 030002 (2021). DOI: `10.1088/1674-1137/abddb0 <https://doi.org/10.1088/1674-1137/abddb0>`_
+2. WJ Huang et al. Chinese Phys. C 45, 030002 (2021). DOI: `10.1088/1674-1137/abddb0 <https://doi.org/10.1088/1674-1137/abddb0>`_
 3. Meng Wang et al. Chinese Phys. C 45, 030003 (2021). DOI: `10.1088/1674-1137/abddaf <https://doi.org/10.1088/1674-1137/abddaf>`_
-4. F.G. Kondev et al. Chinese Phys. C 45, 030001 (2021). DOI: `10.1088/1674-1137/abddae <https://doi.org/10.1088/1674-1137/abddae>`_
-5. M Amaku, PR Pascholati & VR Vanin, Comp. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
+4. FG Kondev et al. Chinese Phys. C 45, 030001 (2021). DOI: `10.1088/1674-1137/abddae <https://doi.org/10.1088/1674-1137/abddae>`_
+5. M Amaku, PR Pascholati & VR Vanin, Comput. Phys. Comm. 181, 21-23 (2010). DOI: `10.1016/j.cpc.2009.08.011 <https://doi.org/10.1016/j.cpc.2009.08.011>`_
 6. CR Harris et al. Nat. 585, 357-362 (2020). DOI: `10.1038/s41586-020-2649-2 <https://doi.org/10.1038/s41586-020-2649-2>`_
 7. P Virtanen et al. Nat. Methods 17, 261-272 (2020). DOI: `10.1038/s41592-019-0686-2 <https://doi.org/10.1038/s41592-019-0686-2>`_
 8. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_
@@ -258,6 +284,7 @@ References
 11. A Endo, Y Yamaguchi & KF Eckerman, JAERI 1347 (2005). DOI: `10.11484/jaeri-1347 <https://doi.org/10.11484/jaeri-1347>`_
 12. A Endo & KF Eckerman, JAEA-Data/Code 2007-021 (2007). DOI: `10.11484/jaea-data-code-2007-021 <https://doi.org/10.11484/jaea-data-code-2007-021>`_
 13. B Dahlgren, batemaneq:  a C++ implementation of the Bateman equation, and a Python binding thereof. `https://github.com/bjodah/batemaneq <https://github.com/bjodah/batemaneq>`_
+14. A Ladshaw et al. Comput. Phys. Comm. 246, 106907 (2020). DOI: `10.1016/j.cpc.2019.106907 <https://doi.org/10.1016/j.cpc.2019.106907>`_
 
 .. |alpha| unicode:: U+03B1 .. lower case alpha
 .. |beta| unicode:: U+03B2 .. lower case beta

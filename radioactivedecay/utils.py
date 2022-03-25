@@ -2,7 +2,7 @@
 The utils module contains functions to parse nuclide strings and manipulate lists and dictionaries.
 
 The docstring code examples assume that ``radioactivedecay`` has been imported
-as `rd`:
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
@@ -262,7 +262,7 @@ def build_nuclide_string(Z: int, A: int, meta_state: str = "") -> str:
 
     """
 
-    if Z not in Z_DICT.keys():
+    if Z not in Z_DICT:
         raise ValueError(str(Z) + " is not a valid atomic number")
 
     return_string = f"{Z_DICT[Z]}-{A}{meta_state}"
@@ -294,6 +294,8 @@ def parse_nuclide_str(nuclide: str) -> str:
 
     """
 
+    nuclide = "".join(nuclide.split())  # Remove all whitespaces (Issue #65).
+
     letter_flag, number_flag = False, False
     for char in nuclide:
         if char.isalpha():
@@ -316,6 +318,16 @@ def parse_nuclide_str(nuclide: str) -> str:
             if nuclide[idx - 1] != "-":
                 nuclide = f"{nuclide[:idx]}-{nuclide[idx:]}"
             break
+
+    # Convert incorrect capitalizations, e.g. tc-99M to Tc-99m, tC-99m to Tc-99m (Issue #65).
+    # Note 99MTc will fail because above logic requires metastable state char is lower case.
+    if nuclide[0].islower() or nuclide[1].isupper() or nuclide[-1].isupper():
+        nuclide = (
+            nuclide[0].upper()
+            + nuclide[1].lower()
+            + nuclide[2:-1]
+            + nuclide[-1].lower()
+        )
 
     return nuclide
 

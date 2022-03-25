@@ -1,13 +1,13 @@
 """
-The inventory module defines the ``Inventory`` class. An ``Inventory`` instance contains one or
-more nuclides each with an associated amount (number of atoms). The decay of the nuclide(s) in an
-``Inventory`` can be calculated by using the ``decay()`` method (normal double-precision
-floating-point operations). The corresponding ``InventoryHP`` class performs decay calculations
-with SymPy high numerical precision operations. A ``DecayData`` dataset is associated with
-``Inventory`` and ``InventoryHP`` instances (default is rd.DEFAULTDATA).
+The inventory module defines the ``Inventory`` and ``InventoryHP`` classes. Instances of these
+classes contain one or more nuclides each with an associated amount (number of atoms). The decay
+of the nuclide(s) can be calculated by using the ``decay()`` method. The ``Inventory`` class
+performs calculations using double-precision floats. The ``InventoryHP`` class performs
+calculations using SymPy high numerical precision operations. A ``DecayData`` dataset is associated
+with ``Inventory`` and ``InventoryHP`` instances (default is rd.DEFAULTDATA).
 
 The docstring code examples assume that ``radioactivedecay`` has been imported
-as `rd`:
+as ``rd``:
 
 .. highlight:: python
 .. code-block:: python
@@ -16,8 +16,8 @@ as `rd`:
 
 """
 
-from functools import singledispatch, update_wrapper
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from abc import ABC, abstractmethod
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 import matplotlib
 import numpy as np
 from scipy import sparse
@@ -25,17 +25,20 @@ from sympy import exp, Integer, Matrix, nsimplify
 from sympy.core.expr import Expr
 from radioactivedecay.converters import (
     QuantityConverter,
+    QuantityConverterFloat,
     QuantityConverterSympy,
+    UnitConverter,
     UnitConverterFloat,
     UnitConverterSympy,
 )
 from radioactivedecay.decaydata import (
     DecayData,
     DecayMatrices,
+    DecayMatricesScipy,
     DecayMatricesSympy,
     DEFAULTDATA,
 )
-from radioactivedecay.plots import _decay_graph
+from radioactivedecay.plots import decay_graph
 from radioactivedecay.nuclide import Nuclide
 from radioactivedecay.utils import (
     parse_nuclide,
@@ -44,27 +47,35 @@ from radioactivedecay.utils import (
     sort_list_according_to_dataset,
 )
 
+# functools.singledispatchmethod is new in Python version 3.8
+# this block adds support manually for Python <3.8
+# the except block can be removed once min required Python version is 3.8
+try:
+    from functools import singledispatchmethod
+except ImportError:
+    from functools import singledispatch, update_wrapper
+
+    def singledispatchmethod(func: Callable[..., Any]):  # type:ignore
+        """Adds singledispatch support for instance methods of a class."""
+
+        dispatcher = singledispatch(func)
+
+        def wrapper(*args, **kwargs):  # type:ignore
+            return dispatcher.dispatch(args[1].__class__)(*args, **kwargs)
+
+        wrapper.register = dispatcher.register
+        update_wrapper(wrapper, func)
+        return wrapper
+
 
 # pylint: disable=too-many-arguments, too-many-lines, too-many-locals
 
 
-def _method_dispatch(func: Callable[..., Any]):
-    """Adds singledispatch support for class methods."""
-
-    dispatcher = singledispatch(func)
-
-    def wrapper(*args, **kwargs):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kwargs)
-
-    wrapper.register = dispatcher.register
-    update_wrapper(wrapper, func)
-    return wrapper
-
-
-class Inventory:
+class AbstractInventory(ABC):
     """
-    ``Inventory`` instances store nuclides and associated quantities (numbers of atoms) in the
-    contents dictionary. Each instance is associated with a decay dataset.
+    Template class for float (SciPy) or SymPy Inventory classes. Each AbstractInventory instance
+    stores nuclides and associated quantities (numbers of atoms) in the contents dictionary. A
+    decay dataset is associated with each instance.
 
     Parameters
     ----------
@@ -89,27 +100,13 @@ class Inventory:
     decay_data : DecayData
         Decay dataset.
     decay_matrices : DecayMatrices
-        Float/SciPy version of the DecayMatrices associated with the decay dataset.
-    quantity_converter : QuantityConverter
-        Float/SciPy version of a convertor between different quantities.
-    unit_converter : UnitConverterFloat
-        Float version of a convertor for within different units.
-
-    Examples
-    --------
-    >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq')
-    Inventory activities (Bq): {'I-123': 2.3, 'Tc-99m': 5.8}, decay dataset: icrp107_ame2020_nubase2020
-    >>> H3 = rd.Nuclide('H-3')
-    >>> rd.Inventory({H3: 3.0}, 'g')
-    Inventory activities (Bq): {'H-3': 1067957043281807.0}, decay dataset: icrp107_ame2020_nubase2020
-    >>> rd.Inventory({270570000: 7.2, 922380000: 21.1}, 'Ci')
-    Inventory activities (Bq): {'Co-57': 266400000000.0, 'U-238': 780700000000.0001}, decay dataset: icrp107_ame2020_nubase2020
+        SciPy or SymPy version of a DecayMatrices instance associated with the decay dataset.
 
     """
 
     def __init__(
         self,
-        contents: Dict[Union[str, int, Nuclide], float],
+        contents: Dict[Union[str, int, Nuclide], Union[float, Expr]],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
@@ -117,20 +114,18 @@ class Inventory:
 
         self.decay_data = decay_data
         self.decay_matrices = self._get_decay_matrices()
-        self.quantity_converter = self._get_quantity_converter()
-        self.unit_converter = self._get_unit_converter()
 
         if check is True:
-            contents_with_parsed_keys: Dict[str, float] = self._parse_nuclides(
+            contents_with_parsed_keys: Dict[
+                str, Union[float, Expr]
+            ] = self._parse_nuclides(
                 contents, self.decay_data.nuclides, self.decay_data.dataset_name
             )
             self._check_values(contents_with_parsed_keys)
         else:
             contents_with_parsed_keys = contents
         contents_sorted = sort_dictionary_alphabetically(contents_with_parsed_keys)
-        self.contents = self._convert_to_number(
-            contents_sorted, units, self.quantity_converter, self.unit_converter
-        )
+        self.contents = self._convert_to_number(contents_sorted, units)
 
     @staticmethod
     def _parse_nuclides(
@@ -162,27 +157,37 @@ class Inventory:
                     continue
             raise ValueError(f"{inp} is not a valid quantity of nuclide {nuc}.")
 
+    def _get_atomic_mass(self, nuc: str) -> Union[float, Expr]:
+        """Returns the appropriate atomic mass."""
+
+        return self.decay_matrices.atomic_masses[self.decay_data.nuclide_dict[nuc]]
+
+    def _get_decay_const(self, nuc: str) -> Union[float, Expr]:
+        """Returns the appropriate atomic mass."""
+
+        return self.decay_matrices.decay_consts[self.decay_data.nuclide_dict[nuc]]
+
+    @abstractmethod
     def _get_decay_matrices(self) -> DecayMatrices:
         """Returns the appropriate DecayMatrices instance."""
 
-        return self.decay_data.scipy_data
-
-    def _get_quantity_converter(self) -> QuantityConverter:
+    @staticmethod
+    @abstractmethod
+    def _get_quantity_converter() -> Type[QuantityConverter]:
         """Returns the appropriate QuantityConverter instance."""
 
-        return self.decay_data.float_quantity_converter
-
-    def _get_unit_converter(self) -> UnitConverterFloat:
+    @abstractmethod
+    def _get_unit_converter(self) -> Type[UnitConverter]:
         """Returns the appropriate UnitConverter instance."""
 
-        return self.decay_data.float_unit_converter
+    @abstractmethod
+    def _get_year_conv(self) -> Union[float, Expr]:
+        """Returns the appropriate number of days in a year."""
 
-    @staticmethod
     def _convert_to_number(
+        self,
         contents: Dict[str, Union[float, Expr]],
         units: str,
-        quantity_converter: QuantityConverter,
-        unit_converter: UnitConverterFloat,
     ) -> Dict[str, Union[float, Expr]]:
         """
         Converts an inventory dictionary where the values are masses, moles or activities to one
@@ -195,10 +200,6 @@ class Inventory:
             moles, or activities as values.
         units : str
             Units of the values in the input dictionary.
-        quantity_conveter : QuantityConverter
-            Convertor between quantities.
-        unit_conveter : UnitConverterFloat
-            Convertor between units of a single quantity.
 
         Returns
         -------
@@ -214,25 +215,26 @@ class Inventory:
 
         if units == "num":
             contents_as_numbers = contents
-        elif units in unit_converter.activity_units:
+        elif units in self._get_unit_converter().activity_units:
             contents_as_numbers = {
-                nuc: quantity_converter.activity_to_number(
-                    nuc, unit_converter.activity_unit_conv(act, units, "Bq")
+                nuc: self._get_quantity_converter().activity_to_number(
+                    self._get_unit_converter().activity_unit_conv(act, units, "Bq"),
+                    self._get_decay_const(nuc),
                 )
                 for nuc, act in contents.items()
             }
-        elif units in unit_converter.moles_units:
+        elif units in self._get_unit_converter().moles_units:
             contents_as_numbers = {
-                nuc: quantity_converter.moles_to_number(
-                    unit_converter.moles_unit_conv(mol, units, "mol")
+                nuc: self._get_quantity_converter().moles_to_number(
+                    self._get_unit_converter().moles_unit_conv(mol, units, "mol")
                 )
                 for nuc, mol in contents.items()
             }
-        elif units in unit_converter.mass_units:
+        elif units in self._get_unit_converter().mass_units:
             contents_as_numbers = {
-                nuc: quantity_converter.mass_to_number(
-                    nuc,
-                    unit_converter.mass_unit_conv(mass, units, "g"),
+                nuc: self._get_quantity_converter().mass_to_number(
+                    self._get_unit_converter().mass_unit_conv(mass, units, "g"),
+                    self._get_atomic_mass(nuc),
                 )
                 for nuc, mass in contents.items()
             }
@@ -286,8 +288,10 @@ class Inventory:
         """
 
         activities = {
-            nuc: self.unit_converter.activity_unit_conv(
-                self.quantity_converter.number_to_activity(nuc, num),
+            nuc: self._get_unit_converter().activity_unit_conv(
+                self._get_quantity_converter().number_to_activity(
+                    num, self._get_decay_const(nuc)
+                ),
                 "Bq",
                 units,
             )
@@ -314,8 +318,10 @@ class Inventory:
         """
 
         masses = {
-            nuc: self.unit_converter.mass_unit_conv(
-                self.quantity_converter.number_to_mass(nuc, num),
+            nuc: self._get_unit_converter().mass_unit_conv(
+                self._get_quantity_converter().number_to_mass(
+                    num, self._get_atomic_mass(nuc)
+                ),
                 "g",
                 units,
             )
@@ -343,8 +349,8 @@ class Inventory:
         """
 
         moles = {
-            nuc: self.unit_converter.moles_unit_conv(
-                self.quantity_converter.number_to_moles(num), "mol", units
+            nuc: self._get_unit_converter().moles_unit_conv(
+                self._get_quantity_converter().number_to_moles(num), "mol", units
             )
             for nuc, num in self.contents.items()
         }
@@ -474,7 +480,7 @@ class Inventory:
         other = Inventory(sub_contents, units, True, self.decay_data)
         self.contents = (self - other).contents
 
-    def __add__(self, other: "Inventory") -> "Inventory":
+    def __add__(self, other: "AbstractInventory") -> "AbstractInventory":
         """Defines + operator to add two Inventory objects together."""
 
         if self.decay_data != other.decay_data:
@@ -485,9 +491,9 @@ class Inventory:
                 + other.decay_data.dataset_name
             )
         new_contents = add_dictionaries(self.contents, other.contents)
-        return Inventory(new_contents, "num", False, self.decay_data)
+        return self.__class__(new_contents, "num", False, self.decay_data)
 
-    def __sub__(self, other: "Inventory") -> "Inventory":
+    def __sub__(self, other: "AbstractInventory") -> "AbstractInventory":
         """Defines - operator to subtract one inventory object from another."""
 
         if self.decay_data != other.decay_data:
@@ -502,9 +508,9 @@ class Inventory:
             (nuclide, number * -1.0) for nuclide, number in sub_contents.items()
         )
         new_contents = add_dictionaries(self.contents, sub_contents)
-        return Inventory(new_contents, "num", False, self.decay_data)
+        return self.__class__(new_contents, "num", False, self.decay_data)
 
-    def __mul__(self, const: Union[float, Expr]) -> "Inventory":
+    def __mul__(self, const: Union[float, Expr]) -> "AbstractInventory":
         """
         Defines * operator to multiply all quantities of nuclides in an inventory by a constant.
         """
@@ -513,16 +519,16 @@ class Inventory:
         for nuclide, number in new_contents.items():
             new_contents[nuclide] = number * const
 
-        return Inventory(new_contents, "num", False, self.decay_data)
+        return self.__class__(new_contents, "num", False, self.decay_data)
 
-    def __rmul__(self, const: Union[float, Expr]) -> "Inventory":
+    def __rmul__(self, const: Union[float, Expr]) -> "AbstractInventory":
         """
         Defines * operator to multiply all quantities of nuclides in an Inventory by a constant.
         """
 
         return self.__mul__(const)
 
-    def __truediv__(self, const: Union[float, Expr]) -> "Inventory":
+    def __truediv__(self, const: Union[float, Expr]) -> "AbstractInventory":
         """
         Defines / operator to divide all quantities of nuclides in an inventory by a constant.
         """
@@ -530,9 +536,9 @@ class Inventory:
         for nuclide, number in new_contents.items():
             new_contents[nuclide] = number / const
 
-        return Inventory(new_contents, "num", False, self.decay_data)
+        return self.__class__(new_contents, "num", False, self.decay_data)
 
-    @_method_dispatch
+    @singledispatchmethod
     def remove(
         self, delete: Union[str, int, Nuclide, List[Union[str, int, Nuclide]]]
     ) -> None:
@@ -577,45 +583,45 @@ class Inventory:
 
         self.contents = new_contents
 
-    @remove.register(int)  # type: ignore[no-redef]
+    @remove.register(int)
     def _(
         self, delete: int
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
         """Remove nuclide string from this inventory."""
 
-        delete = parse_nuclide(
+        delete_str = parse_nuclide(
             delete, self.decay_data.nuclides, self.decay_data.dataset_name
         )
         new_contents = self.contents.copy()
-        if delete not in new_contents:
-            raise ValueError(delete + " does not exist in this inventory.")
-        new_contents.pop(delete)
+        if delete_str not in new_contents:
+            raise ValueError(delete_str + " does not exist in this inventory.")
+        new_contents.pop(delete_str)
 
         self.contents = new_contents
 
-    @remove.register(Nuclide)  # type: ignore[no-redef]
+    @remove.register(Nuclide)
     def _(
         self, delete: Nuclide
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
         """Remove Nuclide object from this inventory."""
 
-        delete = parse_nuclide(
+        delete_str = parse_nuclide(
             delete.nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
         )
         new_contents = self.contents.copy()
-        if delete not in new_contents:
-            raise ValueError(delete + " does not exist in this inventory.")
-        new_contents.pop(delete)
+        if delete_str not in new_contents:
+            raise ValueError(delete_str + " does not exist in this inventory.")
+        new_contents.pop(delete_str)
 
         self.contents = new_contents
 
-    @remove.register(list)  # type: ignore[no-redef]
+    @remove.register(list)
     def _(
         self, delete: List[Union[str, int, Nuclide]]
     ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
         """Remove list of nuclide(s) from this inventory."""
 
-        delete = [
+        delete_list = [
             parse_nuclide(
                 nuc.nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
             )
@@ -626,7 +632,7 @@ class Inventory:
             for nuc in delete
         ]
         new_contents = self.contents.copy()
-        for nuc in delete:
+        for nuc in delete_list:
             if nuc not in new_contents:
                 raise ValueError(nuc + " does not exist in this inventory.")
             new_contents.pop(nuc)
@@ -640,7 +646,9 @@ class Inventory:
         Converts a decay time period into seconds.
         """
 
-        return self.unit_converter.time_unit_conv(decay_time, units, "s")
+        return self._get_unit_converter().time_unit_conv(
+            decay_time, units, "s", self._get_year_conv()
+        )
 
     def _setup_decay_calc(
         self,
@@ -678,46 +686,14 @@ class Inventory:
         )
         return vector_nt
 
-    def decay(self, decay_time: float, units: str = "s") -> "Inventory":
+    @abstractmethod
+    def decay(self, decay_time: float, units: str = "s") -> "AbstractInventory":
         """
         Returns a new inventory calculated from the radioactive decay of the current inventory for
         decay_time.
-
-        Parameters
-        ----------
-        decay_time : float
-            Decay time.
-        units : str, optional
-            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
-            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
-            these time units.
-
-        Returns
-        -------
-        Inventory
-            New Inventory after the radioactive decay.
-
-        Examples
-        --------
-        >>> inv_t0 = rd.Inventory({'H-3': 1.0}, 'Bq')
-        >>> inv_t1 = inv_t0.decay(12.32, 'y')
-        >>> inv_t1.activities()
-        {'H-3': 0.5, 'He-3': 0.0}
-
         """
 
-        decay_time = self._convert_decay_time(decay_time, units)
-        vector_n0, indices, matrix_e = self._setup_decay_calc()
-
-        matrix_e.data[indices] = np.exp(
-            -decay_time * self.decay_matrices.decay_consts[indices]
-        )
-
-        vector_nt = self._perform_decay_calc(vector_n0, matrix_e)
-        new_contents = dict(zip(self.decay_data.nuclides[indices], vector_nt[indices]))
-
-        return Inventory(new_contents, "num", False, self.decay_data)
-
+    @abstractmethod
     def cumulative_decays(
         self, decay_time: float, units: str = "s"
     ) -> Dict[str, float]:
@@ -725,50 +701,7 @@ class Inventory:
         Calculates the total number of decays of each nuclide in the inventory between t=0 and
         t=decay_time. Note no results are reported for stable nuclides, as cumulative decays is
         zero.
-
-        Parameters
-        ----------
-        decay_time : float
-            Decay time (calculates total number of decays over this period).
-        units : str, optional
-            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
-            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
-            these time units.
-
-        Returns
-        -------
-        dict
-            Dictionary containing nuclide strings as keys and total number of decays of each
-            nuclide as values (floats).
-
-        Examples
-        --------
-        >>> inv_t0 = rd.Inventory({'Sr-90': 10.0}, 'num')
-        >>> inv_t0.cumulative_decays(1.0, 'My')
-        {'Sr-90': 10.0, 'Y-90': 10.000000000000002}
-
         """
-
-        decay_time = self._convert_decay_time(decay_time, units)
-        vector_n0, indices, matrix_e = self._setup_decay_calc()
-
-        indices = [
-            idx for idx in indices if self.decay_matrices.decay_consts[idx] > 0.0
-        ]
-        for idx in indices:
-            matrix_e[idx, idx] = (
-                1.0 - np.exp((-decay_time * self.decay_matrices.decay_consts[idx]))
-            ) / self.decay_matrices.decay_consts[idx]
-
-        cumulative_decays = self._perform_decay_calc(vector_n0, matrix_e)
-        result_dict = {
-            self.decay_data.nuclides[idx]: float(
-                self.decay_matrices.decay_consts[idx] * cumulative_decays[idx]
-            )
-            for idx in indices
-        }
-
-        return result_dict
 
     def half_lives(self, units: str = "s") -> Dict[str, Union[float, str]]:
         """
@@ -868,7 +801,7 @@ class Inventory:
             nuc: Nuclide(nuc, self.decay_data).decay_modes() for nuc in self.contents
         }
 
-    def plot(
+    def plot(  # type: ignore
         self,
         xmax: float,
         xunits: str = "s",
@@ -904,7 +837,8 @@ class Inventory:
         yscale : str, optional
             The y-axis scale type to apply ('linear' or 'log', default is 'linear').
         ymin : float, optional
-            Minimum value for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
+            Minimum value for the y-axis (default is 0.0 for ``yscale='linear'``, or 0.95x the
+            minimum quantity that occurs over the decay period for ``yscale='log'``).
         ymax : None or float, optional
             Maximum value for the y-axis. Default is None, which sets the limit to 1.05x the
             maximum quantity that occurs over the decay period.
@@ -918,9 +852,9 @@ class Inventory:
             Default is 'all', which displays all nuclides present upon decay of the inventory.
         order : str, optional
             Order to display the nuclide decay curves on the graph if you do not specify the
-            order via the display parameter. Default order is by "dataset", which follows the order
+            order via the display parameter. Default order is by 'dataset', which follows the order
             of the nuclides in the decay dataset (highest to lowest nuclides in the decay
-            chains). Use "alphabetical" if you want the nuclides to be ordered alphabetically.
+            chains). Use 'alphabetical' if you want the nuclides to be ordered alphabetically.
         npoints : None or int, optional
             Number of time points used to plot graph (default is 501 for normal precision decay
             calculations, or 51 for high precision decay calculations).
@@ -976,19 +910,19 @@ class Inventory:
             ]
 
         ydata = np.zeros(shape=(npoints, len(display)))
-        if yunits in self.unit_converter.activity_units:
+        if yunits in self._get_unit_converter().activity_units:
             for idx in range(0, npoints):
                 decayed_contents = self.decay(time_points[idx], xunits).activities(
                     yunits
                 )
                 ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Activity ({yunits})"
-        elif yunits in self.unit_converter.moles_units:
+        elif yunits in self._get_unit_converter().moles_units:
             for idx in range(0, npoints):
                 decayed_contents = self.decay(time_points[idx], xunits).moles(yunits)
                 ydata[idx] = [decayed_contents[rad] for rad in display]
                 ylabel = f"Number of moles ({yunits})"
-        elif yunits in self.unit_converter.mass_units:
+        elif yunits in self._get_unit_converter().mass_units:
             for idx in range(0, npoints):
                 decayed_contents = self.decay(time_points[idx], xunits).masses(yunits)
                 ydata[idx] = [decayed_contents[rad] for rad in display]
@@ -1019,10 +953,10 @@ class Inventory:
             raise ValueError(f"{yunits} is not a supported y-axes unit.")
 
         if yscale == "log" and ymin == 0.0:
-            ymin = 0.1
+            ymin = 0.95 * ydata.min()
         ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * ydata.max()]
 
-        fig, axes = _decay_graph(
+        fig, axes = decay_graph(
             time_points=time_points,
             ydata=ydata.T,
             nuclides=display,
@@ -1044,7 +978,7 @@ class Inventory:
         Check whether two instances are equal with ``==`` operator.
         """
 
-        if not isinstance(other, Inventory):
+        if not isinstance(other, AbstractInventory):
             return NotImplemented
         return self.contents == other.contents and self.decay_data == other.decay_data
 
@@ -1053,9 +987,171 @@ class Inventory:
         Check whether two instances are not equal with ``!=`` operator.
         """
 
-        if not isinstance(other, Inventory):
+        if not isinstance(other, AbstractInventory):
             return NotImplemented
         return not self.__eq__(other)
+
+
+class Inventory(AbstractInventory):
+    # pylint: disable=line-too-long
+    """
+    ``Inventory`` instances store nuclides and associated quantities (numbers of atoms) in the
+    contents dictionary. A decay dataset is associated with each instance.
+
+    Parameters
+    ----------
+    contents : dict
+        Dictionary containing nuclide strings/canonical ids or Nuclide instances as keys and
+        quantities (activities, number of atoms, masses or moles) as values.
+    units : str, optional
+        Units of the contents dictionary values. Specify either 'num' for number of atoms, or an
+        activity, mass or moles unit. e.g. 'Bq', 'kBq', 'Ci', 'g', 'kg', 'mol', 'kmol'. Default is
+        'Bq'.
+    check : bool, optional
+        Check for the validity of the contents dictionary (nuclides are in the decay dataset,
+        and quantities provided are physical, etc.). Default is True.
+    decay_data : DecayData, optional
+        Decay dataset (default is the ICRP-107 dataset).
+
+    Attributes
+    ----------
+    contents : dict
+        Dictionary containing nuclide strings as keys and number of atoms of each nuclide as
+        values. Nuclides are sorted alphabetically in this dictionary.
+    decay_data : DecayData
+        Decay dataset.
+    decay_matrices : DecayMatricesScipy
+        Float/SciPy version of the DecayMatrices associated with the decay dataset.
+
+    Examples
+    --------
+    >>> rd.Inventory({'Tc-99m': 2.3, 'I-123': 5.8}, 'Bq')
+    Inventory activities (Bq): {'I-123': 2.3, 'Tc-99m': 5.8}, decay dataset: icrp107_ame2020_nubase2020
+    >>> H3 = rd.Nuclide('H-3')
+    >>> rd.Inventory({H3: 3.0}, 'g')
+    Inventory activities (Bq): {'H-3': 1067957043281807.0}, decay dataset: icrp107_ame2020_nubase2020
+    >>> rd.Inventory({270570000: 7.2, 922380000: 21.1}, 'Ci')
+    Inventory activities (Bq): {'Co-57': 266400000000.0, 'U-238': 780700000000.0001}, decay dataset: icrp107_ame2020_nubase2020
+
+    """
+    # pylint: enable=line-too-long
+
+    def _get_decay_matrices(self) -> DecayMatricesScipy:
+        """Returns the appropriate DecayMatrices instance."""
+
+        return self.decay_data.scipy_data
+
+    @staticmethod
+    def _get_quantity_converter() -> Type[QuantityConverter]:
+        """
+        Returns the appropriate QuantityConverter instance.
+        """
+
+        return QuantityConverterFloat
+
+    def _get_unit_converter(self) -> Type[UnitConverter]:
+        """
+        Returns the appropriate UnitConverter instance.
+        """
+
+        return UnitConverterFloat
+
+    def _get_year_conv(self) -> float:
+        """Returns the appropriate number of days in a year."""
+
+        return self.decay_data.float_year_conv
+
+    def decay(self, decay_time: float, units: str = "s") -> "Inventory":
+        """
+        Returns a new inventory calculated from the radioactive decay of the current inventory for
+        decay_time.
+
+        Parameters
+        ----------
+        decay_time : float
+            Decay time.
+        units : str, optional
+            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
+            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
+            these time units.
+
+        Returns
+        -------
+        Inventory
+            New Inventory after the radioactive decay.
+
+        Examples
+        --------
+        >>> inv_t0 = rd.Inventory({'H-3': 1.0}, 'Bq')
+        >>> inv_t1 = inv_t0.decay(12.32, 'y')
+        >>> inv_t1.activities()
+        {'H-3': 0.5, 'He-3': 0.0}
+
+        """
+
+        decay_time = self._convert_decay_time(decay_time, units)
+        vector_n0, indices, matrix_e = self._setup_decay_calc()
+
+        matrix_e.data[indices] = np.exp(
+            -decay_time * self.decay_matrices.decay_consts[indices]
+        )
+
+        vector_nt = self._perform_decay_calc(vector_n0, matrix_e)
+        new_contents = dict(zip(self.decay_data.nuclides[indices], vector_nt[indices]))
+
+        return self.__class__(new_contents, "num", False, self.decay_data)
+
+    def cumulative_decays(
+        self, decay_time: float, units: str = "s"
+    ) -> Dict[str, float]:
+        """
+        Calculates the total number of decays of each nuclide in the inventory between t=0 and
+        t=decay_time. Note no results are reported for stable nuclides, as cumulative decays is
+        zero.
+
+        Parameters
+        ----------
+        decay_time : float
+            Decay time (calculates total number of decays over this period).
+        units : str, optional
+            Units of decay_time (default is seconds). Options are 'ns', 'us', 'ms', 's', 'm', 'h',
+            'd', 'y', 'ky', 'My', 'Gy', 'Ty', 'Py', and some of the common spelling variations of
+            these time units.
+
+        Returns
+        -------
+        dict
+            Dictionary containing nuclide strings as keys and total number of decays of each
+            nuclide as values (floats).
+
+        Examples
+        --------
+        >>> inv_t0 = rd.Inventory({'Sr-90': 10.0}, 'num')
+        >>> inv_t0.cumulative_decays(1.0, 'My')
+        {'Sr-90': 10.0, 'Y-90': 10.000000000000002}
+
+        """
+
+        decay_time = self._convert_decay_time(decay_time, units)
+        vector_n0, indices, matrix_e = self._setup_decay_calc()
+
+        indices = [
+            idx for idx in indices if self.decay_matrices.decay_consts[idx] > 0.0
+        ]
+        for idx in indices:
+            matrix_e[idx, idx] = (
+                1.0 - np.exp((-decay_time * self.decay_matrices.decay_consts[idx]))
+            ) / self.decay_matrices.decay_consts[idx]
+
+        cumulative_decays = self._perform_decay_calc(vector_n0, matrix_e)
+        result_dict = {
+            self.decay_data.nuclides[idx]: float(
+                self.decay_matrices.decay_consts[idx] * cumulative_decays[idx]
+            )
+            for idx in indices
+        }
+
+        return result_dict
 
     def __repr__(self) -> str:
         return (
@@ -1064,7 +1160,7 @@ class Inventory:
         )
 
 
-class InventoryHP(Inventory):
+class InventoryHP(AbstractInventory):
     """
     ``InventoryHP`` instances store a dictionary of nuclides and associated numbers of atoms, and a
     ``DecayData`` instance of radioactive decay data. Uses SymPy high precision arithmetic for all
@@ -1079,7 +1175,8 @@ class InventoryHP(Inventory):
         Units of the values in the contents dictionary e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol',
         'num'... (default is 'Bq').
     check : bool, optional
-        Check for the validity of contents (default is True).
+        Check for the validity of contents and that the supplied decay dataset contains SymPy data
+        (default is True).
     data : DecayData, optional
         Decay dataset (default is the ICRP-107 dataset).
     sympy_contents : dict, optional
@@ -1094,15 +1191,13 @@ class InventoryHP(Inventory):
         values. Nuclides are sorted alphabetically in this dictionary.
     data : DecayData
         Decay dataset.
-    decay_matrices : DecayMatrices
+    decay_matrices : DecayMatricesSympy
        SymPy DecayMatrices instance associated with the decay dataset.
     sig_fig: int
         Number of significant figures for high precision decay calculations and plots. Deafult is
         320.
-    quantity_converter : QuantityConverterSympy
-        Float/SciPy version of a convertor between different quantities.
     unit_converter : UnitConverterSympy
-        Float version of a convertor for within different units.
+        SymPy version of a convertor for within different units.
 
     Examples
     --------
@@ -1125,7 +1220,16 @@ class InventoryHP(Inventory):
     ) -> None:
 
         if check is True:
+            try:
+                assert decay_data.sympy_data
+                assert decay_data.sympy_year_conv
+            except ValueError:
+                raise ValueError(
+                    f"Decay dataset supplied to {self.__class__.__name__} constructor does not "
+                    "contain SymPy data."
+                ) from None
             contents = {nuc: nsimplify(val) for nuc, val in contents.items()}
+
         self.sig_fig = 320
         super().__init__(contents, units, check, decay_data)
 
@@ -1134,32 +1238,27 @@ class InventoryHP(Inventory):
         Returns the appropriate DecayMatrices instance.
         """
 
-        if self.decay_data.sympy_data is None:
-            raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain DecayMatricesSymPy instance."
-            )
         return self.decay_data.sympy_data
 
-    def _get_quantity_converter(self) -> QuantityConverterSympy:
+    @staticmethod
+    def _get_quantity_converter() -> Type[QuantityConverter]:
         """
         Returns the appropriate QuantityConverter instance.
         """
-        if self.decay_data.sympy_quantity_converter is None:
-            raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain QuantityConverterSympy instance."
-            )
-        return self.decay_data.sympy_quantity_converter
 
-    def _get_unit_converter(self) -> UnitConverterSympy:
+        return QuantityConverterSympy
+
+    def _get_unit_converter(self) -> Type[UnitConverter]:
         """
         Returns the appropriate UnitConverter instance.
         """
 
-        if self.decay_data.sympy_unit_converter is None:
-            raise ValueError(
-                f"{self.decay_data.dataset_name} does not contain UnitConverterSympy instance."
-            )
-        return self.decay_data.sympy_unit_converter
+        return UnitConverterSympy
+
+    def _get_year_conv(self) -> Expr:
+        """Returns the appropriate number of days in a year."""
+
+        return self.decay_data.sympy_year_conv
 
     def numbers(self) -> Dict[str, float]:
         """
@@ -1191,8 +1290,10 @@ class InventoryHP(Inventory):
 
         activities = {
             nuc: float(
-                self.unit_converter.activity_unit_conv(
-                    self.quantity_converter.number_to_activity(nuc, num),
+                self._get_unit_converter().activity_unit_conv(
+                    self._get_quantity_converter().number_to_activity(
+                        num, self._get_decay_const(nuc)
+                    ),
                     "Bq",
                     units,
                 )
@@ -1217,8 +1318,10 @@ class InventoryHP(Inventory):
 
         masses = {
             nuc: float(
-                self.unit_converter.mass_unit_conv(
-                    self.quantity_converter.number_to_mass(nuc, num),
+                self._get_unit_converter().mass_unit_conv(
+                    self._get_quantity_converter().number_to_mass(
+                        num, self._get_atomic_mass(nuc)
+                    ),
                     "g",
                     units,
                 )
@@ -1243,8 +1346,8 @@ class InventoryHP(Inventory):
 
         moles = {
             nuc: float(
-                self.unit_converter.moles_unit_conv(
-                    self.quantity_converter.number_to_moles(num), "mol", units
+                self._get_unit_converter().moles_unit_conv(
+                    self._get_quantity_converter().number_to_moles(num), "mol", units
                 )
             )
             for nuc, num in self.contents.items()
@@ -1315,7 +1418,7 @@ class InventoryHP(Inventory):
             self.decay_data.nuclides[idx]: vector_nt[idx] for idx in indices
         }
 
-        return InventoryHP(new_contents, "num", False, self.decay_data)
+        return self.__class__(new_contents, "num", False, self.decay_data)
 
     def cumulative_decays(
         self, decay_time: float, units: str = "s"
@@ -1385,7 +1488,11 @@ class InventoryHP(Inventory):
 
         return result_dict
 
-    def plot(
+    # Redefines one default parameter of the plot function (npoints) for performance reasons.
+    # Note rewriting all the parameters like this violates the Don't Repeat Yourself principle, but
+    # currently no better solution while still maintaining auto-complete functionality for
+    # the method signature with some editors.
+    def plot(  # type: ignore
         self,
         xmax: float,
         xunits: str = "s",
@@ -1404,7 +1511,7 @@ class InventoryHP(Inventory):
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
         Plots a decay graph using high precision decay calculations. Only difference from normal
-        precision decay plot (``Inventory.plot()``) is default npoints=51
+        precision decay plot (``Inventory.plot()``) is default npoints=51.
 
         Parameters
         ----------
@@ -1421,13 +1528,14 @@ class InventoryHP(Inventory):
         yscale : str, optional
             The y-axis scale type to apply ('linear' or 'log', default is 'linear').
         ymin : float, optional
-            Minimum value for the y-axis (default is 0.0 for linear y-axis, 0.1 for log y-axis).
+            Minimum value for the y-axis (default is 0.0 for ``yscale='linear'``, or 0.95x the
+            minimum quantity that occurs over the decay period for ``yscale='log'``).
         ymax : None or float, optional
             Maximum value for the y-axis. Default is None, which sets the limit to 1.05x the
             maximum quantity that occurs over the decay period.
         yunits : str, optional
             Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
-            'mass_frac', 'mol_frac'. Default is 'Bq'.
+            'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
         display : str or list, optional
             Only display the nuclides within this list on the graph. Use this parameter when
             you want to choose specific nuclide decay curves shown on the graph, either by
@@ -1435,9 +1543,9 @@ class InventoryHP(Inventory):
             Default is 'all', which displays all nuclides present upon decay of the inventory.
         order : str, optional
             Order to display the nuclide decay curves on the graph if you do not specify the
-            order via the display parameter. Default order is by "dataset", which follows the order
+            order via the display parameter. Default order is by 'dataset', which follows the order
             of the nuclides in the decay dataset (highest to lowest nuclides in the decay
-            chains). Use "alphabetical" if you want the nuclides to be ordered alphabetically.
+            chains). Use 'alphabetical' if you want the nuclides to be ordered alphabetically.
         npoints : None or int, optional
             Number of time points used to plot graph. Default is 51.
         fig : None or matplotlib.figure.Figure, optional

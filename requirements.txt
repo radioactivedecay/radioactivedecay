@@ -2,5 +2,6 @@ matplotlib
 networkx
 numpy
 scipy
+setuptools
 sympy
 importlib_resources; python_version<'3.7'

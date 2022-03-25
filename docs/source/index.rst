@@ -22,7 +22,7 @@ results for decay chains containing radionuclides with orders of magnitude
 differences between the half-lives.
 
 This is free-to-use open source software. It was created for engineers,
-technicians and researchers who work with and study radioactivity, and for
+technicians and researchers who work with radioactivity, and for
 educational use.
 
 .. toctree::

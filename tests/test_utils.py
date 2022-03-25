@@ -87,6 +87,25 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(parse_nuclide_str("Ca40"), "Ca-40")
         self.assertEqual(parse_nuclide_str("40Ca"), "Ca-40")
 
+        # Whitespace removal (Issue #65)
+        self.assertEqual(parse_nuclide_str(" Ca -40 "), "Ca-40")
+        self.assertEqual(parse_nuclide_str("C\ta\n-40"), "Ca-40")
+
+        # Robust to capitalization mistakes (Issue #65)
+        self.assertEqual(parse_nuclide_str("y-91"), "Y-91")
+        self.assertEqual(parse_nuclide_str("y91"), "Y-91")
+        self.assertEqual(parse_nuclide_str("91y"), "Y-91")
+        self.assertEqual(parse_nuclide_str("y-91M"), "Y-91m")
+        self.assertEqual(parse_nuclide_str("y91M"), "Y-91m")
+        self.assertEqual(parse_nuclide_str("91my"), "Y-91m")
+        self.assertEqual(parse_nuclide_str("ca-40"), "Ca-40")
+        self.assertEqual(parse_nuclide_str("CA-40"), "Ca-40")
+        self.assertEqual(parse_nuclide_str("Tc-99M"), "Tc-99m")
+        self.assertEqual(parse_nuclide_str("iR192N"), "Ir-192n")
+        # Note following test won't work as need to metastable char to be lower case for it to be
+        # identified as a metastable char not an element char:
+        # self.assertEqual(parse_nuclide_str("192NiR"), "Ir-192n")
+
     def test_parse_nuclide(self) -> None:
         """
         Test the parsing of nuclide strings.
