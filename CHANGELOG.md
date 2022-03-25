@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.9] - 2022-3-24
+- Added stable spontaneous fission products to the default ICRP-107 dataset (#75).
+
 ## [0.4.8] - 2021-12-13
 - Fix some code bugs and make other improvements to the ReadMe and the Docs (#57, #58 & #59).
 - Reduce number of mypy errors, use Python f-strings everywhere (#60).
