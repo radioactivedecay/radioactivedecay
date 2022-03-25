@@ -1,7 +1,7 @@
 # Changelog
 
 ## [0.4.12] - 2022-3-24
-- Added stable spontaneous fission products to the default ICRP-107 dataset (#75).
+- Added more stable products to the default ICRP-107 dataset (#75).
 
 ## [0.4.11] - 2022-03-20
 - Default `ymin` for Inventory `plot()` method is now 0.95x the minimum quantity that occurs over
