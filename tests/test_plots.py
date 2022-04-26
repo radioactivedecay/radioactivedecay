@@ -32,6 +32,9 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(_parse_nuclide_label("I-118m"), "¹¹⁸ᵐI")
         self.assertEqual(_parse_nuclide_label("Tb-156m"), "¹⁵⁶ᵐTb")
         self.assertEqual(_parse_nuclide_label("Tb-156n"), "¹⁵⁶ⁿTb")
+        self.assertEqual(_parse_nuclide_label("In-129p"), "¹²⁹ᵖIn")
+        self.assertEqual(_parse_nuclide_label("Lu-177q"), "¹⁷⁷qLu")
+        self.assertEqual(_parse_nuclide_label("Lu-177r"), "¹⁷⁷ʳLu")
         self.assertEqual(_parse_nuclide_label("SF"), "various")
 
     def test__parse_decay_mode_label(self) -> None:

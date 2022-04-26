@@ -47,7 +47,9 @@ def _parse_nuclide_label(nuclide: str) -> str:
         "9": "\N{SUPERSCRIPT NINE}",
         "m": "\N{MODIFIER LETTER SMALL M}",
         "n": "\N{SUPERSCRIPT LATIN SMALL LETTER N}",
-        "o": "\N{MODIFIER LETTER SMALL O}",
+        "p": "\N{MODIFIER LETTER SMALL P}",
+        "q": "\N{LATIN SMALL LETTER Q}",  # Unicode has no superscript q
+        "r": "\N{MODIFIER LETTER SMALL R}",
     }
 
     element, isotope = nuclide.split("-")
