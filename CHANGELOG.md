@@ -1,7 +1,7 @@
 # Changelog
 
 ## [0.X.XX] - 20XX-XX-XX
-- Code improvement to support metastable states up to 5th state (#76).
+- Code improvement to support metastable states up to 6th state (#76).
 
 ## [0.4.12] - 2022-3-24
 - Added more stable products to the default ICRP-107 dataset (#75).

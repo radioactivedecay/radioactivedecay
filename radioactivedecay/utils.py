@@ -137,18 +137,20 @@ Z_DICT = {
     118: "Og",
 }
 SYM_DICT = dict((v, k) for k, v in Z_DICT.items())
-METASTABLE_CHARS = ["m", "n", "p", "q", "r"]
+METASTABLE_CHARS = ["m", "n", "p", "q", "r", "x"]
 
 
 def get_metastable_chars() -> List[str]:
     """
-    Returns list of allowed metastable state characters. Currently up to fifth metastable state is
-    supported, based on the existence of fifth metastable state isomers in NUBASE2020, e.g.
-    Lu-177r.
+    Returns list of allowed metastable state characters. Currently up to sixth metastable state is
+    supported, based on the existence of sixth metastable state isomers in NUBASE2020, e.g.
+    Lu-174x.
 
-    Note metastable state chars are "m", "n", "p", "q", "r" for the first to fifth metastable
-    state, respectively, i.e. "o" is not a metastable state char. Ref. Kondev CPC NUBASE2020 paper.
+    Note metastable state chars are "m", "n", "p", "q", "r", "x" for the first to sixth metastable
+    state, respectively, i.e. "o" is not a metastable state char, nor letters between "r" and "x".
+    See NUBASE2020 paper (F.G. Kondev et al 2021 Chinese Phys. C 45 030001) for more details.
     """
+
     return METASTABLE_CHARS
 
 

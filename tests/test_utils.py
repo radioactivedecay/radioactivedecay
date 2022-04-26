@@ -30,7 +30,7 @@ class TestFunctions(unittest.TestCase):
         Test fetching of list of metastable state characters.
         """
 
-        self.assertEqual(get_metastable_chars(), ["m", "n", "p", "q", "r"])
+        self.assertEqual(get_metastable_chars(), ["m", "n", "p", "q", "r", "x"])
 
     def test_Z_to_elem(self) -> None:
         """
@@ -62,6 +62,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(build_id(49, 129, "p"), 491290003)
         self.assertEqual(build_id(71, 177, "q"), 711770004)
         self.assertEqual(build_id(71, 177, "r"), 711770005)
+        self.assertEqual(build_id(71, 174, "x"), 711740006)
 
         with self.assertRaises(ValueError):
             build_id(65, 156, "z")
@@ -78,6 +79,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(build_nuclide_string(49, 129, "p"), "In-129p")
         self.assertEqual(build_nuclide_string(71, 177, "q"), "Lu-177q")
         self.assertEqual(build_nuclide_string(71, 177, "r"), "Lu-177r")
+        self.assertEqual(build_nuclide_string(71, 174, "x"), "Lu-174x")
 
         with self.assertRaises(ValueError):
             build_nuclide_string(999, 1000, "z")
@@ -112,6 +114,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(parse_nuclide_str("iN129P"), "In-129p")
         self.assertEqual(parse_nuclide_str("177qLu"), "Lu-177q")
         self.assertEqual(parse_nuclide_str("LU177R"), "Lu-177r")
+        self.assertEqual(parse_nuclide_str("lu-174x"), "Lu-174x")
 
     def test_parse_id(self) -> None:
         """
@@ -125,6 +128,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(parse_id(491290003), "In-129p")
         self.assertEqual(parse_id(711770004), "Lu-177q")
         self.assertEqual(parse_id(711770005), "Lu-177r")
+        self.assertEqual(parse_id(711740006), "Lu-174x")
 
     def test_parse_nuclide(self) -> None:
         """
@@ -146,6 +150,7 @@ class TestFunctions(unittest.TestCase):
                 "In-129p",
                 "Lu-177q",
                 "Lu-177r",
+                "Lu-174x",
             ]
         )
         dataset_name = "test"
@@ -203,6 +208,10 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(parse_nuclide("Lu-177r", nuclides, dataset_name), "Lu-177r")
         self.assertEqual(parse_nuclide("177rLu", nuclides, dataset_name), "Lu-177r")
         self.assertEqual(parse_nuclide(711770005, nuclides, dataset_name), "Lu-177r")
+        self.assertEqual(parse_nuclide("Lu-174x", nuclides, dataset_name), "Lu-174x")
+        self.assertEqual(parse_nuclide("Lu-174x", nuclides, dataset_name), "Lu-174x")
+        self.assertEqual(parse_nuclide("174xLu", nuclides, dataset_name), "Lu-174x")
+        self.assertEqual(parse_nuclide(711740006, nuclides, dataset_name), "Lu-174x")
 
         # Catch erroneous strings
         with self.assertRaises(TypeError):
