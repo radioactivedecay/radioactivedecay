@@ -137,6 +137,21 @@ Z_DICT = {
     118: "Og",
 }
 SYM_DICT = dict((v, k) for k, v in Z_DICT.items())
+METASTABLE_CHARS = ["m", "n", "p", "q", "r", "x"]
+
+
+def get_metastable_chars() -> List[str]:
+    """
+    Returns list of allowed metastable state characters. Currently up to sixth metastable state is
+    supported, based on the existence of sixth metastable state isomers in NUBASE2020, e.g.
+    Lu-174x.
+
+    Note metastable state chars are "m", "n", "p", "q", "r", "x" for the first to sixth metastable
+    state, respectively, i.e. "o" is not a metastable state char, nor letters between "r" and "x".
+    See NUBASE2020 paper (F.G. Kondev et al 2021 Chinese Phys. C 45 030001) for more details.
+    """
+
+    return METASTABLE_CHARS
 
 
 def Z_to_elem(Z: int) -> str:
@@ -220,10 +235,8 @@ def build_id(Z: int, A: int, state: str = "") -> int:
     """
 
     if state != "":
-        if state == "m":
-            state_int = 1
-        elif state == "n":
-            state_int = 2
+        if state in get_metastable_chars():
+            state_int = get_metastable_chars().index(state) + 1
         else:
             raise ValueError(state + " is not a valid energy state.")
     else:
@@ -310,7 +323,7 @@ def parse_nuclide_str(nuclide: str) -> str:
 
     while nuclide[0].isdigit():  # Re-order inputs e.g. 99mTc to Tc99m.
         nuclide = nuclide[1:] + nuclide[0]
-    if nuclide[0] in ["m", "n"]:
+    if nuclide[0] in get_metastable_chars():
         nuclide = nuclide[1:] + nuclide[0]
 
     for idx in range(1, len(nuclide)):  # Add hyphen e.g. Tc99m to Tc-99m.
@@ -358,11 +371,7 @@ def parse_id(input_id: int) -> str:
 
     id_zzzaaa = int(input_id / 10000)
     state_digits = input_id - (id_zzzaaa * 10000)
-    state = ""
-    if state_digits == 1:
-        state = "m"
-    elif state_digits == 2:
-        state = "n"
+    state = get_metastable_chars()[state_digits - 1] if state_digits > 0 else ""
     Z = int(id_zzzaaa / 1000)
     A = id_zzzaaa - (Z * 1000)
     name = build_nuclide_string(Z, A, state)
