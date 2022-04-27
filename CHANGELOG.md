@@ -2,6 +2,8 @@
 
 ## [0.X.XX] - 20XX-XX-XX
 - Code improvement to support metastable states up to 6th state (#76).
+- Added labels for more decay modes (including heavy cluster decay modes) to decay chain plots code
+(#77).
 
 ## [0.4.12] - 2022-3-24
 - Added more stable products to the default ICRP-107 dataset (#75).

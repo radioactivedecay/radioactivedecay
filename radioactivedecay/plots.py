@@ -76,8 +76,22 @@ def _parse_decay_mode_label(mode: str) -> str:
     mode_conversion = {
         "α": "\N{GREEK SMALL LETTER ALPHA}",
         "β": "\N{GREEK SMALL LETTER BETA}",
+        "ε": "\N{GREEK SMALL LETTER EPSILON}",
         "+": "\N{SUPERSCRIPT PLUS SIGN}",
         "-": "\N{SUPERSCRIPT MINUS}",
+        "12C": "\N{SUPERSCRIPT ONE}\N{SUPERSCRIPT TWO}C",
+        "14C": "\N{SUPERSCRIPT ONE}\N{SUPERSCRIPT FOUR}C",
+        "20O": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT ZERO}O",
+        "23F": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT THREE}F",
+        "22Ne": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT TWO}Ne",
+        "24Ne": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT FOUR}Ne",
+        "25Ne": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT FIVE}Ne",
+        "26Ne": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT SIX}Ne",
+        "28Mg": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT EIGHT}Mg",
+        "29Mg": "\N{SUPERSCRIPT TWO}\N{SUPERSCRIPT NINE}Mg",
+        "30Mg": "\N{SUPERSCRIPT THREE}\N{SUPERSCRIPT ZERO}Mg",
+        "32Si": "\N{SUPERSCRIPT THREE}\N{SUPERSCRIPT TWO}Si",
+        "34Si": "\N{SUPERSCRIPT THREE}\N{SUPERSCRIPT FOUR}Si",
     }
 
     for unformatted, formatted in mode_conversion.items():
