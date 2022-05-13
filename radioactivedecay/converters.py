@@ -81,12 +81,11 @@ class UnitConverter(ABC):
 
         if units_from not in cls.time_units:
             raise ValueError(
-                str(units_from)
-                + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
+                f'{units_from} is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
             )
         if units_to not in cls.time_units:
             raise ValueError(
-                str(units_to) + ' is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
+                f'{units_to} is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
             )
 
         factor_from = cls.time_units[units_from]
@@ -127,12 +126,11 @@ class UnitConverter(ABC):
 
         if units_from not in cls.activity_units:
             raise ValueError(
-                str(units_from)
-                + ' is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+                f'{units_from} is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
             )
         if units_to not in cls.activity_units:
             raise ValueError(
-                str(units_to) + ' is not a activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+                f'{units_to} is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
             )
 
         return activity * cls.activity_units[units_from] / cls.activity_units[units_to]
@@ -167,11 +165,11 @@ class UnitConverter(ABC):
 
         if units_from not in cls.mass_units:
             raise ValueError(
-                str(units_from) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
+                f'{units_from} is not a valid mass unit, e.g. "g", "kg", "mg"...'
             )
         if units_to not in cls.mass_units:
             raise ValueError(
-                str(units_to) + ' is not a valid mass unit, e.g. "g", "kg", "mg"...'
+                f'{units_to} is not a valid mass unit, e.g. "g", "kg", "mg"...'
             )
 
         return mass * cls.mass_units[units_from] / cls.mass_units[units_to]
@@ -206,11 +204,11 @@ class UnitConverter(ABC):
 
         if units_from not in cls.moles_units:
             raise ValueError(
-                str(units_from) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
+                f'{units_from} is not a valid unit, e.g. "mol", "kmol", "mmol"...'
             )
         if units_to not in cls.moles_units:
             raise ValueError(
-                str(units_to) + ' is not a valid unit, e.g. "mol", "kmol", "mmol"...'
+                f'{units_to} is not a valid unit, e.g. "mol", "kmol", "mmol"...'
             )
 
         return moles * cls.moles_units[units_from] / cls.moles_units[units_to]
