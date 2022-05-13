@@ -11,7 +11,7 @@ as ``rd``:
 
 """
 
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 import numpy as np
 from sympy.core.expr import Expr
 
@@ -225,6 +225,11 @@ def build_id(Z: int, A: int, state: str = "") -> int:
     int
         Canonical nuclide id.
 
+    Raises
+    ------
+    ValueError
+        If the input energy state is invalid.
+
     Examples
     --------
     >>> rd.utils.build_id(1,2)
@@ -238,7 +243,7 @@ def build_id(Z: int, A: int, state: str = "") -> int:
         if state in get_metastable_chars():
             state_int = get_metastable_chars().index(state) + 1
         else:
-            raise ValueError(state + " is not a valid energy state.")
+            raise ValueError(f"{state} is not a valid energy state.")
     else:
         state_int = 0
 
@@ -266,6 +271,11 @@ def build_nuclide_string(Z: int, A: int, meta_state: str = "") -> str:
     str
         Nuclide string built in symbol - mass number format.
 
+    Raises
+    ------
+    ValueError
+        If the input atomic number is invalid.
+
     Examples
     --------
     >>> rd.utils.build_nuclide_string(26, 56)
@@ -276,11 +286,65 @@ def build_nuclide_string(Z: int, A: int, meta_state: str = "") -> str:
     """
 
     if Z not in Z_DICT:
-        raise ValueError(str(Z) + " is not a valid atomic number")
+        raise ValueError(f"{Z} is not a valid atomic number")
 
     return_string = f"{Z_DICT[Z]}-{A}{meta_state}"
 
     return return_string
+
+
+class NuclideStrError(ValueError):
+    """
+    Custom exception class for invalid nuclide strings.
+
+    Parameters
+    ----------
+    nuclide : str
+        Nuclide string.
+    additional_message : str
+        Message with additional error context.
+
+    """
+
+    def __init__(self, nuclide: str, additional_message: str, *args) -> None:
+        super().__init__(args)
+        self.nuclide = nuclide
+        self.additional_message = additional_message
+
+    def __str__(self) -> str:
+        return (
+            f"{self.nuclide} is not a valid nuclide string. {self.additional_message}"
+        )
+
+
+def _process_metastable_element_str(metastable_element_str: str) -> Tuple[str, str]:
+    """
+    Function to separate a string that could either be an element string, or a combined metastable
+    state char + element string.
+
+    It separates the metastable state char correctly if the element is 2 chars (He, Li, Be, etc.).
+
+    If the element is 1 char (H, B, C, N, O, F, I, U etc.), ambiguities can occur, e.g. is 'ni'
+    Nickel or a second metastable state of Iodine. The atomic mass number & nuclear data is
+    needed to correctly separate these cases. However for simplicity it is assumed user has
+    capitalized correctly.
+
+    Note: bugs may occur with incorrect capitalizations. See test_utils.py for some failure cases.
+    """
+
+    # metastable_element_str is 3 chars: must contain metastable state + 2 char element string
+    if len(metastable_element_str) > 2:
+        return metastable_element_str[0], metastable_element_str[1:]
+
+    # metastable_element_str is 1 or 2 chars: assume metastable if first char is lower case and a
+    # valid metastable state char, second char is uppercase and a valid element symbol
+    if (
+        metastable_element_str[0] in get_metastable_chars()
+        and metastable_element_str[1:] in SYM_DICT
+    ):
+        return metastable_element_str[0], metastable_element_str[1:]
+
+    return "", metastable_element_str  # Is ground state
 
 
 def parse_nuclide_str(nuclide: str) -> str:
@@ -298,6 +362,11 @@ def parse_nuclide_str(nuclide: str) -> str:
     str
         Nuclide string parsed in symbol - mass number format.
 
+    Raises
+    ------
+    NuclideStrError
+        If the input nuclide string is invalid.
+
     Examples
     --------
     >>> rd.utils.parse_nuclide_str('222Rn')
@@ -307,42 +376,47 @@ def parse_nuclide_str(nuclide: str) -> str:
 
     """
 
+    original_input = nuclide
     nuclide = "".join(nuclide.split())  # Remove all whitespaces (Issue #65).
-
-    letter_flag, number_flag = False, False
-    for char in nuclide:
-        if char.isalpha():
-            letter_flag = True
-        if char.isdigit():
-            number_flag = True
-        if letter_flag and number_flag:
-            break
-
-    if not (letter_flag and number_flag) or len(nuclide) < 2 or len(nuclide) > 7:
-        raise ValueError(str(nuclide) + " is not a valid nuclide string.")
-
-    while nuclide[0].isdigit():  # Re-order inputs e.g. 99mTc to Tc99m.
-        nuclide = nuclide[1:] + nuclide[0]
-    if nuclide[0] in get_metastable_chars():
-        nuclide = nuclide[1:] + nuclide[0]
-
-    for idx in range(1, len(nuclide)):  # Add hyphen e.g. Tc99m to Tc-99m.
-        if nuclide[idx].isdigit():
-            if nuclide[idx - 1] != "-":
-                nuclide = f"{nuclide[:idx]}-{nuclide[idx:]}"
-            break
-
-    # Convert incorrect capitalizations, e.g. tc-99M to Tc-99m, tC-99m to Tc-99m (Issue #65).
-    # Note 99MTc will fail because above logic requires metastable state char is lower case.
-    if nuclide[0].islower() or nuclide[1].isupper() or nuclide[-1].isupper():
-        nuclide = (
-            nuclide[0].upper()
-            + nuclide[1].lower()
-            + nuclide[2:-1]
-            + nuclide[-1].lower()
+    nuclide = nuclide.replace("-", "", 1)  # Strip out first hyphen
+    if not nuclide.isalnum():
+        raise NuclideStrError(
+            original_input,
+            "Nuclide strings must contain only letters, numbers, and (optionally) up to one "
+            "hyphen.",
         )
 
-    return nuclide
+    A = "".join([n for n in nuclide if n.isdigit()])  # Mass number
+    if len(A) == 0 or int(A) > 300:  # Largest mass number in NUBASE2020 is 295
+        raise NuclideStrError(original_input, f"Mass number ({A}) is unphysical.")
+
+    alpha_components = nuclide.split(A)
+    if len(alpha_components) != 2:
+        raise NuclideStrError(original_input, "")
+
+    if alpha_components[0] == "":  # User inputted mass number first
+        metastable_char, element = _process_metastable_element_str(alpha_components[1])
+    else:  # User inputted element symbol first
+        element = alpha_components[0]
+        metastable_char = alpha_components[1]
+
+    element = element.capitalize()
+    if element not in SYM_DICT:
+        raise NuclideStrError(original_input, f"Element ({element}) appears invalid.")
+
+    if len(metastable_char) > 1:
+        raise NuclideStrError(
+            original_input,
+            f"Ground state / metastable state specification ({metastable_char}) appears invalid.",
+        )
+    metastable_char = metastable_char.lower()
+    if not (metastable_char == "" or metastable_char in get_metastable_chars()):
+        raise NuclideStrError(
+            original_input,
+            f"Ground state / metastable state specification ({metastable_char}) appears invalid.",
+        )
+
+    return f"{element}-{A}{metastable_char}"
 
 
 def parse_id(input_id: int) -> str:
@@ -432,10 +506,7 @@ def parse_nuclide(
 
     if nuclide not in nuclides:
         raise ValueError(
-            str(original_input)
-            + " is not a valid nuclide in "
-            + dataset_name
-            + " decay dataset."
+            f"{original_input} is not a valid nuclide in {dataset_name} decay dataset."
         )
 
     return nuclide
