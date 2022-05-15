@@ -42,6 +42,23 @@ class TestUnitConverterFloat(unittest.TestCase):
         self.assertEqual(UnitConverterFloat.mass_units["g"], 1.0)
         self.assertEqual(UnitConverterFloat.moles_units["mol"], 1.0)
 
+        self.assertEqual(
+            UnitConverterFloat.time_unit_err_msg,
+            'is not a valid time unit, e.g. "s", "m", "h", "d" or "y".',
+        )
+        self.assertEqual(
+            UnitConverterFloat.activity_unit_err_msg,
+            'is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...',
+        )
+        self.assertEqual(
+            UnitConverterFloat.mass_unit_err_msg,
+            'is not a valid mass unit, e.g. "g", "kg", "mg"...',
+        )
+        self.assertEqual(
+            UnitConverterFloat.moles_unit_err_msg,
+            'is not a valid moles unit, e.g. "mol", "kmol", "mmol"...',
+        )
+
     def test_time_unit_conv_seconds(self) -> None:
         """
         Test conversion between seconds and different time units.

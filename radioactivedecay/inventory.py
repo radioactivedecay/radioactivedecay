@@ -239,7 +239,7 @@ class AbstractInventory(ABC):
                 for nuc, mass in contents.items()
             }
         else:
-            raise ValueError(units + " is not a supported unit.")
+            raise ValueError(f"{units} is not a supported unit.")
 
         return contents_as_numbers
 
@@ -485,10 +485,8 @@ class AbstractInventory(ABC):
 
         if self.decay_data != other.decay_data:
             raise ValueError(
-                "Decay datasets do not match. "
-                + self.decay_data.dataset_name
-                + " and "
-                + other.decay_data.dataset_name
+                f"Decay datasets do not match. {self.decay_data.dataset_name} and "
+                f"{other.decay_data.dataset_name}"
             )
         new_contents = add_dictionaries(self.contents, other.contents)
         return self.__class__(new_contents, "num", False, self.decay_data)
@@ -498,10 +496,8 @@ class AbstractInventory(ABC):
 
         if self.decay_data != other.decay_data:
             raise ValueError(
-                "Decay datasets do not match. "
-                + self.decay_data.dataset_name
-                + " and "
-                + other.decay_data.dataset_name
+                f"Decay datasets do not match. {self.decay_data.dataset_name} and "
+                f"{other.decay_data.dataset_name}"
             )
         sub_contents = other.contents.copy()
         sub_contents.update(
@@ -564,7 +560,7 @@ class AbstractInventory(ABC):
         """
         raise NotImplementedError(
             "Method takes a nuclide string, a canonical id, a Nuclide instance, or list of nuclide"
-            + " strings, canonical ids or Nuclide instances as a parameter."
+            " strings, canonical ids or Nuclide instances as a parameter."
         )
 
     @remove.register(str)
@@ -578,7 +574,7 @@ class AbstractInventory(ABC):
         )
         new_contents = self.contents.copy()
         if delete not in new_contents:
-            raise ValueError(delete + " does not exist in this inventory.")
+            raise ValueError(f"{delete} does not exist in this inventory.")
         new_contents.pop(delete)
 
         self.contents = new_contents
@@ -594,7 +590,7 @@ class AbstractInventory(ABC):
         )
         new_contents = self.contents.copy()
         if delete_str not in new_contents:
-            raise ValueError(delete_str + " does not exist in this inventory.")
+            raise ValueError(f"{delete_str} does not exist in this inventory.")
         new_contents.pop(delete_str)
 
         self.contents = new_contents
@@ -610,7 +606,7 @@ class AbstractInventory(ABC):
         )
         new_contents = self.contents.copy()
         if delete_str not in new_contents:
-            raise ValueError(delete_str + " does not exist in this inventory.")
+            raise ValueError(f"{delete_str} does not exist in this inventory.")
         new_contents.pop(delete_str)
 
         self.contents = new_contents
@@ -634,7 +630,7 @@ class AbstractInventory(ABC):
         new_contents = self.contents.copy()
         for nuc in delete_list:
             if nuc not in new_contents:
-                raise ValueError(nuc + " does not exist in this inventory.")
+                raise ValueError(f"{nuc} does not exist in this inventory.")
             new_contents.pop(nuc)
 
         self.contents = new_contents
@@ -897,7 +893,7 @@ class AbstractInventory(ABC):
                 display = self.decay(0).nuclides
             else:
                 raise ValueError(
-                    str(order) + " is not a valid string for the order parameter."
+                    f"{order} is not a valid string for the order parameter."
                 )
         else:
             if isinstance(display, str):
@@ -1156,7 +1152,7 @@ class Inventory(AbstractInventory):
     def __repr__(self) -> str:
         return (
             f"Inventory activities (Bq): {self.activities()}, "
-            + f"decay dataset: {self.decay_data.dataset_name}"
+            f"decay dataset: {self.decay_data.dataset_name}"
         )
 
 
@@ -1591,5 +1587,5 @@ class InventoryHP(AbstractInventory):
     def __repr__(self) -> str:
         return (
             f"InventoryHP activities (Bq): {self.activities()}, "
-            + f"decay dataset: {self.decay_data.dataset_name}"
+            f"decay dataset: {self.decay_data.dataset_name}"
         )

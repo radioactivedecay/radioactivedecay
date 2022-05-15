@@ -1,9 +1,14 @@
 # Changelog
 
-## [0.X.XX] - 20XX-XX-XX
+## [0.4.13] - 2022-05-XX
 - Code improvement to support metastable states up to 6th state (#76).
 - Added labels for more decay modes (including heavy cluster decay modes) to decay chain plots code
 (#77).
+- Improve parsing of nuclide strings (#78). Note: you must use the correct capitalization of the
+metastable state and the element chars when using mass number first format, e.g. use '130nI' to get
+I-130n, not '130ni', '130Ni' or '130NI' as these will be mistaken as Nickel (Ni). Capitalization
+does not matter if using element first formats, e.g. 'I-130N' or 'I130N' will be correctly parsed
+to I-130n.
 
 ## [0.4.12] - 2022-3-24
 - Added more stable products to the default ICRP-107 dataset (#75).

@@ -382,12 +382,7 @@ class Nuclide:
         return fig, axes
 
     def __repr__(self) -> str:
-        rep = (
-            "Nuclide: "
-            + self.nuclide
-            + ", decay dataset: "
-            + self.decay_data.dataset_name
-        )
+        rep = f"Nuclide: {self.nuclide}, decay dataset: {self.decay_data.dataset_name}"
 
         return rep
 

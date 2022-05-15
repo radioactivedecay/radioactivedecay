@@ -434,6 +434,12 @@ class DecayData:
         """
         Property to return DecayMatricesSympy instance if it exists, or raise an error if the
         dataset does not contain SymPy data.
+
+        Raises
+        ------
+        ValueError
+            If the DecayData instance does not contain any SymPy decay data.
+
         """
 
         if self._sympy_data is None:
@@ -445,6 +451,12 @@ class DecayData:
         """
         Property to return SymPy number of days in one year if it exists, or raise an error if the
         dataset does not contain SymPy data.
+
+        Raises
+        ------
+        ValueError
+            If the DecayData instance does not contain any SymPy decay data.
+
         """
 
         if self._sympy_year_conv is None:
