@@ -36,6 +36,14 @@ class UnitConverter(ABC):
         Dictionary containing amounts of each mole unit per mol.
     year_units : set
         Set containing all year units. Used to pick up where days in year conversion is needed.
+    time_unit_err_msg : str
+        Error message for time unit ValueError.
+    activity_unit_err_msg : str
+        Error message for activity unit ValueError.
+    mass_unit_err_msg : str
+        Error message for mass unit ValueError.
+    moles_unit_err_msg : str
+        Error message for moles unit ValueError.
 
     """
 
@@ -44,6 +52,11 @@ class UnitConverter(ABC):
     mass_units: Dict[str, Union[float, Expr]]
     moles_units: Dict[str, Union[float, Expr]]
     year_units = {"y", "yr", "year", "years", "ky", "My", "By", "Gy", "Ty", "Py"}
+
+    time_unit_err_msg = 'is not a valid time unit, e.g. "s", "m", "h", "d" or "y".'
+    activity_unit_err_msg = 'is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
+    mass_unit_err_msg = 'is not a valid mass unit, e.g. "g", "kg", "mg"...'
+    moles_unit_err_msg = 'is not a valid moles unit, e.g. "mol", "kmol", "mmol"...'
 
     @classmethod
     def time_unit_conv(
@@ -80,13 +93,9 @@ class UnitConverter(ABC):
         """
 
         if units_from not in cls.time_units:
-            raise ValueError(
-                f'{units_from} is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
-            )
+            raise ValueError(f"{units_from} {cls.time_unit_err_msg}")
         if units_to not in cls.time_units:
-            raise ValueError(
-                f'{units_to} is not a valid unit, e.g. "s", "m", "h", "d" or "y".'
-            )
+            raise ValueError(f"{units_to} {cls.time_unit_err_msg}")
 
         factor_from = cls.time_units[units_from]
         factor_to = cls.time_units[units_to]
@@ -125,13 +134,9 @@ class UnitConverter(ABC):
         """
 
         if units_from not in cls.activity_units:
-            raise ValueError(
-                f'{units_from} is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
-            )
+            raise ValueError(f"{units_from} {cls.activity_unit_err_msg}")
         if units_to not in cls.activity_units:
-            raise ValueError(
-                f'{units_to} is not a valid activitiy unit, e.g. "Bq", "kBq", "Ci"...'
-            )
+            raise ValueError(f"{units_to} {cls.activity_unit_err_msg}")
 
         return activity * cls.activity_units[units_from] / cls.activity_units[units_to]
 
@@ -164,13 +169,9 @@ class UnitConverter(ABC):
         """
 
         if units_from not in cls.mass_units:
-            raise ValueError(
-                f'{units_from} is not a valid mass unit, e.g. "g", "kg", "mg"...'
-            )
+            raise ValueError(f"{units_from} {cls.mass_unit_err_msg}")
         if units_to not in cls.mass_units:
-            raise ValueError(
-                f'{units_to} is not a valid mass unit, e.g. "g", "kg", "mg"...'
-            )
+            raise ValueError(f"{units_to} {cls.mass_unit_err_msg}")
 
         return mass * cls.mass_units[units_from] / cls.mass_units[units_to]
 
@@ -203,13 +204,9 @@ class UnitConverter(ABC):
         """
 
         if units_from not in cls.moles_units:
-            raise ValueError(
-                f'{units_from} is not a valid unit, e.g. "mol", "kmol", "mmol"...'
-            )
+            raise ValueError(f"{units_from} {cls.moles_unit_err_msg}")
         if units_to not in cls.moles_units:
-            raise ValueError(
-                f'{units_to} is not a valid unit, e.g. "mol", "kmol", "mmol"...'
-            )
+            raise ValueError(f"{units_to} {cls.moles_unit_err_msg}")
 
         return moles * cls.moles_units[units_from] / cls.moles_units[units_to]
 
