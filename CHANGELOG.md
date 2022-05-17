@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.13] - 2022-05-XX
+## [0.4.13] - 2022-05-17
 - Code improvement to support metastable states up to 6th state (#76).
 - Added labels for more decay modes (including heavy cluster decay modes) to decay chain plots code
 (#77).
