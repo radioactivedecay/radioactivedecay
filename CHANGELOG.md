@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.14] - 2022-09-06
+- Fix bug where high-precision (SymPy) default dataset had incorrect half-lives for Th-232, Sm-147
+and Rb-87 (#82). All users performing `InventoryHP` decay calculations for chains containing these
+radionuclide are encouraged to upgrade without delay. Previous radioactivedecay versions gave
+incorrect results (note normal precision `Inventory` decays were unaffected).
+
 ## [0.4.13] - 2022-05-17
 - Code improvement to support metastable states up to 6th state (#76).
 - Added labels for more decay modes (including heavy cluster decay modes) to decay chain plots code
