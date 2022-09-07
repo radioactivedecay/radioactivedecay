@@ -35,9 +35,14 @@ def dict_assert_almost_equal(
     test_case.assertEqual(set(dict_a), set(dict_b))
 
     for key in dict_a:
-        test_case.assertTrue(
-            math.isclose(dict_a[key], dict_b[key], rel_tol=1e-13, abs_tol=1e-30)
-        )
+        try:
+            test_case.assertTrue(
+                math.isclose(dict_a[key], dict_b[key], rel_tol=1e-13, abs_tol=1e-30)
+            )
+        except AssertionError as error:
+            raise AssertionError(
+                f"Floats are not within error tolerance: {dict_a[key]} {dict_b[key]} for nuclide {key}."
+            ) from error
 
 
 class TestInventory(unittest.TestCase):
