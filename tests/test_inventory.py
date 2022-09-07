@@ -3,6 +3,8 @@ Unit tests for inventory.py classes and methods.
 """
 
 import copy
+import math
+from typing import Dict
 import unittest
 from unittest.mock import patch
 from sympy import Integer, log
@@ -14,6 +16,28 @@ from radioactivedecay.inventory import (
 from radioactivedecay.nuclide import Nuclide
 
 # pylint: disable=protected-access, too-many-public-methods
+
+
+def dict_assert_almost_equal(
+    test_case: unittest.TestCase,
+    dict_a: Dict[str, float],
+    dict_b: Dict[str, float],
+) -> None:
+    """
+    Check whether two dictionaries with str keys and float values have:
+        i) the same keys
+        ii) float values are close (using `math.isclose()`)
+
+    This function could be improved by outputting a better traceback in the event that an
+    assertTrue fails.
+    """
+
+    test_case.assertEqual(set(dict_a), set(dict_b))
+
+    for key in dict_a:
+        test_case.assertTrue(
+            math.isclose(dict_a[key], dict_b[key], rel_tol=1e-13, abs_tol=1e-30)
+        )
 
 
 class TestInventory(unittest.TestCase):
@@ -393,7 +417,8 @@ class TestInventory(unittest.TestCase):
         inv = Inventory({"H-3": 10.0}, "Bq")
         self.assertEqual(inv.decay(12.32, "y").activities(), {"H-3": 5.0, "He-3": 0.0})
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8}, "Bq")
-        self.assertEqual(
+        dict_assert_almost_equal(
+            self,
             inv.decay(20.0, "h").activities(),
             {
                 "I-123": 2.040459244534774,
@@ -406,7 +431,8 @@ class TestInventory(unittest.TestCase):
             },
         )
         inv = Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005}, "Bq")
-        self.assertEqual(
+        dict_assert_almost_equal(
+            self,
             inv.decay(1e9, "y").activities(),
             {
                 "Ac-227": 0.2690006281740556,
@@ -464,7 +490,8 @@ class TestInventory(unittest.TestCase):
         )
 
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8}, "num")
-        self.assertEqual(
+        dict_assert_almost_equal(
+            self,
             inv.cumulative_decays(20.0, "h"),
             {
                 "I-123": 3.759540755465226,
@@ -476,7 +503,8 @@ class TestInventory(unittest.TestCase):
         )
 
         inv = Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005}, "num")
-        self.assertEqual(
+        dict_assert_almost_equal(
+            self,
             inv.cumulative_decays(1e9, "y"),
             {
                 "Ac-227": 0.45099937182594435,
