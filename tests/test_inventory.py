@@ -37,7 +37,7 @@ def dict_assert_almost_equal(
     for key in dict_a:
         try:
             test_case.assertTrue(
-                math.isclose(dict_a[key], dict_b[key], rel_tol=1e-13, abs_tol=1e-30)
+                math.isclose(dict_a[key], dict_b[key], rel_tol=1e-7, abs_tol=1e-30)
             )
         except AssertionError as error:
             raise AssertionError(
