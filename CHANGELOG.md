@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.15] - 2022-09-08
+- Fix normal precision inventory unit tests for `decay()` and `cumulative_decays()` methods (#84).
+The tests now warn if the calculated floats are not exact matches for the test defaults, and assert
+that the calculated floats are within max(rel_tol=1e-7, abs_tol=1e-30) of the expected values. This
+means the tests that had previously started flaking on GitHub Actions CI (sporadically) will now
+pass.
+
 ## [0.4.14] - 2022-09-06
 - Fix bug where high-precision (SymPy) default dataset had incorrect half-lives for Th-232, Sm-147
 and Rb-87 (#82). All users performing `InventoryHP` decay calculations for chains containing these
