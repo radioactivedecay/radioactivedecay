@@ -7,6 +7,7 @@ import math
 from typing import Dict
 import unittest
 from unittest.mock import patch
+import warnings
 from sympy import Integer, log
 from radioactivedecay.decaydata import load_dataset, DEFAULTDATA
 from radioactivedecay.inventory import (
@@ -16,6 +17,17 @@ from radioactivedecay.inventory import (
 from radioactivedecay.nuclide import Nuclide
 
 # pylint: disable=protected-access, too-many-public-methods
+
+
+def warning_message_if_dict_not_equal(calculated: Dict[str, float], expected: Dict[str, float]) -> None:
+    """
+    Warning message if calculated dictionary of floats is not equal to expected dictionary of floats.
+    """
+
+    return (
+        f"Warning: calculated result:\n{calculated}\nis not identical to expected result:\n"
+        f"{expected}\nFloating point error build up or other code issue has occurred."
+    )
 
 
 def dict_assert_almost_equal(
@@ -41,7 +53,8 @@ def dict_assert_almost_equal(
             )
         except AssertionError as error:
             raise AssertionError(
-                f"Floats are not within error tolerance: {dict_a[key]} {dict_b[key]} for nuclide {key}."
+                f"Floats are not within error tolerance: {dict_a[key]} {dict_b[key]} for nuclide "
+                f"{key}."
             ) from error
 
 
@@ -421,64 +434,66 @@ class TestInventory(unittest.TestCase):
 
         inv = Inventory({"H-3": 10.0}, "Bq")
         self.assertEqual(inv.decay(12.32, "y").activities(), {"H-3": 5.0, "He-3": 0.0})
+
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8}, "Bq")
-        dict_assert_almost_equal(
-            self,
-            inv.decay(20.0, "h").activities(),
-            {
-                "I-123": 2.040459244534774,
-                "Ru-99": 0.0,
-                "Sb-123": 0.0,
-                "Tc-99": 6.729944738772211e-09,
-                "Tc-99m": 0.22950748010063513,
-                "Te-123": 9.485166535243877e-18,
-                "Te-123m": 7.721174031572363e-07,
-            },
-        )
+        calculated = inv.decay(20.0, "h").activities()
+        expected = {
+            "I-123": 2.040459244534774,
+            "Ru-99": 0.0,
+            "Sb-123": 0.0,
+            "Tc-99": 6.729944738772211e-09,
+            "Tc-99m": 0.22950748010063513,
+            "Te-123": 9.485166535243877e-18,
+            "Te-123m": 7.721174031572363e-07,
+        }
+        if calculated != expected:
+            warnings.warn(warning_message_if_dict_not_equal(calculated, expected))
+        dict_assert_almost_equal(self, calculated, expected)
+
         inv = Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005}, "Bq")
-        dict_assert_almost_equal(
-            self,
-            inv.decay(1e9, "y").activities(),
-            {
-                "Ac-227": 0.2690006281740556,
-                "At-218": 0.017002868638497183,
-                "At-219": 2.227325201281319e-07,
-                "Bi-210": 85.01434361515662,
-                "Bi-211": 0.26900084425585846,
-                "Bi-214": 85.01432618961896,
-                "Bi-215": 2.1605054452429237e-07,
-                "Fr-223": 0.0037122086688021884,
-                "Hg-206": 1.6152725286830197e-06,
-                "Pa-231": 0.2690006198549055,
-                "Pa-234": 0.13601313171698984,
-                "Pa-234m": 85.00820732310412,
-                "Pb-206": 0.0,
-                "Pb-207": 0.0,
-                "Pb-210": 85.01434361489548,
-                "Pb-211": 0.2690008442558569,
-                "Pb-214": 84.99734032384839,
-                "Po-210": 85.01434362236536,
-                "Po-211": 0.0007424423301461693,
-                "Po-214": 84.99649018398776,
-                "Po-215": 0.26900084425583065,
-                "Po-218": 85.01434319248591,
-                "Ra-223": 0.26900062820528614,
-                "Ra-226": 85.01434319228659,
-                "Rn-218": 1.7002868638497185e-05,
-                "Rn-219": 0.26900062820528614,
-                "Rn-222": 85.0143431924858,
-                "Th-227": 0.2652884195245263,
-                "Th-230": 85.01431274847525,
-                "Th-231": 0.26898810215560653,
-                "Th-234": 85.00820732310407,
-                "Tl-206": 0.00011383420610068998,
-                "Tl-207": 0.26825840192571576,
-                "Tl-210": 0.01785300849981999,
-                "U-234": 85.01287846492669,
-                "U-235": 0.2689881021544942,
-                "U-238": 85.00820732184867,
-            },
-        )
+        calculated = inv.decay(1e9, "y").activities()
+        expected = {
+            "Ac-227": 0.2690006281740556,
+            "At-218": 0.017002868638497183,
+            "At-219": 2.227325201281319e-07,
+            "Bi-210": 85.01434361515662,
+            "Bi-211": 0.26900084425585846,
+            "Bi-214": 85.01432618961896,
+            "Bi-215": 2.1605054452429237e-07,
+            "Fr-223": 0.0037122086688021884,
+            "Hg-206": 1.6152725286830197e-06,
+            "Pa-231": 0.2690006198549055,
+            "Pa-234": 0.13601313171698984,
+            "Pa-234m": 85.00820732310412,
+            "Pb-206": 0.0,
+            "Pb-207": 0.0,
+            "Pb-210": 85.01434361489548,
+            "Pb-211": 0.2690008442558569,
+            "Pb-214": 84.99734032384839,
+            "Po-210": 85.01434362236536,
+            "Po-211": 0.0007424423301461693,
+            "Po-214": 84.99649018398776,
+            "Po-215": 0.26900084425583065,
+            "Po-218": 85.01434319248591,
+            "Ra-223": 0.26900062820528614,
+            "Ra-226": 85.01434319228659,
+            "Rn-218": 1.7002868638497185e-05,
+            "Rn-219": 0.26900062820528614,
+            "Rn-222": 85.0143431924858,
+            "Th-227": 0.2652884195245263,
+            "Th-230": 85.01431274847525,
+            "Th-231": 0.26898810215560653,
+            "Th-234": 85.00820732310407,
+            "Tl-206": 0.00011383420610068998,
+            "Tl-207": 0.26825840192571576,
+            "Tl-210": 0.01785300849981999,
+            "U-234": 85.01287846492669,
+            "U-235": 0.2689881021544942,
+            "U-238": 85.00820732184867,
+        }
+        if calculated != expected:
+            warnings.warn(warning_message_if_dict_not_equal(calculated, expected))
+        dict_assert_almost_equal(self, calculated, expected)
 
     def test_cumulative_decays(self) -> None:
         """
@@ -495,60 +510,60 @@ class TestInventory(unittest.TestCase):
         )
 
         inv = Inventory({"Tc-99m": 2.3, "I-123": 5.8}, "num")
-        dict_assert_almost_equal(
-            self,
-            inv.cumulative_decays(20.0, "h"),
-            {
-                "I-123": 3.759540755465226,
-                "Te-123m": 4.72801274418656e-07,
-                "Te-123": -9.485843969524933e-18,
-                "Tc-99m": 2.0704925198993647,
-                "Tc-99": 1.0500063924036559e-08,
-            },
-        )
+        calculated = inv.cumulative_decays(20.0, "h")
+        expected = {
+            "I-123": 3.759540755465226,
+            "Te-123m": 4.72801274418656e-07,
+            "Te-123": -9.485843969524933e-18,
+            "Tc-99m": 2.0704925198993647,
+            "Tc-99": 1.0500063924036559e-08,
+        }
+        if calculated != expected:
+            warnings.warn(warning_message_if_dict_not_equal(calculated, expected))
+        dict_assert_almost_equal(self, calculated, expected)
 
         inv = Inventory({"U-238": 99.274, "U-235": 0.720, "U-234": 0.005}, "num")
-        dict_assert_almost_equal(
-            self,
-            inv.cumulative_decays(1e9, "y"),
-            {
-                "Ac-227": 0.45099937182594435,
-                "Th-227": 0.44477558047547366,
-                "Ra-226": 14.264656807713404,
-                "Fr-223": 0.006223791331197811,
-                "Ra-223": 0.4509993717947137,
-                "Rn-222": 14.264656807514221,
-                "Rn-219": 0.4509993717947137,
-                "At-219": 3.734274798718682e-07,
-                "Po-218": 14.264656807514106,
-                "At-218": 0.002852931361502821,
-                "Rn-218": 2.852931361502822e-06,
-                "Bi-215": 3.622246554757077e-07,
-                "Po-215": 0.4509997340193692,
-                "Pb-214": 14.261803876151637,
-                "Bi-214": 14.264653954581055,
-                "Po-214": 14.261661230181954,
-                "Pb-211": 0.450999734019343,
-                "Bi-211": 0.4509997340193414,
-                "Po-211": 0.0012447592658933822,
-                "Tl-210": 0.0029955773304620116,
-                "Pb-210": 14.264656385104534,
-                "Bi-210": 14.264656384843379,
-                "Po-210": 14.26465637763465,
-                "U-238": 14.265792678151335,
-                "Tl-207": 0.4497549747534446,
-                "Hg-206": 2.710284713169805e-07,
-                "Tl-206": 1.910037489931004e-05,
-                "U-235": 0.4510118978455057,
-                "Th-234": 14.26579267689593,
-                "Pa-234m": 14.265792676895886,
-                "Pa-234": 0.022825268283010153,
-                "U-234": 14.266121535073315,
-                "Th-231": 0.45101189784439344,
-                "Pa-231": 0.45099938014509444,
-                "Th-230": 14.264687251524753,
-            },
-        )
+        calculated = inv.cumulative_decays(1e9, "y")
+        expected = {
+            "Ac-227": 0.45099937182594435,
+            "Th-227": 0.44477558047547366,
+            "Ra-226": 14.264656807713404,
+            "Fr-223": 0.006223791331197811,
+            "Ra-223": 0.4509993717947137,
+            "Rn-222": 14.264656807514221,
+            "Rn-219": 0.4509993717947137,
+            "At-219": 3.734274798718682e-07,
+            "Po-218": 14.264656807514106,
+            "At-218": 0.002852931361502821,
+            "Rn-218": 2.852931361502822e-06,
+            "Bi-215": 3.622246554757077e-07,
+            "Po-215": 0.4509997340193692,
+            "Pb-214": 14.261803876151637,
+            "Bi-214": 14.264653954581055,
+            "Po-214": 14.261661230181954,
+            "Pb-211": 0.450999734019343,
+            "Bi-211": 0.4509997340193414,
+            "Po-211": 0.0012447592658933822,
+            "Tl-210": 0.0029955773304620116,
+            "Pb-210": 14.264656385104534,
+            "Bi-210": 14.264656384843379,
+            "Po-210": 14.26465637763465,
+            "U-238": 14.265792678151335,
+            "Tl-207": 0.4497549747534446,
+            "Hg-206": 2.710284713169805e-07,
+            "Tl-206": 1.910037489931004e-05,
+            "U-235": 0.4510118978455057,
+            "Th-234": 14.26579267689593,
+            "Pa-234m": 14.265792676895886,
+            "Pa-234": 0.022825268283010153,
+            "U-234": 14.266121535073315,
+            "Th-231": 0.45101189784439344,
+            "Pa-231": 0.45099938014509444,
+            "Th-230": 14.264687251524753,
+        }
+        if calculated != expected:
+            warnings.warn(warning_message_if_dict_not_equal(calculated, expected))
+        dict_assert_almost_equal(self, calculated, expected)
 
     def test_half_lives(self) -> None:
         """
