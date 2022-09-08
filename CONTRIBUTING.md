@@ -107,7 +107,7 @@ automatically harvested by Sphinx to create the API section of the
 
 These notes describe the steps for cutting a new release:
 
-* Update the version number in radioactivedecay/__init__.py
+* Update the version number in `radioactivedecay/__init__.py`
 * Make sure
 [CHANGELOG.md](https://github.com/radioactivedecay/radioactivedecay/blob/main/CHANGELOG.md)
 documents the changes
