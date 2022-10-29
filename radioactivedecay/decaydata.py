@@ -23,6 +23,7 @@ DEFAULTDATA : DecayData
 
 import pathlib
 import pickle
+import platform
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
 
@@ -37,12 +38,14 @@ from sympy.matrices import SparseMatrix
 from radioactivedecay.converters import UnitConverterFloat
 from radioactivedecay.utils import parse_nuclide
 
-# importlib.resources is new in Python version 3.7
-# this block adds support using a backport for Python <3.7
-# the except block and dependency can be removed once min required Python version is 3.7
-try:
+# importlib.resources API from Python version 3.9+ is used
+# this block adds support using a backport for Python <3.9
+# the importlib_resources dependency can be removed once min required Python version is 3.9
+if pkg_resources.parse_version(
+    platform.python_version()
+) >= pkg_resources.parse_version("3.9"):
     from importlib import resources
-except ImportError:
+else:
     import importlib_resources as resources  # type:ignore
 
 
