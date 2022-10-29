@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.16] - 2022-10-##
+- Added support for Python v3.11.
+
 ## [0.4.15] - 2022-09-08
 - Fix normal precision inventory unit tests for `decay()` and `cumulative_decays()` methods (#84).
 The tests now warn if the calculated floats are not exact matches for the test defaults, and assert
