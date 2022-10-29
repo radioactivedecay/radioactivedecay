@@ -22,9 +22,9 @@ DEFAULTDATA : DecayData
 """
 
 from abc import ABC, abstractmethod
-from pathlib import Path
+import pathlib
 import pickle
-from typing import Any, ContextManager, Optional, Union
+from typing import Any, Optional, Union
 import numpy as np
 import pkg_resources
 from scipy import sparse
@@ -619,7 +619,7 @@ class DecayData:
         )
 
 
-def _get_package_filepath(subpackage_dir: str, filename: str) -> ContextManager[Path]:
+def _get_package_filepath(subpackage_dir: str, filename: str) -> pathlib.Path:
     """
     Returns the path to a file which is bundled as a sub-package within the
     ``radioactivedecay`` package.
@@ -633,18 +633,17 @@ def _get_package_filepath(subpackage_dir: str, filename: str) -> ContextManager[
 
     Returns
     -------
-    ContextManager[Path]
-        A context manager providing a file path object for the decay dataset file.
+    pathlib.Path
+        File path for the decay dataset file.
 
     """
 
-    with resources.path(f"{__package__}.{subpackage_dir}", filename) as package_path:
-        return package_path
+    return resources.files(f"{__package__}.{subpackage_dir}").joinpath(filename)
 
 
 def _get_filepath(
-    dataset_name: str, dir_path: Union[None, str], filename: str
-) -> Union[str, ContextManager[Path]]:
+    dataset_name: str, dir_path: Optional[str], filename: str
+) -> pathlib.Path:
     """
     Returns the path to a decay dataset file (located either within a sub-package of
     ``radioactivedecay`` or within a local system directory).
@@ -660,13 +659,13 @@ def _get_filepath(
 
     Returns
     -------
-    str or ContextManager[Path]
-        A string or context manager with the file path for the decay dataset file.
+    pathlib.Path
+        File path for the decay dataset file.
 
     """
 
     if dir_path:
-        return f"{dir_path}/{filename}"
+        return pathlib.Path(f"{dir_path}/{filename}")
     return _get_package_filepath(dataset_name, filename)
 
 
@@ -689,12 +688,12 @@ def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
 
     """
 
-    with resources.open_binary(f"{__package__}.{subpackage_dir}", filename) as file:
+    with resources.files(f"{__package__}.{subpackage_dir}").joinpath(filename).open("rb") as file:
         return pickle.load(file)
 
 
 def _load_pickle_file(
-    dataset_name: str, dir_path: Union[None, str], filename: str
+    dataset_name: str, dir_path: Optional[str], filename: str
 ) -> Any:
     """
     Load an object from a pickle file which is located either in a sub-package of
