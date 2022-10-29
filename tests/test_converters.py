@@ -3,13 +3,15 @@ Unit tests for converts.py classes and methods.
 """
 
 import unittest
+
 from sympy import Integer, log
+
 from radioactivedecay.converters import (
     AVOGADRO,
-    UnitConverterFloat,
-    UnitConverterSympy,
     QuantityConverterFloat,
     QuantityConverterSympy,
+    UnitConverterFloat,
+    UnitConverterSympy,
 )
 
 
@@ -477,7 +479,7 @@ class TestUnitConverterFloat(unittest.TestCase):
         """
 
         self.assertEqual(
-            UnitConverterFloat.__repr__(),
+            repr(UnitConverterFloat()),
             "UnitConverterFloat using double-precision floats.",
         )
 
@@ -837,7 +839,7 @@ class TestUnitConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            UnitConverterSympy.__repr__(),
+            repr(UnitConverterSympy()),
             "UnitConverterSympy using SymPy arbitrary precision calculations.",
         )
 
@@ -924,11 +926,11 @@ class TestQuantityConverterFloat(unittest.TestCase):
 
     def test___repr__(self) -> None:
         """
-        Test QuantityConveterFloat __repr__ strings.
+        Test QuantityConverterFloat __repr__ strings.
         """
 
         self.assertEqual(
-            QuantityConverterFloat.__repr__(),
+            repr(QuantityConverterFloat()),
             "QuantityConverterFloat using double-precision floats.",
         )
 
@@ -1057,7 +1059,7 @@ class TestQuantityConverterSympy(unittest.TestCase):
         """
 
         self.assertEqual(
-            QuantityConverterSympy.__repr__(),
+            repr(QuantityConverterSympy()),
             "QuantityConverterSympy using SymPy arbitrary precision calculations.",
         )
 

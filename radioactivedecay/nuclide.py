@@ -20,16 +20,18 @@ as ``rd``:
 
 from collections import deque
 from typing import Any, Dict, List, Optional, Tuple, Union
+
 import matplotlib
 import networkx as nx
 import numpy as np
-from radioactivedecay.decaydata import DecayData, DEFAULTDATA
+
+from radioactivedecay.decaydata import DEFAULTDATA, DecayData
 from radioactivedecay.plots import (
-    _parse_nuclide_label,
-    _parse_decay_mode_label,
     _check_fig_axes,
+    _parse_decay_mode_label,
+    _parse_nuclide_label,
 )
-from radioactivedecay.utils import parse_nuclide, elem_to_Z, build_id
+from radioactivedecay.utils import build_id, elem_to_Z, parse_nuclide
 
 
 class Nuclide:

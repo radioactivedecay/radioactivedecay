@@ -36,3 +36,6 @@ jobs:
 
     - name: Run Black check
       uses: psf/black@stable
+
+    - name: Use isort to check sorting of imports
+      uses: isort/isort-action@master

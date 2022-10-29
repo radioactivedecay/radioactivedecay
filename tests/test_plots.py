@@ -3,12 +3,14 @@ Unit tests for plots.py functions.
 """
 
 import unittest
+
 import matplotlib
 import matplotlib.pyplot as plt
+
 from radioactivedecay.plots import (
-    _parse_nuclide_label,
-    _parse_decay_mode_label,
     _check_fig_axes,
+    _parse_decay_mode_label,
+    _parse_nuclide_label,
 )
 
 

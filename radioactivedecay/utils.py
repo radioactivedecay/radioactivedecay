@@ -12,9 +12,9 @@ as ``rd``:
 """
 
 from typing import Dict, List, Tuple, Union
+
 import numpy as np
 from sympy.core.expr import Expr
-
 
 Z_DICT = {
     1: "H",

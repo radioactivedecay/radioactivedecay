@@ -18,11 +18,13 @@ as ``rd``:
 
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+
 import matplotlib
 import numpy as np
 from scipy import sparse
-from sympy import exp, Integer, Matrix, nsimplify
+from sympy import Integer, Matrix, exp, nsimplify
 from sympy.core.expr import Expr
+
 from radioactivedecay.converters import (
     QuantityConverter,
     QuantityConverterFloat,
@@ -32,17 +34,17 @@ from radioactivedecay.converters import (
     UnitConverterSympy,
 )
 from radioactivedecay.decaydata import (
+    DEFAULTDATA,
     DecayData,
     DecayMatrices,
     DecayMatricesScipy,
     DecayMatricesSympy,
-    DEFAULTDATA,
 )
-from radioactivedecay.plots import decay_graph
 from radioactivedecay.nuclide import Nuclide
+from radioactivedecay.plots import decay_graph
 from radioactivedecay.utils import (
-    parse_nuclide,
     add_dictionaries,
+    parse_nuclide,
     sort_dictionary_alphabetically,
     sort_list_according_to_dataset,
 )

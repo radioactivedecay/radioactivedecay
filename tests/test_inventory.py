@@ -4,16 +4,15 @@ Unit tests for inventory.py classes and methods.
 
 import copy
 import math
-from typing import Dict
 import unittest
-from unittest.mock import patch
 import warnings
+from typing import Dict
+from unittest.mock import patch
+
 from sympy import Integer, log
-from radioactivedecay.decaydata import load_dataset, DEFAULTDATA
-from radioactivedecay.inventory import (
-    Inventory,
-    InventoryHP,
-)
+
+from radioactivedecay.decaydata import DEFAULTDATA, load_dataset
+from radioactivedecay.inventory import Inventory, InventoryHP
 from radioactivedecay.nuclide import Nuclide
 
 # pylint: disable=protected-access, too-many-public-methods
@@ -697,7 +696,7 @@ class TestInventory(unittest.TestCase):
 
         inv = Inventory({"H-3": 10.0}, "Bq")
         self.assertEqual(
-            inv.__repr__(),
+            repr(inv),
             "Inventory activities (Bq): {'H-3': 10.0}, decay dataset: icrp107_ame2020_nubase2020",
         )
 
@@ -923,7 +922,7 @@ class TestInventoryHP(unittest.TestCase):
 
         inv = InventoryHP({"H-3": 10.0}, "Bq")
         self.assertEqual(
-            inv.__repr__(),
+            repr(inv),
             "InventoryHP activities (Bq): {'H-3': 10.0}, decay dataset: icrp107_ame2020_nubase2020",
         )
 

@@ -56,6 +56,8 @@ refactoring (installable from [pip](https://pypi.org/project/pylint/) or
 ``pylint radioactivedecay`` from the base directory and try to fix any new
 warnings that are raised.
 
+[isort](https://github.com/PyCQA/isort) is used to sort imports.
+
 
 ### Type Hints
 

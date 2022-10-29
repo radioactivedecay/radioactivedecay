@@ -3,10 +3,12 @@ Unit tests for decaydata.py functions, classes and methods.
 """
 
 import unittest
+
 import numpy as np
 from scipy import sparse
-from sympy import Integer, log, Matrix
+from sympy import Integer, Matrix, log
 from sympy.matrices import SparseMatrix
+
 from radioactivedecay import decaydata, icrp107_ame2020_nubase2020
 
 
@@ -117,7 +119,7 @@ class TestDecayMatricesScipy(unittest.TestCase):
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         self.assertEqual(
-            decay_mats.__repr__(),
+            repr(decay_mats),
             "DecayMatricesScipy: data stored in SciPy/NumPy objects for double precision "
             "calculations.",
         )
@@ -222,7 +224,7 @@ class TestDecayMatricesSympy(unittest.TestCase):
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
         self.assertEqual(
-            decay_mats.__repr__(),
+            repr(decay_mats),
             "DecayMatricesSympy: data stored in SymPy objects for arbitrary-precision "
             + "calculations.",
         )
@@ -382,13 +384,13 @@ class TestDecayData(unittest.TestCase):
 
         data = decaydata.load_dataset("icrp107_ame2020_nubase2020")
         self.assertEqual(
-            data.__repr__(),
+            repr(data),
             "Decay dataset: icrp107_ame2020_nubase2020, contains SymPy data: False",
         )
 
         data = decaydata.load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
         self.assertEqual(
-            data.__repr__(),
+            repr(data),
             "Decay dataset: icrp107_ame2020_nubase2020, contains SymPy data: True",
         )
 
