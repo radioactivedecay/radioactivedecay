@@ -1,7 +1,9 @@
 # Changelog
 
-## [0.4.16] - 2022-10-##
-- Added support for Python v3.11.
+## [0.4.16] - 2022-10-29
+- Added support for Python v3.11. Use latest importlib-resources API (`files()` etc.) to fix
+warnings. Fix pylint `__repr__()` usage warnings in tests. Use isort to sort imports and check in
+code formatting action (#85).
 
 ## [0.4.15] - 2022-09-08
 - Fix normal precision inventory unit tests for `decay()` and `cumulative_decays()` methods (#84).
