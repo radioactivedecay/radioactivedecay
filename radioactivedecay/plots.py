@@ -4,11 +4,11 @@ class ``plot()`` method, and activity decay graphs via the Inventory class ``plo
 
 """
 
-from typing import List, Set, Optional, Tuple
+from typing import List, Optional, Set, Tuple
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 # pylint: disable=too-many-arguments, too-many-locals
 

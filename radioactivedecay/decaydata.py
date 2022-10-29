@@ -21,20 +21,21 @@ DEFAULTDATA : DecayData
     decay data and AME2020 and Nubase2020 for atomic mass data.
 """
 
-from abc import ABC, abstractmethod
 import pathlib
 import pickle
+from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
+
 import numpy as np
 import pkg_resources
-from scipy import sparse
 import sympy
+from scipy import sparse
 from sympy import Matrix
-from sympy.matrices import SparseMatrix
 from sympy.core.expr import Expr
+from sympy.matrices import SparseMatrix
+
 from radioactivedecay.converters import UnitConverterFloat
 from radioactivedecay.utils import parse_nuclide
-
 
 # importlib.resources is new in Python version 3.7
 # this block adds support using a backport for Python <3.7
@@ -688,13 +689,13 @@ def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
 
     """
 
-    with resources.files(f"{__package__}.{subpackage_dir}").joinpath(filename).open("rb") as file:
+    with resources.files(f"{__package__}.{subpackage_dir}").joinpath(filename).open(
+        "rb"
+    ) as file:
         return pickle.load(file)
 
 
-def _load_pickle_file(
-    dataset_name: str, dir_path: Optional[str], filename: str
-) -> Any:
+def _load_pickle_file(dataset_name: str, dir_path: Optional[str], filename: str) -> Any:
     """
     Load an object from a pickle file which is located either in a sub-package of
     ``radioactivedecay`` or within a local system directory.

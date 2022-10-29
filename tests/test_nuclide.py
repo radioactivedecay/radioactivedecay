@@ -3,6 +3,7 @@ Unit tests for nuclide.py functions, classes and methods.
 """
 
 import unittest
+
 from radioactivedecay.decaydata import load_dataset
 from radioactivedecay.nuclide import Nuclide
 

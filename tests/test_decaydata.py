@@ -3,10 +3,12 @@ Unit tests for decaydata.py functions, classes and methods.
 """
 
 import unittest
+
 import numpy as np
 from scipy import sparse
-from sympy import Integer, log, Matrix
+from sympy import Integer, Matrix, log
 from sympy.matrices import SparseMatrix
+
 from radioactivedecay import decaydata, icrp107_ame2020_nubase2020
 
 

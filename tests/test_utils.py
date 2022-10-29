@@ -3,19 +3,21 @@ Unit tests for utils.py functions.
 """
 
 import unittest
+
 import numpy as np
 from sympy import Integer, log
+
 from radioactivedecay.utils import (
-    get_metastable_chars,
+    NuclideStrError,
     Z_to_elem,
-    elem_to_Z,
+    add_dictionaries,
     build_id,
     build_nuclide_string,
-    NuclideStrError,
-    parse_nuclide_str,
+    elem_to_Z,
+    get_metastable_chars,
     parse_id,
     parse_nuclide,
-    add_dictionaries,
+    parse_nuclide_str,
     sort_dictionary_alphabetically,
     sort_list_according_to_dataset,
 )

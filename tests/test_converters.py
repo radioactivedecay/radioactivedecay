@@ -3,13 +3,15 @@ Unit tests for converts.py classes and methods.
 """
 
 import unittest
+
 from sympy import Integer, log
+
 from radioactivedecay.converters import (
     AVOGADRO,
-    UnitConverterFloat,
-    UnitConverterSympy,
     QuantityConverterFloat,
     QuantityConverterSympy,
+    UnitConverterFloat,
+    UnitConverterSympy,
 )
 
 

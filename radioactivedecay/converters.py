@@ -13,6 +13,7 @@ as ``rd``:
 
 from abc import ABC
 from typing import Dict, Union
+
 from sympy import Integer, nsimplify
 from sympy.core.expr import Expr
 
