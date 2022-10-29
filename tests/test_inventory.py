@@ -697,7 +697,7 @@ class TestInventory(unittest.TestCase):
 
         inv = Inventory({"H-3": 10.0}, "Bq")
         self.assertEqual(
-            inv.__repr__(),
+            repr(inv),
             "Inventory activities (Bq): {'H-3': 10.0}, decay dataset: icrp107_ame2020_nubase2020",
         )
 
@@ -923,7 +923,7 @@ class TestInventoryHP(unittest.TestCase):
 
         inv = InventoryHP({"H-3": 10.0}, "Bq")
         self.assertEqual(
-            inv.__repr__(),
+            repr(inv),
             "InventoryHP activities (Bq): {'H-3': 10.0}, decay dataset: icrp107_ame2020_nubase2020",
         )
 
