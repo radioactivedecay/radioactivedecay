@@ -113,7 +113,6 @@ class AbstractInventory(ABC):
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
     ) -> None:
-
         self.decay_data = decay_data
         self.decay_matrices = self._get_decay_matrices()
 
@@ -1216,7 +1215,6 @@ class InventoryHP(AbstractInventory):
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
     ) -> None:
-
         if check is True:
             try:
                 assert decay_data.sympy_data

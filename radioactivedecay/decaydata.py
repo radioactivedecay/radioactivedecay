@@ -252,7 +252,6 @@ class DecayMatricesScipy(DecayMatrices):
         )
 
     def __repr__(self) -> str:
-
         return (
             "DecayMatricesScipy: data stored in SciPy/NumPy objects for double precision "
             "calculations."
@@ -337,7 +336,6 @@ class DecayMatricesSympy(DecayMatrices):
         )
 
     def __repr__(self) -> str:
-
         return (
             "DecayMatricesSympy: data stored in SymPy objects for arbitrary-precision "
             "calculations."
@@ -415,7 +413,6 @@ class DecayData:
         sympy_data: Optional[DecayMatricesSympy] = None,
         sympy_year_conv: Optional[Expr] = None,
     ) -> None:
-
         self.dataset_name = dataset_name
         self.bfs = bfs
         self.float_year_conv = float_year_conv
