@@ -272,7 +272,7 @@ class UnitConverterFloat(UnitConverter):
         "TCi": 1.0e12 * 3.7e10,
         "PCi": 1.0e15 * 3.7e10,
         "ECi": 1.0e18 * 3.7e10,
-        "dpm": 60.0,
+        "dpm": 1.0 / 60.0,
     }
 
     mass_units: Dict[str, float] = {
@@ -364,7 +364,7 @@ class UnitConverterSympy(UnitConverter):
         "TCi": Integer(1000000000000) * 37000000000,
         "PCi": Integer(1000000000000000) * 37000000000,
         "ECi": Integer(1000000000000000000) * 37000000000,
-        "dpm": Integer(60),
+        "dpm": Integer(1) / 60,
     }
 
     mass_units: Dict[str, Expr] = {

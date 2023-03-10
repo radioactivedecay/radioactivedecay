@@ -22,7 +22,8 @@ def warning_message_if_dict_not_equal(
     calculated: Dict[str, float], expected: Dict[str, float]
 ) -> None:
     """
-    Warning message if calculated dictionary of floats is not equal to expected dictionary of floats.
+    Warning message if calculated dictionary of floats is not equal to expected dictionary of
+    floats.
     """
 
     return (
