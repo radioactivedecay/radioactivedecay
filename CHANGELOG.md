@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.17] - 2023-03-10
+- Fix bug where the conversion of dpm to other activity units, and vice versa, was incorrect (#87 &
+#88).
+
 ## [0.4.16] - 2022-10-29
 - Added support for Python v3.11. Use latest importlib-resources API (`files()` etc.) to fix
 warnings. Fix pylint `__repr__()` usage warnings in tests. Use isort to sort imports and check in

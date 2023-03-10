@@ -246,6 +246,7 @@ Special thanks to:
 * `Jonathan Wing <https://github.com/JWingUtk>`_
 * `radioactivedecay-github <https://github.com/radioactivedecay-github>`_
 * `Christian Schreinemachers <https://github.com/Cs137>`_
+* `Sean Neutzmann <https://github.com/snuetzmann>`_
 
 for suggestions, support and assistance to this project.
 
