@@ -387,9 +387,7 @@ class TestUnitConverterFloat(unittest.TestCase):
             places=(18 + 15),
         )
 
-        self.assertEqual(
-            UnitConverterFloat.activity_unit_conv(1.0, "Bq", "dpm"), 1.0 / 60.0
-        )
+        self.assertEqual(UnitConverterFloat.activity_unit_conv(1.0, "Bq", "dpm"), 60.0)
 
         # Catch some incorrect activity units
         with self.assertRaises(ValueError):
@@ -740,7 +738,7 @@ class TestUnitConverterSympy(unittest.TestCase):
 
         self.assertEqual(
             UnitConverterSympy.activity_unit_conv(Integer(1), "Bq", "dpm"),
-            1 / Integer(60),
+            Integer(60),
         )
 
         # Catch some incorrect activity units
