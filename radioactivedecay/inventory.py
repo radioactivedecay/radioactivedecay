@@ -126,7 +126,9 @@ class AbstractInventory(ABC):
         else:
             contents_with_parsed_keys = contents
         contents_sorted = sort_dictionary_alphabetically(contents_with_parsed_keys)
-        self.contents = self._convert_to_number(contents_sorted, units)
+        self.contents = self._convert_to_number(
+            contents_sorted, units, self.decay_data.dataset_name
+        )
 
     @staticmethod
     def _parse_nuclides(
@@ -189,6 +191,7 @@ class AbstractInventory(ABC):
         self,
         contents: Dict[str, Union[float, Expr]],
         units: str,
+        dataset_name: str,
     ) -> Dict[str, Union[float, Expr]]:
         """
         Converts an inventory dictionary where the values are masses, moles or activities to one
@@ -210,20 +213,29 @@ class AbstractInventory(ABC):
         Raises
         ------
         ValueError
-            If the units supplied are invalid.
+            If the units supplied are invalid or an activity is supplied for a stable nuclide.
 
         """
 
         if units == "num":
             contents_as_numbers = contents
         elif units in self._get_unit_converter().activity_units:
-            contents_as_numbers = {
-                nuc: self._get_quantity_converter().activity_to_number(
+            contents_as_numbers = {}
+            for nuc, act in contents.items():
+                decay_const = self._get_decay_const(nuc)
+                if decay_const == 0:
+                    raise ValueError(
+                        f"{nuc} is a stable radionuclide in {dataset_name} decay dataset. "
+                        "Initializing an inventory with an activity for a stable nuclide (i.e. "
+                        f"{act} {units} for {nuc}) has no physical meaning. Initialize using a "
+                        "mass or mole quantity instead."
+                    )
+                contents_as_numbers[
+                    nuc
+                ] = self._get_quantity_converter().activity_to_number(
                     self._get_unit_converter().activity_unit_conv(act, units, "Bq"),
-                    self._get_decay_const(nuc),
+                    decay_const,
                 )
-                for nuc, act in contents.items()
-            }
         elif units in self._get_unit_converter().moles_units:
             contents_as_numbers = {
                 nuc: self._get_quantity_converter().moles_to_number(
