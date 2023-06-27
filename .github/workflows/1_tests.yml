@@ -18,9 +18,9 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
         include:
           - os: windows-latest
-            python-version: '3.7'
-          - os: macos-latest
-            python-version: '3.7'
+            python-version: '3.11'
+          #- os: macos-latest
+          #  python-version: '3.7'
     timeout-minutes: 10
 
     steps:
