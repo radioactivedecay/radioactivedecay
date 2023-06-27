@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.18] - 2023-06-27
+-  Prohibit instantiation of an inventory if the user supplies an activity for a stable nuclide
+(#92).
+
 ## [0.4.17] - 2023-03-10
 - Fix bug where the conversion of dpm to other activity units, and vice versa, was incorrect (#87 &
 #88).

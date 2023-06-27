@@ -81,7 +81,7 @@ class TestInventory(unittest.TestCase):
         inv = Inventory({tritium: 1.0}, "num", True)
         self.assertEqual(inv.contents, {"H-3": 1})
 
-        # check that check=False turns off nuclide string convertion and quantity check
+        # check that check=False turns off nuclide string conversion and quantity check
         inv = Inventory({"H3": 1.0}, "num", False)
         self.assertEqual(inv.contents, {"H3": 1.0})
         inv = Inventory({"H-3": -1.0}, "num", False)
@@ -91,9 +91,13 @@ class TestInventory(unittest.TestCase):
         inv = Inventory({"He-3": 2.0, "H-3": 1.0}, "num", False)
         self.assertEqual(inv.contents, {"H-3": 1.0, "He-3": 2.0})
 
-        # check converion of input quantity to number
+        # check conversion of input quantity to number
         inv = Inventory({"H-3": 1.0}, "mBq")
         self.assertEqual(inv.contents, {"H-3": 560892.8957794083})
+
+        # check instantiation with a stable nuclide activity raises a ValueError
+        with self.assertRaises(ValueError):
+            Inventory({"He-3": 0.0}, "Bq", False)
 
     def test__parse_nuclides(self) -> None:
         """
@@ -141,29 +145,29 @@ class TestInventory(unittest.TestCase):
 
         inv = Inventory({"H3": 1}, "num", True)
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "num"),
+            inv._convert_to_number({"H-3": 1.0}, "num", "dataset_name"),
             {"H-3": 1.0},
         )
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "Bq"),
+            inv._convert_to_number({"H-3": 1.0}, "Bq", "dataset_name"),
             {"H-3": 560892895.7794082},
         )
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "mBq"),
+            inv._convert_to_number({"H-3": 1.0}, "mBq", "dataset_name"),
             {"H-3": 560892.8957794083},
         )
         self.assertEqual(
-            inv._convert_to_number({"H-3": 1.0}, "mol"),
+            inv._convert_to_number({"H-3": 1.0}, "mol", "dataset_name"),
             {"H-3": 6.02214076e23},
         )
         self.assertEqual(
-            inv._convert_to_number({"He-3": 1.0}, "kg"),
+            inv._convert_to_number({"He-3": 1.0}, "kg", "dataset_name"),
             {"He-3": 1.9967116089131648e26},
         )
 
         # check catch of incorrect units
         with self.assertRaises(ValueError):
-            inv._convert_to_number({"H-3": 1.0}, "xyz")
+            inv._convert_to_number({"H-3": 1.0}, "xyz", "dataset_name")
 
     def test_nuclides(self) -> None:
         """
@@ -728,6 +732,10 @@ class TestInventoryHP(unittest.TestCase):
         temp_data._sympy_data = None
         with self.assertRaises(ValueError):
             InventoryHP({"H3": 1}, "Bq", True, temp_data)
+
+        # check instantiation with a stable nuclide activity raises a ValueError
+        with self.assertRaises(ValueError):
+            InventoryHP({"He-3": 0.0}, "Bq", False)
 
     def test_numbers(self) -> None:
         """

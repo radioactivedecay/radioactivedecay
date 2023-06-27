@@ -244,9 +244,10 @@ Special thanks to:
 * `Hunter Ratliff <https://hratliff.com/>`_
 * `Jayson Vavrek <https://github.com/jvavrek>`_
 * `Jonathan Wing <https://github.com/JWingUtk>`_
-* `radioactivedecay-github <https://github.com/radioactivedecay-github>`_
+* `@radioactivedecay-github <https://github.com/radioactivedecay-github>`_
 * `Christian Schreinemachers <https://github.com/Cs137>`_
 * `Sean Neutzmann <https://github.com/snuetzmann>`_
+* `@buresjan <https://github.com/buresjan>`_
 
 for suggestions, support and assistance to this project.
 
