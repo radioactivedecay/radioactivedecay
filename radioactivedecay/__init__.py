@@ -25,7 +25,7 @@ imported as ``rd``:
 
 """
 
-__version__ = "0.4.18"
+__version__ = "0.4.19"
 
 from radioactivedecay.decaydata import DEFAULTDATA, DecayData
 from radioactivedecay.inventory import Inventory, InventoryHP

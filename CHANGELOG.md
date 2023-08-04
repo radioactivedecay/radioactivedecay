@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.19] - 2023-08-05
+-  Fix bug whereby inventories would not instantiate with NumPy int datatypes (e.g. `numpy.int32`)
+for the nuclide quantity in the instantiation dictionary. Previously a ValueError was raised (#96).
+
 ## [0.4.18] - 2023-06-27
 -  Prohibit instantiation of an inventory if the user supplies an activity for a stable nuclide
 (#92).
