@@ -16,6 +16,7 @@ as ``rd``:
 
 """
 
+import numbers
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -155,7 +156,7 @@ class AbstractInventory(ABC):
         """Checks that the nuclide quantities in contents (dictionary values) are valid."""
 
         for nuc, inp in contents.items():
-            if isinstance(inp, (float, int, Expr)):
+            if isinstance(inp, (numbers.Number, Expr)):
                 if inp >= 0:
                     continue
             raise ValueError(f"{inp} is not a valid quantity of nuclide {nuc}.")

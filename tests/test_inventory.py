@@ -9,6 +9,7 @@ import warnings
 from typing import Dict
 from unittest.mock import patch
 
+import numpy as np
 from sympy import Integer, log
 
 from radioactivedecay.decaydata import DEFAULTDATA, load_dataset
@@ -98,6 +99,10 @@ class TestInventory(unittest.TestCase):
         # check instantiation with a stable nuclide activity raises a ValueError
         with self.assertRaises(ValueError):
             Inventory({"He-3": 0.0}, "Bq", False)
+
+        # check instantiation with NumPy int datatype
+        inv = Inventory({"H-3": np.int32(1)}, "num")
+        self.assertEqual(inv.contents, {"H-3": 1})
 
     def test__parse_nuclides(self) -> None:
         """
