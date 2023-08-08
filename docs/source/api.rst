@@ -9,6 +9,7 @@ API
    :caption: Modules:
    
    decaydata
+   fileio
    inventory
    nuclide
    utils

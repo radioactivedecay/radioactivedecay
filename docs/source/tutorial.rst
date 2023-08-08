@@ -65,6 +65,28 @@ to contain activities in Bq. The user can easily specify different units:
     >>> inv.numbers()
     {'U-234': 1500.0, 'U-235': 3000.0, 'U-238': 2000.0}
 
+It is also possible to create an inventory by reading directly from a CSV-type
+file via the ``rd.read_csv()`` function. The file's first column should contain
+the nuclides, and the second column the amount of each nuclide.
+
+An optional third column can be provided with the unit, which can differ for
+each nuclide. This makes it possible to load an inventory from mixed activity,
+moles or mass units for each nuclide.
+
+Example CSV file, saved as e.g. ``example_file.csv``:
+
+.. code-block:: text
+
+    nuclide|amount|units
+    C-14|5.0|Ci
+    H-3|0.2|g
+    He-3|1|mol
+
+Read command - ``skip_rows=1`` is required to ignore the header row:
+
+.. code-block:: python3
+
+    >>> inv = rd.read_csv('example_file.csv', delimiter='|', skip_rows=1)
 
 Radioactive decay calculations
 ------------------------------
