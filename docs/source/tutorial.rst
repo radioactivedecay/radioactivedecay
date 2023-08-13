@@ -446,3 +446,24 @@ constant as follows:
     >>> inv.numbers()
     {'Sr-90': 1.0, 'Cs-137': 1.0} 
 
+Writing results to a file
+-------------------------
+
+Similar to ``rd.read_csv()``, inventory objects have a ``.to_csv()`` method for
+writing out the contents of an inventory to a CSV-type file. The user specifies
+the filename, the units to be used, whether the units should be written into
+the file (via the third column), the delimiter e.g. comma for a CSV file,
+tab (``'\t'``) for a TSV file, and the header line for the file:
+
+.. code-block:: python3
+
+    >>> inv = rd.Inventory({'Cs-137': 1.02, 'Sr-90': 3.05}, 'Bq')
+    >>> inv.to_csv('test_output.csv', units='mBq', delimiter='|', write_units=True, header=["nuclide", "quantity", "units"])
+
+This produces a file named "test_output.csv" containing:
+
+.. code-block:: text
+
+    nuclide|amount|units
+    Cs-137|1020.0|mBq
+    Sr-90|3050.0|mBq
