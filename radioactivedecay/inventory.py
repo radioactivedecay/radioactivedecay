@@ -16,7 +16,9 @@ as ``rd``:
 
 """
 
+import csv
 import numbers
+import pathlib
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -69,6 +71,19 @@ except ImportError:
         wrapper.register = dispatcher.register
         update_wrapper(wrapper, func)
         return wrapper
+
+
+def _write_csv_file(
+    filename: Union[str, pathlib.Path],
+    rows: List[List[str]],
+    delimiter: str,
+    encoding: str,
+) -> None:
+    """Write a CSV file from a list of rows."""
+
+    with open(filename, "w", encoding=encoding, newline="") as file:
+        writer_object = csv.writer(file, delimiter=delimiter)
+        writer_object.writerows(rows)
 
 
 # pylint: disable=too-many-arguments, too-many-lines, too-many-locals
@@ -982,6 +997,70 @@ class AbstractInventory(ABC):
         )
 
         return fig, axes
+
+    def to_csv(
+        self,
+        filename: Union[str, pathlib.Path],
+        units: str = "Bq",
+        delimiter: str = ",",
+        write_units: bool = False,
+        header: Optional[List[str]] = None,
+        encoding: str = "utf-8",
+    ) -> None:
+        """
+        Write the contents of the inventory to a CSV file.
+
+        The first column written is the nuclide, the second is the quantity of each nuclide in the
+        chosen ``units`` (activity, mass, moles etc.), and optionally (if ``write_units=True``) the
+        third column is the unit.
+
+        Parameters
+        ----------
+        filename : str or pathlib.Path
+            The name or path of the file to write.
+        units : str, optional
+            The units to output each nuclide quantity in. Default is 'Bq'. Specify 'num' if you
+            require the number of atoms of each nuclide.
+        delimiter : str, optional
+            The delimiter to separate entries in the CSV file. Default is a comma. Specify '\t' for
+            a tab-separated (i.e. TSV) file.
+        write_units : bool, optional
+            Write a third column with the units of each nuclide quantity. Default is False.
+        header : None or str, optional
+            Header row to write on first line of file. Default is None (i.e. no header row). If you
+            want to include a header, pass a list of strings with the name for each column, e.g.
+            ``['nuclide', 'quantity', 'units']`` if writing a units column.
+        encoding : str, optional
+            Encoding of the file. Default is 'utf-8'.
+
+        Raises
+        ------
+        ValueError
+            If the specified units are invalid.
+
+        """
+
+        unit_converter = self._get_unit_converter()
+        if units in unit_converter.activity_units:
+            contents = self.activities(units=units)
+        elif units in unit_converter.mass_units:
+            contents = self.masses(units=units)
+        elif units in unit_converter.moles_units:
+            contents = self.moles(units=units)
+        elif units == "num":
+            contents = self.numbers()
+        else:
+            raise ValueError(f"Unknown units string specified: {units}")
+
+        rows = [header] if header else []
+        for nuclide, quantity in contents.items():
+            rows.append(
+                [nuclide, str(quantity), units]
+                if write_units
+                else [nuclide, str(quantity)]
+            )
+
+        _write_csv_file(filename, rows, delimiter, encoding)
 
     def __eq__(self, other: object) -> bool:
         """

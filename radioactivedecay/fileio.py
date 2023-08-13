@@ -98,8 +98,8 @@ def read_csv(
     filepath : str or pathlib.Path
         Name or path of the file to read in.
     inventory_type : str, optional
-        The type of inventory you want to create. Either "Inventory" (default) for a normal
-        precision (SciPy) inventory, or "InventoryHP" for a high precision (SymPy) inventory.
+        The type of inventory you want to create. Either 'Inventory' (default) for a normal
+        precision (SciPy) inventory, or 'InventoryHP' for a high precision (SymPy) inventory.
     units : None or str, optional
         The units of all the nuclide quantities in the file. If a unit is specified on a row of the
         file in the third column, that unit will override this one. If ``units = None`` is
@@ -109,8 +109,8 @@ def read_csv(
         The decay dataset to create the inventory with. If None is specified (default), the default
         of the inventory constructor will be used (which currently is the ICRP-107 dataset).
     delimiter : str, optional
-        The delimiter used to separate items in the file. Default is comma (",", CSV format).
-        Ex. if ``delimiter = "\t"`` (tab) will attempt to read a TSV file.
+        The delimiter used to separate items in the file. Default is comma (',', CSV format).
+        Ex. if ``delimiter = '\t'`` (tab) will attempt to read a TSV file.
     skip_rows : int, optional
         Number of rows to ignore at the start of the file. Default is 0. Use this parameter
         to ignore a header row if the file has one (e.g. ``nuclide,quantity,unit``).

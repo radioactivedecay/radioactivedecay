@@ -669,6 +669,82 @@ class TestInventory(unittest.TestCase):
         with self.assertRaises(ValueError):
             inv.plot(100, "ky", yunits="invalid")
 
+    @patch("radioactivedecay.inventory._write_csv_file")
+    def test_to_csv_invalid_units(self, mock__write_csv_file) -> None:
+        """
+        Test writing Inventory to csv file with invalid units.
+        """
+
+        inv = Inventory({"H-3": 10.0, "14C": 50.0})
+        with self.assertRaises(ValueError):
+            inv.to_csv("test_file.csv", units="fake")
+
+    @patch("radioactivedecay.inventory._write_csv_file")
+    def test_to_csv_write_units(self, mock__write_csv_file) -> None:
+        """
+        Test writing Inventory to csv file including writing units.
+        """
+
+        inv = Inventory({"H-3": 10.0, "14C": 50.0})
+        kwargs = {
+            "filename": "test_file.csv",
+            "delimiter": "\t",
+            "write_units": True,
+            "encoding": "utf-16",
+        }
+        inv.to_csv(**kwargs)
+        mock__write_csv_file.assert_called_once_with(
+            kwargs["filename"],
+            [["C-14", "50.0", "Bq"], ["H-3", "10.0", "Bq"]],
+            kwargs["delimiter"],
+            kwargs["encoding"],
+        )
+
+    @patch("radioactivedecay.inventory._write_csv_file")
+    def test_to_csv_dont_write_units(self, mock__write_csv_file) -> None:
+        """
+        Test writing Inventory to csv file without writing units.
+        """
+
+        inv = Inventory({"H-3": 10.0}, "kg")
+        kwargs = {
+            "filename": "test_file.csv",
+            "units": "g",
+        }
+        inv.to_csv(**kwargs)
+        mock__write_csv_file.assert_called_with(
+            kwargs["filename"],
+            [["H-3", "10000.0"]],
+            ",",
+            "utf-8",
+        )
+
+        inv = Inventory({"H-3": 20.2}, "mol")
+        kwargs = {
+            "filename": "test_file.csv",
+            "units": "mmol",
+        }
+        inv.to_csv(**kwargs)
+        mock__write_csv_file.assert_called_with(
+            kwargs["filename"],
+            [["H-3", "20200.0"]],
+            ",",
+            "utf-8",
+        )
+
+        inv = Inventory({"H-3": 20.2}, "num")
+        kwargs = {
+            "filename": "test_file.csv",
+            "units": "num",
+        }
+        inv.to_csv(**kwargs)
+        mock__write_csv_file.assert_called_with(
+            kwargs["filename"],
+            [["H-3", "20.2"]],
+            ",",
+            "utf-8",
+        )
+
     def test___eq__(self) -> None:
         """
         Test Inventory equality.
@@ -928,6 +1004,32 @@ class TestInventoryHP(unittest.TestCase):
         self.assertEqual(axes.get_xlim()[0], 0.0707945784384138)
         self.assertEqual(axes.get_ylim(), (949.999999633917, 2100.0))
         self.assertEqual(axes.get_legend_handles_labels()[-1], ["K-40", "C-14"])
+
+    @patch("radioactivedecay.inventory._write_csv_file")
+    def test_to_csv_write_units(self, mock__write_csv_file) -> None:
+        """
+        Test writing Inventory to csv file including writing units.
+        """
+
+        inv = InventoryHP({"H-3": 10.0, "14C": 50.0})
+        kwargs = {
+            "filename": "test_file.csv",
+            "delimiter": "\t",
+            "write_units": True,
+            "header": ["nuclide", "quantity", "units"],
+            "encoding": "utf-16",
+        }
+        inv.to_csv(**kwargs)
+        mock__write_csv_file.assert_called_once_with(
+            kwargs["filename"],
+            [
+                ["nuclide", "quantity", "units"],
+                ["C-14", "50.0", "Bq"],
+                ["H-3", "10.0", "Bq"],
+            ],
+            kwargs["delimiter"],
+            kwargs["encoding"],
+        )
 
     def test___repr__(self) -> None:
         """
