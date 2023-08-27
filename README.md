@@ -10,7 +10,7 @@
 [![Tests Coverage](https://codecov.io/gh/radioactivedecay/radioactivedecay/branch/master/graph/badge.svg?token=RX5HSELRYH)](https://codecov.io/gh/radioactivedecay/radioactivedecay)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/3_code_formatting.yml)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.03318/status.svg)](https://doi.org/10.21105/joss.03318)
-[![Downloads](https://pepy.tech/badge/radioactivedecay)](https://pepy.tech/project/radioactivedecay)
+[![Downloads](https://static.pepy.tech/badge/radioactivedecay)](https://pepy.tech/project/radioactivedecay)
 
 ``radioactivedecay`` is a Python package for radioactive decay calculations.
 It supports decay chains of radionuclides, metastable states and branching
