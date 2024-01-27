@@ -3,7 +3,7 @@
 ***
 
 [![PyPI](https://img.shields.io/pypi/v/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
-[![Conda](https://anaconda.org/conda-forge/radioactivedecay/badges/version.svg](https://anaconda.org/conda-forge/radioactivedecay)
+[![Conda](https://anaconda.org/conda-forge/radioactivedecay/badges/version.svg)](https://anaconda.org/conda-forge/radioactivedecay)
 [![Python Version](https://img.shields.io/pypi/pyversions/radioactivedecay)](https://pypi.org/project/radioactivedecay/)
 [![Latest Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://radioactivedecay.github.io/)
 [![Tests](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml/badge.svg)](https://github.com/radioactivedecay/radioactivedecay/actions/workflows/1_tests.yml)
