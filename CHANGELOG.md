@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.22] - 2024-01-27
+- Added explicit support for Python v3.12. 
+
 ## [0.4.21] - 2023-08-13
 - Add `Inventory.to_csv()` and `InventoryHP.to_csv()` methods for writing an inventory's contents
 to a CSV file (in user's chosen units) (#94).
