@@ -133,10 +133,10 @@ class AbstractInventory(ABC):
         self.decay_matrices = self._get_decay_matrices()
 
         if check is True:
-            contents_with_parsed_keys: Dict[
-                str, Union[float, Expr]
-            ] = self._parse_nuclides(
-                contents, self.decay_data.nuclides, self.decay_data.dataset_name
+            contents_with_parsed_keys: Dict[str, Union[float, Expr]] = (
+                self._parse_nuclides(
+                    contents, self.decay_data.nuclides, self.decay_data.dataset_name
+                )
             )
             self._check_values(contents_with_parsed_keys)
         else:
@@ -647,12 +647,14 @@ class AbstractInventory(ABC):
         """Remove list of nuclide(s) from this inventory."""
 
         delete_list = [
-            parse_nuclide(
-                nuc.nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
-            )
-            if isinstance(nuc, Nuclide)
-            else parse_nuclide(
-                nuc, self.decay_data.nuclides, self.decay_data.dataset_name
+            (
+                parse_nuclide(
+                    nuc.nuclide, self.decay_data.nuclides, self.decay_data.dataset_name
+                )
+                if isinstance(nuc, Nuclide)
+                else parse_nuclide(
+                    nuc, self.decay_data.nuclides, self.decay_data.dataset_name
+                )
             )
             for nuc in delete
         ]
