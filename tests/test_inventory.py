@@ -616,6 +616,31 @@ class TestInventory(unittest.TestCase):
             {"C-14": ["\u03b2-"], "K-40": ["\u03b2-", "\u03b2+ \u0026 EC"]},
         )
 
+    def test_calculate_decay_data(self) -> None:
+        """
+        Test method to fetch decay data of nuclides in the Inventory.
+        """
+        inv = Inventory({"C-14": 1.0})
+        self.assertEqual(
+            inv.calculate_decay_data(
+                time_period=10, time_units="ky", decay_units="mass_frac", npoints=4
+            ),
+            {
+                "C-14": [
+                    1.0,
+                    0.6667465897861368,
+                    0.4445504227269143,
+                    0.2964018201597633,
+                ],
+                "N-14": [
+                    0.0,
+                    0.3332534102138631,
+                    0.5554495772730857,
+                    0.7035981798402366,
+                ],
+            },
+        )
+
     @patch("matplotlib.pyplot.show")
     def test_plot(self, mock_show) -> None:
         """
