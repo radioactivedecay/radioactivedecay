@@ -17,6 +17,8 @@ as ``rd``:
 """
 
 import csv
+import collections
+import itertools
 import numbers
 import pathlib
 from abc import ABC, abstractmethod
@@ -24,6 +26,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import matplotlib
 import numpy as np
+import pandas as pd
 from scipy import sparse
 from sympy import Integer, Matrix, exp, nsimplify
 from sympy.core.expr import Expr
@@ -827,6 +830,168 @@ class AbstractInventory(ABC):
         return {
             nuc: Nuclide(nuc, self.decay_data).decay_modes() for nuc in self.contents
         }
+
+    def calculate_decay_data(
+        self,
+        time_period: Union[float, np.ndarray],
+        time_units: str = "s",
+        time_scale: str = "linear",
+        decay_units="Bq",
+        npoints: int = 501,
+    ) -> Dict[str, List[float]]:
+        """
+        Returns a dictionary with the initial isotope and all decay progeny decayed for the amount of time specified by
+        time_period.
+
+        Parameters
+        ----------
+        time_period : Union[float, np.ndarray]
+            Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
+            If an numpy ndarray is provided, the values contained within are used.
+        time_units : str, optional
+            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
+            seconds. Use 'readable' to get strings of the half-lives in human-readable units.
+        time_scale : str, optional
+            The time axis scale type to apply ('linear' or 'log', default is 'linear').
+        decay_units : str, optional
+            Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
+            'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
+        npoints : None or int, optional
+            Number of time points used to plot graph (default is 501 for normal precision decay
+            calculations, or 51 for high precision decay calculations).
+
+        Returns
+        -------
+        dict
+            Dictionary with nuclide strings as keys and a list of the requested unit type as values.
+
+        Raises
+        ------
+        ValueError
+            If the decay_units parameter is invalid.
+
+        Examples
+        --------
+        >>> inv = rd.Inventory({'C-14': 1.0})
+        >>> inv.calculate_decay_data(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
+        {'C-14': [1.0, 0.6667465897861368, 0.4445504227269143, 0.2964018201597633], 'N-14': [0.0, 0.3332534102138631, 0.5554495772730857, 0.7035981798402366]}
+
+        """
+        tmin = 0.0 if time_scale == "linear" else 0.1
+
+        time_points = (
+            time_period
+            if isinstance(time_period, np.ndarray)
+            else (
+                np.linspace(tmin, time_period, num=npoints)
+                if time_scale == "linear"
+                else np.logspace(np.log10(tmin), np.log10(time_period), num=npoints)
+            )
+        )
+
+        data_map = map(self.decay, time_points, itertools.repeat(time_units))
+        decayed_data = collections.defaultdict(list)
+
+        if decay_units in self._get_unit_converter().activity_units:
+            for e in data_map:
+                for iso, en in e.activities(decay_units).items():
+                    decayed_data[iso].append(en)
+        elif decay_units in self._get_unit_converter().moles_units:
+            for e in data_map:
+                for iso, en in e.moles(decay_units).items():
+                    decayed_data[iso].append(en)
+        elif decay_units in self._get_unit_converter().mass_units:
+            for e in data_map:
+                for iso, en in e.masses(decay_units).items():
+                    decayed_data[iso].append(en)
+        elif decay_units == "num":
+            for e in data_map:
+                for iso, en in e.numbers().items():
+                    decayed_data[iso].append(en)
+        elif decay_units == "activity_frac":
+            for e in data_map:
+                for iso, en in e.activity_fractions().items():
+                    decayed_data[iso].append(en)
+        elif decay_units == "mass_frac":
+            for e in data_map:
+                for iso, en in e.mass_fractions().items():
+                    decayed_data[iso].append(en)
+        elif decay_units == "mol_frac":
+            for e in data_map:
+                for iso, en in e.mole_fractions().items():
+                    decayed_data[iso].append(en)
+        else:
+            raise ValueError(f"{decay_units} is not a supported y-axes unit.")
+
+        decayed_data[f"Time ({time_units})"] = list(time_points)
+
+        # A defaultdict is still a dict, but lets be consistent with the rest of the project and return a dict
+        return dict(decayed_data)
+
+    def decay_data_as_dataframe(
+        self,
+        time_period: Union[float, np.ndarray],
+        time_units: str = "s",
+        time_scale: str = "linear",
+        decay_units="Bq",
+        npoints: int = 501,
+    ) -> pd.DataFrame:
+        """
+        Returns a dictionary with the initial isotope and all decay progeny decayed for the amount of time specified by
+        time_period.
+
+        Parameters
+        ----------
+        time_period : Union[float, np.ndarray]
+            Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
+            If an numpy ndarray is provided, the values contained within are used.
+        time_units : str, optional
+            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
+            seconds. Use 'readable' to get strings of the half-lives in human-readable units.
+        time_scale : str, optional
+            The time axis scale type to apply ('linear' or 'log', default is 'linear').
+        decay_units : str, optional
+            Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
+            'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
+        npoints : None or int, optional
+            Number of time points used to plot graph (default is 501 for normal precision decay
+            calculations, or 51 for high precision decay calculations).
+
+        Returns
+        -------
+        pandas.DataFrame
+            Pandas DataFrame with the data of the decayed Inventory. Each isotope is it's own column, with a row for
+            each time increment. The time column is set as the index.
+
+        Raises
+        ------
+        ValueError
+            If the decay_units parameter is invalid.
+
+        Examples
+        --------
+        >>> inv = rd.Inventory({'C-14': 1.0})
+        >>> inv.decay_data_as_dataframe(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
+                       C-14      N-14
+        Time (ky)
+        0.000000   1.000000  0.000000
+        3.333333   0.666747  0.333253
+        6.666667   0.444550  0.555450
+        10.000000  0.296402  0.703598
+
+
+        """
+        return pd.DataFrame(
+            self.calculate_decay_data(
+                time_period=time_period,
+                time_units=time_units,
+                time_scale=time_scale,
+                decay_units=decay_units,
+                npoints=npoints,
+            )
+        ).set_index(f"Time ({time_units})")
 
     def plot(  # type: ignore
         self,
