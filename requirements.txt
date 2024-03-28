@@ -1,6 +1,7 @@
 matplotlib
 networkx
 numpy
+pandas
 scipy
 setuptools
 sympy
