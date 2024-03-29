@@ -836,9 +836,9 @@ class AbstractInventory(ABC):
         time_period: Union[float, np.ndarray],
         time_units: str = "s",
         time_scale: str = "linear",
-        decay_units="Bq",
+        decay_units: str = "Bq",
         npoints: int = 501,
-    ) -> Dict[str, List[float]]:
+    ) -> pd.DataFrame:
         """
         Returns a dictionary with the initial isotope and all decay progeny decayed for the amount of time specified by
         time_period.
@@ -847,7 +847,7 @@ class AbstractInventory(ABC):
         ----------
         time_period : Union[float, np.ndarray]
             Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
-            If an numpy ndarray is provided, the values contained within are used.
+            If an numpy ndarray is provided, the values contained within are used and <npoints> is ignored.
         time_units : str, optional
             Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
@@ -863,8 +863,9 @@ class AbstractInventory(ABC):
 
         Returns
         -------
-        dict
-            Dictionary with nuclide strings as keys and a list of the requested unit type as values.
+        pandas.DataFrame
+            Pandas DataFrame with the data of the decayed Inventory. Each isotope is it's own column, with a row for
+            each time increment. The time column is set as the index.
 
         Raises
         ------
@@ -874,9 +875,13 @@ class AbstractInventory(ABC):
         Examples
         --------
         >>> inv = rd.Inventory({'C-14': 1.0})
-        >>> inv.calculate_decay_data(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
-        {'C-14': [1.0, 0.6667465897861368, 0.4445504227269143, 0.2964018201597633], 'N-14': [0.0, 0.3332534102138631, 0.5554495772730857, 0.7035981798402366]}
-
+        >>> inv.decay_data_as_dataframe(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
+                       C-14      N-14
+        Time (ky)
+        0.000000   1.000000  0.000000
+        3.333333   0.666747  0.333253
+        6.666667   0.444550  0.555450
+        10.000000  0.296402  0.703598
         """
         tmin = 0.0 if time_scale == "linear" else 0.1
 
@@ -922,21 +927,21 @@ class AbstractInventory(ABC):
                 for iso, en in e.mole_fractions().items():
                     decayed_data[iso].append(en)
         else:
-            raise ValueError(f"{decay_units} is not a supported y-axes unit.")
+            raise ValueError(f"{decay_units} is not a supported decay unit.")
 
-        decayed_data[f"Time ({time_units})"] = list(time_points)
+        time_column: str = f"Time ({time_units})"
+        decayed_data[time_column] = list(time_points)
 
-        # A defaultdict is still a dict, but lets be consistent with the rest of the project and return a dict
-        return dict(decayed_data)
+        return pd.DataFrame(decayed_data).set_index(time_column)
 
-    def decay_data_as_dataframe(
+    def decayed_data(
         self,
         time_period: Union[float, np.ndarray],
         time_units: str = "s",
         time_scale: str = "linear",
-        decay_units="Bq",
+        decay_units: str = "Bq",
         npoints: int = 501,
-    ) -> pd.DataFrame:
+    ) -> Tuple[List[float], Dict[str, List[float]]]:
         """
         Returns a dictionary with the initial isotope and all decay progeny decayed for the amount of time specified by
         time_period.
@@ -961,9 +966,10 @@ class AbstractInventory(ABC):
 
         Returns
         -------
-        pandas.DataFrame
-            Pandas DataFrame with the data of the decayed Inventory. Each isotope is it's own column, with a row for
-            each time increment. The time column is set as the index.
+        List[float]
+            The time points of the decayed data
+        Dict[str, List[float]]
+            The isotopes as the key with the decay values as a list of floats
 
         Raises
         ------
@@ -973,25 +979,22 @@ class AbstractInventory(ABC):
         Examples
         --------
         >>> inv = rd.Inventory({'C-14': 1.0})
-        >>> inv.decay_data_as_dataframe(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
-                       C-14      N-14
-        Time (ky)
-        0.000000   1.000000  0.000000
-        3.333333   0.666747  0.333253
-        6.666667   0.444550  0.555450
-        10.000000  0.296402  0.703598
-
+        >>> time, data = inv.calculate_decay_data(time_period=10, time_units="ky", decay_units="mass_frac", npoints=4)
+        >>> time
+        [0.0, 3.3333333333333335, 6.666666666666667, 10.0]
+        >>> data
+        {'C-14': [1.0, 0.6667465897861368, 0.4445504227269143, 0.2964018201597633], 'N-14': [0.0, 0.3332534102138631, 0.5554495772730857, 0.7035981798402366]}
 
         """
-        return pd.DataFrame(
-            self.calculate_decay_data(
-                time_period=time_period,
-                time_units=time_units,
-                time_scale=time_scale,
-                decay_units=decay_units,
-                npoints=npoints,
-            )
-        ).set_index(f"Time ({time_units})")
+        df = self.calculate_decay_data(
+            time_period=time_period,
+            time_units=time_units,
+            time_scale=time_scale,
+            decay_units=decay_units,
+            npoints=npoints,
+        )
+
+        return (list(df.index), df.to_dict(orient="list"))
 
     def plot(  # type: ignore
         self,
