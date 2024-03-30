@@ -840,7 +840,7 @@ class AbstractInventory(ABC):
         npoints: int = 501,
     ) -> pd.DataFrame:
         """
-        Returns a dictionary with the initial isotope and all decay progeny decayed for the amount of time specified by
+        Returns a dataframe with the initial isotope and all decay progeny decayed for the amount of time specified by
         time_period.
 
         Parameters
@@ -849,13 +849,13 @@ class AbstractInventory(ABC):
             Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
             If an numpy ndarray is provided, the values contained within are used and <npoints> is ignored.
         time_units : str, optional
-            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
             seconds. Use 'readable' to get strings of the half-lives in human-readable units.
         time_scale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         decay_units : str, optional
-            Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
+            Units to use for the decayed values e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
             'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
         npoints : None or int, optional
             Number of time points used to plot graph (default is 501 for normal precision decay
@@ -943,22 +943,23 @@ class AbstractInventory(ABC):
         npoints: int = 501,
     ) -> Tuple[List[float], Dict[str, List[float]]]:
         """
-        Returns a dictionary with the initial isotope and all decay progeny decayed for the amount of time specified by
-        time_period.
+        Returns a list, dict tuple with the initial isotope and all decay progeny decayed for the amount of time specified by
+        time_period. The list contains the time data from the decay calculations, and the dict has the isotope as the key,
+        with decay data contained in a list for the value.
 
         Parameters
         ----------
         time_period : Union[float, np.ndarray]
             Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
-            If an numpy ndarray is provided, the values contained within are used.
+            If an numpy ndarray is provided, the values contained within are used and <npoints> is ignored.
         time_units : str, optional
-            Units for half-life. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
+            Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
             seconds. Use 'readable' to get strings of the half-lives in human-readable units.
         time_scale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         decay_units : str, optional
-            Units to display on the y-axis e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
+            Units to use for the decayed values e.g. 'Bq', 'kBq', 'Ci', 'g', 'mol', 'num',
             'activity_frac', 'mass_frac', 'mol_frac'. Default is 'Bq'.
         npoints : None or int, optional
             Number of time points used to plot graph (default is 501 for normal precision decay
