@@ -92,3 +92,32 @@ with your own Matplotlib parameters, e.g. to save a PNG image:
 
 For more information on handling the figure and axes objects, see the
 `Matplotlib documentation <https://matplotlib.org/contents.html>`_.
+
+To control which progeny are plotted, the ``calculate_decay_data()`` method can
+be use to extract the data into a pandas dataframe which can be filtered as required
+then plotted directly. As the plot method of a dataframe is a `wrapper around Matplotlib
+<https://pandas.pydata.org/docs/user_guide/visualization.html#basic-plotting-plot>`_,
+the returned axes object can be used and manipulated in the usual way (see the
+`Matplotlib documentation <https://matplotlib.org/contents.html>`_).
+
+.. code-block:: python3
+
+   >>> inv = rd.Inventory({'U-238': 2000.0, 'U-235': 3000.0, 'U-234': 1500.0}, 'num')
+   >>> df = inv.calculate_decay_data(time_period=1E9, time_units='y', decay_units='num')
+   >>> df.plot(ylabel='Number of Particles')
+
+.. image:: images/U_decay.png
+   :width: 450
+
+We can remove the progency we are not interested in and replot.
+
+.. code-block:: python3
+
+   >>> filtered_df = df.loc[:, df.max() > 100]
+   >>> filtered_df.plot(ylabel='Number of Particles')
+   # This could have been done in a single statement, but has been split for demonstration purposes
+   # df.loc[:, df.max() > 100].plot(ylabel='Number of Particles')
+
+.. image:: images/U_decay_filtered.png
+   :width: 450
+
