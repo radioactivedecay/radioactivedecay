@@ -176,8 +176,8 @@ a numpy array of those values:
 Note that if you pass an array for the ``time_period`` as well as a value for ``npoints``, the
 value specified by ``npoints`` will be silently ignored.
 
-Once the data is stored in a pandas dataframe, we gain access to the pandas ecosystem and the
-functionality on offer. For example, if we want to track the progeny, of a uranium compound
+Once the data is stored in a pandas dataframe, we gain access to the `pandas <https://pandas.pydata.org/docs/user_guide/index.html>`_
+ecosystem and the functionality on offer. For example, if we want to track the progeny, of a uranium compound
 over time, but are only interested in those that are, or where, present above a certain number:
 
 .. code-block:: python3
@@ -216,6 +216,9 @@ over time, but are only interested in those that are, or where, present above a 
    7.777778e+08  1727.206048  1605.033604     0.097407  1394.902728  1772.668305
    8.888889e+08  1757.502483  1749.589500     0.095742  1250.353679  1742.374097
    1.000000e+09  1787.281165  1879.165558     0.094106  1120.783759  1712.597605
+
+For more information on the use of dataframes, see the `pandas documentation
+<https://pandas.pydata.org/docs/user_guide/index.html>`_.
 
 To be consistent with the rest of the module, the method ``decayed_data()`` is also provided and
 this returns a tuple of a list and and dictionary containing the time elements and decay data
