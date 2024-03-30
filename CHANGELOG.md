@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.22] - 2024-??-??
+- Add `Inventory.calculate_decay_data()` method to save decay data into a pandas dataframe. Time
+resolution is specified by the user.
+- Add `Inventory.decayed_data()` method to access the decay data create by `calculate_decay_data()`
+as a list for the time data and dictionary for the isotopic data.
+
 ## [0.4.22] - 2024-01-27
 - Added explicit support for Python v3.12. 
 
