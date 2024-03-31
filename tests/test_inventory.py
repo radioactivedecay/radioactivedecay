@@ -652,7 +652,7 @@ class TestInventory(unittest.TestCase):
         Test method to fetch decay data of nuclides in the Inventory as list and dict tuple
         """
         inv = Inventory({"C-14": 1.0})
-        time, data = inv.calculate_decay_data(
+        time, data = inv.decayed_data(
             time_period=10, time_units="ky", decay_units="mass_frac", npoints=4
         )
         self.assertEqual(time, [0.0, 3.3333333333333335, 6.666666666666667, 10.0])
