@@ -16,8 +16,8 @@ as ``rd``:
 
 """
 
-import csv
 import collections
+import csv
 import itertools
 import numbers
 import pathlib
