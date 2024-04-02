@@ -126,7 +126,7 @@ picoseconds, nanoseconds, microseconds, milliseconds, seconds, minutes, hours,
 days, years, kiloyears, megayears, gigayears, terayears and petayears,
 respectively. In the above case we decayed for one billion years.
 
-The ``calculate_decay_data()`` method can be used if, rather than just the values
+The ``decay_time_series_pandas()`` method can be used if, rather than just the values
 at the end of the time period, access to finer resolution decay data is required. The
 method runs ``decay()``, storing the data at each iteration and returning the
 complete data set as a pandas dataframe. The only required argument is the decay
@@ -136,14 +136,14 @@ the ``decay()`` method, the decay units, whether the time scale should be linear
 logarithmic and, if the decay time is given as a float, how many decay points should be
 calculated.
 
-Using ``calculate_decay_data()`` to interogate how the mass fraction of 14C decays over
-20,000 years with 14N taking it's place. The default value for the number of point to calculate
+Using ``decay_time_series_pandas()`` to interrogate how the mass fraction of :sup:`14`\C decays over
+20,000 years with :sup:`14`\N taking it's place. The default value for the number of point to calculate
 is 501 so we will limit to 10 for this example
 
 .. code-block:: python3
 
    >>> inv = Inventory({'C-14': 1.0})
-   >>> inv.calculate_decay_data(time_period=20, time_units='ky', decay_units='mass_frac', npoints=10)
+   >>> inv.decay_time_series_pandas(time_period=20, time_units='ky', decay_units='mass_frac', npoints=10)
                   C-14      N-14
    Time (ky)                    
    0.000000   1.000000  0.000000
@@ -164,7 +164,7 @@ a numpy array of those values:
 
    >>> import numpy as np
    >>> time_points = np.array([1.0, 4.5, 4.75, 5.0, 50.0])
-   >>> inv.calculate_decay_data(time_period=time_points, time_units='ky', decay_units='mass_frac')
+   >>> inv.decay_time_series_pandas(time_period=time_points, time_units='ky', decay_units='mass_frac')
                   C-14      N-14
    Time (ky)                    
    1.00       0.885499  0.114501
@@ -185,7 +185,7 @@ over time, but are only interested in those that are, or where, present above a 
    # Initialize the inventory
    >>> inv = rd.Inventory({'U-238': 2000.0, 'U-235': 3000.0, 'U-234': 1500.0}, 'num')
    # Get the decay data for the required amount of time
-   >>> df = inv.calculate_decay_data(time_period=1E9, time_units='y', decay_units='num', npoints=10)
+   >>> df = inv.decay_time_series_pandas(time_period=1E9, time_units='y', decay_units='num', npoints=10)
    # Printing the dataframe to see what is originally created
    >>> df
                    Ac-227        At-218        At-219        Bi-210        Bi-211        Bi-214        Bi-215        Fr-223        Hg-206  ...    Th-230        Th-231        Th-234        Tl-206        Tl-207        Tl-210        U-234        U-235        U-238
@@ -220,14 +220,14 @@ over time, but are only interested in those that are, or where, present above a 
 For more information on the use of dataframes, see the `pandas documentation
 <https://pandas.pydata.org/docs/user_guide/index.html>`_.
 
-To be consistent with the rest of the module, the method ``decayed_data()`` is also provided and
+To be consistent with the rest of the module, the method ``decay_time_series()`` is also provided and
 this returns a tuple of a list and and dictionary containing the time elements and decay data
 respectively.
 
 .. code-block:: python3
 
    >>> inv = rd.Inventory({"C-14": 1.0})
-   >>> times, data = inv.decayed_data(time_period=20, time_units='ky', decay_units='mass_frac', npoints=5)
+   >>> times, data = inv.decay_time_series(time_period=20, time_units='ky', decay_units='mass_frac', npoints=5)
    >>> times
    [0.0, 5.0, 10.0, 15.0, 20.0]
    >>> data

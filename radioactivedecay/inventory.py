@@ -831,7 +831,7 @@ class AbstractInventory(ABC):
             nuc: Nuclide(nuc, self.decay_data).decay_modes() for nuc in self.contents
         }
 
-    def calculate_decay_data(
+    def decay_time_series_pandas(
         self,
         time_period: Union[float, np.ndarray],
         time_units: str = "s",
@@ -851,7 +851,7 @@ class AbstractInventory(ABC):
         time_units : str, optional
             Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
-            seconds. Use 'readable' to get strings of the half-lives in human-readable units.
+            seconds.
         time_scale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         decay_units : str, optional
@@ -864,7 +864,7 @@ class AbstractInventory(ABC):
         Returns
         -------
         pandas.DataFrame
-            Pandas DataFrame with the data of the decayed Inventory. Each isotope is it's own column, with a row for
+            Pandas DataFrame with the data of the decayed Inventory. Each isotope is its own column, with a row for
             each time increment. The time column is set as the index.
 
         Raises
@@ -934,7 +934,7 @@ class AbstractInventory(ABC):
 
         return pd.DataFrame(decayed_data).set_index(time_column)
 
-    def decayed_data(
+    def decay_time_series(
         self,
         time_period: Union[float, np.ndarray],
         time_units: str = "s",
@@ -955,7 +955,7 @@ class AbstractInventory(ABC):
         time_units : str, optional
             Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
             'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
-            seconds. Use 'readable' to get strings of the half-lives in human-readable units.
+            seconds.
         time_scale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         decay_units : str, optional

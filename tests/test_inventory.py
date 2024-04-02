@@ -617,14 +617,14 @@ class TestInventory(unittest.TestCase):
             {"C-14": ["\u03b2-"], "K-40": ["\u03b2-", "\u03b2+ \u0026 EC"]},
         )
 
-    def test_calculate_decay_data(self) -> None:
+    def test_decay_time_series_pandas(self) -> None:
         """
         Test method to fetch data of nuclides in the Inventory
         """
         inv = Inventory({"C-14": 1.0})
         self.assertIsNone(
             pd.testing.assert_frame_equal(
-                inv.calculate_decay_data(
+                inv.decay_time_series_pandas(
                     time_period=10, time_units="ky", decay_units="mass_frac", npoints=4
                 ),
                 pd.DataFrame(
@@ -647,12 +647,12 @@ class TestInventory(unittest.TestCase):
             )
         )
 
-    def decayed_data(self) -> None:
+    def decay_time_series(self) -> None:
         """
         Test method to fetch decay data of nuclides in the Inventory as list and dict tuple
         """
         inv = Inventory({"C-14": 1.0})
-        time, data = inv.decayed_data(
+        time, data = inv.decay_time_series(
             time_period=10, time_units="ky", decay_units="mass_frac", npoints=4
         )
         self.assertEqual(time, [0.0, 3.3333333333333335, 6.666666666666667, 10.0])
