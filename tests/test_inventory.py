@@ -10,6 +10,7 @@ from typing import Dict
 from unittest.mock import patch
 
 import numpy as np
+import pandas as pd
 from sympy import Integer, log
 
 from radioactivedecay.decaydata import DEFAULTDATA, load_dataset
@@ -614,6 +615,63 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(
             inv.decay_modes(),
             {"C-14": ["\u03b2-"], "K-40": ["\u03b2-", "\u03b2+ \u0026 EC"]},
+        )
+
+    def test_decay_time_series_pandas(self) -> None:
+        """
+        Test method to fetch data of nuclides in the Inventory
+        """
+        inv = Inventory({"C-14": 1.0})
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=10, time_units="ky", decay_units="mass_frac", npoints=4
+                ),
+                pd.DataFrame(
+                    data={
+                        "C-14": [
+                            1.0,
+                            0.6667465897861368,
+                            0.4445504227269143,
+                            0.2964018201597633,
+                        ],
+                        "N-14": [
+                            0.0,
+                            0.3332534102138631,
+                            0.5554495772730857,
+                            0.7035981798402366,
+                        ],
+                        "Time (ky)": [0.0, 3.3333333333333335, 6.666666666666667, 10.0],
+                    }
+                ).set_index("Time (ky)"),
+            )
+        )
+
+    def decay_time_series(self) -> None:
+        """
+        Test method to fetch decay data of nuclides in the Inventory as list and dict tuple
+        """
+        inv = Inventory({"C-14": 1.0})
+        time, data = inv.decay_time_series(
+            time_period=10, time_units="ky", decay_units="mass_frac", npoints=4
+        )
+        self.assertEqual(time, [0.0, 3.3333333333333335, 6.666666666666667, 10.0])
+        self.assertEqual(
+            data,
+            {
+                "C-14": [
+                    1.0,
+                    0.6667465897861368,
+                    0.4445504227269143,
+                    0.2964018201597633,
+                ],
+                "N-14": [
+                    0.0,
+                    0.3332534102138631,
+                    0.5554495772730857,
+                    0.7035981798402366,
+                ],
+            },
         )
 
     @patch("matplotlib.pyplot.show")

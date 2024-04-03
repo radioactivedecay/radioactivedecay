@@ -126,6 +126,113 @@ picoseconds, nanoseconds, microseconds, milliseconds, seconds, minutes, hours,
 days, years, kiloyears, megayears, gigayears, terayears and petayears,
 respectively. In the above case we decayed for one billion years.
 
+The ``decay_time_series_pandas()`` method can be used if, rather than just the values
+at the end of the time period, access to finer resolution decay data is required. The
+method runs ``decay()``, storing the data at each iteration and returning the
+complete data set as a pandas dataframe. The only required argument is the decay
+time period as a number, or as a numpy array with the individual decay times data
+is needed for. Optional arguments are the decay time units in the same format as for
+the ``decay()`` method, the decay units, whether the time scale should be linear or
+logarithmic and, if the decay time is given as a float, how many decay points should be
+calculated.
+
+Using ``decay_time_series_pandas()`` to interrogate how the mass fraction of :sup:`14`\C decays over
+20,000 years with :sup:`14`\N taking it's place. The default value for the number of point to calculate
+is 501 so we will limit to 10 for this example
+
+.. code-block:: python3
+
+   >>> inv = Inventory({'C-14': 1.0})
+   >>> inv.decay_time_series_pandas(time_period=20, time_units='ky', decay_units='mass_frac', npoints=10)
+                  C-14      N-14
+   Time (ky)                    
+   0.000000   1.000000  0.000000
+   2.222222   0.763204  0.236796
+   4.444444   0.582480  0.417520
+   6.666667   0.444550  0.555450
+   8.888889   0.339282  0.660718
+   11.111111  0.258941  0.741059
+   13.333333  0.197624  0.802376
+   15.555556  0.150827  0.849173
+   17.777778  0.115112  0.884888
+   20.000000  0.087854  0.912146
+
+Or if we know the exact times for which we want to know the mass fractions, we can pass
+a numpy array of those values:
+
+.. code-block:: python3
+
+   >>> import numpy as np
+   >>> time_points = np.array([1.0, 4.5, 4.75, 5.0, 50.0])
+   >>> inv.decay_time_series_pandas(time_period=time_points, time_units='ky', decay_units='mass_frac')
+                  C-14      N-14
+   Time (ky)                    
+   1.00       0.885499  0.114501
+   4.50       0.578558  0.421442
+   4.75       0.561234  0.438766
+   5.00       0.544429  0.455571
+   50.00      0.002288  0.997712
+
+Note that if you pass an array for the ``time_period`` as well as a value for ``npoints``, the
+value specified by ``npoints`` will be silently ignored.
+
+Once the data is stored in a pandas dataframe, we gain access to the `pandas <https://pandas.pydata.org/docs/user_guide/index.html>`_
+ecosystem and the functionality on offer. For example, if we want to track the progeny, of a uranium compound
+over time, but are only interested in those that are, or where, present above a certain number:
+
+.. code-block:: python3
+
+   # Initialize the inventory
+   >>> inv = rd.Inventory({'U-238': 2000.0, 'U-235': 3000.0, 'U-234': 1500.0}, 'num')
+   # Get the decay data for the required amount of time
+   >>> df = inv.decay_time_series_pandas(time_period=1E9, time_units='y', decay_units='num', npoints=10)
+   # Printing the dataframe to see what is originally created
+   >>> df
+                   Ac-227        At-218        At-219        Bi-210        Bi-211        Bi-214        Bi-215        Fr-223        Hg-206  ...    Th-230        Th-231        Th-234        Tl-206        Tl-207        Tl-210        U-234        U-235        U-238
+   Time (y)                                                                                                                                ...                                                                                                                       
+   0.000000e+00  0.000000  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  ...  0.000000  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  1500.000000  3000.000000  2000.000000
+   1.111111e+08  0.000083  4.183008e-18  5.612824e-18  6.039192e-09  1.554277e-11  1.664837e-11  4.433329e-17  2.205038e-12  1.295477e-19  ...  0.033168  1.112054e-08  2.903132e-08  4.704880e-18  3.454878e-11  2.283922e-16     0.108020  2689.120153  1965.820782
+   2.222222e+08  0.000075  4.111522e-18  5.031186e-18  5.935985e-09  1.393213e-11  1.636385e-11  3.973918e-17  1.976537e-12  1.273338e-19  ...  0.032601  9.968160e-09  2.853519e-08  4.624475e-18  3.096861e-11  2.244890e-16     0.106174  2410.455732  1932.225673
+   3.333333e+08  0.000067  4.041257e-18  4.509821e-18  5.834541e-09  1.248839e-11  1.608420e-11  3.562115e-17  1.771716e-12  1.251577e-19  ...  0.032044  8.935193e-09  2.804754e-08  4.545445e-18  2.775944e-11  2.206526e-16     0.104360  2160.668362  1899.204692
+   4.444444e+08  0.000060  3.972194e-18  4.042484e-18  5.734831e-09  1.119426e-11  1.580933e-11  3.192985e-17  1.588119e-12  1.230188e-19  ...  0.031496  8.009269e-09  2.756821e-08  4.467765e-18  2.488282e-11  2.168817e-16     0.102577  1936.765612  1866.748026
+   5.555556e+08  0.000054  3.904311e-18  3.623575e-18  5.636825e-09  1.003423e-11  1.553915e-11  2.862107e-17  1.423547e-12  1.209165e-19  ...  0.030958  7.179296e-09  2.709708e-08  4.391413e-18  2.230430e-11  2.131753e-16     0.100824  1736.065147  1834.846033
+   6.666667e+08  0.000048  3.837588e-18  3.248076e-18  5.540494e-09  8.994421e-12  1.527360e-11  2.565516e-17  1.276030e-12  1.188501e-19  ...  0.030429  6.435330e-09  2.663401e-08  4.316365e-18  1.999298e-11  2.095322e-16     0.099100  1556.162591  1803.489231
+   7.777778e+08  0.000043  3.772005e-18  2.911489e-18  5.445809e-09  8.062360e-12  1.501258e-11  2.299660e-17  1.143799e-12  1.168190e-19  ...  0.029909  5.768458e-09  2.617884e-08  4.242600e-18  1.792117e-11  2.059514e-16     0.097407  1394.902728  1772.668305
+   8.888889e+08  0.000039  3.707543e-18  2.609781e-18  5.352742e-09  7.226885e-12  1.475602e-11  2.061354e-17  1.025271e-12  1.148226e-19  ...  0.029398  5.170692e-09  2.573145e-08  4.170096e-18  1.606406e-11  2.024318e-16     0.095742  1250.353679  1742.374097
+   1.000000e+09  0.000035  3.644182e-18  2.339338e-18  5.261266e-09  6.477987e-12  1.450384e-11  1.847743e-17  9.190258e-13  1.128603e-19  ...  0.028895  4.634871e-09  2.529171e-08  4.098830e-18  1.439940e-11  1.989723e-16     0.094106  1120.783759  1712.597605
+   
+   [10 rows x 37 columns]
+   # Slice the result, keeping only those progeny that ever existed above a specific quantity
+   >>> df.loc[:, df.max() > 100]
+                      Pb-206       Pb-207        U-234        U-235        U-238
+   Time (y)                                                                     
+   0.000000e+00     0.000000     0.000000  1500.000000  3000.000000  2000.000000
+   1.111111e+08  1534.039370   310.754872     0.108020  2689.120153  1965.820782
+   2.222222e+08  1567.636948   589.432493     0.106174  2410.455732  1932.225673
+   3.333333e+08  1600.660357   839.231695     0.104360  2160.668362  1899.204692
+   4.444444e+08  1633.119409  1063.145051     0.102577  1936.765612  1866.748026
+   5.555556e+08  1665.023749  1263.855025     0.100824  1736.065147  1834.846033
+   6.666667e+08  1696.382856  1443.766102     0.099100  1556.162591  1803.489231
+   7.777778e+08  1727.206048  1605.033604     0.097407  1394.902728  1772.668305
+   8.888889e+08  1757.502483  1749.589500     0.095742  1250.353679  1742.374097
+   1.000000e+09  1787.281165  1879.165558     0.094106  1120.783759  1712.597605
+
+For more information on the use of dataframes, see the `pandas documentation
+<https://pandas.pydata.org/docs/user_guide/index.html>`_.
+
+To be consistent with the rest of the module, the method ``decay_time_series()`` is also provided and
+this returns a tuple of a list and and dictionary containing the time elements and decay data
+respectively.
+
+.. code-block:: python3
+
+   >>> inv = rd.Inventory({"C-14": 1.0})
+   >>> times, data = inv.decay_time_series(time_period=20, time_units='ky', decay_units='mass_frac', npoints=5)
+   >>> times
+   [0.0, 5.0, 10.0, 15.0, 20.0]
+   >>> data
+   {'C-14': [1.0, 0.5444286529294111, 0.2964018201597633, 0.16136902316828455, 0.08785351725411072], 'N-14': [0.0, 0.45557134707058894, 0.7035981798402366, 0.8386309768317154, 0.9121464827458893]}
+
 High numerical precision radioactive decay calculations
 -------------------------------------------------------
 
