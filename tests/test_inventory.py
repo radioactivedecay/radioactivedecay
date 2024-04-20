@@ -647,7 +647,7 @@ class TestInventory(unittest.TestCase):
             )
         )
 
-    def decay_time_series(self) -> None:
+    def test_decay_time_series(self) -> None:
         """
         Test method to fetch decay data of nuclides in the Inventory as list and dict tuple
         """
