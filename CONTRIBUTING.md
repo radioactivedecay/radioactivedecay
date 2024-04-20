@@ -61,7 +61,7 @@ warnings that are raised.
 
 ### Type Hints
 
-This project requires Python 3.6+ and type hints are included in the headers of
+This project requires Python 3.8+ and type hints are included in the headers of
 all functions and methods exposed to users. Please add type hints for any new
 functions you create.
 
