@@ -34,7 +34,7 @@ educational use.
 
 ## Installation
 
-``radioactivedecay`` requires Python 3.6+. Install ``radioactivedecay`` from
+``radioactivedecay`` requires Python 3.8+. Install ``radioactivedecay`` from
 the [Python Package Index](https://pypi.org/project/radioactivedecay/) using
 ``pip``:
 
@@ -49,8 +49,8 @@ $ conda install -c conda-forge radioactivedecay
 ```
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
-NumPy, SciPy, Setuptools & SymPy) if they are not already present in the
-environment.
+NumPy, Pandas, SciPy, Setuptools & SymPy) if they are not already present in
+the environment.
 
 
 ## Usage

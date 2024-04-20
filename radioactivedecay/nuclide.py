@@ -363,9 +363,11 @@ class Nuclide:
         if "font_size" not in kwargs_edge_labels:
             kwargs_edge_labels["font_size"] = 12
         if "bbox" not in kwargs_edge_labels:
-            kwargs_edge_labels["bbox"] = dict(
-                boxstyle=None, ec=(1.0, 1.0, 1.0), fc=(1.0, 1.0, 1.0)
-            )
+            kwargs_edge_labels["bbox"] = {
+                "boxstyle": None,
+                "ec": (1.0, 1.0, 1.0),
+                "fc": (1.0, 1.0, 1.0),
+            }
         if "rotate" not in kwargs_edge_labels:
             kwargs_edge_labels["rotate"] = False
 
@@ -462,8 +464,7 @@ def _build_decay_digraph(
         branching_fractions = parent.branching_fractions()
         decay_modes = parent.decay_modes()
 
-        if xpos < generation_max_xpos[generation] + 1:
-            xpos = generation_max_xpos[generation] + 1
+        xpos = max(xpos, generation_max_xpos[generation] + 1)
         xcounter = 0
         for idx, prog in enumerate(progeny):
             if prog not in seen:

@@ -4,9 +4,10 @@ Installation
 Prerequisites
 -------------
 
-``radioactivedecay`` requires Python 3.6+ and the `Matplotlib
+``radioactivedecay`` requires Python 3.8+ and the `Matplotlib
 <https://matplotlib.org/>`_, `NetworkX
 <https://networkx.org/>`_, `NumPy <https://numpy.org/>`_,
+`Pandas <https://pandas.pydata.org/>`_,
 `SciPy <https://www.scipy.org/index.html>`_,
 `Setuptools <https://setuptools.pypa.io/en/latest/>`_ and 
 `SymPy <https://www.sympy.org>`_ packages. These can be
@@ -33,8 +34,8 @@ or via `conda-forge <https://anaconda.org/conda-forge/radioactivedecay>`_:
     $ conda install -c conda-forge radioactivedecay
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
-NumPy, SciPy, Setuptools & SymPy) if they are not already present in the
-environment.
+NumPy, Pandas, SciPy, Setuptools & SymPy) if they are not already present in
+the environment.
 
 It is also possible to clone the GitHub `repository 
 <https://github.com/radioactivedecay/radioactivedecay>`_ and install from within the

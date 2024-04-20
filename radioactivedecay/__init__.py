@@ -25,7 +25,7 @@ imported as ``rd``:
 
 """
 
-__version__ = "0.4.22"
+__version__ = "0.5.0"
 
 from radioactivedecay.decaydata import DEFAULTDATA, DecayData
 from radioactivedecay.fileio import read_csv

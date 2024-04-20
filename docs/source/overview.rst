@@ -17,10 +17,10 @@ Atomic Mass Data Center (AME2020 and Nubase 2020 evaluations)
 decay differential equations analytically using basic linear algebra operations
 :ref:`[5] <refs>`.
 
-In order to use ``radioactivedecay``, you will need Python 3.6+ with the
-Matplotlib, NetworkX, NumPy, SciPy, Setuptools and SymPy packages installed.
-The code is platform independent and has been tested on Windows, MacOS and
-Linux systems.
+In order to use ``radioactivedecay``, you will need Python 3.8+ with the
+Matplotlib, NetworkX, NumPy, Pandas, SciPy, Setuptools and SymPy packages
+installed. The code is platform independent and has been tested on Windows,
+MacOS and Linux systems.
 
 Quick start
 -----------
@@ -38,8 +38,8 @@ or using ``conda`` by:
     $ conda install -c conda-forge radioactivedecay
 
 Either command will attempt to install the dependencies (Matplotlib, NetworkX,
-NumPy, SciPy, Setuptooks & SymPy) if they are not already present in the
-environment.
+NumPy, Pandas, SciPy, Setuptooks & SymPy) if they are not already present in
+the environment.
 
 Import the ``radioactivedecay`` package and decay a simple inventory using:
 
@@ -121,7 +121,8 @@ the method described in ref. :ref:`[5] <refs>`.  See the
 :doc:`theory docpage <theory>` for
 more details. It calls NumPy :ref:`[6] <refs>` and SciPy :ref:`[7] <refs>` for
 the matrix operations. There is also a high numerical precision decay
-calculation mode based on SymPy :ref:`[8] <refs>` routines.
+calculation mode based on SymPy :ref:`[8] <refs>` routines. Decay time series
+data can be output as a Pandas :ref:`[9] <refs>` dataframes.
 
 The `datasets repo
 <https://github.com/radioactivedecay/datasets>`_ 
@@ -131,9 +132,9 @@ on GitHub contains a Jupyter Notebook for creating the
 Notebooks with cross-checks of decay calculation results against
 `PyNE
 <https://github.com/radioactivedecay/comparisons/blob/main/pyne/rd_pyne_truncated_compare.ipynb>`_ 
-:ref:`[9] <refs>` and `Radiological Toolbox 
+:ref:`[10] <refs>` and `Radiological Toolbox 
 <https://github.com/radioactivedecay/comparisons/blob/main/radiological_toolbox/radiological_toolbox_compare.ipynb>`_
-:ref:`[10] <refs>` are held in the `comparisons repo
+:ref:`[11] <refs>` are held in the `comparisons repo
 <https://github.com/radioactivedecay/comparisons>`_. 
 
 Limitations
@@ -168,7 +169,7 @@ There are also some limitations associated with the ICRP-107 decay dataset:
 * There are a few instances where minor decay pathways were not included in
   ICRP-107, e.g. the decay pathways for At-219-> Rn-219 (|beta| ~3%), Es-250 ->
   Bk-246 (|alpha| ~1.5%), and U-228 -> Pa-228 (|epsilon| ~2.5%). For more
-  details see refs. :ref:`[11] <refs>` and :ref:`[12] <refs>` on the creation of
+  details see refs. :ref:`[12] <refs>` and :ref:`[13] <refs>` on the creation of
   the ICRP-107 dataset.
 
 License
@@ -210,6 +211,7 @@ List of contributors to ``radioactivedecay``:
 * `Alex Malins <https://alexmalins.com>`_
 * `Thom Lemoine <https://github.com/lemointm>`_
 * `Bernardo Gameiro <https://bgameiro.me/>`_
+* `Ian Cullen <https://github.com/php1ic>`_
 
 
 Contributing
@@ -254,7 +256,7 @@ for suggestions, support and assistance to this project.
 Thanks also to:
 
 * `Björn Dahlgren <https://github.com/bjodah>`_ (creator of the batemaneq
-  Python package :ref:`[13] <refs>`)
+  Python package :ref:`[14] <refs>`)
 * `Anthony Scopatz <https://github.com/scopatz>`_ and the PyNE project
   :ref:`[9] <refs>`
 * `Jonathan Morrell <https://github.com/jtmorrell>`_ (creator of the `NPAT
@@ -262,7 +264,7 @@ Thanks also to:
   <https://github.com/jtmorrell/npat>`_ packages)
 * `Austin Ladshaw <https://www.researchgate.net/profile/Austin-Ladshaw>`_ &
   collaborators (creators of `IBIS
-  <https://bitbucket.org/gitecosystem/ecosystem>`_ :ref:`[14] <refs>`)
+  <https://bitbucket.org/gitecosystem/ecosystem>`_ :ref:`[15] <refs>`)
 * `Will Johnson <https://github.com/wcjohns>`_ & collaborators (creators of
   `SandiaDecay <https://github.com/sandialabs/SandiaDecay>`_)
 
@@ -281,12 +283,13 @@ References
 6. CR Harris et al. Nat. 585, 357-362 (2020). DOI: `10.1038/s41586-020-2649-2 <https://doi.org/10.1038/s41586-020-2649-2>`_
 7. P Virtanen et al. Nat. Methods 17, 261-272 (2020). DOI: `10.1038/s41592-019-0686-2 <https://doi.org/10.1038/s41592-019-0686-2>`_
 8. A Meurer et al. PeerJ Comp. Sci. 3, e103 (2017). DOI: `10.7717/peerj-cs.103 <https://doi.org/10.7717/peerj-cs.103>`_
-9. PyNE: The Nuclear Engineering Toolkit. `https://pyne.io/ <https://pyne.io/>`_
-10. KF Eckerman, AL Sjoreen & C Sun, Radiological Toolbox, Oak Ridge National Laboratory. `https://www.ornl.gov/crpk/software <https://www.ornl.gov/crpk/software>`_
-11. A Endo, Y Yamaguchi & KF Eckerman, JAERI 1347 (2005). DOI: `10.11484/jaeri-1347 <https://doi.org/10.11484/jaeri-1347>`_
-12. A Endo & KF Eckerman, JAEA-Data/Code 2007-021 (2007). DOI: `10.11484/jaea-data-code-2007-021 <https://doi.org/10.11484/jaea-data-code-2007-021>`_
-13. B Dahlgren, batemaneq:  a C++ implementation of the Bateman equation, and a Python binding thereof. `https://github.com/bjodah/batemaneq <https://github.com/bjodah/batemaneq>`_
-14. A Ladshaw et al. Comput. Phys. Comm. 246, 106907 (2020). DOI: `10.1016/j.cpc.2019.106907 <https://doi.org/10.1016/j.cpc.2019.106907>`_
+9. The pandas development team (2020). DOI: `10.5281/zenodo.3509134 <https://doi.org/10.5281/zenodo.3509134>`_
+10. PyNE: The Nuclear Engineering Toolkit. `https://pyne.io/ <https://pyne.io/>`_
+11. KF Eckerman, AL Sjoreen & C Sun, Radiological Toolbox, Oak Ridge National Laboratory. `https://www.ornl.gov/crpk/software <https://www.ornl.gov/crpk/software>`_
+12. A Endo, Y Yamaguchi & KF Eckerman, JAERI 1347 (2005). DOI: `10.11484/jaeri-1347 <https://doi.org/10.11484/jaeri-1347>`_
+13. A Endo & KF Eckerman, JAEA-Data/Code 2007-021 (2007). DOI: `10.11484/jaea-data-code-2007-021 <https://doi.org/10.11484/jaea-data-code-2007-021>`_
+14. B Dahlgren, batemaneq:  a C++ implementation of the Bateman equation, and a Python binding thereof. `https://github.com/bjodah/batemaneq <https://github.com/bjodah/batemaneq>`_
+15. A Ladshaw et al. Comput. Phys. Comm. 246, 106907 (2020). DOI: `10.1016/j.cpc.2019.106907 <https://doi.org/10.1016/j.cpc.2019.106907>`_
 
 .. |alpha| unicode:: U+03B1 .. lower case alpha
 .. |beta| unicode:: U+03B2 .. lower case beta
