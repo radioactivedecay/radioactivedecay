@@ -41,9 +41,7 @@ from radioactivedecay.utils import parse_nuclide
 # importlib.resources API from Python version 3.9+ is used
 # this block adds support using a backport for Python <3.9
 # the importlib_resources dependency can be removed once min required Python version is 3.9
-if version.Version(
-    platform.python_version()
-) >= version.Version("3.9"):
+if version.Version(platform.python_version()) >= version.Version("3.9"):
     from importlib import resources
 else:
     import importlib_resources as resources  # type:ignore
@@ -778,8 +776,7 @@ def load_dataset(
     if load_sympy:
         sympy_pickle_version = (
             "1.8"
-            if version.Version(sympy.__version__)
-            < version.Version("1.9")
+            if version.Version(sympy.__version__) < version.Version("1.9")
             else "1.9"
         )
 
