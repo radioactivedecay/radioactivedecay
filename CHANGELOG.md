@@ -5,7 +5,8 @@
 resolution is specified by the user (#104).
 - Add `Inventory.decay_time_series()` method to access the decay data create by `decay_time_series_pandas()`
 as a list for the time data and dictionary for the isotopic data (#104).
-- Drop support for end-of-life Python versions v3.6 & v3.7 (#106). 
+- Drop support for end-of-life Python versions v3.6 & v3.7 (#106).
+- Fix `pkg_resources` deprecation warnings and some pylint warnings (#106).
 
 ## [0.4.22] - 2024-01-27
 - Added explicit support for Python v3.12. 
