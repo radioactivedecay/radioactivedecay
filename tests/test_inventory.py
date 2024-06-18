@@ -20,6 +20,9 @@ from radioactivedecay.nuclide import Nuclide
 # pylint: disable=protected-access, too-many-public-methods
 
 
+np.set_printoptions(legacy="1.25")
+
+
 def warning_message_if_dict_not_equal(
     calculated: Dict[str, float], expected: Dict[str, float]
 ) -> None:
