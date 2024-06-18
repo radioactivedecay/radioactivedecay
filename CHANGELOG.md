@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.5.1] - 2024-06-18
+- Fix tests to work with NumPy 2.0.0 NEP 51 string representations of NumPy data types (#107).
+
 ## [0.5.0] - 2024-04-20
 - Add `Inventory.decay_time_series_pandas()` method to save decay data into a pandas dataframe. Time
 resolution is specified by the user (#104).
