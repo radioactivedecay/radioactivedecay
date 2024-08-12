@@ -144,17 +144,17 @@ class TestDecayMatricesSympy(unittest.TestCase):
         decay_mats = decaydata.DecayMatricesSympy(
             atomic_masses, decay_consts, matrix_c, matrix_c_inv
         )
-        self.assertEqual(decay_mats.atomic_masses[0], 0.0)
-        self.assertEqual(decay_mats.atomic_masses[1], 0.0)
-        self.assertEqual(decay_mats.decay_consts[0], 0.0)
-        self.assertEqual(decay_mats.decay_consts[1], 0.0)
+        self.assertEqual(decay_mats.atomic_masses[0], Integer(0))
+        self.assertEqual(decay_mats.atomic_masses[1], Integer(0))
+        self.assertEqual(decay_mats.decay_consts[0], Integer(0))
+        self.assertEqual(decay_mats.decay_consts[1], Integer(0))
         self.assertEqual(decay_mats.ln2, log(2))
         self.assertEqual(decay_mats.matrix_c[0, 0], Integer(2))
         self.assertEqual(decay_mats.matrix_c_inv[1, 1], Integer(3))
         self.assertEqual(decay_mats.matrix_e[0, 0], Integer(0))
         self.assertEqual(decay_mats.matrix_e[1, 1], Integer(0))
-        self.assertEqual(decay_mats.vector_n0[0], 0.0)
-        self.assertEqual(decay_mats.vector_n0[1], 0.0)
+        self.assertEqual(decay_mats.vector_n0[0], Integer(0))
+        self.assertEqual(decay_mats.vector_n0[1], Integer(0))
 
     def test___eq__(self) -> None:
         """
