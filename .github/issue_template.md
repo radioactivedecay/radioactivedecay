@@ -12,7 +12,7 @@ Note if you have a general usage question or feature request, please use the Dis
 #### Environment
 OS version: <!-- Windows 10/Linux/macOS etc. -->
 Python version: <!-- 3.8/3.9/3.10/3.11/3.12 -->
-radioactivedecay version: <!-- ex. 0.5.0 -->
+radioactivedecay version: <!-- ex. 0.5.1 -->
 Installed via: <!-- pip/conda-forge -->
 
 
