@@ -22,7 +22,8 @@ import itertools
 import numbers
 import pathlib
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Optional, Type, Union
+from functools import singledispatchmethod
+from typing import Callable, Optional, Type, Union
 
 import matplotlib
 import numpy as np
@@ -54,26 +55,6 @@ from radioactivedecay.utils import (
     sort_dictionary_alphabetically,
     sort_list_according_to_dataset,
 )
-
-# functools.singledispatchmethod is new in Python version 3.8
-# this block adds support manually for Python <3.8
-# the except block can be removed once min required Python version is 3.8
-try:
-    from functools import singledispatchmethod
-except ImportError:
-    from functools import singledispatch, update_wrapper
-
-    def singledispatchmethod(func: Callable[..., Any]):  # type:ignore
-        """Adds singledispatch support for instance methods of a class."""
-
-        dispatcher = singledispatch(func)
-
-        def wrapper(*args, **kwargs):  # type:ignore
-            return dispatcher.dispatch(args[1].__class__)(*args, **kwargs)
-
-        wrapper.register = dispatcher.register
-        update_wrapper(wrapper, func)
-        return wrapper
 
 
 def _write_csv_file(

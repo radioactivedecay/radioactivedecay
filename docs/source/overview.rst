@@ -17,7 +17,7 @@ Atomic Mass Data Center (AME2020 and Nubase 2020 evaluations)
 decay differential equations analytically using basic linear algebra operations
 :ref:`[5] <refs>`.
 
-In order to use ``radioactivedecay``, you will need Python 3.8+ with the
+In order to use ``radioactivedecay``, you will need Python 3.9+ with the
 Matplotlib, NetworkX, NumPy, Pandas, SciPy, Setuptools and SymPy packages
 installed. The code is platform independent and has been tested on Windows,
 MacOS and Linux systems.

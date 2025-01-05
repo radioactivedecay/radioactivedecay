@@ -4,7 +4,7 @@ Installation
 Prerequisites
 -------------
 
-``radioactivedecay`` requires Python 3.8+ and the `Matplotlib
+``radioactivedecay`` requires Python 3.9+ and the `Matplotlib
 <https://matplotlib.org/>`_, `NetworkX
 <https://networkx.org/>`_, `NumPy <https://numpy.org/>`_,
 `Pandas <https://pandas.pydata.org/>`_,
