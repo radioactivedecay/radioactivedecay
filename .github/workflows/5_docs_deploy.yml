@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.12']
+        python-version: ['3.13']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -19,19 +19,19 @@ jobs:
 
     steps:
     - name: Check out code repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: radioactivedecay
 
     - name: Check out docs repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: radioactivedecay/radioactivedecay.github.io
         path: radioactivedecay.github.io
         token: ${{secrets.PUSH_TOKEN}}
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -39,8 +39,7 @@ jobs:
       run: |
         cd  radioactivedecay
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r requirements_docs.txt
+        pip install -e '.[docs]'
 
     - name: Build docs
       run: |
