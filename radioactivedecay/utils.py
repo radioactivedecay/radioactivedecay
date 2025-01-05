@@ -11,7 +11,7 @@ as ``rd``:
 
 """
 
-from typing import Dict, List, Tuple, Union
+from typing import Union
 
 import numpy as np
 from sympy.core.expr import Expr
@@ -140,7 +140,7 @@ SYM_DICT = dict((v, k) for k, v in Z_DICT.items())
 METASTABLE_CHARS = ["m", "n", "p", "q", "r", "x"]
 
 
-def get_metastable_chars() -> List[str]:
+def get_metastable_chars() -> list[str]:
     """
     Returns list of allowed metastable state characters. Currently up to sixth metastable state is
     supported, based on the existence of sixth metastable state isomers in NUBASE2020, e.g.
@@ -317,7 +317,7 @@ class NuclideStrError(ValueError):
         )
 
 
-def _process_metastable_element_str(metastable_element_str: str) -> Tuple[str, str]:
+def _process_metastable_element_str(metastable_element_str: str) -> tuple[str, str]:
     """
     Function to separate a string that could either be an element string, or a combined metastable
     state char + element string.
@@ -513,8 +513,8 @@ def parse_nuclide(
 
 
 def add_dictionaries(
-    dict_a: Dict[str, Union[float, Expr]], dict_b: Dict[str, Union[float, Expr]]
-) -> Dict[str, Union[float, Expr]]:
+    dict_a: dict[str, Union[float, Expr]], dict_b: dict[str, Union[float, Expr]]
+) -> dict[str, Union[float, Expr]]:
     """
     Adds together two dictionaries of nuclide strings and associated quantities. Supports both
     floats or SymPy quantities.
@@ -553,8 +553,8 @@ def add_dictionaries(
 
 
 def sort_dictionary_alphabetically(
-    input_inv_dict: Dict[str, Union[float, Expr]]
-) -> Dict[str, Union[float, Expr]]:
+    input_inv_dict: dict[str, Union[float, Expr]]
+) -> dict[str, Union[float, Expr]]:
     """
     Sorts a dictionary alphabetically by its keys.
 
@@ -580,8 +580,8 @@ def sort_dictionary_alphabetically(
 
 
 def sort_list_according_to_dataset(
-    input_list: List[str], key_dict: Dict[str, int]
-) -> List[str]:
+    input_list: list[str], key_dict: dict[str, int]
+) -> list[str]:
     """
     Sorts a list of nuclides based on their order of appearence in the decay dataset.
 

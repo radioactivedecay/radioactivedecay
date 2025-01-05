@@ -12,7 +12,7 @@ as ``rd``:
 """
 
 from abc import ABC
-from typing import Dict, Union
+from typing import Union
 
 from sympy import Integer, nsimplify
 from sympy.core.expr import Expr
@@ -48,10 +48,10 @@ class UnitConverter(ABC):
 
     """
 
-    time_units: Dict[str, Union[float, Expr]]
-    activity_units: Dict[str, Union[float, Expr]]
-    mass_units: Dict[str, Union[float, Expr]]
-    moles_units: Dict[str, Union[float, Expr]]
+    time_units: dict[str, Union[float, Expr]]
+    activity_units: dict[str, Union[float, Expr]]
+    mass_units: dict[str, Union[float, Expr]]
+    moles_units: dict[str, Union[float, Expr]]
     year_units = {"y", "yr", "year", "years", "ky", "My", "By", "Gy", "Ty", "Py"}
 
     time_unit_err_msg = 'is not a valid time unit, e.g. "s", "m", "h", "d" or "y".'
@@ -217,7 +217,7 @@ class UnitConverterFloat(UnitConverter):
     Unit converter using floats.
     """
 
-    time_units: Dict[str, float] = {
+    time_units: dict[str, float] = {
         "ps": 1.0e-12,
         "ns": 1.0e-9,
         "μs": 1.0e-6,
@@ -247,7 +247,7 @@ class UnitConverterFloat(UnitConverter):
         "Py": 86400.0 * 1.0e15,
     }
 
-    activity_units: Dict[str, float] = {
+    activity_units: dict[str, float] = {
         "pBq": 1.0e-12,
         "nBq": 1.0e-9,
         "μBq": 1.0e-6,
@@ -275,7 +275,7 @@ class UnitConverterFloat(UnitConverter):
         "dpm": 1.0 / 60.0,
     }
 
-    mass_units: Dict[str, float] = {
+    mass_units: dict[str, float] = {
         "pg": 1.0e-12,
         "ng": 1.0e-9,
         "μg": 1.0e-6,
@@ -288,7 +288,7 @@ class UnitConverterFloat(UnitConverter):
         "ton": 1.0e6,
     }
 
-    moles_units: Dict[str, float] = {
+    moles_units: dict[str, float] = {
         "pmol": 1.0e-12,
         "nmol": 1.0e-9,
         "μmol": 1.0e-6,
@@ -309,7 +309,7 @@ class UnitConverterSympy(UnitConverter):
     Unit converter using SymPy arbitrary precision operations.
     """
 
-    time_units: Dict[str, Expr] = {
+    time_units: dict[str, Expr] = {
         "ps": Integer(1) / 1000000000000,
         "ns": Integer(1) / 1000000000,
         "μs": Integer(1) / 1000000,
@@ -339,7 +339,7 @@ class UnitConverterSympy(UnitConverter):
         "Py": Integer(86400) * 1000000000000000,
     }
 
-    activity_units: Dict[str, Expr] = {
+    activity_units: dict[str, Expr] = {
         "pBq": Integer(1) / 1000000000000,
         "nBq": Integer(1) / 1000000000,
         "μBq": Integer(1) / 1000000,
@@ -367,7 +367,7 @@ class UnitConverterSympy(UnitConverter):
         "dpm": Integer(1) / 60,
     }
 
-    mass_units: Dict[str, Expr] = {
+    mass_units: dict[str, Expr] = {
         "pg": Integer(1) / 1000000000000,
         "ng": Integer(1) / 1000000000,
         "μg": Integer(1) / 1000000,
@@ -380,7 +380,7 @@ class UnitConverterSympy(UnitConverter):
         "ton": Integer(1000000),
     }
 
-    moles_units: Dict[str, Expr] = {
+    moles_units: dict[str, Expr] = {
         "pmol": Integer(1) / 1000000000000,
         "nmol": Integer(1) / 1000000000,
         "μmol": Integer(1) / 1000000,

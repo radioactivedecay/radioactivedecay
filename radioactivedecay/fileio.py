@@ -14,7 +14,7 @@ as ``rd``:
 
 import csv
 import pathlib
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from radioactivedecay.decaydata import DecayData
 from radioactivedecay.inventory import Inventory, InventoryHP
@@ -24,7 +24,7 @@ def _read_csv_file(
     filepath: Union[str, pathlib.Path],
     delimiter: str,
     encoding: str,
-) -> List[List[str]]:
+) -> list[list[str]]:
     """Read CSV file. All file read side-effect is here to assist testing read_csv() with mock."""
     with open(filepath, "r", encoding=encoding) as file:
         reader_object = csv.reader(file, delimiter=delimiter)
@@ -34,8 +34,8 @@ def _read_csv_file(
 
 
 def _parse_row(
-    row: List[str], default_unit: Optional[str]
-) -> Tuple[Dict[Union[str, int], float], Optional[str]]:
+    row: list[str], default_unit: Optional[str]
+) -> tuple[dict[Union[str, int], float], Optional[str]]:
     """Parse one row that should be nuclide, quantity (, unit) format."""
 
     if len(row) not in {2, 3}:
@@ -135,7 +135,7 @@ def read_csv(
         )
 
     contents, row_unit = _parse_row(lines_no_header[0], units)
-    kwargs: Dict[str, Any] = {"contents": contents}
+    kwargs: dict[str, Any] = {"contents": contents}
     if row_unit is not None or units is not None:
         kwargs["units"] = row_unit or units
     if decay_data is not None:

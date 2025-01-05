@@ -6,7 +6,6 @@ import copy
 import math
 import unittest
 import warnings
-from typing import Dict
 from unittest.mock import patch
 
 import numpy as np
@@ -24,7 +23,7 @@ np.set_printoptions(legacy="1.25")
 
 
 def warning_message_if_dict_not_equal(
-    calculated: Dict[str, float], expected: Dict[str, float]
+    calculated: dict[str, float], expected: dict[str, float]
 ) -> None:
     """
     Warning message if calculated dictionary of floats is not equal to expected dictionary of
@@ -39,8 +38,8 @@ def warning_message_if_dict_not_equal(
 
 def dict_assert_almost_equal(
     test_case: unittest.TestCase,
-    dict_a: Dict[str, float],
-    dict_b: Dict[str, float],
+    dict_a: dict[str, float],
+    dict_b: dict[str, float],
 ) -> None:
     """
     Check whether two dictionaries with str keys and float values have:
