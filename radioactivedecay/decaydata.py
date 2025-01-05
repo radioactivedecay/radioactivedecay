@@ -679,9 +679,11 @@ def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
 
     """
 
-    with resources.files(f"{__package__}.{subpackage_dir}").joinpath(filename).open(
-        "rb"
-    ) as file:
+    with (
+        resources.files(f"{__package__}.{subpackage_dir}")
+        .joinpath(filename)
+        .open("rb") as file
+    ):
         return pickle.load(file)
 
 
