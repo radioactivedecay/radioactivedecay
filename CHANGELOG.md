@@ -3,7 +3,8 @@
 ## [0.6.0] - 2025-XX-XX
 - Modernize build system using a single `pyproject.toml` (#115).
 - Drop Python 3.8 support (#115).
-- Code quality improvements: PEP 585 style type hints, & some mypy, black & pylint fixes (#115).
+- Code quality improvements: PEP 585 style type hints, some mypy, black & pylint fixes, and
+increased test coverage (#115).
 
 ## [0.5.1] - 2024-06-18
 - Fix tests to work with NumPy 2.0.0 NEP 51 string representations of NumPy data types (#107).
