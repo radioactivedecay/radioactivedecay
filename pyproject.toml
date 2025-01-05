@@ -1,6 +1,92 @@
 [build-system]
-requires = ["setuptools>=46.4.0", "wheel"]
-build-backend = 'setuptools.build_meta'
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "radioactivedecay"
+authors = [
+    {name = "Alex Malins", email = "github@alexmalinsREMOVETHIS.com"},
+    {name = "Thom Lemoine"},
+    {name = "Ian Cullen"},
+    {name = "other contributors"},
+]
+description = "A Python package for radioactive decay modelling that supports 1252 radionuclides, decay chains, branching, and metastable states."
+dynamic = ["readme", "version"]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "matplotlib",
+    "networkx",
+    "numpy",
+    "pandas",
+    "scipy",
+    "sympy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "build",
+    "coverage",
+    "isort",
+    "mypy",
+    "pandas-stubs",
+    "pylint",
+    "scipy-stubs",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[project.urls]
+Changelog = "https://github.com/radioactivedecay/radioactivedecay/blob/main/CHANGELOG.md"
+Discussions = "https://github.com/radioactivedecay/radioactivedecay/discussions"
+Documentation = "https://radioactivedecay.github.io"
+Homepage = "https://github.com/radioactivedecay/radioactivedecay"
+Issues = "https://github.com/radioactivedecay/radioactivedecay/issues"
+Repository = "https://github.com/radioactivedecay/radioactivedecay.git"
+"Source Code" = "https://github.com/radioactivedecay/radioactivedecay"
+
+[tool.coverage.run]
+omit = ["tests/*"]
 
 [tool.isort]
 profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.setuptools]
+license-files = ["LICENSE", "LICENSE.ICRP-07", "LICENSE.AMDC"]
+
+[tool.setuptools.dynamic]
+version = {attr = "radioactivedecay.__version__"}
+readme = {file = "README.md", content-type = "text/markdown"}
+
+[tool.setuptools.packages.find]
+include = ["radioactivedecay"]
+exclude = ["notebooks", "paper"]
+
+[tool.setuptools.package-data]
+radioactivedecay = [
+    "icrp107_ame2020_nubase2020/*.pickle",
+    "icrp107_ame2020_nubase2020/*.npz",
+]
