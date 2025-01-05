@@ -149,7 +149,7 @@ def decay_graph(
     ylabel: str,
     xscale: str,
     yscale: str,
-    ylimits: list[float],
+    ylimits: tuple[float, float],
     display: set[str],
     fig_in: Optional[matplotlib.figure.Figure],
     axes_in: Optional[matplotlib.axes.Axes],
@@ -176,7 +176,7 @@ def decay_graph(
     yscale : str
         The y-axis scale type to apply ('linear' or 'log').
     ylimits : list
-        Limits for the y-axis (list or numpy.ndarray with two elements).
+        Limits for the y-axis (tuple or numpy.ndarray with two floats).
     display : set of str
         Nuclides to display on the graph.
     fig_in : None or matplotlib.figure.Figure

@@ -175,7 +175,7 @@ class AbstractInventory(ABC):
 
         for nuc, inp in contents.items():
             if isinstance(inp, (numbers.Number, Expr)):
-                if inp >= 0:
+                if inp >= Integer(0):
                     continue
             raise ValueError(f"{inp} is not a valid quantity of nuclide {nuc}.")
 
@@ -688,7 +688,7 @@ class AbstractInventory(ABC):
         """
 
         vector_n0 = self.decay_matrices.vector_n0.copy()
-        indices_set = set()
+        indices_set: set[int] = set()
         for nuclide in self.contents:
             idx = self.decay_data.nuclide_dict[nuclide]
             vector_n0[idx] = self.contents[nuclide]
@@ -1153,7 +1153,7 @@ class AbstractInventory(ABC):
 
         if yscale == "log" and ymin == 0.0:
             ymin = 0.95 * ydata.min()
-        ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * ydata.max()]
+        ylimits = (ymin, ymax) if ymax else (ymin, 1.05 * ydata.max())
 
         fig, axes = decay_graph(
             time_points=time_points,
