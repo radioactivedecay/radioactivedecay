@@ -717,7 +717,10 @@ class TestInventory(unittest.TestCase):
         self.assertIsNone(
             pd.testing.assert_frame_equal(
                 inv.decay_time_series_pandas(
-                    time_period=12.32, time_units="y", decay_units="activity_frac", npoints=2
+                    time_period=12.32,
+                    time_units="y",
+                    decay_units="activity_frac",
+                    npoints=2,
                 ),
                 pd.DataFrame(
                     data={
