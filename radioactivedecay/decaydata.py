@@ -23,8 +23,8 @@ DEFAULTDATA : DecayData
 
 import pathlib
 import pickle
-import platform
 from abc import ABC, abstractmethod
+from importlib import resources
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -37,14 +37,6 @@ from sympy.matrices import SparseMatrix
 
 from radioactivedecay.converters import UnitConverterFloat
 from radioactivedecay.utils import parse_nuclide
-
-# importlib.resources API from Python version 3.9+ is used
-# this block adds support using a backport for Python <3.9
-# the importlib_resources dependency can be removed once min required Python version is 3.9
-if version.Version(platform.python_version()) >= version.Version("3.9"):
-    from importlib import resources
-else:
-    import importlib_resources as resources  # type:ignore
 
 
 def _csr_matrix_equal(matrix_a: sparse.csr_matrix, matrix_b: sparse.csr_matrix) -> bool:
@@ -687,9 +679,11 @@ def _load_package_pickle_file(subpackage_dir: str, filename: str) -> Any:
 
     """
 
-    with resources.files(f"{__package__}.{subpackage_dir}").joinpath(filename).open(
-        "rb"
-    ) as file:
+    with (
+        resources.files(f"{__package__}.{subpackage_dir}")
+        .joinpath(filename)
+        .open("rb") as file
+    ):
         return pickle.load(file)
 
 

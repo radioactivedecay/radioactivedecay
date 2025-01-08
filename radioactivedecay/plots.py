@@ -4,7 +4,7 @@ class ``plot()`` method, and activity decay graphs via the Inventory class ``plo
 
 """
 
-from typing import List, Optional, Set, Tuple
+from typing import Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -99,11 +99,11 @@ def _parse_decay_mode_label(mode: str) -> str:
     return mode
 
 
-def _check_fig_axes(  # type: ignore
+def _check_fig_axes(
     fig_in: Optional[matplotlib.figure.Figure],
     axes_in: Optional[matplotlib.axes.Axes],
     **kwargs,
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     """
     Checks to see if user supplies Matplotlib Figure and/or Axes objects. Creates them where
     necessary.
@@ -141,20 +141,20 @@ def _check_fig_axes(  # type: ignore
     return fig, axes
 
 
-def decay_graph(  # type: ignore
+def decay_graph(
     time_points: np.ndarray,
     ydata: np.ndarray,
-    nuclides: List[str],
+    nuclides: list[str],
     xunits: str,
     ylabel: str,
     xscale: str,
     yscale: str,
-    ylimits: List[float],
-    display: Set[str],
+    ylimits: tuple[float, float],
+    display: set[str],
     fig_in: Optional[matplotlib.figure.Figure],
     axes_in: Optional[matplotlib.axes.Axes],
     **kwargs,
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     """
     Plots a decay graph showing the change in activity of an inventory over time. Creates
     matplotlib fig, axes objects if they are not supplied. Returns fig, axes tuple.
@@ -176,7 +176,7 @@ def decay_graph(  # type: ignore
     yscale : str
         The y-axis scale type to apply ('linear' or 'log').
     ylimits : list
-        Limits for the y-axis (list or numpy.ndarray with two elements).
+        Limits for the y-axis (tuple or numpy.ndarray with two floats).
     display : set of str
         Nuclides to display on the graph.
     fig_in : None or matplotlib.figure.Figure

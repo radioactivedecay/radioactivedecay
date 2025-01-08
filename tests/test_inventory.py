@@ -6,7 +6,6 @@ import copy
 import math
 import unittest
 import warnings
-from typing import Dict
 from unittest.mock import patch
 
 import numpy as np
@@ -24,7 +23,7 @@ np.set_printoptions(legacy="1.25")
 
 
 def warning_message_if_dict_not_equal(
-    calculated: Dict[str, float], expected: Dict[str, float]
+    calculated: dict[str, float], expected: dict[str, float]
 ) -> None:
     """
     Warning message if calculated dictionary of floats is not equal to expected dictionary of
@@ -39,8 +38,8 @@ def warning_message_if_dict_not_equal(
 
 def dict_assert_almost_equal(
     test_case: unittest.TestCase,
-    dict_a: Dict[str, float],
-    dict_b: Dict[str, float],
+    dict_a: dict[str, float],
+    dict_b: dict[str, float],
 ) -> None:
     """
     Check whether two dictionaries with str keys and float values have:
@@ -649,6 +648,111 @@ class TestInventory(unittest.TestCase):
                 ).set_index("Time (ky)"),
             )
         )
+
+        inv = Inventory({"H-3": 1.0})
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=12.32, time_units="y", npoints=2
+                ),
+                pd.DataFrame(
+                    data={
+                        "H-3": [1.0, 0.5],
+                        "He-3": [0.0, 0.0],
+                        "Time (y)": [0.0, 12.32],
+                    }
+                ).set_index("Time (y)"),
+            )
+        )
+
+        inv = Inventory({"H-3": 1.0}, units="mol")
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=12.32, time_units="y", decay_units="mol", npoints=2
+                ),
+                pd.DataFrame(
+                    data={
+                        "H-3": [1.0, 0.5],
+                        "He-3": [0.0, 0.5],
+                        "Time (y)": [0.0, 12.32],
+                    }
+                ).set_index("Time (y)"),
+            )
+        )
+
+        inv = Inventory({"H-3": 1.0}, units="kg")
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=12.32, time_units="y", decay_units="kg", npoints=2
+                ),
+                pd.DataFrame(
+                    data={
+                        "H-3": [1.0, 0.5],
+                        "He-3": [0.0, 0.499997],
+                        "Time (y)": [0.0, 12.32],
+                    }
+                ).set_index("Time (y)"),
+            )
+        )
+
+        inv = Inventory({"H-3": 1.0}, units="num")
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=12.32, time_units="y", decay_units="num", npoints=2
+                ),
+                pd.DataFrame(
+                    data={
+                        "H-3": [1.0, 0.5],
+                        "He-3": [0.0, 0.5],
+                        "Time (y)": [0.0, 12.32],
+                    }
+                ).set_index("Time (y)"),
+            )
+        )
+
+        inv = Inventory({"H-3": 1.0})
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=12.32,
+                    time_units="y",
+                    decay_units="activity_frac",
+                    npoints=2,
+                ),
+                pd.DataFrame(
+                    data={
+                        "H-3": [1.0, 1.0],
+                        "He-3": [0.0, 0.0],
+                        "Time (y)": [0.0, 12.32],
+                    }
+                ).set_index("Time (y)"),
+            )
+        )
+
+        inv = Inventory({"H-3": 1.0}, units="mol")
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(
+                inv.decay_time_series_pandas(
+                    time_period=12.32, time_units="y", decay_units="mol_frac", npoints=2
+                ),
+                pd.DataFrame(
+                    data={
+                        "H-3": [1.0, 0.5],
+                        "He-3": [0.0, 0.5],
+                        "Time (y)": [0.0, 12.32],
+                    }
+                ).set_index("Time (y)"),
+            )
+        )
+
+        inv = Inventory({"H-3": 1.0}, units="mol")
+        with self.assertRaises(ValueError):
+            inv.decay_time_series_pandas(
+                time_period=12.32, time_units="y", decay_units="no_unit", npoints=2
+            )
 
     def test_decay_time_series(self) -> None:
         """

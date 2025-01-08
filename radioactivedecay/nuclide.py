@@ -19,7 +19,7 @@ as ``rd``:
 """
 
 from collections import deque
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import matplotlib
 import networkx as nx
@@ -93,7 +93,7 @@ class Nuclide:
 
         """
 
-        return elem_to_Z(self.nuclide.split("-")[0])
+        return elem_to_Z(self.nuclide.split("-", maxsplit=1)[0])
 
     @property
     def A(self) -> int:
@@ -222,7 +222,7 @@ class Nuclide:
 
         return self.decay_data.half_life(self.nuclide, units)
 
-    def progeny(self) -> List[str]:
+    def progeny(self) -> list[str]:
         """
         Returns list of the direct progeny of the nuclide.
 
@@ -241,7 +241,7 @@ class Nuclide:
 
         return self.decay_data.progeny[self.decay_data.nuclide_dict[self.nuclide]]
 
-    def branching_fractions(self) -> List[float]:
+    def branching_fractions(self) -> list[float]:
         """
         Returns the branching fractions to the direct progeny of a
         radionuclide.
@@ -261,7 +261,7 @@ class Nuclide:
 
         return self.decay_data.bfs[self.decay_data.nuclide_dict[self.nuclide]]
 
-    def decay_modes(self) -> List[str]:
+    def decay_modes(self) -> list[str]:
         """
         Returns the decay modes for a radionuclide, as defined in the
         decay dataset. Note: the decay mode strings returned are not
@@ -290,9 +290,9 @@ class Nuclide:
         label_pos: float = 0.5,
         fig: Optional[matplotlib.figure.Figure] = None,
         axes: Optional[matplotlib.axes.Axes] = None,
-        kwargs_draw: Optional[Dict[str, Any]] = None,
-        kwargs_edge_labels: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        kwargs_draw: Optional[dict[str, Any]] = None,
+        kwargs_edge_labels: Optional[dict[str, Any]] = None,
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
         Plots a diagram of the decay chain of a radionuclide. Then
         creates a NetworkX DiGraph and plot of it using NetworkX's

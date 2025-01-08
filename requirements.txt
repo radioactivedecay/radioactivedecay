@@ -1,8 +1,0 @@
-matplotlib
-networkx
-numpy
-pandas
-scipy
-setuptools
-sympy
-importlib_resources>=1.4; python_version<'3.9'

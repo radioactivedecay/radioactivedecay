@@ -34,7 +34,7 @@ educational use.
 
 ## Installation
 
-``radioactivedecay`` requires Python 3.8+. Install ``radioactivedecay`` from
+``radioactivedecay`` requires Python 3.9+. Install ``radioactivedecay`` from
 the [Python Package Index](https://pypi.org/project/radioactivedecay/) using
 ``pip``:
 

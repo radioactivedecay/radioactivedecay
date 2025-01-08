@@ -22,7 +22,8 @@ import itertools
 import numbers
 import pathlib
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from functools import singledispatchmethod
+from typing import Callable, Optional, Type, Union
 
 import matplotlib
 import numpy as np
@@ -55,30 +56,10 @@ from radioactivedecay.utils import (
     sort_list_according_to_dataset,
 )
 
-# functools.singledispatchmethod is new in Python version 3.8
-# this block adds support manually for Python <3.8
-# the except block can be removed once min required Python version is 3.8
-try:
-    from functools import singledispatchmethod
-except ImportError:
-    from functools import singledispatch, update_wrapper
-
-    def singledispatchmethod(func: Callable[..., Any]):  # type:ignore
-        """Adds singledispatch support for instance methods of a class."""
-
-        dispatcher = singledispatch(func)
-
-        def wrapper(*args, **kwargs):  # type:ignore
-            return dispatcher.dispatch(args[1].__class__)(*args, **kwargs)
-
-        wrapper.register = dispatcher.register
-        update_wrapper(wrapper, func)
-        return wrapper
-
 
 def _write_csv_file(
     filename: Union[str, pathlib.Path],
-    rows: List[List[str]],
+    rows: list[list[str]],
     delimiter: str,
     encoding: str,
 ) -> None:
@@ -127,7 +108,7 @@ class AbstractInventory(ABC):
 
     def __init__(
         self,
-        contents: Dict[Union[str, int, Nuclide], Union[float, Expr]],
+        contents: dict[Union[str, int, Nuclide], Union[float, Expr]],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
@@ -136,7 +117,7 @@ class AbstractInventory(ABC):
         self.decay_matrices = self._get_decay_matrices()
 
         if check is True:
-            contents_with_parsed_keys: Dict[str, Union[float, Expr]] = (
+            contents_with_parsed_keys: dict[str, Union[float, Expr]] = (
                 self._parse_nuclides(
                     contents, self.decay_data.nuclides, self.decay_data.dataset_name
                 )
@@ -151,10 +132,10 @@ class AbstractInventory(ABC):
 
     @staticmethod
     def _parse_nuclides(
-        contents: Dict[Union[str, int, Nuclide], Union[float, Expr]],
+        contents: dict[Union[str, int, Nuclide], Union[float, Expr]],
         nuclides: np.ndarray,
         dataset_name: str,
-    ) -> Dict[str, Union[float, Expr]]:
+    ) -> dict[str, Union[float, Expr]]:
         """
         Checks that nuclide keys in the contents dictionary. Converts Nuclide instances into
         nuclide name strings. Converts nuclide name strings and ids into Ab-XY format.
@@ -170,12 +151,12 @@ class AbstractInventory(ABC):
         }
 
     @staticmethod
-    def _check_values(contents: Dict[str, Union[float, Expr]]) -> None:
+    def _check_values(contents: dict[str, Union[float, Expr]]) -> None:
         """Checks that the nuclide quantities in contents (dictionary values) are valid."""
 
         for nuc, inp in contents.items():
             if isinstance(inp, (numbers.Number, Expr)):
-                if inp >= 0:
+                if inp >= Integer(0):
                     continue
             raise ValueError(f"{inp} is not a valid quantity of nuclide {nuc}.")
 
@@ -208,10 +189,10 @@ class AbstractInventory(ABC):
 
     def _convert_to_number(
         self,
-        contents: Dict[str, Union[float, Expr]],
+        contents: dict[str, Union[float, Expr]],
         units: str,
         dataset_name: str,
-    ) -> Dict[str, Union[float, Expr]]:
+    ) -> dict[str, Union[float, Expr]]:
         """
         Converts an inventory dictionary where the values are masses, moles or activities to one
         where the values are number of atoms.
@@ -276,7 +257,7 @@ class AbstractInventory(ABC):
         return contents_as_numbers
 
     @property
-    def nuclides(self) -> List[str]:
+    def nuclides(self) -> list[str]:
         """
         Returns a list of the nuclides in the inventory.
 
@@ -289,7 +270,7 @@ class AbstractInventory(ABC):
 
         return list(self.contents.keys())
 
-    def numbers(self) -> Dict[str, float]:
+    def numbers(self) -> dict[str, float]:
         """
         Returns a dictionary containing the number of atoms of each nuclide within the inventory.
 
@@ -302,7 +283,7 @@ class AbstractInventory(ABC):
 
         return self.contents
 
-    def activities(self, units: str = "Bq") -> Dict[str, float]:
+    def activities(self, units: str = "Bq") -> dict[str, float]:
         """
         Returns a dictionary containing the activity of each nuclide within the inventory.
 
@@ -332,7 +313,7 @@ class AbstractInventory(ABC):
 
         return activities
 
-    def masses(self, units: str = "g") -> Dict[str, float]:
+    def masses(self, units: str = "g") -> dict[str, float]:
         """
         Returns a dictionary containing the mass of each nuclide within the inventory
 
@@ -362,7 +343,7 @@ class AbstractInventory(ABC):
 
         return masses
 
-    def moles(self, units: str = "mol") -> Dict[str, float]:
+    def moles(self, units: str = "mol") -> dict[str, float]:
         """
         Returns a dictionary containing the number of atoms of each nuclide within the inventory in
         moles.
@@ -389,7 +370,7 @@ class AbstractInventory(ABC):
 
         return moles
 
-    def activity_fractions(self) -> Dict[str, float]:
+    def activity_fractions(self) -> dict[str, float]:
         """
         Returns a dictionary containing the activity fraction of each nuclide within the inventory.
 
@@ -407,7 +388,7 @@ class AbstractInventory(ABC):
 
         return activity_fractions
 
-    def mass_fractions(self) -> Dict[str, float]:
+    def mass_fractions(self) -> dict[str, float]:
         """
         Returns a dictionary containing the mass fraction of each nuclide within the inventory.
 
@@ -423,7 +404,7 @@ class AbstractInventory(ABC):
 
         return mass_fractions
 
-    def mole_fractions(self) -> Dict[str, float]:
+    def mole_fractions(self) -> dict[str, float]:
         """
         Returns a dictionary containing the mole fraction of each nuclide within the inventory.
 
@@ -450,7 +431,7 @@ class AbstractInventory(ABC):
 
     def add(
         self,
-        add_contents: Dict[Union[str, int, Nuclide], float],
+        add_contents: dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
     ) -> None:
         """
@@ -482,7 +463,7 @@ class AbstractInventory(ABC):
 
     def subtract(
         self,
-        sub_contents: Dict[Union[str, int, Nuclide], float],
+        sub_contents: dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
     ) -> None:
         """
@@ -568,7 +549,7 @@ class AbstractInventory(ABC):
 
     @singledispatchmethod
     def remove(
-        self, delete: Union[str, int, Nuclide, List[Union[str, int, Nuclide]]]
+        self, delete: Union[str, int, Nuclide, list[Union[str, int, Nuclide]]]
     ) -> None:
         """
         Removes nuclide(s) from the inventory.
@@ -598,7 +579,7 @@ class AbstractInventory(ABC):
     @remove.register(str)
     def _(
         self, delete: str
-    ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
+    ) -> Callable[[dict[str, float], str, bool, DecayData], None]:
         """Remove nuclide string from this inventory."""
 
         delete = parse_nuclide(
@@ -614,7 +595,7 @@ class AbstractInventory(ABC):
     @remove.register(int)
     def _(
         self, delete: int
-    ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
+    ) -> Callable[[dict[str, float], str, bool, DecayData], None]:
         """Remove nuclide string from this inventory."""
 
         delete_str = parse_nuclide(
@@ -630,7 +611,7 @@ class AbstractInventory(ABC):
     @remove.register(Nuclide)
     def _(
         self, delete: Nuclide
-    ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
+    ) -> Callable[[dict[str, float], str, bool, DecayData], None]:
         """Remove Nuclide object from this inventory."""
 
         delete_str = parse_nuclide(
@@ -645,8 +626,8 @@ class AbstractInventory(ABC):
 
     @remove.register(list)
     def _(
-        self, delete: List[Union[str, int, Nuclide]]
-    ) -> Callable[[Dict[str, float], str, bool, DecayData], None]:
+        self, delete: list[Union[str, int, Nuclide]]
+    ) -> Callable[[dict[str, float], str, bool, DecayData], None]:
         """Remove list of nuclide(s) from this inventory."""
 
         delete_list = [
@@ -682,13 +663,13 @@ class AbstractInventory(ABC):
 
     def _setup_decay_calc(
         self,
-    ) -> Tuple[Union[np.ndarray, Matrix], List[int], Union[sparse.csr_matrix, Matrix]]:
+    ) -> tuple[Union[np.ndarray, Matrix], list[int], Union[sparse.csr_matrix, Matrix]]:
         """
         Setup variables for a decay calculation.
         """
 
         vector_n0 = self.decay_matrices.vector_n0.copy()
-        indices_set = set()
+        indices_set: set[int] = set()
         for nuclide in self.contents:
             idx = self.decay_data.nuclide_dict[nuclide]
             vector_n0[idx] = self.contents[nuclide]
@@ -726,14 +707,14 @@ class AbstractInventory(ABC):
     @abstractmethod
     def cumulative_decays(
         self, decay_time: float, units: str = "s"
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Calculates the total number of decays of each nuclide in the inventory between t=0 and
         t=decay_time. Note no results are reported for stable nuclides, as cumulative decays is
         zero.
         """
 
-    def half_lives(self, units: str = "s") -> Dict[str, Union[float, str]]:
+    def half_lives(self, units: str = "s") -> dict[str, Union[float, str]]:
         """
         Returns dictionary of half-lives of the nuclides in the inventory in your chosen time
         units, or as a human-readable string with appropriate units.
@@ -762,7 +743,7 @@ class AbstractInventory(ABC):
 
         return {nuc: self.decay_data.half_life(nuc, units) for nuc in self.contents}
 
-    def progeny(self) -> Dict[str, List[str]]:
+    def progeny(self) -> dict[str, list[str]]:
         """
         Returns dictionary with the direct progeny of the nuclides in the inventory.
 
@@ -782,7 +763,7 @@ class AbstractInventory(ABC):
 
         return {nuc: Nuclide(nuc, self.decay_data).progeny() for nuc in self.contents}
 
-    def branching_fractions(self) -> Dict[str, List[float]]:
+    def branching_fractions(self) -> dict[str, list[float]]:
         """
         Returns dictionary with the branching fractions of the direct progeny of the nuclides
         in the inventory.
@@ -806,7 +787,7 @@ class AbstractInventory(ABC):
             for nuc in self.contents
         }
 
-    def decay_modes(self) -> Dict[str, List[str]]:
+    def decay_modes(self) -> dict[str, list[str]]:
         """
         Returns dictionary with the decay modes of the direct progeny of the nuclides in the
         inventory. Note: the decay mode strings returned are not lists of all the different
@@ -840,18 +821,19 @@ class AbstractInventory(ABC):
         npoints: int = 501,
     ) -> pd.DataFrame:
         """
-        Returns a dataframe with the initial isotope and all decay progeny decayed for the amount of time specified by
-        time_period.
+        Returns a dataframe with the initial isotope and all decay progeny decayed for the amount
+        of time specified by time_period.
 
         Parameters
         ----------
         time_period : Union[float, np.ndarray]
-            Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
-            If an numpy ndarray is provided, the values contained within are used and <npoints> is ignored.
+            Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to
+            create an evenly spaced array of numbers. If an numpy ndarray is provided, the values
+            contained within are used and <npoints> is ignored.
         time_units : str, optional
-            Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
-            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
-            seconds.
+            Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd',
+            'y', 'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is
+            's', i.e. seconds.
         time_scale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         decay_units : str, optional
@@ -864,8 +846,8 @@ class AbstractInventory(ABC):
         Returns
         -------
         pandas.DataFrame
-            Pandas DataFrame with the data of the decayed Inventory. Each isotope is its own column, with a row for
-            each time increment. The time column is set as the index.
+            Pandas DataFrame with the data of the decayed Inventory. Each isotope is its own
+            column, with a row for each time increment. The time column is set as the index.
 
         Raises
         ------
@@ -941,21 +923,23 @@ class AbstractInventory(ABC):
         time_scale: str = "linear",
         decay_units: str = "Bq",
         npoints: int = 501,
-    ) -> Tuple[List[float], Dict[str, List[float]]]:
+    ) -> tuple[list[float], dict[str, list[float]]]:
         """
-        Returns a list, dict tuple with the initial isotope and all decay progeny decayed for the amount of time specified by
-        time_period. The list contains the time data from the decay calculations, and the dict has the isotope as the key,
-        with decay data contained in a list for the value.
+        Returns a list, dict tuple with the initial isotope and all decay progeny decayed for the
+        amount of time specified by time_period. The list contains the time data from the decay
+        calculations, and the dict has the isotope as the key, with decay data contained in a list
+        for the value.
 
         Parameters
         ----------
         time_period : Union[float, np.ndarray]
-            Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to create an evenly spaced array of numbers.
-            If an numpy ndarray is provided, the values contained within are used and <npoints> is ignored.
+            Time to decay the chain for. If a float is given, <time_scale> and <npoints> is used to
+            create an evenly spaced array of numbers. If an numpy ndarray is provided, the values
+            contained within are used and <npoints> is ignored.
         time_units : str, optional
-            Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd', 'y',
-            'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is 's', i.e.
-            seconds.
+            Units for time series. Options are 'ps', 'ns', 'μs', 'us', 'ms', 's', 'm', 'h', 'd',
+            'y', 'ky', 'My', 'By', 'Gy', 'Ty', 'Py', and common spelling variations. Default is
+            's', i.e. seconds.
         time_scale : str, optional
             The time axis scale type to apply ('linear' or 'log', default is 'linear').
         decay_units : str, optional
@@ -967,9 +951,9 @@ class AbstractInventory(ABC):
 
         Returns
         -------
-        List[float]
+        list[float]
             The time points of the decayed data
-        Dict[str, List[float]]
+        dict[str, list[float]]
             The isotopes as the key with the decay values as a list of floats
 
         Raises
@@ -1007,13 +991,13 @@ class AbstractInventory(ABC):
         ymin: float = 0.0,
         ymax: Optional[float] = None,
         yunits: str = "Bq",
-        display: Union[str, List[str]] = "all",
+        display: Union[str, list[str]] = "all",
         order: str = "dataset",
         npoints: int = 501,
         fig: Optional[matplotlib.figure.Figure] = None,
         axes: Optional[matplotlib.axes.Axes] = None,
         **kwargs,
-    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
         Plots a decay graph showing the change in activity of the inventory over time. Creates
         matplotlib fig, axes objects if they are not supplied. Returns fig, axes tuple.
@@ -1150,7 +1134,7 @@ class AbstractInventory(ABC):
 
         if yscale == "log" and ymin == 0.0:
             ymin = 0.95 * ydata.min()
-        ylimits = [ymin, ymax] if ymax else [ymin, 1.05 * ydata.max()]
+        ylimits = (ymin, ymax) if ymax else (ymin, 1.05 * ydata.max())
 
         fig, axes = decay_graph(
             time_points=time_points,
@@ -1175,7 +1159,7 @@ class AbstractInventory(ABC):
         units: str = "Bq",
         delimiter: str = ",",
         write_units: bool = False,
-        header: Optional[List[str]] = None,
+        header: Optional[list[str]] = None,
         encoding: str = "utf-8",
     ) -> None:
         """
@@ -1363,7 +1347,7 @@ class Inventory(AbstractInventory):
 
     def cumulative_decays(
         self, decay_time: float, units: str = "s"
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Calculates the total number of decays of each nuclide in the inventory between t=0 and
         t=decay_time. Note no results are reported for stable nuclides, as cumulative decays is
@@ -1473,7 +1457,7 @@ class InventoryHP(AbstractInventory):
 
     def __init__(
         self,
-        contents: Dict[Union[str, int, Nuclide], float],
+        contents: dict[Union[str, int, Nuclide], float],
         units: str = "Bq",
         check: bool = True,
         decay_data: DecayData = DEFAULTDATA,
@@ -1519,7 +1503,7 @@ class InventoryHP(AbstractInventory):
 
         return self.decay_data.sympy_year_conv
 
-    def numbers(self) -> Dict[str, float]:
+    def numbers(self) -> dict[str, float]:
         """
         Returns a dictionary containing the number of atoms of each nuclide (as floats) within this
         InventoryHP instance.
@@ -1534,7 +1518,7 @@ class InventoryHP(AbstractInventory):
         contents_in_floats = {nuc: float(num) for nuc, num in self.contents.items()}
         return contents_in_floats
 
-    def activities(self, units: str = "Bq") -> Dict[str, float]:
+    def activities(self, units: str = "Bq") -> dict[str, float]:
         """
         Returns a dictionary containing the activity of each nuclide (as floats) within this
         InventoryHP instance.
@@ -1562,7 +1546,7 @@ class InventoryHP(AbstractInventory):
 
         return activities
 
-    def masses(self, units: str = "g") -> Dict[str, float]:
+    def masses(self, units: str = "g") -> dict[str, float]:
         """
         Returns a dictionary containing the mass of each nuclide (as floats) within this InventoryHP
         instance.
@@ -1590,7 +1574,7 @@ class InventoryHP(AbstractInventory):
 
         return masses
 
-    def moles(self, units: str = "mol") -> Dict[str, float]:
+    def moles(self, units: str = "mol") -> dict[str, float]:
         """
         Returns a dictionary containing the number of atoms of each nuclide (as floats) within this
         InventoryHP instance.
@@ -1681,7 +1665,7 @@ class InventoryHP(AbstractInventory):
 
     def cumulative_decays(
         self, decay_time: float, units: str = "s"
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Calculates the total number of decays of each nuclide in the inventory between t=0 and
         t=decay_time. Uses SymPy high precision calculations. Note no results are reported for
@@ -1761,13 +1745,13 @@ class InventoryHP(AbstractInventory):
         ymin: float = 0.0,
         ymax: Optional[float] = None,
         yunits: str = "Bq",
-        display: Union[str, List[str]] = "all",
+        display: Union[str, list[str]] = "all",
         order: str = "dataset",
         npoints: int = 51,
         fig: Optional[matplotlib.figure.Figure] = None,
         axes: Optional[matplotlib.axes.Axes] = None,
         **kwargs,
-    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """
         Plots a decay graph using high precision decay calculations. Only difference from normal
         precision decay plot (``Inventory.plot()``) is default npoints=51.
