@@ -1,10 +1,11 @@
 # Changelog
 
-## [0.6.0] - 2025-XX-XX
+## [0.6.0] - 2025-01-08
 - Modernize build system using a single `pyproject.toml` (#115).
-- Drop Python 3.8 support (#115).
+- Drop Python 3.8 support and add Python 3.13 support (#115).
 - Code quality improvements: PEP 585 style type hints, some mypy, black & pylint fixes, and
 increased test coverage (#115).
+- Fix test failures with Sympy >=1.13.2 (#109).
 
 ## [0.5.1] - 2024-06-18
 - Fix tests to work with NumPy 2.0.0 NEP 51 string representations of NumPy data types (#107).

@@ -39,6 +39,17 @@ dependencies = [
     "scipy",
     "sympy",
 ]
+keywords = [
+    "radioactivity",
+    "radioactive",
+    "decay",
+    "nuclides",
+    "radiation",
+    "physics",
+    "radiological protection",
+    "health physics",
+    "half-life",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -60,10 +71,11 @@ docs = [
 Changelog = "https://github.com/radioactivedecay/radioactivedecay/blob/main/CHANGELOG.md"
 Discussions = "https://github.com/radioactivedecay/radioactivedecay/discussions"
 Documentation = "https://radioactivedecay.github.io"
+Download = "https://pypi.org/project/radioactivedecay/"
+GitHub = "https://github.com/radioactivedecay/radioactivedecay"
 Homepage = "https://github.com/radioactivedecay/radioactivedecay"
 Issues = "https://github.com/radioactivedecay/radioactivedecay/issues"
 Repository = "https://github.com/radioactivedecay/radioactivedecay.git"
-"Source Code" = "https://github.com/radioactivedecay/radioactivedecay"
 
 [tool.coverage.run]
 omit = ["tests/*"]
