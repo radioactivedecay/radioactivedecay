@@ -47,6 +47,10 @@ from radioactivedecay.decaydata import (
     DecayMatricesScipy,
     DecayMatricesSympy,
 )
+from radioactivedecay.decayenergy import (
+    get_decay_energy_for_isotope,
+    transform_decay_modes,
+)
 from radioactivedecay.nuclide import Nuclide
 from radioactivedecay.plots import decay_graph
 from radioactivedecay.utils import (
@@ -312,6 +316,46 @@ class AbstractInventory(ABC):
         }
 
         return activities
+    
+    def energies(self, units="ev") -> Dict[str, Dict[str, float]]:
+        """
+        Returns a dictionary containing the energy released of each nuclide within the inventory.
+        Energy is sorted by decay type
+
+        Parameters
+        ----------
+        units : str, optional
+            energy units for output, ev (electron volt) or wh (watt hour)
+            Deafult is 'ev'.
+
+        Examples
+        --------
+        >>> rd.Inventory({'H-3': 1}).energies()
+        {'H-3': {'B-': 18.59202}}
+
+        """
+        energy_map = {}
+        activities = self.activities()
+        branching_ratios = self.branching_fractions()
+        decay_modes_map = self.decay_modes()
+        for iso, brs in branching_ratios.items():
+            activity = activities[iso]
+            decay_modes = transform_decay_modes(decay_modes_map[iso])
+            decays_per_type = [r * activity for r in brs]
+            decay_energies = get_decay_energy_for_isotope(iso, units)
+
+            energies = {}
+            for mode, decays in zip(decay_modes, decays_per_type):
+                # ignores decay modes not listed in source data
+                # all available data modes can be found in the mode map
+                energy_per_decay = decay_energies.get(mode, 0)
+                eng = decays * energy_per_decay
+                energies[mode] = eng
+
+            energy_map[iso] = energies
+
+        return energy_map
+
 
     def masses(self, units: str = "g") -> dict[str, float]:
         """

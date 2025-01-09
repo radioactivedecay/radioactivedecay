@@ -210,7 +210,27 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inv.activities(), {"I-123": 5.8, "Tc-99m": 2.3})
         inv = Inventory({"Tc-99m": 2300, "I-123": 5800})
         self.assertEqual(inv.activities("kBq"), {"I-123": 5.8, "Tc-99m": 2.3})
+    
+    def test_energies(self) -> None:
+        """
+        Test Inventory.energies() method.
+        """
 
+        inv = Inventory({"H-3": 1})
+        eng = inv.energies()
+        self.assertEqual(list(eng.keys()), ["H-3"])
+        dict_assert_almost_equal(self, eng["H-3"], {"B-": 18.59202})
+
+        inv = Inventory({"Pa-234m": 1})
+        eng = inv.energies()
+        self.assertEqual(list(eng.keys()), ["Pa-234m"])
+        dict_assert_almost_equal(
+            self, eng["Pa-234m"], {"B-": 2190.40024, "IT": 0.118272}
+        )
+
+        inv = Inventory({"H-3": 1}) + Inventory({"H-2": 1}, "g")
+        self.assertEqual(inv.energies(), {"H-3": {"B-": 18.59202}, "H-2": {}})
+    
     def test_masses(self) -> None:
         """
         Test Inventory.masses() method.
