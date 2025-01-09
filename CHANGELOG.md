@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.1] - 2025-01-09
+- Fix `TypeError: expected str, bytes or os.PathLike object, not NoneType` errors on import with
+Python 3.9 (#117 & #118)
+
 ## [0.6.0] - 2025-01-08
 - Modernize build system using a single `pyproject.toml` (#115).
 - Drop Python 3.8 support and add Python 3.13 support (#115).
