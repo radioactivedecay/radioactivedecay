@@ -857,7 +857,7 @@ class AbstractInventory(ABC):
         Examples
         --------
         >>> inv = rd.Inventory({'C-14': 1.0})
-        >>> inv.decay_data_as_dataframe(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
+        >>> inv.decay_time_series_pandas(time_period=10, time_units='ky', decay_units='mass_frac', npoints=4)
                        C-14      N-14
         Time (ky)
         0.000000   1.000000  0.000000
@@ -964,7 +964,7 @@ class AbstractInventory(ABC):
         Examples
         --------
         >>> inv = rd.Inventory({'C-14': 1.0})
-        >>> time, data = inv.decay_time_series_pandas(time_period=10, time_units="ky", decay_units="mass_frac", npoints=4)
+        >>> time, data = inv.decay_time_series(time_period=10, time_units="ky", decay_units="mass_frac", npoints=4)
         >>> time
         [0.0, 3.3333333333333335, 6.666666666666667, 10.0]
         >>> data
