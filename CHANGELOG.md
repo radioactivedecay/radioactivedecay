@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.X.X] - 202X-XX-XX
+- Fix issues in `Inventory.decay_time_series_pandas()` & `Inventory.decay_time_series()` doc
+strings (#119 thanks to @alberto743).
+
 ## [0.6.1] - 2025-01-09
 - Fix `TypeError: expected str, bytes or os.PathLike object, not NoneType` errors on import with
 Python 3.9 (#117 & #118)

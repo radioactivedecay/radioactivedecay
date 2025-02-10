@@ -250,6 +250,7 @@ Special thanks to:
 * `Christian Schreinemachers <https://github.com/Cs137>`_
 * `Sean Neutzmann <https://github.com/snuetzmann>`_
 * `@buresjan <https://github.com/buresjan>`_
+* `Alberto Previti <https://github.com/alberto743>`_
 
 for suggestions, support and assistance to this project.
 
