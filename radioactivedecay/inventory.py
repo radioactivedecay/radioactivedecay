@@ -877,39 +877,32 @@ class AbstractInventory(ABC):
             )
         )
 
-        data_map = map(self.decay, time_points, itertools.repeat(time_units))
+        # Dispatch table to convert between decay_units and the function call
+        # The normal brackets, (), are the group the dictionary merges, not create a generator.
+        decay_unit_dispatch = (
+            {u: ("activities", True) for u in self._get_unit_converter().activity_units}
+            | {u: ("moles", True) for u in self._get_unit_converter().moles_units}
+            | {u: ("masses", True) for u in self._get_unit_converter().mass_units}
+            | {
+                "num": ("numbers", False),
+                "activity_frac": ("activity_fractions", False),
+                "mass_frac": ("mass_fractions", False),
+                "mol_frac": ("mole_fractions", False),
+            }
+        )
+
+        try:
+            method_name, pass_unit = decay_unit_dispatch[decay_units]
+        except KeyError as exc:
+            raise ValueError(f"{decay_units!r} is not a supported decay unit.") from exc
+
         decayed_data = collections.defaultdict(list)
 
-        if decay_units in self._get_unit_converter().activity_units:
-            for e in data_map:
-                for iso, en in e.activities(decay_units).items():
-                    decayed_data[iso].append(en)
-        elif decay_units in self._get_unit_converter().moles_units:
-            for e in data_map:
-                for iso, en in e.moles(decay_units).items():
-                    decayed_data[iso].append(en)
-        elif decay_units in self._get_unit_converter().mass_units:
-            for e in data_map:
-                for iso, en in e.masses(decay_units).items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "num":
-            for e in data_map:
-                for iso, en in e.numbers().items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "activity_frac":
-            for e in data_map:
-                for iso, en in e.activity_fractions().items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "mass_frac":
-            for e in data_map:
-                for iso, en in e.mass_fractions().items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "mol_frac":
-            for e in data_map:
-                for iso, en in e.mole_fractions().items():
-                    decayed_data[iso].append(en)
-        else:
-            raise ValueError(f"{decay_units} is not a supported decay unit.")
+        for decayed_inv in map(self.decay, time_points, itertools.repeat(time_units)):
+            method = getattr(decayed_inv, method_name)
+            result_dict = method(decay_units) if pass_unit else method()
+            for isotope, amount in result_dict.items():
+                decayed_data[isotope].append(amount)
 
         time_column: str = f"Time ({time_units})"
         decayed_data[time_column] = list(time_points)
