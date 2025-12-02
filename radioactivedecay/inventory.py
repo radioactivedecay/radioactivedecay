@@ -1082,48 +1082,42 @@ class AbstractInventory(ABC):
                 for rad in display
             ]
 
-        ydata = np.zeros(shape=(npoints, len(display)))
-        if yunits in self._get_unit_converter().activity_units:
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).activities(
-                    yunits
-                )
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = f"Activity ({yunits})"
-        elif yunits in self._get_unit_converter().moles_units:
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).moles(yunits)
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = f"Number of moles ({yunits})"
-        elif yunits in self._get_unit_converter().mass_units:
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).masses(yunits)
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = f"Mass ({yunits})"
-        elif yunits == "num":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).numbers()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Number of atoms"
-        elif yunits == "activity_frac":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(
-                    time_points[idx], xunits
-                ).activity_fractions()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Activity fraction"
-        elif yunits == "mass_frac":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).mass_fractions()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Mass fraction"
-        elif yunits == "mol_frac":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).mole_fractions()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Mole fraction"
-        else:
+        converter = self._get_unit_converter()
+
+        def act(u):
+            return lambda d: d.activities(u), f"Activity ({u})"
+
+        def mass(u):
+            return lambda d: d.masses(u), f"Mass ({u})"
+
+        def mol(u):
+            return lambda d: d.moles(u), f"Number of moles ({u})"
+
+        y_units_dispatch = (
+            {u: act(u) for u in converter.activity_units}
+            | {u: mol(u) for u in converter.moles_units}
+            | {u: mass(u) for u in converter.mass_units}
+            | {
+                "num": (lambda d: d.numbers(), "Number of atoms"),
+                "activity_frac": (
+                    lambda d: d.activity_fractions(),
+                    "Activity fraction",
+                ),
+                "mass_frac": (lambda d: d.mass_fractions(), "Mass fraction"),
+                "mol_frac": (lambda d: d.mole_fractions(), "Mole fraction"),
+            }
+        )
+
+        if yunits not in y_units_dispatch:
             raise ValueError(f"{yunits} is not a supported y-axes unit.")
+
+        getter, ylabel = y_units_dispatch[yunits]
+
+        ydata = np.zeros(shape=(npoints, len(display)))
+        for idx in range(npoints):
+            ydata[idx] = [
+                getter(self.decay(time_points[idx], xunits))[rad] for rad in display
+            ]
 
         if yscale == "log" and ymin == 0.0:
             ymin = 0.95 * ydata.min()
