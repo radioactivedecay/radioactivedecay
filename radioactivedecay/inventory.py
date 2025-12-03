@@ -891,10 +891,10 @@ class AbstractInventory(ABC):
             }
         )
 
-        try:
-            method_name, pass_unit = decay_unit_dispatch[decay_units]
-        except KeyError as exc:
-            raise ValueError(f"{decay_units!r} is not a supported decay unit.") from exc
+        if decay_units not in decay_unit_dispatch:
+            raise ValueError(f"{decay_units} is not a supported decay unit.")
+
+        method_name, pass_unit = decay_unit_dispatch[decay_units]
 
         decayed_data = collections.defaultdict(list)
 
