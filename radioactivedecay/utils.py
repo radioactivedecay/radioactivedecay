@@ -553,7 +553,7 @@ def add_dictionaries(
 
 
 def sort_dictionary_alphabetically(
-    input_inv_dict: dict[str, Union[float, Expr]]
+    input_inv_dict: dict[str, Union[float, Expr]],
 ) -> dict[str, Union[float, Expr]]:
     """
     Sorts a dictionary alphabetically by its keys.

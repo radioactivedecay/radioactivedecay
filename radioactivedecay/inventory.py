@@ -129,6 +129,32 @@ class AbstractInventory(ABC):
         self.contents = self._convert_to_number(
             contents_sorted, units, self.decay_data.dataset_name
         )
+        # Dispatch table to convert from the unit as a string to the method that returns the
+        # number and it's descriptive label
+        # The normal brackets, (), are to group the dictionary merges, not create a generator.
+        self.decay_unit_dispatch: dict[str, tuple[Callable[..., Any], str]] = (
+            {
+                unit: (lambda inv, u=unit: inv.activities(u), f"Activity ({unit})")
+                for unit in self._get_unit_converter().activity_units
+            }
+            | {
+                unit: (lambda inv, u=unit: inv.moles(u), f"Number of moles ({unit})")
+                for unit in self._get_unit_converter().moles_units
+            }
+            | {
+                unit: (lambda inv, u=unit: inv.masses(u), f"Mass ({unit})")
+                for unit in self._get_unit_converter().mass_units
+            }
+            | {
+                "num": (lambda inv: inv.numbers(), "Number of atoms"),
+                "activity_frac": (
+                    lambda inv: inv.activity_fractions(),
+                    "Activity fraction",
+                ),
+                "mass_frac": (lambda inv: inv.mass_fractions(), "Mass fraction"),
+                "mol_frac": (lambda inv: inv.mole_fractions(), "Mole fraction"),
+            }
+        )
 
     @staticmethod
     def _parse_nuclides(
@@ -865,6 +891,9 @@ class AbstractInventory(ABC):
         6.666667   0.444550  0.555450
         10.000000  0.296402  0.703598
         """
+        if decay_units not in self.decay_unit_dispatch:
+            raise ValueError(f"{decay_units} is not a supported decay unit.")
+
         tmin = 0.0 if time_scale == "linear" else 0.1
 
         time_points = (
@@ -877,39 +906,16 @@ class AbstractInventory(ABC):
             )
         )
 
-        data_map = map(self.decay, time_points, itertools.repeat(time_units))
+        # Extract the function we will use to get the value we are interested in
+        # We don't want the descriptive label this time so ignore
+        getter, _ = self.decay_unit_dispatch[decay_units]
+
         decayed_data = collections.defaultdict(list)
 
-        if decay_units in self._get_unit_converter().activity_units:
-            for e in data_map:
-                for iso, en in e.activities(decay_units).items():
-                    decayed_data[iso].append(en)
-        elif decay_units in self._get_unit_converter().moles_units:
-            for e in data_map:
-                for iso, en in e.moles(decay_units).items():
-                    decayed_data[iso].append(en)
-        elif decay_units in self._get_unit_converter().mass_units:
-            for e in data_map:
-                for iso, en in e.masses(decay_units).items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "num":
-            for e in data_map:
-                for iso, en in e.numbers().items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "activity_frac":
-            for e in data_map:
-                for iso, en in e.activity_fractions().items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "mass_frac":
-            for e in data_map:
-                for iso, en in e.mass_fractions().items():
-                    decayed_data[iso].append(en)
-        elif decay_units == "mol_frac":
-            for e in data_map:
-                for iso, en in e.mole_fractions().items():
-                    decayed_data[iso].append(en)
-        else:
-            raise ValueError(f"{decay_units} is not a supported decay unit.")
+        for decayed_inv in map(self.decay, time_points, itertools.repeat(time_units)):
+            result_dict = getter(decayed_inv)
+            for isotope, amount in result_dict.items():
+                decayed_data[isotope].append(amount)
 
         time_column: str = f"Time ({time_units})"
         decayed_data[time_column] = list(time_points)
@@ -1060,6 +1066,8 @@ class AbstractInventory(ABC):
             If the order parameter is invalid.
 
         """
+        if yunits not in self.decay_unit_dispatch:
+            raise ValueError(f"{yunits} is not a supported y-axes unit.")
 
         if xscale == "linear":
             time_points = np.linspace(xmin, xmax, num=npoints)
@@ -1089,48 +1097,13 @@ class AbstractInventory(ABC):
                 for rad in display
             ]
 
+        getter, ylabel = self.decay_unit_dispatch[yunits]
+
         ydata = np.zeros(shape=(npoints, len(display)))
-        if yunits in self._get_unit_converter().activity_units:
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).activities(
-                    yunits
-                )
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = f"Activity ({yunits})"
-        elif yunits in self._get_unit_converter().moles_units:
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).moles(yunits)
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = f"Number of moles ({yunits})"
-        elif yunits in self._get_unit_converter().mass_units:
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).masses(yunits)
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = f"Mass ({yunits})"
-        elif yunits == "num":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).numbers()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Number of atoms"
-        elif yunits == "activity_frac":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(
-                    time_points[idx], xunits
-                ).activity_fractions()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Activity fraction"
-        elif yunits == "mass_frac":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).mass_fractions()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Mass fraction"
-        elif yunits == "mol_frac":
-            for idx in range(0, npoints):
-                decayed_contents = self.decay(time_points[idx], xunits).mole_fractions()
-                ydata[idx] = [decayed_contents[rad] for rad in display]
-                ylabel = "Mole fraction"
-        else:
-            raise ValueError(f"{yunits} is not a supported y-axes unit.")
+        for idx in range(npoints):
+            ydata[idx] = [
+                getter(self.decay(time_points[idx], xunits))[rad] for rad in display
+            ]
 
         if yscale == "log" and ymin == 0.0:
             ymin = 0.95 * ydata.min()
